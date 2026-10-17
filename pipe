@@ -12,5 +12,5 @@ if [[ "${1:-}" == "build" ]]; then
   exec docker build -f Dockerfile.pipeline -t "$IMAGE" .
 fi
 exec docker run --rm --network host --user "$(id -u):$(id -g)" \
-  -e USER="$(id -un)" -e CH_PASSWORD="${CH_PASSWORD:-}" \
+  -e HOME=/tmp -e SPARK_LOCAL_IP=127.0.0.1 -e USER="$(id -un)" -e CH_PASSWORD="${CH_PASSWORD:-}" \
   -v "$PWD":/app -w /app "$IMAGE" "$@"

@@ -31,6 +31,11 @@ def spark_session(app: str, cfg: dict) -> SparkSession:
         .config("spark.sql.shuffle.partitions", cfg["shuffle_partitions"])
         .config("spark.sql.session.timeZone", "UTC")
         .config("spark.ui.showConsoleProgress", "false")
+        # Inside Docker the user may have no home directory (Java then sees "?"),
+        # so Spark's package cache and bind address are set explicitly.
+        .config("spark.jars.ivy", "/tmp/.ivy2")
+        .config("spark.driver.bindAddress", "127.0.0.1")
+        .config("spark.driver.host", "127.0.0.1")
         .getOrCreate()
     )
 
