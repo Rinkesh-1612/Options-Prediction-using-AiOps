@@ -1,0 +1,10 @@
+# Every tunable number of the pipeline lives here. DVC re-runs a stage when
+# the parameters it declares change.
+
+export:
+  clickhouse_url: http://127.0.0.1:9100   # Ravion ClickHouse HTTP port (localhost only)
+  start_date: 2026-08-03                  # first day option_chain_snap exists
+  end_date: 2026-10-16                    # frozen snapshot end; null = today
+  out_dir: data/raw
+  timeout_s: 600
+  tables: [opt_tape, und_tape, option_chain_snap]

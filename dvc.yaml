@@ -1,0 +1,10 @@
+stages:
+  export:
+    cmd: python -m optpred.export
+    params:
+      - export
+    deps:
+      - src/optpred/export.py
+    outs:
+      - data/raw:
+          persist: true   # a re-run only adds missing days; never wipes the snapshot
