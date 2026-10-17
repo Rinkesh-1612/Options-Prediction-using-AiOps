@@ -5,6 +5,8 @@
 #   ./pipe dvc repro                 run the whole DAG
 # --network host: the export stage reaches Ravion's ClickHouse on 127.0.0.1:9100.
 # --user: files written to the repo stay owned by you, not root.
+# /etc/passwd + /etc/group (read-only): Spark's Hadoop layer refuses to start for a user ID
+# that has no name inside the container ("invalid null input: name").
 set -euo pipefail
 cd "$(dirname "$0")"
 IMAGE=optpred-pipeline:latest
@@ -13,4 +15,5 @@ if [[ "${1:-}" == "build" ]]; then
 fi
 exec docker run --rm --network host --user "$(id -u):$(id -g)" \
   -e HOME=/tmp -e SPARK_LOCAL_IP=127.0.0.1 -e USER="$(id -un)" -e CH_PASSWORD="${CH_PASSWORD:-}" \
+  -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro \
   -v "$PWD":/app -w /app "$IMAGE" "$@"
