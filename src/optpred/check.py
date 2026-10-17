@@ -106,10 +106,12 @@ def decide(m: dict, min_coverage: float) -> tuple[str, list[str]]:
         reasons.append(f"tape covers {m.get('tape_minutes', 0)}/{SESSION_MINUTES} minutes")
     if m.get("spot_minutes", 0) < need:
         reasons.append(f"spot covers {m.get('spot_minutes', 0)}/{SESSION_MINUTES} minutes")
-    if m.get("tape_distinct_ltp", 0) <= 1:
+    if 0 < m.get("tape_distinct_ltp", 0) <= 1:  # 0 means no in-session rows: already reported above
         reasons.append("tape prices never change (frozen feed)")
-    if m.get("chain_minutes", 0) < need or m.get("chain_distinct_spot", 0) <= 1:
+    if m.get("chain_minutes", 0) < need:
         flags.append(f"chain partial: {m.get('chain_minutes', 0)}/{SESSION_MINUTES} minutes")
+    elif m.get("chain_distinct_spot", 0) <= 1:
+        flags.append("chain spot never changes (frozen recording)")
     return ("reject" if reasons else "accept"), reasons + flags
 
 
