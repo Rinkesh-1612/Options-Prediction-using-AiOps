@@ -3,8 +3,19 @@
 
 export:
   clickhouse_url: http://127.0.0.1:9100   # Ravion ClickHouse HTTP port (localhost only)
-  start_date: 2026-08-03                  # first day option_chain_snap exists
-  end_date: 2026-10-16                    # frozen snapshot end; null = today
+  start_date: "2026-08-03"                 # first day option_chain_snap exists
+  end_date: "2026-10-16"                  # frozen snapshot end; null = today
   out_dir: data/raw
   timeout_s: 600
   tables: [opt_tape, und_tape, option_chain_snap]
+
+spark:
+  cores: 4                 # VPS has 8; the other 4 stay with live trading
+  driver_memory: 6g
+  shuffle_partitions: 16
+
+check:
+  min_coverage: 0.95       # a day needs data in >= 95% of the 375 session minutes
+
+bars:
+  out_dir: data/bars

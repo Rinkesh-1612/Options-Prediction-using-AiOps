@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+# Run any pipeline command inside the pipeline image, on this checkout.
+#   ./pipe build                     build the image
+#   ./pipe python -m optpred.check   run one stage
+#   ./pipe dvc repro                 run the whole DAG
+# --network host: the export stage reaches Ravion's ClickHouse on 127.0.0.1:9100.
+# --user: files written to the repo stay owned by you, not root.
+set -euo pipefail
+cd "$(dirname "$0")"
+IMAGE=optpred-pipeline:latest
+if [[ "${1:-}" == "build" ]]; then
+  exec docker build -f Dockerfile.pipeline -t "$IMAGE" .
+fi
+exec docker run --rm --network host --user "$(id -u):$(id -g)" \
+  -e USER="$(id -un)" -e CH_PASSWORD="${CH_PASSWORD:-}" \
+  -v "$PWD":/app -w /app "$IMAGE" "$@"

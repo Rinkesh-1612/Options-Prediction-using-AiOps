@@ -8,3 +8,32 @@ stages:
     outs:
       - data/raw:
           persist: true   # a re-run only adds missing days; never wipes the snapshot
+
+  check:
+    cmd: python -m optpred.check
+    params:
+      - check
+      - spark
+    deps:
+      - src/optpred/check.py
+      - src/optpred/spark_common.py
+      - data/raw
+    outs:
+      - data/days.json:
+          cache: false    # small, committed to git so the day list is reviewable
+    metrics:
+      - reports/quality.json:
+          cache: false
+
+  bars:
+    cmd: python -m optpred.bars
+    params:
+      - bars
+      - spark
+    deps:
+      - src/optpred/bars.py
+      - src/optpred/spark_common.py
+      - data/raw
+      - data/days.json
+    outs:
+      - data/bars
