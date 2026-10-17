@@ -21,6 +21,13 @@ python -m optpred.export --dry-run   # rows per day per table, writes nothing
 python -m optpred.export             # writes data/raw/<table>/<day>.parquet + manifest.json
 ```
 
+Every run is journaled: `logs/<stage>/<run_id>.log` + one line in `runs/runs.jsonl`
+(git commit, params hash, duration, exit code, summary). Commit both after a run:
+
+```bash
+git add logs runs && git commit -m "run: export" && git push
+```
+
 ## Tests
 
 ```bash

@@ -18,7 +18,8 @@ valid result.
 |---|---|---|---|---|
 | `ravion.opt_tape` | Every NIFTY option tick, 5-level bid/ask, 2 expiries | 23-Jul → 16-Oct | ~1.0M before 11-Aug, ~1.8M after | ~85M |
 | `ravion.option_chain_snap` | Chain snapshot every ~2.5 s: IV, delta, OI, ~25 strikes × 2 expiries | 03-Aug → 16-Oct | ~238k | ~13M |
-| `ravion.depth_ticks` | 5-level book; ~99.99% of rows have an empty `symbol` — instrument not yet identified | 03-Aug → 16-Oct | ~650k | ~34M |
+| `ravion.depth_ticks` | Same NIFTY options from a second broker (Flattrade tokens, empty `symbol`) | 03-Aug → 16-Oct | ~650k | ~34M |
+| `ravion.und_tape` | NIFTY index and futures ticks — gives spot, used to pick the ATM strike | to be confirmed | | |
 
 Facts found, and what we do about them:
 
@@ -29,6 +30,8 @@ Facts found, and what we do about them:
 | Partial chain days | 07-Sep (~165k), 16-Oct (~160k) | Flag; features must not depend on chain for those minutes or the day is dropped |
 | Strike window widened on 11-Aug | 07-Aug: 11 strikes / 44 keys; 12-Aug: 21 strikes / 84 keys | Use ATM contract only; features per minute, never raw tick counts across strikes |
 | Recorder runs 09:00–15:40 | min/max ts | Use 09:15–15:30 only; last entry at 15:28 so the 2-min exit is inside the session |
+| `option_chain_snap` has a 120-day TTL — 03-Aug starts being deleted ~01-Dec | table DDL | Export now; the Parquet snapshot is the permanent copy |
+| `depth_ticks` duplicates `opt_tape` from another broker | tokens, premiums 30–315 | Not used in the model; possible independent cross-check later |
 | One strike carries two expiries | 2 expiries every day | Key every series on `instrument_key`, never `strike` (Ravion rule) |
 
 The statement's "22M snapshots / 27M order-book records" will be corrected to these
@@ -145,10 +148,29 @@ cases + test report, user manual.
 7. Prometheus, Grafana, replay, drift → retrain, rollback.
 8. Tests, CI hook, docs, final locked test, forward test, report.
 
-## 11. Open questions
+## 11. Proof and reproducibility: the run journal
 
-- Deadline.
-- What `depth_ticks` rows with empty `symbol` are (likely NIFTY futures) — useful as an
-  underlying order-book feature if so.
-- VPS resources free for this project (CPU, RAM, disk).
+Every stage runs through `optpred.runlog`, which writes `logs/<stage>/<run_id>.log` and
+appends one line to `runs/runs.jsonl` (git commit, dirty flag, params hash, host,
+duration, exit code, stage summary such as rows and failures). Both are committed.
+Any number in the report must cite the run_id that produced it. The pipeline screen
+in the UI reads this journal (rubric: console of errors, failures and successful runs).
+
+## 12. Schedule (submission Fri 23-Oct)
+
+| Day | Build |
+|---|---|
+| Sat 17 | Export, Spark check, features + labels |
+| Sun 18 | Simulator, baselines, LightGBM, MLflow, Ray Tune |
+| Mon 19 | FastAPI, MLflow serving, web page, Docker Compose |
+| Tue 20 | Prometheus, Grafana, replay, drift → retrain, rollback |
+| Wed 21 | DVC full pipeline, tests, pre-push CI hook, locked test run |
+| Thu 22 | Docs: architecture, HLD, LLD, test plan + report, user manual |
+| Fri 23 | Report, viva prep, submit |
+
+VPS budget: 8 cores, 23 GB RAM (18 GB free), 90 GB disk free. Spark and Ray capped
+at 4 cores / 6 GB each; heavy jobs after 15:30 IST.
+
+## 13. Open questions
+
 - Slippage reference price (see §4).

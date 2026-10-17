@@ -38,6 +38,8 @@ from pathlib import Path
 import pyarrow.parquet as pq
 import yaml
 
+from optpred import runlog
+
 log = logging.getLogger("optpred.export")
 
 IST = timezone(timedelta(hours=5, minutes=30))
@@ -152,13 +154,12 @@ def export_day(ch: ClickHouse, table: str, day: str, expected: int, out_root: Pa
     return got
 
 
-def main(argv: list[str] | None = None) -> int:
+def main(argv: list[str], summary: dict) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--dry-run", action="store_true", help="print per-day counts, write nothing")
     ap.add_argument("--force", action="store_true", help="re-export days that already exist")
     ap.add_argument("--params", default="params.yaml")
     args = ap.parse_args(argv)
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
 
     p = load_params(args.params)
     password = os.environ.get("CH_PASSWORD")
@@ -177,10 +178,14 @@ def main(argv: list[str] | None = None) -> int:
 
     days = sorted(set().union(*counts.values()))
     log.info("%d calendar days with data between %s and %s", len(days), start, end)
+    summary.update(
+        start=start, end=end, days=len(days), server_rows={t: sum(c.values()) for t, c in counts.items()}
+    )
+    # The per-day table goes to the log so the run journal keeps it as evidence.
+    log.info("day         " + "  ".join(f"{t:>18}" for t in p["tables"]))
+    for d in days:
+        log.info(d + "  " + "  ".join(f"{counts[t].get(d, 0):>18,}" for t in p["tables"]))
     if args.dry_run:
-        print("day         " + "  ".join(f"{t:>18}" for t in p["tables"]))
-        for d in days:
-            print(d + "  " + "  ".join(f"{counts[t].get(d, 0):>18,}" for t in p["tables"]))
         return 0
 
     manifest_path = out_root / "manifest.json"
@@ -201,9 +206,10 @@ def main(argv: list[str] | None = None) -> int:
             log.info("exported %-18s %s  %10d rows", table, day, rows)
             manifest_path.write_text(json.dumps(dict(sorted(manifest.items())), indent=1))
 
+    summary.update(files=len(manifest), failures=failures)
     log.info("done: %d files in manifest, %d failures", len(manifest), failures)
     return 1 if failures else 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(runlog.run("export", main))

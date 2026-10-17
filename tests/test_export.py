@@ -38,3 +38,22 @@ def test_export_day_rejects_short_file(tmp_path):
     with pytest.raises(export.ExportError):
         export.export_day(FakeCH(rows=4), "opt_tape", "2026-10-15", 5, tmp_path)
     assert not list((tmp_path / "opt_tape").iterdir())  # nothing half-written left behind
+
+
+def test_runlog_journals_success_and_failure(tmp_path, monkeypatch):
+    import json
+
+    from optpred import runlog
+
+    monkeypatch.chdir(tmp_path)
+
+    def ok(argv, summary):
+        summary["rows"] = 7
+        return 0
+
+    assert runlog.run("demo", ok, []) == 0
+    assert runlog.run("demo", lambda a, s: 1, []) == 1
+    recs = [json.loads(x) for x in (tmp_path / "runs" / "runs.jsonl").read_text().splitlines()]
+    assert [r["status"] for r in recs] == ["ok", "failed"]
+    assert recs[0]["summary"] == {"rows": 7}
+    assert all((tmp_path / r["log"]).exists() for r in recs)
