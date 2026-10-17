@@ -3,6 +3,28 @@
 Living document. Every decision here has a reason next to it; change the decision,
 change the reason. Course rubric: `DA3408/AI Application Evaluation Guideline.pdf`.
 
+## 0. Course baseline: what the instructor's material requires
+
+Read from the DA3408 repo (read-only). Where the course sets a rule, we follow it.
+
+| Source | Rule | Where it lands in this project |
+|---|---|---|
+| Dev. Guidelines | Every experiment reproducible from a **Git commit hash + an MLflow run ID** | Run journal stores the commit; MLflow runs carry a `git_commit` tag (§11) |
+| Dev. Guidelines | CI = DVC; Git + Git LFS + DVC for code, data, models; **no cloud platforms** | DVC DAG + pre-push hook; DVC remote on the VPS (course slides allow a "local remote" or SSH) |
+| Dev. Guidelines | Docker + Docker Compose for dev/stage/prod parity | `Dockerfile.pipeline` now; serving images will be multi-stage |
+| Dev. Guidelines | Tests (unit, integration, end-to-end), logging, **encryption**, explainability, docs | Planned, §8 |
+| Eval. Guideline | UI and backend are **independent blocks, connected only by configurable REST calls** | Frontend never imports backend code; backend URL from config |
+| Eval. Guideline | Pipeline visualisation screen + console of errors, failures, successes + speed/throughput | Pipeline page reads `runs/runs.jsonl`; Spark throughput is logged per run |
+| Eval. Guideline | Track metrics, params, artifacts **and more than autolog** | Manual `log_param/log_metric/set_tag` for day-level results, cost model, data hash |
+| Eval. Guideline | MLflow used to *expose the model*, **MLproject** file, FastAPI for the portal API, frontend and backend as **two Compose services** | §8 |
+| Mod1 Q4 | Reproducibility drill: MLflow run with params, metrics, **seed, git_commit tag**, artifact; model **registered**; code + `.dvc` in the **same commit**; `environment.yml` to rebuild | We add `environment.yml`, seed in params, registry with a `champion` alias; a second person (or fresh clone) must reproduce |
+| Mod1 L3 / MLflow deep dive | Registry **stages/aliases**, signature + input example, `mlflow models serve` | `champion` / `previous` aliases = rollback |
+| Mod2 L1 | DataFrames are the default for ETL; shuffles are the expensive step | Spark stages use DataFrames; `bars` is one wide groupBy by design |
+| Mod2 L3 | Training-serving skew; drift via expectation suites | The same feature code is used offline and in the API; drift check in §8 |
+| Mod3 L1 | Multi-stage Dockerfile on a `-slim` base; `/healthz` that only returns 200 **after** the model is loaded | Serving image follows this exactly |
+| Prometheus lecture | White-box monitoring from inside the service; labels over hierarchy; pull model; Prometheus does **not** store logs or traces | App exposes `/metrics`; logs stay in the run journal, not Prometheus |
+| **AI Code of Conduct** | `AI_DISCLOSURE.md` required; **no fabricated metrics or dashboards**; must be able to explain every line (whiteboard test); the student must engage in the architecture trade-offs | `AI_DISCLOSURE.md` added. Every number in the report comes from a journaled run. §14 lists the design decisions the operator should be able to defend in his own words |
+
 ## 1. The question
 
 At the end of each minute, choose one of **BUY_CE / BUY_PE / STAY_OUT** for the
@@ -174,3 +196,13 @@ at 4 cores / 6 GB each; heavy jobs after 15:30 IST.
 ## 13. Open questions
 
 - Slippage reference price (see §4).
+
+## 14. Design decisions to be able to defend in the viva (the "whiteboard test")
+
+1. Why label with ask-in / bid-out and a fixed 2-minute hold, and why the horizon was fixed before looking at results.
+2. Why evaluation is by day with one position at a time, not by minute.
+3. Why the split is by whole days in time order, with the test days locked.
+4. Why holidays and recorder outages are rejected rather than repaired (frozen prices are not market data).
+5. Why Spark for check/bars, and why those stages are DataFrame group-bys.
+6. Why the data is exported once to a frozen Parquet snapshot instead of reading Ravion's live database.
+7. Why a null result ("no edge detected at this sample size") is an acceptable outcome.
