@@ -7,8 +7,6 @@ import pandas as pd
 import pytest
 import yaml
 
-pytest.importorskip("lightgbm")
-pytest.importorskip("mlflow")
 
 from optpred import train
 from optpred.features import FEATURE_COLUMNS
