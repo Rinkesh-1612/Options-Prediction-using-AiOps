@@ -1,0 +1,20 @@
+2026-10-18 05:28:29,307 INFO optpred.baselines: run 20261018T105829-baselines  commit 031b38a0c6
+2026-10-18 05:28:37,577 INFO optpred.baselines: train+val      slip 0.0  stay_out             trades/day   0.0  hit  None  net/trade Rs   None  net/day Rs     0.0  
+2026-10-18 05:28:37,578 INFO optpred.baselines: train+val      slip 0.0  always_ce            trades/day 183.6  hit 0.4225  net/trade Rs -35.07  net/day Rs -6439.3  [-7612.9, -5307.0]
+2026-10-18 05:28:37,578 INFO optpred.baselines: train+val      slip 0.0  always_pe            trades/day 183.6  hit 0.4511  net/trade Rs -18.91  net/day Rs -3471.3  [-4406.2, -2439.5]
+2026-10-18 05:28:37,578 INFO optpred.baselines: train+val      slip 0.0  momentum             trades/day 178.4  hit 0.4231  net/trade Rs -24.44  net/day Rs -4360.7  [-5439.7, -3250.4]
+2026-10-18 05:28:37,578 INFO optpred.baselines: train+val      slip 0.0  random               trades/day 183.6  hit 0.4375  net/trade Rs -26.98  net/day Rs -4953.3  
+2026-10-18 05:28:37,578 INFO optpred.baselines: train+val      slip 0.0  oracle_not_tradable  trades/day 169.8  hit   1.0  net/trade Rs 149.61  net/day Rs 25410.9  [23296.1, 27644.0]
+2026-10-18 05:28:39,438 INFO optpred.baselines: train+val      slip 0.15 stay_out             trades/day   0.0  hit  None  net/trade Rs   None  net/day Rs     0.0  
+2026-10-18 05:28:39,438 INFO optpred.baselines: train+val      slip 0.15 always_ce            trades/day 183.6  hit 0.3831  net/trade Rs -54.57  net/day Rs-10019.3  [-11192.5, -8885.0]
+2026-10-18 05:28:39,438 INFO optpred.baselines: train+val      slip 0.15 always_pe            trades/day 183.6  hit 0.4028  net/trade Rs -38.41  net/day Rs -7051.3  [-7989.0, -6017.6]
+2026-10-18 05:28:39,438 INFO optpred.baselines: train+val      slip 0.15 momentum             trades/day 178.4  hit 0.3817  net/trade Rs -43.94  net/day Rs -7839.7  [-8918.0, -6729.2]
+2026-10-18 05:28:39,438 INFO optpred.baselines: train+val      slip 0.15 random               trades/day 183.6  hit 0.3937  net/trade Rs -46.48  net/day Rs -8533.3  
+2026-10-18 05:28:39,438 INFO optpred.baselines: train+val      slip 0.15 oracle_not_tradable  trades/day 159.4  hit   1.0  net/trade Rs 143.69  net/day Rs 22898.1  [20764.1, 25125.0]
+2026-10-18 05:28:41,481 INFO optpred.baselines: train+val      slip 0.31 stay_out             trades/day   0.0  hit  None  net/trade Rs   None  net/day Rs     0.0  
+2026-10-18 05:28:41,481 INFO optpred.baselines: train+val      slip 0.31 always_ce            trades/day 183.6  hit 0.3365  net/trade Rs -75.37  net/day Rs-13838.0  [-15013.9, -12701.6]
+2026-10-18 05:28:41,481 INFO optpred.baselines: train+val      slip 0.31 always_pe            trades/day 183.6  hit 0.3556  net/trade Rs -59.21  net/day Rs-10869.9  [-11809.4, -9837.3]
+2026-10-18 05:28:41,481 INFO optpred.baselines: train+val      slip 0.31 momentum             trades/day 178.4  hit 0.3343  net/trade Rs -64.74  net/day Rs-11550.6  [-12630.1, -10438.6]
+2026-10-18 05:28:41,481 INFO optpred.baselines: train+val      slip 0.31 random               trades/day 183.6  hit 0.3464  net/trade Rs -67.28  net/day Rs-12351.9  
+2026-10-18 05:28:41,481 INFO optpred.baselines: train+val      slip 0.31 oracle_not_tradable  trades/day 146.5  hit   1.0  net/trade Rs 138.67  net/day Rs 20321.2  [18275.9, 22472.0]
+2026-10-18 05:28:41,489 INFO optpred.baselines: run 20261018T105829-baselines finished: ok in 12.2s
