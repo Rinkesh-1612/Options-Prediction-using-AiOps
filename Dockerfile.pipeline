@@ -2,7 +2,7 @@
 # Pinned to bookworm: newer Debian dropped Java 17, which Spark 3.5 officially supports.
 FROM python:3.11-slim-bookworm
 RUN apt-get update \
- && apt-get install -y --no-install-recommends openjdk-17-jre-headless git procps \
+ && apt-get install -y --no-install-recommends openjdk-17-jre-headless libgomp1 git procps \
  && rm -rf /var/lib/apt/lists/* \
  && git config --system --add safe.directory '*'
 WORKDIR /app

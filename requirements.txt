@@ -1,7 +1,13 @@
 # Pinned so the pipeline image is identical on every build.
+# The data stack matches what produced the exported data; model/tracking libs were tested against it.
 pyarrow==17.0.0
 pandas==2.2.3
 numpy==1.26.4
+scipy==1.13.1
+scikit-learn==1.5.2
+lightgbm==4.5.0
+mlflow==3.17.1
+matplotlib==3.9.2
 pyyaml==6.0.2
 pyspark==3.5.3
 dvc==3.56.0

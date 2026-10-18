@@ -42,3 +42,25 @@ baselines:
   random_seeds: 100
   bootstrap_resamples: 5000
   seed: 20261018
+
+train:
+  seed: 20261018
+  n_jobs: 4
+  early_stopping_rounds: 50
+  threshold_grid: [0.0, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 1.01]   # 1.01 = never trade
+  min_val_trades: 30       # a threshold with fewer validation trades is not trusted
+  lgbm:
+    n_estimators: 600
+    learning_rate: 0.03
+    num_leaves: 15
+    min_child_samples: 100
+    subsample: 0.8
+    subsample_freq: 1
+    colsample_bytree: 0.8
+    reg_lambda: 5.0
+
+mlflow:
+  tracking_uri: "sqlite:///mlflow/mlflow.db"   # env MLFLOW_TRACKING_URI overrides (e.g. the compose server)
+  artifact_root: mlflow/artifacts
+  experiment: nifty-option-direction
+  registered_model: nifty-option-direction

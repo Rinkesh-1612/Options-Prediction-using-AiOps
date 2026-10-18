@@ -68,3 +68,13 @@ def test_oracle_never_loses_and_beats_random():
     o = sim.simulate(df, sim.oracle_actions(df, 0.31, 65), 0.31, 65, 1)
     r = sim.simulate(df, baselines.rule_actions(df, "random", rng), 0.31, 65, 1)
     assert (o["net_rs"] > 0).all() and o["net_rs"].mean() > r["net_rs"].mean()
+
+
+def test_summarize_without_intervals_works_for_many_days():
+    """Regression: resamples=0 with 2+ days crashed (it hid behind single-day tests)."""
+    days = [f"2026-10-{d:02d}" for d in range(1, 6)]
+    t = pd.DataFrame(
+        {"day": days, "minute": 560, "side": 1, "net_rs": [10.0, -5.0, 20.0, 0.0, 7.0], "gross_rs": 0.0}
+    )
+    s = sim.summarize(t, days, resamples=0, seed=0)
+    assert s["trades"] == 5 and "per_day_ci95_rs" not in s and s["positive_days"] == 3

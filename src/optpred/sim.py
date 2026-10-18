@@ -65,7 +65,7 @@ def summarize(trades: pd.DataFrame, days: list[str], resamples: int, seed: int) 
         "mean_net_per_day_rs": round(float(net_by_day.mean()), 1) if n_days else None,
         "positive_days": int((net_by_day > 0).sum()),
     }
-    if n_days >= 2 and n_trades:
+    if resamples > 0 and n_days >= 2 and n_trades:
         rng = np.random.default_rng(seed)
         pick = rng.integers(0, n_days, size=(resamples, n_days))
         sums, counts = net_by_day[pick].sum(axis=1), n_by_day[pick].sum(axis=1)

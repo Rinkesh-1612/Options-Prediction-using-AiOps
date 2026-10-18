@@ -67,6 +67,16 @@ SIDE_FEATURES = [
     "oi_chg5",
 ]
 
+# The model's inputs: an explicit allowlist, shared by training and serving so the two can never
+# disagree. Nothing here may look past the decision minute: no entry/exit/gross/net columns, and no
+# absolute spot level or strike (they identify the date, not the market state).
+FEATURE_COLUMNS = (
+    [f"{side}_{f}" for side in ("ce", "pe") for f in SIDE_FEATURES]
+    + ["spot_ret1", "spot_ret2", "spot_ret3", "spot_ret5", "spot_range5", "spot_rv5"]
+    + ["atm_iv", "iv_gap", "pcr", "iv_chg5", "pcr_chg5"]
+    + ["minute", "dte", "is_expiry_day"]
+)
+
 
 class FeatureError(RuntimeError):
     """Raised when the bars break an assumption this stage relies on."""

@@ -69,3 +69,21 @@ stages:
     metrics:
       - reports/baselines.json:
           cache: false
+
+  train:
+    # Tracking goes to MLflow (mlflow/ is its own versioned store: runs, params, metrics, models),
+    # so this stage declares no DVC output. It only reads train/val days; the test days are filtered
+    # out at the Parquet reader.
+    cmd: python -m optpred.train
+    params:
+      - features
+      - costs
+      - baselines
+      - train
+      - mlflow
+    deps:
+      - src/optpred/train.py
+      - src/optpred/baselines.py
+      - src/optpred/sim.py
+      - src/optpred/labels.py
+      - data/features
