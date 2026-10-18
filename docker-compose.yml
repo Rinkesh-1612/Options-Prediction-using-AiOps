@@ -5,10 +5,13 @@ name: optpred
 
 x-user: &user "${HOST_UID:-1000}:${HOST_GID:-1000}"
 x-bind: &bind "${BIND:-127.0.0.1}"   # set BIND=0.0.0.0 to reach it from other machines
+# Three services run the same image. Each carries the build recipe, so compose builds it locally
+# (layers are cached, so the 2nd and 3rd are instant) and never tries to download it.
+x-serve-build: &serve_build { context: ., dockerfile: Dockerfile.serve }
 
 services:
   mlflow:                      # experiment tracking UI + model registry
-    build: { context: ., dockerfile: Dockerfile.serve }
+    build: *serve_build
     image: optpred-serve:latest
     user: *user
     command: ["mlflow", "server", "--host", "0.0.0.0", "--port", "5000",
@@ -23,6 +26,7 @@ services:
     restart: unless-stopped
 
   model:                       # `mlflow models serve` of the champion; follows the registry alias
+    build: *serve_build
     image: optpred-serve:latest
     user: *user
     command: ["bash", "/app/scripts/serve_model.sh"]
@@ -39,6 +43,7 @@ services:
     restart: unless-stopped
 
   api:                         # FastAPI backend: the only thing the web page talks to
+    build: *serve_build
     image: optpred-serve:latest
     user: *user
     command: ["python", "-m", "uvicorn", "--factory", "optpred.api:create_app", "--host", "0.0.0.0", "--port", "8000"]
