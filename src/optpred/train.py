@@ -43,17 +43,11 @@ from mlflow.models import infer_signature
 from optpred import runlog
 from optpred.baselines import evaluate as baseline_evaluate
 from optpred.features import FEATURE_COLUMNS
-from optpred.labels import ACTION_NAMES, STAY_OUT, label_actions
+from optpred.labels import ACTION_NAMES, label_actions
+from optpred.serving_model import NEVER_TRADE, DirectionModel, decide, score_frame
 from optpred.sim import simulate, summarize
 
 log = logging.getLogger("optpred.train")
-NEVER_TRADE = 1.01  # a threshold no probability can reach
-
-
-def decide(proba: np.ndarray, tau: float) -> np.ndarray:
-    """Most likely class if it is a side and at least tau confident, else STAY_OUT."""
-    best, conf = proba.argmax(axis=1), proba.max(axis=1)
-    return np.where((best != STAY_OUT) & (conf >= tau), best, STAY_OUT)
 
 
 def fit_and_score(train: pd.DataFrame, val: pd.DataFrame, lgbm: dict, seed: int, p: dict, t: dict) -> dict:
@@ -245,13 +239,27 @@ def main(argv: list[str], summary: dict) -> int:
             plt.close(fig)
             mlflow.log_artifacts(str(tmp))
         X = val[FEATURE_COLUMNS]
-        mlflow.lightgbm.log_model(
-            model,
-            name="model",
-            signature=infer_signature(X, proba),
-            input_example=X.head(3),
-            registered_model_name=m["registered_model"],
-        )
+        with tempfile.TemporaryDirectory() as tmp:
+            booster_file, meta_file = Path(tmp) / "booster.txt", Path(tmp) / "meta.json"
+            model.booster_.save_model(str(booster_file))
+            meta_file.write_text(json.dumps({"classes": [int(c) for c in model.classes_]}))
+            served = score_frame(model.booster_, [int(c) for c in model.classes_], X, tau)
+            if not np.allclose(served[["p_stay_out", "p_buy_ce", "p_buy_pe"]].to_numpy(), proba):
+                raise RuntimeError("the served scoring function disagrees with the trained model")
+            mlflow.pyfunc.log_model(
+                name="model",
+                python_model=DirectionModel(tau, FEATURE_COLUMNS),
+                artifacts={"booster": str(booster_file), "meta": str(meta_file)},
+                signature=infer_signature(X, served),
+                input_example=X.head(3),
+                registered_model_name=m["registered_model"],
+                pip_requirements=[
+                    f"lightgbm=={lgb.__version__}",
+                    f"pandas=={pd.__version__}",
+                    f"numpy=={np.__version__}",
+                    f"mlflow=={mlflow.__version__}",
+                ],
+            )
         reg = register(client, m["registered_model"], run.info.run_id, chosen["mean_net_per_day_rs"])
         run_id = run.info.run_id
 
