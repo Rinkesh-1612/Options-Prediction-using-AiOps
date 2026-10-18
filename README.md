@@ -28,6 +28,34 @@ Every run is journaled: `logs/<stage>/<run_id>.log` + one line in `runs/runs.jso
 git add logs runs && git commit -m "run: export" && git push
 ```
 
+## Stages 2-6 — the pipeline (inside the pipeline image)
+
+```bash
+./pipe build                                  # once, ~5-8 min
+./pipe python -m optpred.check
+./pipe python -m optpred.bars
+./pipe python -m optpred.features
+./pipe python -m optpred.baselines            # train + validation only
+./pipe python -m optpred.train                # logs to MLflow, registers the model
+git add logs runs reports data/days.json data/splits.json && git commit -m "run: ..." && git push
+```
+
+## The web stack (MLflow, model server, API, web page, retrain runner)
+
+```bash
+cp .env.example .env && nano .env             # set ADMIN_TOKEN
+./stack up -d --build                         # first build ~5 min
+./stack ps                                    # everything should say "healthy"
+```
+
+| What | Address on the VPS | From your laptop (SSH tunnel) |
+|---|---|---|
+| Web page | http://127.0.0.1:8080 | `ssh -L 8080:127.0.0.1:8080 -L 8000:127.0.0.1:8000 -L 5050:127.0.0.1:5050 trader@<vps>` then open http://127.0.0.1:8080 |
+| Backend API docs | http://127.0.0.1:8000/docs | same tunnel |
+| MLflow UI | http://127.0.0.1:5050 | same tunnel |
+
+Nothing is exposed publicly unless you set `BIND=0.0.0.0` in `.env`.
+
 ## Tests
 
 ```bash

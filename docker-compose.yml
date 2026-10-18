@@ -1,0 +1,94 @@
+# The serving stack. Frontend and backend are separate services that meet only over REST.
+#   ./stack up -d --build        (the wrapper sets your user id so files stay yours)
+# Pipeline stages (export, check, bars, features, train) run with ./pipe, not here.
+name: optpred
+
+x-user: &user "${HOST_UID:-1000}:${HOST_GID:-1000}"
+x-bind: &bind "${BIND:-127.0.0.1}"   # set BIND=0.0.0.0 to reach it from other machines
+
+services:
+  mlflow:                      # experiment tracking UI + model registry
+    build: { context: ., dockerfile: Dockerfile.serve }
+    image: optpred-serve:latest
+    user: *user
+    command: ["mlflow", "server", "--host", "0.0.0.0", "--port", "5000",
+              "--backend-store-uri", "sqlite:////app/mlflow/mlflow.db",
+              "--default-artifact-root", "/app/mlflow/artifacts"]
+    volumes: ["./mlflow:/app/mlflow"]
+    ports: ["${BIND:-127.0.0.1}:5050:5000"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:5000/health')"]
+      interval: 15s
+      retries: 5
+    restart: unless-stopped
+
+  model:                       # `mlflow models serve` of the champion; follows the registry alias
+    image: optpred-serve:latest
+    user: *user
+    command: ["bash", "/app/scripts/serve_model.sh"]
+    environment:
+      MLFLOW_TRACKING_URI: sqlite:////app/mlflow/mlflow.db
+      MODEL_NAME: nifty-option-direction
+    volumes: ["./mlflow:/app/mlflow", "./scripts:/app/scripts:ro"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:5001/ping')"]
+      interval: 15s
+      retries: 6
+      start_period: 40s
+    depends_on: [mlflow]
+    restart: unless-stopped
+
+  api:                         # FastAPI backend: the only thing the web page talks to
+    image: optpred-serve:latest
+    user: *user
+    command: ["python", "-m", "uvicorn", "--factory", "optpred.api:create_app", "--host", "0.0.0.0", "--port", "8000"]
+    environment:
+      MODEL_URL: http://model:5001
+      MLFLOW_TRACKING_URI: sqlite:////app/mlflow/mlflow.db
+      FEATURES_PATH: /app/data/features/features.parquet
+      RUNS_PATH: /app/runs/runs.jsonl
+      LOGS_ROOT: /app/logs
+      DVC_PATH: /app/dvc.yaml
+      PARAMS_PATH: /app/params.yaml
+      FINAL_MARKER: /app/reports/final.json
+      RETRAIN_REQUEST: /app/state/retrain_request.json
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-}
+      CORS_ORIGINS: "*"
+    volumes:
+      - ./data/features:/app/data/features:ro
+      - ./runs:/app/runs:ro
+      - ./logs:/app/logs:ro
+      - ./reports:/app/reports:ro
+      - ./dvc.yaml:/app/dvc.yaml:ro
+      - ./params.yaml:/app/params.yaml:ro
+      - ./mlflow:/app/mlflow
+      - ./state:/app/state
+    ports: ["${BIND:-127.0.0.1}:8000:8000"]
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/days')"]
+      interval: 15s
+      retries: 5
+    depends_on: [model]
+    restart: unless-stopped
+
+  frontend:                    # static page; reaches the backend through API_URL (a browser address)
+    build: ./frontend
+    environment:
+      API_URL: ${API_URL:-http://127.0.0.1:8000}
+      MLFLOW_URL: ${MLFLOW_URL:-http://127.0.0.1:5050}
+      GRAFANA_URL: ${GRAFANA_URL:-http://127.0.0.1:3000}
+    ports: ["${BIND:-127.0.0.1}:8080:80"]
+    restart: unless-stopped
+
+  runner:                      # retrains when the API writes state/retrain_request.json
+    build: { context: ., dockerfile: Dockerfile.pipeline }
+    image: optpred-pipeline:latest
+    user: *user
+    working_dir: /app
+    command: ["bash", "scripts/runner.sh"]
+    environment: { HOME: /tmp }
+    volumes:
+      - ./:/app
+      - /etc/passwd:/etc/passwd:ro
+      - /etc/group:/etc/group:ro
+    restart: unless-stopped

@@ -14,6 +14,7 @@ Integrity rules built in:
 
 from __future__ import annotations
 
+import hmac
 import json
 import logging
 import os
@@ -24,7 +25,7 @@ from pathlib import Path
 import httpx
 import pandas as pd
 import yaml
-from fastapi import FastAPI, HTTPException, Query, Request, Response
+from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse
 from prometheus_client import (
@@ -56,6 +57,7 @@ class Settings:
     model_url: str = "http://model:5001"
     tracking_uri: str = "http://mlflow:5000"
     cors_origins: tuple[str, ...] = ("*",)
+    admin_token: str = ""  # empty = no token required (local development only)
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -71,6 +73,7 @@ class Settings:
             model_url=e.get("MODEL_URL", cls.model_url),
             tracking_uri=e.get("MLFLOW_TRACKING_URI", cls.tracking_uri),
             cors_origins=tuple(e.get("CORS_ORIGINS", "*").split(",")),
+            admin_token=e.get("ADMIN_TOKEN", ""),
         )
 
 
@@ -263,6 +266,11 @@ def create_app(
 
         return MlflowClient(tracking_uri=st.tracking_uri)
 
+    def require_admin(x_admin_token: str = Header(default="")) -> None:
+        """Rollback and retrain change what is served, so they need the token when one is configured."""
+        if st.admin_token and not hmac.compare_digest(x_admin_token, st.admin_token):
+            raise HTTPException(401, "admin token missing or wrong")
+
     @app.middleware("http")
     async def track(request: Request, call_next):
         t0, status = time.perf_counter(), 500
@@ -397,7 +405,7 @@ def create_app(
             raise HTTPException(404, "no champion model registered yet")
         return {"registered_model": name, **info}
 
-    @app.post("/rollback")
+    @app.post("/rollback", dependencies=[Depends(require_admin)])
     def rollback():
         c, name = mlflow_api(), params["mlflow"]["registered_model"]
         try:
@@ -410,7 +418,7 @@ def create_app(
         log.warning("rolled back champion v%s -> v%s", champ.version, prev.version)
         return {"champion": int(prev.version), "previous": int(champ.version)}
 
-    @app.post("/retrain", status_code=202)
+    @app.post("/retrain", status_code=202, dependencies=[Depends(require_admin)])
     def retrain(reason: str = Query("manual", max_length=200)):
         st.retrain_request.parent.mkdir(parents=True, exist_ok=True)
         st.retrain_request.write_text(

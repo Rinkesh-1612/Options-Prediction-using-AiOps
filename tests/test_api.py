@@ -228,3 +228,13 @@ def test_every_feature_column_is_sent_to_the_model(env):
 
     client(env, model=Spy()).post("/predict", json={"day": "2026-03-01", "minute": 600})
     assert seen["cols"] == FEATURE_COLUMNS
+
+
+def test_changing_the_served_model_needs_the_admin_token(env):
+    st, _ = env
+    guarded = api.Settings(**{**st.__dict__, "admin_token": "s3cret"})
+    c = TestClient(api.create_app(guarded, model=FakeModel(), mlflow_client=FakeRegistry()))
+    assert c.post("/rollback").status_code == 401 and c.post("/retrain").status_code == 401
+    assert c.post("/rollback", headers={"X-Admin-Token": "wrong"}).status_code == 401
+    assert c.post("/rollback", headers={"X-Admin-Token": "s3cret"}).status_code == 200
+    assert c.get("/days").status_code == 200  # reading stays open

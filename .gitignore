@@ -11,3 +11,4 @@ __pycache__/
 /data/features
 /mlflow
 /state
+.env
