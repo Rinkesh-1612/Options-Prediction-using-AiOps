@@ -1,0 +1,27 @@
+2026-10-17 10:43:35,172 INFO optpred.check: run 20261017T161335-check  commit 94bfe3f765 (DIRTY)
+2026-10-17 10:43:40,136 ERROR optpred.check: crashed:
+Traceback (most recent call last):
+  File "/app/src/optpred/runlog.py", line 87, in run
+    code = main(argv, summary)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/app/src/optpred/check.py", line 124, in main
+    spark = spark_session("optpred-check", params["spark"])
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/src/optpred/spark_common.py", line 34, in spark_session
+    .getOrCreate()
+     ^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pyspark/sql/session.py", line 497, in getOrCreate
+    sc = SparkContext.getOrCreate(sparkConf)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pyspark/context.py", line 515, in getOrCreate
+    SparkContext(conf=conf or SparkConf())
+  File "/usr/local/lib/python3.11/site-packages/pyspark/context.py", line 201, in __init__
+    SparkContext._ensure_initialized(self, gateway=gateway, conf=conf)
+  File "/usr/local/lib/python3.11/site-packages/pyspark/context.py", line 436, in _ensure_initialized
+    SparkContext._gateway = gateway or launch_gateway(conf)
+                                       ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pyspark/java_gateway.py", line 107, in launch_gateway
+    raise PySparkRuntimeError(
+pyspark.errors.exceptions.base.PySparkRuntimeError: [JAVA_GATEWAY_EXITED] Java gateway process exited before sending its port number.
+
+2026-10-17 10:43:40,137 INFO optpred.check: run 20261017T161335-check finished: failed in 5.0s
