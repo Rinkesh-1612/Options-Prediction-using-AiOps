@@ -1,0 +1,35 @@
+2026-10-18 05:14:12,632 INFO optpred.baselines: run 20261018T104412-baselines  commit af24406d48
+2026-10-18 05:14:12,915 ERROR optpred.baselines: crashed:
+Traceback (most recent call last):
+  File "/app/src/optpred/runlog.py", line 90, in run
+    code = main(argv, summary)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/app/src/optpred/baselines.py", line 107, in main
+    res = evaluate(sub, slip, p, b)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/src/optpred/baselines.py", line 61, in evaluate
+    seeds = [
+            ^
+  File "/app/src/optpred/baselines.py", line 62, in <listcomp>
+    summarize(simulate(df, rule_actions(df, "random", rng), *args), days, 0, 0)
+  File "/app/src/optpred/sim.py", line 74, in summarize
+    out["per_day_ci95_rs"] = [round(float(x), 1) for x in np.percentile(per_day, [2.5, 97.5])]
+                                                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/numpy/lib/function_base.py", line 4283, in percentile
+    return _quantile_unchecked(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/numpy/lib/function_base.py", line 4555, in _quantile_unchecked
+    return _ureduce(a,
+           ^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/numpy/lib/function_base.py", line 3823, in _ureduce
+    r = func(a, **kwargs)
+        ^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/numpy/lib/function_base.py", line 4722, in _quantile_ureduce_func
+    result = _quantile(arr,
+             ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/numpy/lib/function_base.py", line 4831, in _quantile
+    slices_having_nans = np.isnan(arr[-1, ...])
+                                  ~~~^^^^^^^^^
+IndexError: index -1 is out of bounds for axis 0 with size 0
+
+2026-10-18 05:14:12,916 INFO optpred.baselines: run 20261018T104412-baselines finished: failed in 0.3s

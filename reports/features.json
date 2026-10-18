@@ -1,0 +1,119 @@
+{
+ "drops": {
+  "spot_stale": 1,
+  "no_contract": 0,
+  "stale_entry": 0,
+  "thin_entry": 0,
+  "low_premium": 47,
+  "rows_possible": 18032,
+  "rows_kept": 17984
+ },
+ "rows": 17984,
+ "per_split": {
+  "test": {
+   "days": 10,
+   "rows": 3668,
+   "label_share_by_slippage": {
+    "0.0": {
+     "STAY_OUT": 0.1063,
+     "BUY_CE": 0.4433,
+     "BUY_PE": 0.4504
+    },
+    "0.15": {
+     "STAY_OUT": 0.157,
+     "BUY_CE": 0.4174,
+     "BUY_PE": 0.4256
+    },
+    "0.31": {
+     "STAY_OUT": 0.2067,
+     "BUY_CE": 0.3942,
+     "BUY_PE": 0.3991
+    }
+   },
+   "mean_gross_rs": {
+    "ce": -15.84,
+    "pe": -19.42
+   },
+   "mean_stat_rs": {
+    "ce": 13.73,
+    "pe": 12.68
+   },
+   "median_spread_pts": {
+    "ce": 0.25,
+    "pe": 0.25
+   }
+  },
+  "train": {
+   "days": 33,
+   "rows": 12112,
+   "label_share_by_slippage": {
+    "0.0": {
+     "STAY_OUT": 0.1366,
+     "BUY_CE": 0.4183,
+     "BUY_PE": 0.4451
+    },
+    "0.15": {
+     "STAY_OUT": 0.2261,
+     "BUY_CE": 0.3775,
+     "BUY_PE": 0.3964
+    },
+    "0.31": {
+     "STAY_OUT": 0.3176,
+     "BUY_CE": 0.3336,
+     "BUY_PE": 0.3487
+    }
+   },
+   "mean_gross_rs": {
+    "ce": -21.0,
+    "pe": -9.44
+   },
+   "mean_stat_rs": {
+    "ce": 13.28,
+    "pe": 9.11
+   },
+   "median_spread_pts": {
+    "ce": 0.25,
+    "pe": 0.15
+   }
+  },
+  "val": {
+   "days": 6,
+   "rows": 2204,
+   "label_share_by_slippage": {
+    "0.0": {
+     "STAY_OUT": 0.1361,
+     "BUY_CE": 0.4165,
+     "BUY_PE": 0.4474
+    },
+    "0.15": {
+     "STAY_OUT": 0.2083,
+     "BUY_CE": 0.382,
+     "BUY_PE": 0.4097
+    },
+    "0.31": {
+     "STAY_OUT": 0.3013,
+     "BUY_CE": 0.3344,
+     "BUY_PE": 0.3643
+    }
+   },
+   "mean_gross_rs": {
+    "ce": -25.9,
+    "pe": -9.92
+   },
+   "mean_stat_rs": {
+    "ce": 12.64,
+    "pe": 11.08
+   },
+   "median_spread_pts": {
+    "ce": 0.2,
+    "pe": 0.2
+   }
+  }
+ },
+ "exit_thin_rows": 0,
+ "exit_age_s_p50_p95_max": [
+  1.0,
+  1.0,
+  80.0
+ ]
+}

@@ -1,0 +1,219 @@
+2026-10-17 12:27:43,822 INFO optpred.export: run 20261017T155743-export  commit a9e7591090 (DIRTY)
+2026-10-17 12:27:51,013 INFO optpred.export: 55 calendar days with data between 2026-08-03 and 2026-10-16
+2026-10-17 12:27:51,013 INFO optpred.export: day                   opt_tape            und_tape   option_chain_snap
+2026-10-17 12:27:51,013 INFO optpred.export: 2026-08-03           1,078,219             250,346             235,300
+2026-10-17 12:27:51,013 INFO optpred.export: 2026-08-04           1,180,112             254,978             238,600
+2026-10-17 12:27:51,013 INFO optpred.export: 2026-08-05             960,857             247,191             238,600
+2026-10-17 12:27:51,013 INFO optpred.export: 2026-08-06             955,796             246,334             238,800
+2026-10-17 12:27:51,013 INFO optpred.export: 2026-08-07             987,497             242,887             237,425
+2026-10-17 12:27:51,013 INFO optpred.export: 2026-08-10           1,070,023             236,408             237,100
+2026-10-17 12:27:51,013 INFO optpred.export: 2026-08-11           1,765,495             238,837             238,000
+2026-10-17 12:27:51,013 INFO optpred.export: 2026-08-12           1,776,248             247,631             238,725
+2026-10-17 12:27:51,013 INFO optpred.export: 2026-08-13           1,745,600             246,667             239,050
+2026-10-17 12:27:51,013 INFO optpred.export: 2026-08-14           1,814,834             244,861             238,500
+2026-10-17 12:27:51,014 INFO optpred.export: 2026-08-17           1,928,332             247,031             238,650
+2026-10-17 12:27:51,014 INFO optpred.export: 2026-08-18           1,975,238             246,946             238,125
+2026-10-17 12:27:51,014 INFO optpred.export: 2026-08-19           1,670,176             244,937             238,900
+2026-10-17 12:27:51,014 INFO optpred.export: 2026-08-20           1,712,829             247,411             238,000
+2026-10-17 12:27:51,014 INFO optpred.export: 2026-08-21           1,731,655             244,849             238,525
+2026-10-17 12:27:51,014 INFO optpred.export: 2026-08-24           1,858,747             258,386             234,525
+2026-10-17 12:27:51,014 INFO optpred.export: 2026-08-25           1,974,032             254,570             235,800
+2026-10-17 12:27:51,014 INFO optpred.export: 2026-08-26           1,724,823             246,846             237,650
+2026-10-17 12:27:51,014 INFO optpred.export: 2026-08-27           1,739,343             256,224             238,600
+2026-10-17 12:27:51,014 INFO optpred.export: 2026-08-28           1,773,400             247,256             238,750
+2026-10-17 12:27:51,014 INFO optpred.export: 2026-08-31           1,875,605             249,147             238,400
+2026-10-17 12:27:51,014 INFO optpred.export: 2026-09-01           2,046,817             251,103             239,150
+2026-10-17 12:27:51,014 INFO optpred.export: 2026-09-02           1,672,319             251,043             238,700
+2026-10-17 12:27:51,014 INFO optpred.export: 2026-09-03           1,743,788             252,057             238,450
+2026-10-17 12:27:51,014 INFO optpred.export: 2026-09-04           1,841,637             248,032             239,000
+2026-10-17 12:27:51,014 INFO optpred.export: 2026-09-07           1,866,149             249,751             164,700
+2026-10-17 12:27:51,014 INFO optpred.export: 2026-09-08           1,975,115             251,441             238,150
+2026-10-17 12:27:51,017 INFO optpred.export: 2026-09-09           1,683,917             258,185             239,000
+2026-10-17 12:27:51,017 INFO optpred.export: 2026-09-10           1,686,801             242,705             239,150
+2026-10-17 12:27:51,017 INFO optpred.export: 2026-09-11           1,830,092             250,841             236,350
+2026-10-17 12:27:51,017 INFO optpred.export: 2026-09-14                  68                   4             238,200
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-09-15           2,016,340             380,814             238,675
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-09-16           1,733,712             369,845             231,100
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-09-17           1,798,830             381,610             239,600
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-09-18           1,801,710             377,858             239,000
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-09-21           1,872,427             379,838             239,350
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-09-22           2,023,388             384,044             238,950
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-09-23           1,692,536             382,212             239,000
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-09-24           1,765,251             391,632             238,150
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-09-25                   0                   0             238,400
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-09-28                   0                   0             237,300
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-09-29                   0                   0             238,600
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-09-30           1,696,091             389,154             238,150
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-10-01           1,789,456             393,692             237,625
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-10-02                  68                   4             239,200
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-10-05           1,925,133             387,764             238,400
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-10-06           2,002,751             387,626             238,200
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-10-07           1,692,745             386,388             237,000
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-10-08           1,758,772             390,794             236,700
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-10-09           1,810,259             388,062             236,900
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-10-12           1,928,611             384,938             237,750
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-10-13           2,053,402             387,262             237,550
+2026-10-17 12:27:51,018 INFO optpred.export: 2026-10-14           1,820,116             372,266             237,550
+2026-10-17 12:27:51,019 INFO optpred.export: 2026-10-15           1,904,073             381,199             237,750
+2026-10-17 12:27:51,020 INFO optpred.export: 2026-10-16           1,273,204             247,817             160,100
+2026-10-17 12:27:54,404 INFO optpred.export: exported opt_tape           2026-08-03     1078219 rows
+2026-10-17 12:27:58,423 INFO optpred.export: exported opt_tape           2026-08-04     1180112 rows
+2026-10-17 12:28:01,150 INFO optpred.export: exported opt_tape           2026-08-05      960857 rows
+2026-10-17 12:28:07,297 INFO optpred.export: exported opt_tape           2026-08-06      955796 rows
+2026-10-17 12:28:13,791 INFO optpred.export: exported opt_tape           2026-08-07      987497 rows
+2026-10-17 12:28:20,865 INFO optpred.export: exported opt_tape           2026-08-10     1070023 rows
+2026-10-17 12:28:26,046 INFO optpred.export: exported opt_tape           2026-08-11     1765495 rows
+2026-10-17 12:28:32,207 INFO optpred.export: exported opt_tape           2026-08-12     1776248 rows
+2026-10-17 12:28:38,062 INFO optpred.export: exported opt_tape           2026-08-13     1745600 rows
+2026-10-17 12:28:42,902 INFO optpred.export: exported opt_tape           2026-08-14     1814834 rows
+2026-10-17 12:28:47,667 INFO optpred.export: exported opt_tape           2026-08-17     1928332 rows
+2026-10-17 12:28:52,581 INFO optpred.export: exported opt_tape           2026-08-18     1975238 rows
+2026-10-17 12:28:58,372 INFO optpred.export: exported opt_tape           2026-08-19     1670176 rows
+2026-10-17 12:29:08,393 INFO optpred.export: exported opt_tape           2026-08-20     1712829 rows
+2026-10-17 12:29:15,926 INFO optpred.export: exported opt_tape           2026-08-21     1731655 rows
+2026-10-17 12:29:25,189 INFO optpred.export: exported opt_tape           2026-08-24     1858747 rows
+2026-10-17 12:29:30,424 INFO optpred.export: exported opt_tape           2026-08-25     1974032 rows
+2026-10-17 12:29:37,540 INFO optpred.export: exported opt_tape           2026-08-26     1724823 rows
+2026-10-17 12:29:43,374 INFO optpred.export: exported opt_tape           2026-08-27     1739343 rows
+2026-10-17 12:29:49,552 INFO optpred.export: exported opt_tape           2026-08-28     1773400 rows
+2026-10-17 12:29:57,163 INFO optpred.export: exported opt_tape           2026-08-31     1875605 rows
+2026-10-17 12:30:08,231 INFO optpred.export: exported opt_tape           2026-09-01     2046817 rows
+2026-10-17 12:30:15,419 INFO optpred.export: exported opt_tape           2026-09-02     1672319 rows
+2026-10-17 12:30:20,574 INFO optpred.export: exported opt_tape           2026-09-03     1743788 rows
+2026-10-17 12:30:27,647 INFO optpred.export: exported opt_tape           2026-09-04     1841637 rows
+2026-10-17 12:30:31,389 INFO optpred.export: exported opt_tape           2026-09-07     1866149 rows
+2026-10-17 12:30:35,848 INFO optpred.export: exported opt_tape           2026-09-08     1975115 rows
+2026-10-17 12:30:40,171 INFO optpred.export: exported opt_tape           2026-09-09     1683917 rows
+2026-10-17 12:30:45,344 INFO optpred.export: exported opt_tape           2026-09-10     1686801 rows
+2026-10-17 12:30:52,019 INFO optpred.export: exported opt_tape           2026-09-11     1830092 rows
+2026-10-17 12:30:52,074 INFO optpred.export: exported opt_tape           2026-09-14          68 rows
+2026-10-17 12:30:55,681 INFO optpred.export: exported opt_tape           2026-09-15     2016340 rows
+2026-10-17 12:30:58,372 INFO optpred.export: exported opt_tape           2026-09-16     1733712 rows
+2026-10-17 12:31:01,363 INFO optpred.export: exported opt_tape           2026-09-17     1798830 rows
+2026-10-17 12:31:12,182 INFO optpred.export: exported opt_tape           2026-09-18     1801710 rows
+2026-10-17 12:31:19,576 INFO optpred.export: exported opt_tape           2026-09-21     1872427 rows
+2026-10-17 12:31:24,263 INFO optpred.export: exported opt_tape           2026-09-22     2023388 rows
+2026-10-17 12:31:30,662 INFO optpred.export: exported opt_tape           2026-09-23     1692536 rows
+2026-10-17 12:31:36,813 INFO optpred.export: exported opt_tape           2026-09-24     1765251 rows
+2026-10-17 12:31:45,711 INFO optpred.export: exported opt_tape           2026-09-30     1696091 rows
+2026-10-17 12:31:51,876 INFO optpred.export: exported opt_tape           2026-10-01     1789456 rows
+2026-10-17 12:31:51,950 INFO optpred.export: exported opt_tape           2026-10-02          68 rows
+2026-10-17 12:32:01,252 INFO optpred.export: exported opt_tape           2026-10-05     1925133 rows
+2026-10-17 12:32:11,999 INFO optpred.export: exported opt_tape           2026-10-06     2002751 rows
+2026-10-17 12:32:23,775 INFO optpred.export: exported opt_tape           2026-10-07     1692745 rows
+2026-10-17 12:32:32,412 INFO optpred.export: exported opt_tape           2026-10-08     1758772 rows
+2026-10-17 12:32:40,527 INFO optpred.export: exported opt_tape           2026-10-09     1810259 rows
+2026-10-17 12:32:48,613 INFO optpred.export: exported opt_tape           2026-10-12     1928611 rows
+2026-10-17 12:32:57,406 INFO optpred.export: exported opt_tape           2026-10-13     2053402 rows
+2026-10-17 12:33:06,228 INFO optpred.export: exported opt_tape           2026-10-14     1820116 rows
+2026-10-17 12:33:16,523 INFO optpred.export: exported opt_tape           2026-10-15     1904073 rows
+2026-10-17 12:33:21,726 INFO optpred.export: exported opt_tape           2026-10-16     1273204 rows
+2026-10-17 12:33:22,547 INFO optpred.export: exported und_tape           2026-08-03      250346 rows
+2026-10-17 12:33:23,519 INFO optpred.export: exported und_tape           2026-08-04      254978 rows
+2026-10-17 12:33:23,975 INFO optpred.export: exported und_tape           2026-08-05      247191 rows
+2026-10-17 12:33:24,294 INFO optpred.export: exported und_tape           2026-08-06      246334 rows
+2026-10-17 12:33:24,638 INFO optpred.export: exported und_tape           2026-08-07      242887 rows
+2026-10-17 12:33:25,180 INFO optpred.export: exported und_tape           2026-08-10      236408 rows
+2026-10-17 12:33:25,913 INFO optpred.export: exported und_tape           2026-08-11      238837 rows
+2026-10-17 12:33:26,290 INFO optpred.export: exported und_tape           2026-08-12      247631 rows
+2026-10-17 12:33:26,717 INFO optpred.export: exported und_tape           2026-08-13      246667 rows
+2026-10-17 12:33:27,987 INFO optpred.export: exported und_tape           2026-08-14      244861 rows
+2026-10-17 12:33:28,308 INFO optpred.export: exported und_tape           2026-08-17      247031 rows
+2026-10-17 12:33:28,699 INFO optpred.export: exported und_tape           2026-08-18      246946 rows
+2026-10-17 12:33:29,066 INFO optpred.export: exported und_tape           2026-08-19      244937 rows
+2026-10-17 12:33:29,858 INFO optpred.export: exported und_tape           2026-08-20      247411 rows
+2026-10-17 12:33:30,228 INFO optpred.export: exported und_tape           2026-08-21      244849 rows
+2026-10-17 12:33:30,569 INFO optpred.export: exported und_tape           2026-08-24      258386 rows
+2026-10-17 12:33:30,931 INFO optpred.export: exported und_tape           2026-08-25      254570 rows
+2026-10-17 12:33:31,792 INFO optpred.export: exported und_tape           2026-08-26      246846 rows
+2026-10-17 12:33:32,946 INFO optpred.export: exported und_tape           2026-08-27      256224 rows
+2026-10-17 12:33:34,225 INFO optpred.export: exported und_tape           2026-08-28      247256 rows
+2026-10-17 12:33:34,961 INFO optpred.export: exported und_tape           2026-08-31      249147 rows
+2026-10-17 12:33:35,406 INFO optpred.export: exported und_tape           2026-09-01      251103 rows
+2026-10-17 12:33:36,255 INFO optpred.export: exported und_tape           2026-09-02      251043 rows
+2026-10-17 12:33:36,781 INFO optpred.export: exported und_tape           2026-09-03      252057 rows
+2026-10-17 12:33:37,470 INFO optpred.export: exported und_tape           2026-09-04      248032 rows
+2026-10-17 12:33:38,073 INFO optpred.export: exported und_tape           2026-09-07      249751 rows
+2026-10-17 12:33:38,488 INFO optpred.export: exported und_tape           2026-09-08      251441 rows
+2026-10-17 12:33:39,258 INFO optpred.export: exported und_tape           2026-09-09      258185 rows
+2026-10-17 12:33:39,614 INFO optpred.export: exported und_tape           2026-09-10      242705 rows
+2026-10-17 12:33:40,368 INFO optpred.export: exported und_tape           2026-09-11      250841 rows
+2026-10-17 12:33:40,407 INFO optpred.export: exported und_tape           2026-09-14           4 rows
+2026-10-17 12:33:40,990 INFO optpred.export: exported und_tape           2026-09-15      380814 rows
+2026-10-17 12:33:41,483 INFO optpred.export: exported und_tape           2026-09-16      369845 rows
+2026-10-17 12:33:41,841 INFO optpred.export: exported und_tape           2026-09-17      381610 rows
+2026-10-17 12:33:42,192 INFO optpred.export: exported und_tape           2026-09-18      377858 rows
+2026-10-17 12:33:42,769 INFO optpred.export: exported und_tape           2026-09-21      379838 rows
+2026-10-17 12:33:43,430 INFO optpred.export: exported und_tape           2026-09-22      384044 rows
+2026-10-17 12:33:44,292 INFO optpred.export: exported und_tape           2026-09-23      382212 rows
+2026-10-17 12:33:45,254 INFO optpred.export: exported und_tape           2026-09-24      391632 rows
+2026-10-17 12:33:45,583 INFO optpred.export: exported und_tape           2026-09-30      389154 rows
+2026-10-17 12:33:46,041 INFO optpred.export: exported und_tape           2026-10-01      393692 rows
+2026-10-17 12:33:46,071 INFO optpred.export: exported und_tape           2026-10-02           4 rows
+2026-10-17 12:33:46,654 INFO optpred.export: exported und_tape           2026-10-05      387764 rows
+2026-10-17 12:33:47,701 INFO optpred.export: exported und_tape           2026-10-06      387626 rows
+2026-10-17 12:33:48,096 INFO optpred.export: exported und_tape           2026-10-07      386388 rows
+2026-10-17 12:33:48,825 INFO optpred.export: exported und_tape           2026-10-08      390794 rows
+2026-10-17 12:33:49,226 INFO optpred.export: exported und_tape           2026-10-09      388062 rows
+2026-10-17 12:33:50,487 INFO optpred.export: exported und_tape           2026-10-12      384938 rows
+2026-10-17 12:33:52,490 INFO optpred.export: exported und_tape           2026-10-13      387262 rows
+2026-10-17 12:33:53,294 INFO optpred.export: exported und_tape           2026-10-14      372266 rows
+2026-10-17 12:33:55,453 INFO optpred.export: exported und_tape           2026-10-15      381199 rows
+2026-10-17 12:33:56,001 INFO optpred.export: exported und_tape           2026-10-16      247817 rows
+2026-10-17 12:33:56,544 INFO optpred.export: exported option_chain_snap  2026-08-03      235300 rows
+2026-10-17 12:33:57,533 INFO optpred.export: exported option_chain_snap  2026-08-04      238600 rows
+2026-10-17 12:33:58,746 INFO optpred.export: exported option_chain_snap  2026-08-05      238600 rows
+2026-10-17 12:33:59,459 INFO optpred.export: exported option_chain_snap  2026-08-06      238800 rows
+2026-10-17 12:34:00,022 INFO optpred.export: exported option_chain_snap  2026-08-07      237425 rows
+2026-10-17 12:34:00,852 INFO optpred.export: exported option_chain_snap  2026-08-10      237100 rows
+2026-10-17 12:34:02,758 INFO optpred.export: exported option_chain_snap  2026-08-11      238000 rows
+2026-10-17 12:34:03,789 INFO optpred.export: exported option_chain_snap  2026-08-12      238725 rows
+2026-10-17 12:34:04,250 INFO optpred.export: exported option_chain_snap  2026-08-13      239050 rows
+2026-10-17 12:34:05,503 INFO optpred.export: exported option_chain_snap  2026-08-14      238500 rows
+2026-10-17 12:34:06,280 INFO optpred.export: exported option_chain_snap  2026-08-17      238650 rows
+2026-10-17 12:34:07,741 INFO optpred.export: exported option_chain_snap  2026-08-18      238125 rows
+2026-10-17 12:34:09,393 INFO optpred.export: exported option_chain_snap  2026-08-19      238900 rows
+2026-10-17 12:34:09,929 INFO optpred.export: exported option_chain_snap  2026-08-20      238000 rows
+2026-10-17 12:34:10,375 INFO optpred.export: exported option_chain_snap  2026-08-21      238525 rows
+2026-10-17 12:34:10,955 INFO optpred.export: exported option_chain_snap  2026-08-24      234525 rows
+2026-10-17 12:34:11,538 INFO optpred.export: exported option_chain_snap  2026-08-25      235800 rows
+2026-10-17 12:34:12,217 INFO optpred.export: exported option_chain_snap  2026-08-26      237650 rows
+2026-10-17 12:34:12,941 INFO optpred.export: exported option_chain_snap  2026-08-27      238600 rows
+2026-10-17 12:34:13,879 INFO optpred.export: exported option_chain_snap  2026-08-28      238750 rows
+2026-10-17 12:34:14,750 INFO optpred.export: exported option_chain_snap  2026-08-31      238400 rows
+2026-10-17 12:34:16,038 INFO optpred.export: exported option_chain_snap  2026-09-01      239150 rows
+2026-10-17 12:34:16,609 INFO optpred.export: exported option_chain_snap  2026-09-02      238700 rows
+2026-10-17 12:34:17,410 INFO optpred.export: exported option_chain_snap  2026-09-03      238450 rows
+2026-10-17 12:34:18,993 INFO optpred.export: exported option_chain_snap  2026-09-04      239000 rows
+2026-10-17 12:34:20,234 INFO optpred.export: exported option_chain_snap  2026-09-07      164700 rows
+2026-10-17 12:34:21,966 INFO optpred.export: exported option_chain_snap  2026-09-08      238150 rows
+2026-10-17 12:34:22,790 INFO optpred.export: exported option_chain_snap  2026-09-09      239000 rows
+2026-10-17 12:34:24,244 INFO optpred.export: exported option_chain_snap  2026-09-10      239150 rows
+2026-10-17 12:34:25,292 INFO optpred.export: exported option_chain_snap  2026-09-11      236350 rows
+2026-10-17 12:34:26,337 INFO optpred.export: exported option_chain_snap  2026-09-14      238200 rows
+2026-10-17 12:34:27,332 INFO optpred.export: exported option_chain_snap  2026-09-15      238675 rows
+2026-10-17 12:34:28,464 INFO optpred.export: exported option_chain_snap  2026-09-16      231100 rows
+2026-10-17 12:34:29,765 INFO optpred.export: exported option_chain_snap  2026-09-17      239600 rows
+2026-10-17 12:34:30,311 INFO optpred.export: exported option_chain_snap  2026-09-18      239000 rows
+2026-10-17 12:34:31,082 INFO optpred.export: exported option_chain_snap  2026-09-21      239350 rows
+2026-10-17 12:34:32,346 INFO optpred.export: exported option_chain_snap  2026-09-22      238950 rows
+2026-10-17 12:34:36,184 INFO optpred.export: exported option_chain_snap  2026-09-23      239000 rows
+2026-10-17 12:34:37,780 INFO optpred.export: exported option_chain_snap  2026-09-24      238150 rows
+2026-10-17 12:34:38,647 INFO optpred.export: exported option_chain_snap  2026-09-25      238400 rows
+2026-10-17 12:34:39,666 INFO optpred.export: exported option_chain_snap  2026-09-28      237300 rows
+2026-10-17 12:34:40,514 INFO optpred.export: exported option_chain_snap  2026-09-29      238600 rows
+2026-10-17 12:34:41,698 INFO optpred.export: exported option_chain_snap  2026-09-30      238150 rows
+2026-10-17 12:34:42,982 INFO optpred.export: exported option_chain_snap  2026-10-01      237625 rows
+2026-10-17 12:34:43,618 INFO optpred.export: exported option_chain_snap  2026-10-02      239200 rows
+2026-10-17 12:34:44,774 INFO optpred.export: exported option_chain_snap  2026-10-05      238400 rows
+2026-10-17 12:34:45,392 INFO optpred.export: exported option_chain_snap  2026-10-06      238200 rows
+2026-10-17 12:34:46,589 INFO optpred.export: exported option_chain_snap  2026-10-07      237000 rows
+2026-10-17 12:34:47,309 INFO optpred.export: exported option_chain_snap  2026-10-08      236700 rows
+2026-10-17 12:34:48,509 INFO optpred.export: exported option_chain_snap  2026-10-09      236900 rows
+2026-10-17 12:34:49,538 INFO optpred.export: exported option_chain_snap  2026-10-12      237750 rows
+2026-10-17 12:34:50,403 INFO optpred.export: exported option_chain_snap  2026-10-13      237550 rows
+2026-10-17 12:34:50,956 INFO optpred.export: exported option_chain_snap  2026-10-14      237550 rows
+2026-10-17 12:34:51,900 INFO optpred.export: exported option_chain_snap  2026-10-15      237750 rows
+2026-10-17 12:34:52,706 INFO optpred.export: exported option_chain_snap  2026-10-16      160100 rows
+2026-10-17 12:34:52,706 INFO optpred.export: done: 159 files in manifest, 0 failures
+2026-10-17 12:34:52,707 INFO optpred.export: run 20261017T155743-export finished: ok in 428.9s

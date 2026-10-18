@@ -1,0 +1,59 @@
+2026-10-17 10:56:45,190 INFO optpred.check: run 20261017T162645-check  commit 0d8020975b (DIRTY)
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-03 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-04 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-05 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-06 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-07 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-10 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-11 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-12 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-13 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-14 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-17 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-18 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-19 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-20 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-21 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-24 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-25 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-26 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-27 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-28 accept 
+2026-10-17 11:00:52,158 INFO optpred.check: 2026-08-31 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-01 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-02 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-03 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-04 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-07 accept chain partial: 266/375 minutes
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-08 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-09 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-10 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-11 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-14 reject tape covers 0/375 minutes; spot covers 0/375 minutes; tape prices never change (frozen feed); chain partial: 375/375 minutes
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-15 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-16 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-17 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-18 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-21 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-22 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-23 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-24 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-25 reject tape covers 0/375 minutes; spot covers 0/375 minutes; tape prices never change (frozen feed)
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-28 reject tape covers 0/375 minutes; spot covers 0/375 minutes; tape prices never change (frozen feed)
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-29 reject tape covers 0/375 minutes; spot covers 0/375 minutes; tape prices never change (frozen feed)
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-09-30 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-10-01 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-10-02 reject tape covers 0/375 minutes; spot covers 0/375 minutes; tape prices never change (frozen feed); chain partial: 375/375 minutes
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-10-05 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-10-06 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-10-07 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-10-08 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-10-09 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-10-12 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-10-13 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-10-14 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-10-15 accept 
+2026-10-17 11:00:52,159 INFO optpred.check: 2026-10-16 reject tape covers 255/375 minutes; spot covers 255/375 minutes; chain partial: 255/375 minutes
+2026-10-17 11:00:52,162 INFO optpred.check: accepted 49 / 55 days; 363345 tape rows/s
+2026-10-17 11:00:52,163 INFO optpred.check: run 20261017T162645-check finished: ok in 247.0s
+2026-10-17 11:00:52,163 INFO py4j.clientserver: Closing down clientserver connection
