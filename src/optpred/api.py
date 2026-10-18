@@ -451,15 +451,16 @@ def headline(action: int, row: pd.Series) -> str:
 
 
 def reason(action: int, probs: dict, tau: float) -> str:
-    top_side = max(("BUY_CE", "BUY_PE"), key=probs.get)
+    side = max(("BUY_CE", "BUY_PE"), key=probs.get)
+    name = "the call" if side == "BUY_CE" else "the put"
     if tau >= NEVER_TRADE:
         return (
             "This model never trades: on its validation days no way of trading beat the costs, "
             "so its rule is to stay out. The probabilities below show what it thinks anyway."
         )
     if action == STAY_OUT:
-        return f"Not confident enough to trade: its best side ({top_side}) is {probs[top_side]:.0%}."
-    return f"Confident enough to trade: {ACTION_NAMES[action]} at {probs[ACTION_NAMES[action]]:.0%}."
+        return f"Not confident enough to trade: its best choice, buying {name}, is only {probs[side]:.0%} likely (it needs {tau:.0%})."
+    return f"Confident enough to trade: buying {name} is {probs[side]:.0%} likely (it needs {tau:.0%})."
 
 
 __all__ = ["ModelServer", "ModelUnavailable", "Settings", "create_app"]

@@ -99,7 +99,7 @@ def test_stage_tracks_in_mlflow_and_registers_a_champion(tmp_path, monkeypatch):
     assert client.get_model_version_by_alias("m", "champion").run_id == summary["mlflow_run_id"]
     # what MLflow serves must give the same answer as the trained model, with the rule inside it
     served = mlflow.pyfunc.load_model("models:/m@champion").predict(
-        df[df["split"] == "val"][FEATURE_COLUMNS].head(5)
+        df[df["split"] == "val"][FEATURE_COLUMNS].head(5).astype(float)
     )
     assert list(served.columns) == ["p_stay_out", "p_buy_ce", "p_buy_pe", "action", "tau", "drivers"]
     assert np.allclose(served[["p_stay_out", "p_buy_ce", "p_buy_pe"]].sum(axis=1), 1.0)

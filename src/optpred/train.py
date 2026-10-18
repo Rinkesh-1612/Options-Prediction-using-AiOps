@@ -238,7 +238,7 @@ def main(argv: list[str], summary: dict) -> int:
             fig.savefig(tmp / "feature_importance.png", dpi=110)
             plt.close(fig)
             mlflow.log_artifacts(str(tmp))
-        X = val[FEATURE_COLUMNS]
+        X = val[FEATURE_COLUMNS].astype(float)  # all-float signature: no integer/missing-value trap
         with tempfile.TemporaryDirectory() as tmp:
             booster_file, meta_file = Path(tmp) / "booster.txt", Path(tmp) / "meta.json"
             model.booster_.save_model(str(booster_file))

@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NIFTY Option Direction</title>
+<link rel="icon" href="data:,">
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --ink: #1b1f27; --muted: #5d6675; --line: #dfe3ea;
+    --go: #0f8a4f; --go-bg: #e4f5ec; --stop: #c4382f; --stop-bg: #fbe9e7;
+    --wait: #4b5668; --wait-bg: #eceff4; --warn: #8a5a00; --warn-bg: #fff3d6; --accent: #2457d6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #12151b; --card: #1b2029; --ink: #e8ebf1; --muted: #9aa3b2; --line: #2d3442;
+      --go: #4cc38a; --go-bg: #123626; --stop: #ff7b72; --stop-bg: #3b1d1b;
+      --wait: #aab3c3; --wait-bg: #262c38; --warn: #f2c15c; --warn-bg: #3a2f12; --accent: #7aa2ff;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { padding: 14px 16px 0; max-width: 980px; margin: 0 auto; }
+  h1 { font-size: 20px; margin: 0 0 2px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 0 0 10px; }
+  .status { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); flex-wrap: wrap; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); display: inline-block; }
+  .dot.ok { background: var(--go); } .dot.bad { background: var(--stop); }
+  nav { display: flex; gap: 4px; max-width: 980px; margin: 12px auto 0; padding: 0 16px; border-bottom: 1px solid var(--line); }
+  nav button { background: none; border: 0; padding: 10px 14px; font: inherit; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; }
+  nav button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+  main { max-width: 980px; margin: 0 auto; padding: 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
+  .card h2 { font-size: 15px; margin: 0 0 10px; color: var(--muted); font-weight: 600; letter-spacing: .02em; }
+  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
+  select, input[type=range] { width: 100%; font: inherit; }
+  select { padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+  .row { display: grid; gap: 14px; grid-template-columns: 1fr; }
+  @media (min-width: 720px) { .row.two { grid-template-columns: 1fr 1fr; } }
+  .time { display: flex; align-items: center; gap: 10px; }
+  .time button, .btn { font: inherit; padding: 9px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; min-height: 44px; }
+  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .btn.danger { color: var(--stop); border-color: var(--stop); }
+  .clock { font-size: 22px; font-weight: 700; min-width: 70px; text-align: center; font-variant-numeric: tabular-nums; }
+  .verdict { border-radius: 12px; padding: 16px; }
+  .verdict.go { background: var(--go-bg); color: var(--go); } .verdict.wait { background: var(--wait-bg); color: var(--wait); }
+  .verdict .big { font-size: 28px; font-weight: 800; line-height: 1.15; }
+  .verdict p { color: var(--ink); margin: 8px 0 0; font-size: 15px; }
+  .bar { display: grid; grid-template-columns: 78px 1fr 46px; gap: 8px; align-items: center; margin: 6px 0; font-size: 14px; }
+  .bar .track { background: var(--wait-bg); border-radius: 6px; height: 12px; overflow: hidden; }
+  .bar .fill { height: 100%; background: var(--accent); }
+  .bar .pct { text-align: right; font-variant-numeric: tabular-nums; }
+  .why { list-style: none; padding: 0; margin: 0; }
+  .why li { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .why li:first-child { border-top: 0; }
+  .pos { color: var(--go); } .neg { color: var(--stop); }
+  .banner { padding: 10px 12px; border-radius: 8px; font-size: 14px; margin-bottom: 14px; }
+  .banner.warn { background: var(--warn-bg); color: var(--warn); } .banner.err { background: var(--stop-bg); color: var(--stop); }
+  .banner.info { background: var(--wait-bg); color: var(--ink); }
+  .money { font-variant-numeric: tabular-nums; font-weight: 700; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 6px; border-top: 1px solid var(--line); white-space: nowrap; }
+  th { color: var(--muted); font-weight: 600; border-top: 0; }
+  tr.click { cursor: pointer; } tr.click:hover { background: var(--wait-bg); }
+  .tablewrap { overflow-x: auto; }
+  .pill { padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; }
+  .pill.ok { background: var(--go-bg); color: var(--go); } .pill.failed { background: var(--stop-bg); color: var(--stop); }
+  pre { background: var(--wait-bg); padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 12px; max-height: 320px; }
+  .links a { color: var(--accent); margin-right: 14px; }
+  .muted { color: var(--muted); font-size: 13px; }
+  svg text { fill: var(--ink); font-size: 12px; } svg .edge { stroke: var(--muted); fill: none; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<header>
+  <h1>NIFTY option direction</h1>
+  <p class="sub">Pick a past minute. See what the model would have said, and what really happened next.</p>
+  <div class="status"><span class="dot" id="dot"></span><span id="statusText">connecting…</span><span id="modelBadge"></span></div>
+</header>
+<nav role="tablist">
+  <button role="tab" id="tabPredict" aria-selected="true">Pick a minute</button>
+  <button role="tab" id="tabPipeline" aria-selected="false">Pipeline</button>
+</nav>
+<main>
+  <div id="error" class="banner err" role="alert" hidden></div>
+
+  <section id="predict">
+    <div class="card">
+      <div class="row two">
+        <div><label for="day">Day</label><select id="day"></select></div>
+        <div>
+          <label for="slider">Time (the moment the decision is made)</label>
+          <div class="time">
+            <button id="prev" aria-label="one minute earlier">◀</button>
+            <span class="clock" id="clock">--:--</span>
+            <button id="next" aria-label="one minute later">▶</button>
+          </div>
+          <input type="range" id="slider" min="0" max="0" value="0" aria-label="time slider">
+        </div>
+      </div>
+    </div>
+    <div id="sampleWarn" class="banner warn" hidden>The model was trained on this day, so a good result here proves nothing. Pick a validation or later day to judge it.</div>
+    <div id="result" aria-live="polite">
+      <div class="banner info">Loading…</div>
+    </div>
+  </section>
+
+  <section id="pipeline" hidden>
+    <div class="card"><h2>PIPELINE (each box is a stage; colour is its latest run)</h2>
+      <div class="tablewrap"><svg id="dag" width="100%" style="min-width:560px" role="img" aria-label="pipeline stages"></svg></div>
+      <p class="muted">Green = last run succeeded, red = failed, grey = no run recorded.</p>
+    </div>
+    <div class="card"><h2>MODEL</h2><div id="modelBox" class="muted">loading…</div>
+      <p style="margin-top:12px">
+        <button class="btn primary" id="retrain">Retrain now</button>
+        <button class="btn danger" id="rollback">Roll back to previous model</button>
+      </p>
+      <div id="actionMsg" class="muted"></div>
+    </div>
+    <div class="card"><h2>RUNS (newest first; tap a row for its log)</h2>
+      <div class="tablewrap"><table id="runs"><thead><tr><th>Started</th><th>Stage</th><th>Status</th><th>Seconds</th><th>Rows/s</th><th>Commit</th></tr></thead><tbody></tbody></table></div>
+      <pre id="log" hidden></pre>
+    </div>
+    <div class="card links"><h2>TOOLS</h2><a id="lMlflow" target="_blank" rel="noopener">Experiment tracking (MLflow)</a><a id="lGrafana" target="_blank" rel="noopener">Live monitoring (Grafana)</a></div>
+  </section>
+</main>
+
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const NAMES = {
+  mid: "price", spread: "bid–ask gap (pts)", spread_pct: "bid–ask gap (% of price)",
+  imb1: "buyers vs sellers at best price", imb5: "buyers vs sellers, 5 levels deep", tbq: "all waiting buy vs sell orders",
+  ret1: "price change, last 1 min", ret3: "price change, last 3 min", ret5: "price change, last 5 min",
+  vol1: "traded volume, last 1 min", vol5: "traded volume, last 5 min", oi_chg5: "open interest change, 5 min",
+};
+const GLOBAL = {
+  spot_ret1: "NIFTY move, last 1 min", spot_ret2: "NIFTY move, last 2 min", spot_ret3: "NIFTY move, last 3 min",
+  spot_ret5: "NIFTY move, last 5 min", spot_range5: "NIFTY high–low range, 5 min", spot_rv5: "NIFTY choppiness, 5 min",
+  atm_iv: "option implied volatility", iv_gap: "put minus call implied volatility", pcr: "put/call open interest",
+  iv_chg5: "implied volatility change, 5 min", pcr_chg5: "put/call open interest change, 5 min",
+  minute: "time of day", dte: "days to expiry", is_expiry_day: "expiry day",
+};
+const friendly = (f) => {
+  if (GLOBAL[f]) return GLOBAL[f];
+  const m = f.match(/^(ce|pe)_(.+)$/);
+  return m ? `${m[1] === "ce" ? "Call" : "Put"} ${NAMES[m[2]] || m[2]}` : f;
+};
+const rs = (x) => (x < 0 ? "−" : "+") + "Rs " + Math.abs(Math.round(x)).toLocaleString("en-IN");
+let cfg = {}, days = [], minutes = [], busy = 0;
+
+function showError(msg) { const e = $("error"); e.textContent = msg; e.hidden = !msg; }
+async function api(path, opts = {}) {
+  let r;
+  try { r = await fetch(cfg.api_url + path, { headers: { "Content-Type": "application/json", ...(opts.headers || {}) }, ...opts }); }
+  catch (e) { throw new Error("Cannot reach the backend at " + cfg.api_url + ". Is it running?"); }
+  if (!r.ok) {
+    let d = ""; try { d = (await r.json()).detail || ""; } catch (_) { d = await r.text(); }
+    throw new Error(d || ("The backend answered " + r.status));
+  }
+  return r.headers.get("content-type").includes("json") ? r.json() : r.text();
+}
+const guard = (fn) => async (...a) => { try { showError(""); await fn(...a); } catch (e) { showError(e.message); } };
+
+/* ---------- predict tab ---------- */
+async function loadDays() {
+  days = await api("/days");
+  const label = { train: "training", val: "validation", test: "test", forward: "new" };
+  $("day").innerHTML = days.map((d) =>
+    `<option value="${d.day}">${d.day} · ${label[d.split] || d.split}${d.in_sample ? " (trained on)" : ""}</option>`).join("");
+  if (!days.length) { $("result").innerHTML = '<div class="banner info">No days available yet.</div>'; return; }
+  const firstOut = days.find((d) => !d.in_sample) || days[days.length - 1];
+  $("day").value = firstOut.day;
+  await loadMinutes();
+}
+async function loadMinutes() {
+  minutes = await api("/minutes?day=" + encodeURIComponent($("day").value));
+  const s = $("slider"); s.max = minutes.length - 1; s.value = Math.floor(minutes.length / 3);
+  await show();
+}
+async function show() {
+  const m = minutes[+$("slider").value]; if (!m) return;
+  $("clock").textContent = m.time;
+  const token = ++busy;
+  const p = await api("/predict", { method: "POST", body: JSON.stringify({ day: $("day").value, minute: m.minute }) });
+  if (token !== busy) return;               // a newer request has been made since
+  $("sampleWarn").hidden = !p.in_sample;
+  const o = p.outcome, go = p.action !== "STAY_OUT";
+  const bars = [["Stay out", p.probabilities.STAY_OUT], ["Buy call", p.probabilities.BUY_CE], ["Buy put", p.probabilities.BUY_PE]]
+    .map(([n, v]) => `<div class="bar"><span>${n}</span><div class="track"><div class="fill" style="width:${(v * 100).toFixed(1)}%"></div></div><span class="pct">${(v * 100).toFixed(0)}%</span></div>`).join("");
+  const why = p.drivers.map((d) => `<li><span>${friendly(d.feature)}${d.value === null ? " (missing)" : ""}</span><span class="${d.push >= 0 ? "pos" : "neg"}">${d.push >= 0 ? "▲ supports" : "▼ argues against"}</span></li>`).join("");
+  const moneyCls = (x) => (x >= 0 ? "pos" : "neg");
+  const best = { BUY_CE: "the call", BUY_PE: "the put", STAY_OUT: "neither (staying out was right)" }[o.best_in_hindsight];
+  $("result").innerHTML = `
+    <div class="verdict ${go ? "go" : "wait"}"><div class="big">${p.headline}</div><p>${p.reason}</p></div>
+    <div class="row two" style="margin-top:14px">
+      <div class="card"><h2>HOW SURE IS THE MODEL</h2>${bars}</div>
+      <div class="card"><h2>WHAT ACTUALLY HAPPENED (next ${o.horizon_min} MIN, AFTER ALL COSTS)</h2>
+        <p>Buying the call: <span class="money ${moneyCls(o.call_net_rs)}">${rs(o.call_net_rs)}</span><br>
+        Buying the put: <span class="money ${moneyCls(o.put_net_rs)}">${rs(o.put_net_rs)}</span><br>
+        Best in hindsight: <b>${best}</b><br>
+        The model's action made: <span class="money ${moneyCls(o.result_of_model_action_rs)}">${o.result_of_model_action_rs === 0 ? "Rs 0" : rs(o.result_of_model_action_rs)}</span></p>
+        <p class="muted">One lot (65). Bought at the asking price, sold at the bid ${o.horizon_min} minutes later, tax and slippage included.</p>
+      </div>
+    </div>
+    <div class="card"><h2>WHAT PUSHED THE MODEL (top 3 inputs)</h2><ul class="why">${why}</ul></div>
+    <div class="card"><h2>CONTRACTS CONSIDERED</h2>
+      <p class="muted">NIFTY ${Math.round(p.spot).toLocaleString("en-IN")} · strike ${p.call.strike} · call asks ${p.call.entry_ask.toFixed(2)} (gap ${p.call.spread_pts.toFixed(2)}) · put asks ${p.put.entry_ask.toFixed(2)} (gap ${p.put.spread_pts.toFixed(2)})</p></div>`;
+}
+
+/* ---------- pipeline tab ---------- */
+function drawDag(dag, runs) {
+  const level = {}; dag.nodes.forEach((n) => (level[n.id] = 0));
+  for (let i = 0; i < dag.nodes.length; i++) dag.edges.forEach((e) => (level[e.to] = Math.max(level[e.to], level[e.from] + 1)));
+  const cols = {}; dag.nodes.forEach((n) => (cols[level[n.id]] = (cols[level[n.id]] || []).concat(n.id)));
+  const pos = {}, W = 118, H = 40, GX = 36, GY = 22;
+  Object.entries(cols).forEach(([l, ids]) => ids.forEach((id, i) => (pos[id] = { x: 10 + l * (W + GX), y: 12 + i * (H + GY) })));
+  const last = {}; runs.slice().reverse().forEach((r) => (last[r.stage] = r.status));
+  const colour = (id) => (last[id] === "ok" ? "var(--go)" : last[id] === "failed" ? "var(--stop)" : "var(--muted)");
+  const width = 20 + (Math.max(...Object.keys(cols).map(Number)) + 1) * (W + GX);
+  const edges = dag.edges.map((e) => { const a = pos[e.from], b = pos[e.to];
+    return `<path class="edge" d="M${a.x + W},${a.y + H / 2} C${a.x + W + 18},${a.y + H / 2} ${b.x - 18},${b.y + H / 2} ${b.x},${b.y + H / 2}" marker-end="url(#arr)"/>`; }).join("");
+  const boxes = dag.nodes.map((n) => { const p = pos[n.id];
+    return `<g><rect x="${p.x}" y="${p.y}" width="${W}" height="${H}" rx="8" fill="var(--card)" stroke="${colour(n.id)}" stroke-width="2.5"/><text x="${p.x + W / 2}" y="${p.y + H / 2 + 4}" text-anchor="middle">${n.id}</text></g>`; }).join("");
+  const height = 24 + Math.max(...Object.values(cols).map((c) => c.length)) * (H + GY);
+  $("dag").setAttribute("viewBox", `0 0 ${width} ${height}`);
+  $("dag").innerHTML = `<defs><marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/></marker></defs>${edges}${boxes}`;
+}
+async function loadPipeline() {
+  const [dag, runs] = await Promise.all([api("/pipeline/dag"), api("/pipeline/runs?limit=40")]);
+  drawDag(dag, runs);
+  $("runs").querySelector("tbody").innerHTML = runs.map((r) => `<tr class="click" data-id="${r.run_id}">
+    <td>${r.started.replace("T", " ").slice(0, 16)}</td><td>${r.stage}</td><td><span class="pill ${r.status}">${r.status}</span></td>
+    <td>${r.duration_s}</td><td>${r.rows_per_s ? r.rows_per_s.toLocaleString("en-IN") : "–"}</td><td>${r.git_commit}${r.git_dirty ? " (edited)" : ""}</td></tr>`).join("")
+    || '<tr><td colspan="6" class="muted">No runs recorded yet.</td></tr>';
+  try {
+    const m = await api("/model"), c = m.champion;
+    const v = c.val_metrics, money = (x) => (x === undefined || x === null ? "–" : rs(x));
+    const rows = [
+      ["Trades per day (validation)", v.val_trades_per_day_selected ?? "–"],
+      ["Hit rate", v.val_hit_rate_selected !== undefined ? Math.round(v.val_hit_rate_selected * 100) + "%" : "–"],
+      ["Average result per trade: this model", money(v.val_net_per_trade_rs_selected)],
+      ["… random call/put", money(v.val_random_net_per_trade_rs)],
+      ["… momentum rule", money(v.val_momentum_net_per_trade_rs)],
+      ["… perfect hindsight (cannot be traded)", money(v.val_oracle_net_per_trade_rs)],
+      ["Confidence score, lower is better (guessing = " + (v.val_logloss_prior ?? "–") + ")", v.val_logloss ?? "–"],
+    ].map(([k, x]) => `<tr><td style="white-space:normal">${k}</td><td><b>${x}</b></td></tr>`).join("");
+    $("modelBox").innerHTML = `Serving <b>version ${c.version}</b> (code ${c.git_commit || "?"}). Confidence needed to trade: <b>${Number(c.tau) >= 1.01 ? "never trades" : c.tau}</b>.` +
+      `<div class="tablewrap"><table style="margin-top:8px">${rows}</table></div>` +
+      `<p class="muted">Validation days helped pick this model, so these numbers flatter it.</p>` + (m.previous ? `Previous version: ${m.previous.version}` : "");
+  } catch (e) { $("modelBox").textContent = e.message; }
+}
+async function showLog(id) {
+  const t = await api(`/pipeline/runs/${encodeURIComponent(id)}/log?lines=120`);
+  const pre = $("log"); pre.textContent = t; pre.hidden = false; pre.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+async function act(path, confirmText) {
+  if (!confirm(confirmText)) return;
+  const token = sessionStorage.getItem("adminToken") || prompt("Admin token (leave empty if none is set):") || "";
+  sessionStorage.setItem("adminToken", token);
+  const r = await api(path, { method: "POST", headers: token ? { "X-Admin-Token": token } : {} });
+  $("actionMsg").textContent = JSON.stringify(r);
+}
+
+/* ---------- wiring ---------- */
+function tab(name) {
+  $("predict").hidden = name !== "predict"; $("pipeline").hidden = name !== "pipeline";
+  $("tabPredict").setAttribute("aria-selected", name === "predict"); $("tabPipeline").setAttribute("aria-selected", name === "pipeline");
+  if (name === "pipeline") guard(loadPipeline)();
+}
+async function health() {
+  try { await api("/healthz"); $("dot").className = "dot ok"; $("statusText").textContent = "connected, model ready"; }
+  catch (e) { $("dot").className = "dot bad"; $("statusText").textContent = "model service not ready"; }
+}
+async function init() {
+  cfg = await (await fetch("config.json")).json();
+  $("lMlflow").href = cfg.mlflow_url; $("lGrafana").href = cfg.grafana_url;
+  $("tabPredict").onclick = () => tab("predict"); $("tabPipeline").onclick = () => tab("pipeline");
+  $("day").onchange = guard(loadMinutes);
+  $("slider").oninput = guard(show);
+  $("prev").onclick = () => { $("slider").value = Math.max(0, +$("slider").value - 1); guard(show)(); };
+  $("next").onclick = () => { $("slider").value = Math.min(+$("slider").max, +$("slider").value + 1); guard(show)(); };
+  $("runs").onclick = (ev) => { const tr = ev.target.closest("tr[data-id]"); if (tr) guard(showLog)(tr.dataset.id); };
+  $("retrain").onclick = guard(() => act("/retrain?reason=manual%20from%20web%20page", "Ask the pipeline to retrain the model?"));
+  $("rollback").onclick = guard(() => act("/rollback", "Switch the served model back to the previous version?"));
+  await health(); setInterval(health, 15000);
+  await guard(loadDays)();
+}
+init().catch((e) => showError("Could not start: " + e.message));
+</script>
+</body>
+</html>
