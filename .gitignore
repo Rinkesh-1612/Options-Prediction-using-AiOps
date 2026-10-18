@@ -8,3 +8,4 @@ __pycache__/
 /data/bars
 .pytest_cache/
 .ruff_cache/
+/data/features

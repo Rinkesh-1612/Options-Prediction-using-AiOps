@@ -37,3 +37,20 @@ stages:
       - data/days.json
     outs:
       - data/bars
+
+  features:
+    cmd: python -m optpred.features
+    params:
+      - features
+      - costs
+      - bars
+    deps:
+      - src/optpred/features.py
+      - src/optpred/labels.py
+      - data/bars
+      - data/days.json
+    outs:
+      - data/features
+    metrics:
+      - reports/features.json:
+          cache: false

@@ -20,7 +20,7 @@ def _ts(day: date, sod: np.ndarray) -> np.ndarray:
 def write_day(root: Path, day: date, frozen: bool = False, seed: int = 0) -> None:
     rng = np.random.default_rng(seed)
     sod = np.arange(9 * 3600, 15 * 3600 + 40 * 60, 2.0)  # a tick every 2 s, 09:00-15:40
-    spot = 22900 + (0 if frozen else 1) * np.cumsum(rng.normal(0, 1.5, len(sod)))
+    spot = 22900 + (0 if frozen else 1) * np.cumsum(rng.normal(0, 0.3, len(sod)))
     expiry = day + timedelta(days=(1 - day.weekday()) % 7 or 7)
     for t in ("opt_tape", "und_tape", "option_chain_snap"):
         (root / t).mkdir(parents=True, exist_ok=True)
@@ -41,7 +41,7 @@ def write_day(root: Path, day: date, frozen: bool = False, seed: int = 0) -> Non
     und.to_parquet(root / "und_tape" / f"{day}.parquet")
 
     rows = []
-    for k, strike in enumerate((22850, 22900, 22950)):
+    for k, strike in enumerate(range(22700, 23101, 50)):
         for side, sign in (("CE", 1), ("PE", -1)):
             mid = np.maximum(5, 100 + sign * (spot - strike) * 0.5)
             df = pd.DataFrame(
@@ -72,33 +72,37 @@ def write_day(root: Path, day: date, frozen: bool = False, seed: int = 0) -> Non
     tape.to_parquet(root / "opt_tape" / f"{day}.parquet")
 
     snap = sod[::2]
-    chain = pd.DataFrame(
-        {
-            "ts_ns": _ts(day, snap),
-            "expiry": str(expiry),
-            "expiry_rank": 0,
-            "dte": (expiry - day).days,
-            "strike": 22900.0,
-            "spot": spot[::2],
-            "ce_key": "c",
-            "ce_ltp": 100.0,
-            "ce_bid": 99.9,
-            "ce_ask": 100.1,
-            "ce_oi": 1e5,
-            "ce_volume": 1e4,
-            "ce_iv": 12.0,
-            "ce_delta": 0.5,
-            "pe_key": "p",
-            "pe_ltp": 100.0,
-            "pe_bid": 99.9,
-            "pe_ask": 100.1,
-            "pe_oi": 1.2e5,
-            "pe_volume": 1e4,
-            "pe_iv": 12.5,
-            "pe_delta": -0.5,
-        }
-    )
-    chain.to_parquet(root / "option_chain_snap" / f"{day}.parquet")
+    parts = []
+    for strike in range(22700, 23101, 50):
+        parts.append(
+            pd.DataFrame(
+                {
+                    "ts_ns": _ts(day, snap),
+                    "expiry": str(expiry),
+                    "expiry_rank": 0,
+                    "dte": (expiry - day).days,
+                    "strike": float(strike),
+                    "spot": spot[::2],
+                    "ce_key": "c",
+                    "ce_ltp": 100.0,
+                    "ce_bid": 99.9,
+                    "ce_ask": 100.1,
+                    "ce_oi": 1e5,
+                    "ce_volume": 1e4,
+                    "ce_iv": 12.0 + (strike - 22900) / 1e4,
+                    "ce_delta": 0.5,
+                    "pe_key": "p",
+                    "pe_ltp": 100.0,
+                    "pe_bid": 99.9,
+                    "pe_ask": 100.1,
+                    "pe_oi": 1.2e5,
+                    "pe_volume": 1e4,
+                    "pe_iv": 12.5 + (strike - 22900) / 1e4,
+                    "pe_delta": -0.5,
+                }
+            )
+        )
+    pd.concat(parts).to_parquet(root / "option_chain_snap" / f"{day}.parquet")
 
 
 def write_holiday(root: Path, day: date) -> None:

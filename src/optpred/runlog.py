@@ -28,6 +28,9 @@ from pathlib import Path
 import yaml
 
 IST = timezone(timedelta(hours=5, minutes=30))
+# Only changes to these make a run "dirty": output folders (logs, runs, data) are
+# untracked by design and must not mark every run as unreproducible.
+CODE_PATHS = ("src", "params.yaml", "dvc.yaml", "requirements.txt", "Dockerfile.pipeline", "pipe")
 LOG_FMT = "%(asctime)s %(levelname)s %(name)s: %(message)s"
 
 
@@ -71,7 +74,7 @@ def run(stage: str, main: Callable[[list[str], dict], int], argv: list[str] | No
         "argv": argv,
         "started": started.isoformat(timespec="seconds"),
         "git_commit": _git("rev-parse", "HEAD"),
-        "git_dirty": _git("status", "--porcelain") not in ("", "unknown"),
+        "git_dirty": _git("status", "--porcelain", "--", *CODE_PATHS) not in ("", "unknown"),
         "params_hash": _params_hash(stage),
         "host": platform.node(),
         "user": getpass.getuser(),

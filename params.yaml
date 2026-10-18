@@ -19,3 +19,21 @@ check:
 
 bars:
   out_dir: data/bars
+
+features:
+  out_dir: data/features
+  horizon_min: 2           # hold time; fixed BEFORE looking at any result (PLAN.md section 4)
+  first_minute: 560        # 09:20 -- five minutes of history exist
+  qty: 65                  # one lot
+  strike_step: 50
+  entry_max_age_s: 20      # the quote used to enter must be at most this old
+  min_entry_premium: 5.0   # skip near-worthless contracts (known at entry, so applied to everything)
+  n_val_days: 6
+  n_test_days: 10
+
+costs:
+  # Charged ON TOP of crossing the spread (entry at ask, exit at bid). Ravion measured 0.31
+  # on 10 live legs; its code charges 0.31 * 2 legs * qty = Rs40.3 per round trip while its
+  # comments say Rs25. Reported at several values, never silently one.
+  slippage_pts_per_leg: 0.31
+  sensitivity_pts_per_leg: [0.0, 0.15, 0.31]
