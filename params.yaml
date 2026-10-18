@@ -37,3 +37,8 @@ costs:
   # comments say Rs25. Reported at several values, never silently one.
   slippage_pts_per_leg: 0.31
   sensitivity_pts_per_leg: [0.0, 0.15, 0.31]
+
+baselines:
+  random_seeds: 100
+  bootstrap_resamples: 5000
+  seed: 20261018

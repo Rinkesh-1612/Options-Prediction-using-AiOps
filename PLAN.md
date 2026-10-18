@@ -96,6 +96,15 @@ For each minute *t* (decision made on data up to the end of *t*):
 - Horizon is fixed at 2 minutes **before** looking at results. 1 and 3 minutes are
   reported as side checks only, never chosen after the fact.
 
+**What the labels are, and are not (added after the first real run).** A label is a
+*hindsight* answer: "buying this side two minutes ago would have paid after costs". On the
+real train/val/test days the labels came out at roughly 20-32% STAY_OUT, 33-39% BUY_CE and
+35-40% BUY_PE at slippage 0.31. That is not evidence of an edge. NIFTY options move several
+points in two minutes, which is more than the ~1 point the costs take, so in hindsight one side
+usually pays. What matters is whether the model can pick the side *before* the move; blind
+picking loses the costs on average. This replaces an earlier, wrong expectation in the chat that
+STAY_OUT would dominate. The yardsticks are in section 5.
+
 ## 5. Evaluation (how we avoid fooling ourselves)
 
 - **No overlapping trades in evaluation.** One position at a time; signals during an
@@ -109,6 +118,11 @@ For each minute *t* (decision made on data up to the end of *t*):
   1. Always STAY_OUT (P&L = 0 by definition)
   2. Momentum: sign of the last 2-min spot move → CE/PE
   3. Random, at the same trade frequency as the model
+- **The locked test days are enforced in code**: the baselines stage refuses them without
+  `--final`, and the model stage will do the same. Everything is developed on train and val.
+- **Primary metric, fixed before any model result:** mean net rupees per day, with a 95%
+  interval from resampling days; the per-trade mean and hit rate are reported beside it.
+  Multiclass LightGBM is the declared model; anything else is reported as a side check.
 - **Independent route:** the final verdict is re-checked as a ravlab spec in Ravion-V2
   (Ravion CLAUDE.md rule) before it is used for any real trading decision.
 

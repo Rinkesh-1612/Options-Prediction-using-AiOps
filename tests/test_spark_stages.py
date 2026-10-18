@@ -41,6 +41,7 @@ def workdir(tmp_path_factory):
                     "n_test_days": 1,
                 },
                 "costs": {"slippage_pts_per_leg": 0.31, "sensitivity_pts_per_leg": [0.0, 0.31]},
+                "baselines": {"random_seeds": 5, "bootstrap_resamples": 50, "seed": 1},
             }
         )
     )
@@ -121,3 +122,13 @@ def test_features_use_only_the_past(workdir, feats):
     spot["expected"] = spot.groupby("day")["close"].transform(lambda c: np.log(c / c.shift(1)))
     m = feats.merge(spot[["day", "minute", "expected"]], on=["day", "minute"])
     assert np.allclose(m["spot_ret1"], m["expected"], equal_nan=True)
+
+
+def test_baselines_run_and_the_locked_test_days_stay_locked(workdir, feats):
+    from optpred import baselines
+
+    assert baselines.main(["--splits", "test"], {}) == 2  # refused without --final
+    assert baselines.main(["--splits", "train"], {}) == 0
+    res = json.loads((workdir / "reports/baselines.json").read_text())["results"]["train"]["0.31"]
+    assert res["stay_out"]["trades"] == 0 and res["stay_out"]["mean_net_per_day_rs"] == 0.0
+    assert res["oracle_not_tradable"]["mean_net_per_trade_rs"] > res["random"]["mean_net_per_trade_rs"]

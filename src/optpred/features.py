@@ -145,7 +145,9 @@ def spot_grid(spot: pd.DataFrame, step: int) -> pd.DataFrame:
     s = spot.drop_duplicates("minute").set_index("minute").reindex(MINUTES).ffill()
     s["spot_age_s"] = (s.index.to_numpy() + 1) * 60 - s["last_sod"]
     c = s["close"]
-    s["spot_ret1"], s["spot_ret3"], s["spot_ret5"] = (np.log(c / c.shift(k)) for k in (1, 3, 5))
+    s["spot_ret1"], s["spot_ret2"], s["spot_ret3"], s["spot_ret5"] = (
+        np.log(c / c.shift(k)) for k in (1, 2, 3, 5)
+    )
     s["spot_range5"] = (s["high"].rolling(5).max() - s["low"].rolling(5).min()) / c
     s["spot_rv5"] = np.log(c).diff().rolling(5).std()
     s["atm"] = np.floor(c / step + 0.5) * step
@@ -212,7 +214,19 @@ def build_day(day: str, bars_dir: Path, p: dict, drops: dict) -> pd.DataFrame:
     d["day"] = day
     n0 = len(d)
     d = d.join(
-        sp[["close", "spot_age_s", "spot_ret1", "spot_ret3", "spot_ret5", "spot_range5", "spot_rv5", "atm"]],
+        sp[
+            [
+                "close",
+                "spot_age_s",
+                "spot_ret1",
+                "spot_ret2",
+                "spot_ret3",
+                "spot_ret5",
+                "spot_range5",
+                "spot_rv5",
+                "atm",
+            ]
+        ],
         on="minute",
     )
     d = d.rename(columns={"close": "spot"}).join(ch, on="minute")

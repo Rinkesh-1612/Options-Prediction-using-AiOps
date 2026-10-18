@@ -54,3 +54,18 @@ stages:
     metrics:
       - reports/features.json:
           cache: false
+
+  baselines:
+    cmd: python -m optpred.baselines
+    params:
+      - features
+      - costs
+      - baselines
+    deps:
+      - src/optpred/baselines.py
+      - src/optpred/sim.py
+      - src/optpred/labels.py
+      - data/features
+    metrics:
+      - reports/baselines.json:
+          cache: false
