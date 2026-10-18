@@ -31,8 +31,8 @@ from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
 from optpred import runlog
+from optpred.clock import SESSION_MINUTES
 from optpred.spark_common import (
-    SESSION_MINUTES,
     clean_index,
     clean_opt_tape,
     in_session,

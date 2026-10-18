@@ -45,7 +45,7 @@ import yaml
 
 from optpred import runlog
 from optpred.labels import ACTION_NAMES, label_actions, statutory_cost_rs
-from optpred.spark_common import SESSION_FIRST_MIN, SESSION_LAST_MIN
+from optpred.clock import SESSION_FIRST_MIN, SESSION_LAST_MIN
 
 log = logging.getLogger("optpred.features")
 
