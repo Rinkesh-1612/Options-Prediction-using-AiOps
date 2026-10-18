@@ -105,6 +105,13 @@ def _fills(book: pd.DataFrame, side: str, qty: int, allow_thin: bool) -> np.ndar
     return np.array([fill_price(p[r], q[r], qty, allow_thin) for r in range(len(book))])
 
 
+def to_date(col: pd.Series) -> pd.Series:
+    """Expiry as a date. ClickHouse writes its Date type to Parquet as days since 1970 (a number)."""
+    if pd.api.types.is_numeric_dtype(col):
+        return pd.to_datetime(col, unit="D")
+    return pd.to_datetime(col)
+
+
 def _read_day(root: Path, name: str, day: str) -> pd.DataFrame:
     # partitioning=None: read the one day folder as-is (day is already known from its name)
     return pq.read_table(root / name / f"day={day}", partitioning=None).to_pandas()
@@ -175,8 +182,13 @@ def build_day(day: str, bars_dir: Path, p: dict, drops: dict) -> pd.DataFrame:
     """All decision rows for one day. `drops` counts every row removed, by reason."""
     h, qty, age_max = p["horizon_min"], p["qty"], p["entry_max_age_s"]
     opt = _read_day(bars_dir, "opt", day)
-    opt["expiry"] = pd.to_datetime(opt["expiry"])
+    opt["expiry"] = to_date(opt["expiry"])
     near_exp = opt.loc[opt["expiry"] >= pd.Timestamp(day), "expiry"].min()
+    if pd.isna(near_exp):
+        raise FeatureError(
+            f"{day}: no option expiry on or after the day. expiry dtype={opt['expiry'].dtype}, "
+            f"range {opt['expiry'].min()} .. {opt['expiry'].max()}, {len(opt)} bar rows"
+        )
     near = opt[opt["expiry"] == near_exp]
     key_of = near.drop_duplicates(["strike", "side", "instrument_key"])
     if key_of.duplicated(["strike", "side"]).any():

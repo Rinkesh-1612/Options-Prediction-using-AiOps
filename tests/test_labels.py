@@ -36,3 +36,10 @@ def test_assign_splits_is_chronological_and_whole_days():
     assert [s[d] for d in days] == ["train"] * 5 + ["val"] * 2 + ["test"] * 3
     with pytest.raises(features.FeatureError):
         features.assign_splits(days[:4], 2, 3)
+
+
+def test_to_date_accepts_clickhouse_day_counts_and_real_dates():
+    days = (pd.Timestamp("2026-10-20") - pd.Timestamp("1970-01-01")).days
+    from_number = features.to_date(pd.Series([np.uint16(days)]))
+    from_date = features.to_date(pd.Series([pd.Timestamp("2026-10-20").date()]))
+    assert from_number[0] == from_date[0] == pd.Timestamp("2026-10-20")

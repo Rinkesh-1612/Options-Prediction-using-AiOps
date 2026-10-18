@@ -47,7 +47,8 @@ def write_day(root: Path, day: date, frozen: bool = False, seed: int = 0) -> Non
             df = pd.DataFrame(
                 {
                     "ts_ns": _ts(day, sod + 0.1 * k),
-                    "expiry": expiry,
+                    # ClickHouse exports its Date type to Parquet as a uint16 day count, not a date
+                    "expiry": np.uint16((expiry - date(1970, 1, 1)).days),
                     "dte": (expiry - day).days,
                     "strike": float(strike),
                     "side": side,
