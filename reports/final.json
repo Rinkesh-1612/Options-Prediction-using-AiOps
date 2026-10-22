@@ -1,0 +1,447 @@
+{
+ "days": [
+  "2026-10-01",
+  "2026-10-05",
+  "2026-10-06",
+  "2026-10-07",
+  "2026-10-08",
+  "2026-10-09",
+  "2026-10-12",
+  "2026-10-13",
+  "2026-10-14",
+  "2026-10-15"
+ ],
+ "rows": 3668,
+ "tau": 1.01,
+ "by_slippage": {
+  "0.0": {
+   "champion": {
+    "days": 10,
+    "trades": 0,
+    "trades_per_day": 0.0,
+    "hit_rate": null,
+    "mean_net_per_trade_rs": null,
+    "mean_net_per_day_rs": 0.0,
+    "positive_days": 0
+   },
+   "baselines": {
+    "stay_out": {
+     "days": 10,
+     "trades": 0,
+     "trades_per_day": 0.0,
+     "hit_rate": null,
+     "mean_net_per_trade_rs": null,
+     "mean_net_per_day_rs": 0.0,
+     "positive_days": 0
+    },
+    "always_ce": {
+     "days": 10,
+     "trades": 1834,
+     "trades_per_day": 183.4,
+     "hit_rate": 0.4427,
+     "mean_net_per_trade_rs": -29.79,
+     "mean_net_per_day_rs": -5463.3,
+     "positive_days": 3,
+     "per_day_ci95_rs": [
+      -9645.7,
+      -1068.9
+     ],
+     "per_trade_ci95_rs": [
+      -52.42,
+      -5.84
+     ],
+     "resolvable_per_day_rs": 4633.9
+    },
+    "always_pe": {
+     "days": 10,
+     "trades": 1834,
+     "trades_per_day": 183.4,
+     "hit_rate": 0.4569,
+     "mean_net_per_trade_rs": -32.39,
+     "mean_net_per_day_rs": -5939.8,
+     "positive_days": 2,
+     "per_day_ci95_rs": [
+      -9756.2,
+      -2078.2
+     ],
+     "per_trade_ci95_rs": [
+      -53.26,
+      -11.31
+     ],
+     "resolvable_per_day_rs": 4164.3
+    },
+    "momentum": {
+     "days": 10,
+     "trades": 1787,
+     "trades_per_day": 178.7,
+     "hit_rate": 0.441,
+     "mean_net_per_trade_rs": -24.17,
+     "mean_net_per_day_rs": -4319.8,
+     "positive_days": 2,
+     "per_day_ci95_rs": [
+      -6882.3,
+      -1656.7
+     ],
+     "per_trade_ci95_rs": [
+      -38.56,
+      -9.28
+     ],
+     "resolvable_per_day_rs": 2728.1
+    },
+    "random": {
+     "days": 10,
+     "trades_per_day": 183.4,
+     "hit_rate": 0.4493,
+     "mean_net_per_trade_rs": -31.49,
+     "mean_net_per_day_rs": -5775.7,
+     "across_seeds_per_trade_p5_p95": [
+      -46.75,
+      -17.86
+     ],
+     "seeds": 100
+    },
+    "oracle_not_tradable": {
+     "days": 10,
+     "trades": 1730,
+     "trades_per_day": 173.0,
+     "hit_rate": 1.0,
+     "mean_net_per_trade_rs": 253.43,
+     "mean_net_per_day_rs": 43842.9,
+     "positive_days": 10,
+     "per_day_ci95_rs": [
+      39426.0,
+      48274.9
+     ],
+     "per_trade_ci95_rs": [
+      229.18,
+      278.17
+     ],
+     "resolvable_per_day_rs": 4718.7
+    }
+   },
+   "side_picking": {
+    "forced_policy": {
+     "days": 10,
+     "trades": 1788,
+     "trades_per_day": 178.8,
+     "hit_rate": 0.4648,
+     "mean_net_per_trade_rs": -33.82,
+     "mean_net_per_day_rs": -6047.8,
+     "positive_days": 2,
+     "per_day_ci95_rs": [
+      -10135.2,
+      -1985.3
+     ],
+     "per_trade_ci95_rs": [
+      -56.21,
+      -11.27
+     ],
+     "resolvable_per_day_rs": 4342.1
+    },
+    "coin_flip_same_minutes_per_day_mean": -5708.3,
+    "coin_flip_same_minutes_per_day_p5_p95": [
+     -8328.4,
+     -3256.5
+    ],
+    "seeds": 100,
+    "seeds_beaten": 37,
+    "detected": false
+   }
+  },
+  "0.15": {
+   "champion": {
+    "days": 10,
+    "trades": 0,
+    "trades_per_day": 0.0,
+    "hit_rate": null,
+    "mean_net_per_trade_rs": null,
+    "mean_net_per_day_rs": 0.0,
+    "positive_days": 0
+   },
+   "baselines": {
+    "stay_out": {
+     "days": 10,
+     "trades": 0,
+     "trades_per_day": 0.0,
+     "hit_rate": null,
+     "mean_net_per_trade_rs": null,
+     "mean_net_per_day_rs": 0.0,
+     "positive_days": 0
+    },
+    "always_ce": {
+     "days": 10,
+     "trades": 1834,
+     "trades_per_day": 183.4,
+     "hit_rate": 0.4106,
+     "mean_net_per_trade_rs": -49.29,
+     "mean_net_per_day_rs": -9039.6,
+     "positive_days": 1,
+     "per_day_ci95_rs": [
+      -13233.1,
+      -4633.3
+     ],
+     "per_trade_ci95_rs": [
+      -71.92,
+      -25.34
+     ],
+     "resolvable_per_day_rs": 4643.1
+    },
+    "always_pe": {
+     "days": 10,
+     "trades": 1834,
+     "trades_per_day": 183.4,
+     "hit_rate": 0.4329,
+     "mean_net_per_trade_rs": -51.89,
+     "mean_net_per_day_rs": -9516.1,
+     "positive_days": 1,
+     "per_day_ci95_rs": [
+      -13320.2,
+      -5662.3
+     ],
+     "per_trade_ci95_rs": [
+      -72.76,
+      -30.81
+     ],
+     "resolvable_per_day_rs": 4158.4
+    },
+    "momentum": {
+     "days": 10,
+     "trades": 1787,
+     "trades_per_day": 178.7,
+     "hit_rate": 0.4152,
+     "mean_net_per_trade_rs": -43.67,
+     "mean_net_per_day_rs": -7804.5,
+     "positive_days": 0,
+     "per_day_ci95_rs": [
+      -10363.1,
+      -5137.5
+     ],
+     "per_trade_ci95_rs": [
+      -58.06,
+      -28.78
+     ],
+     "resolvable_per_day_rs": 2728.8
+    },
+    "random": {
+     "days": 10,
+     "trades_per_day": 183.4,
+     "hit_rate": 0.4214,
+     "mean_net_per_trade_rs": -50.99,
+     "mean_net_per_day_rs": -9352.0,
+     "across_seeds_per_trade_p5_p95": [
+      -66.25,
+      -37.36
+     ],
+     "seeds": 100
+    },
+    "oracle_not_tradable": {
+     "days": 10,
+     "trades": 1662,
+     "trades_per_day": 166.2,
+     "hit_rate": 1.0,
+     "mean_net_per_trade_rs": 250.53,
+     "mean_net_per_day_rs": 41638.6,
+     "positive_days": 10,
+     "per_day_ci95_rs": [
+      37338.5,
+      46161.0
+     ],
+     "per_trade_ci95_rs": [
+      226.85,
+      275.16
+     ],
+     "resolvable_per_day_rs": 4691.6
+    }
+   },
+   "side_picking": {
+    "forced_policy": {
+     "days": 10,
+     "trades": 1788,
+     "trades_per_day": 178.8,
+     "hit_rate": 0.4329,
+     "mean_net_per_trade_rs": -53.32,
+     "mean_net_per_day_rs": -9534.4,
+     "positive_days": 2,
+     "per_day_ci95_rs": [
+      -13649.0,
+      -5427.2
+     ],
+     "per_trade_ci95_rs": [
+      -75.71,
+      -30.77
+     ],
+     "resolvable_per_day_rs": 4383.0
+    },
+    "coin_flip_same_minutes_per_day_mean": -9194.9,
+    "coin_flip_same_minutes_per_day_p5_p95": [
+     -11815.0,
+     -6743.1
+    ],
+    "seeds": 100,
+    "seeds_beaten": 37,
+    "detected": false
+   }
+  },
+  "0.31": {
+   "champion": {
+    "days": 10,
+    "trades": 0,
+    "trades_per_day": 0.0,
+    "hit_rate": null,
+    "mean_net_per_trade_rs": null,
+    "mean_net_per_day_rs": 0.0,
+    "positive_days": 0
+   },
+   "baselines": {
+    "stay_out": {
+     "days": 10,
+     "trades": 0,
+     "trades_per_day": 0.0,
+     "hit_rate": null,
+     "mean_net_per_trade_rs": null,
+     "mean_net_per_day_rs": 0.0,
+     "positive_days": 0
+    },
+    "always_ce": {
+     "days": 10,
+     "trades": 1834,
+     "trades_per_day": 183.4,
+     "hit_rate": 0.3866,
+     "mean_net_per_trade_rs": -70.09,
+     "mean_net_per_day_rs": -12854.3,
+     "positive_days": 0,
+     "per_day_ci95_rs": [
+      -17053.2,
+      -8435.5
+     ],
+     "per_trade_ci95_rs": [
+      -92.72,
+      -46.14
+     ],
+     "resolvable_per_day_rs": 4652.9
+    },
+    "always_pe": {
+     "days": 10,
+     "trades": 1834,
+     "trades_per_day": 183.4,
+     "hit_rate": 0.4002,
+     "mean_net_per_trade_rs": -72.69,
+     "mean_net_per_day_rs": -13330.8,
+     "positive_days": 0,
+     "per_day_ci95_rs": [
+      -17132.4,
+      -9485.3
+     ],
+     "per_trade_ci95_rs": [
+      -93.56,
+      -51.61
+     ],
+     "resolvable_per_day_rs": 4152.2
+    },
+    "momentum": {
+     "days": 10,
+     "trades": 1787,
+     "trades_per_day": 178.7,
+     "hit_rate": 0.3867,
+     "mean_net_per_trade_rs": -64.47,
+     "mean_net_per_day_rs": -11521.5,
+     "positive_days": 0,
+     "per_day_ci95_rs": [
+      -14084.1,
+      -8850.3
+     ],
+     "per_trade_ci95_rs": [
+      -78.86,
+      -49.58
+     ],
+     "resolvable_per_day_rs": 2729.6
+    },
+    "random": {
+     "days": 10,
+     "trades_per_day": 183.4,
+     "hit_rate": 0.3927,
+     "mean_net_per_trade_rs": -71.79,
+     "mean_net_per_day_rs": -13166.7,
+     "across_seeds_per_trade_p5_p95": [
+      -87.05,
+      -58.16
+     ],
+     "seeds": 100
+    },
+    "oracle_not_tradable": {
+     "days": 10,
+     "trades": 1609,
+     "trades_per_day": 160.9,
+     "hit_rate": 1.0,
+     "mean_net_per_trade_rs": 238.99,
+     "mean_net_per_day_rs": 38453.5,
+     "positive_days": 10,
+     "per_day_ci95_rs": [
+      34304.5,
+      42667.3
+     ],
+     "per_trade_ci95_rs": [
+      214.5,
+      263.57
+     ],
+     "resolvable_per_day_rs": 4468.1
+    }
+   },
+   "side_picking": {
+    "forced_policy": {
+     "days": 10,
+     "trades": 1788,
+     "trades_per_day": 178.8,
+     "hit_rate": 0.401,
+     "mean_net_per_trade_rs": -74.12,
+     "mean_net_per_day_rs": -13253.5,
+     "positive_days": 0,
+     "per_day_ci95_rs": [
+      -17396.4,
+      -9101.9
+     ],
+     "per_trade_ci95_rs": [
+      -96.51,
+      -51.57
+     ],
+     "resolvable_per_day_rs": 4427.7
+    },
+    "coin_flip_same_minutes_per_day_mean": -12914.0,
+    "coin_flip_same_minutes_per_day_p5_p95": [
+     -15534.1,
+     -10462.1
+    ],
+    "seeds": 100,
+    "seeds_beaten": 37,
+    "detected": false
+   }
+  }
+ },
+ "information": {
+  "model_logloss": 1.07392,
+  "prior_logloss": 1.09019,
+  "gain_per_day_mean": 0.01624,
+  "gain_per_day_ci95": [
+   0.00986,
+   0.02223
+  ],
+  "days_with_gain": 9,
+  "accuracy": 0.3901,
+  "detected": true
+ },
+ "verdict": {
+  "headline_slippage": 0.31,
+  "champion_net_per_day_rs": 0.0,
+  "every_trading_baseline_lost": true,
+  "information_detected": true,
+  "side_picking_detected": false
+ },
+ "protocol": "docs/FINAL_TEST_PROTOCOL.md",
+ "model": {
+  "name": "nifty-option-direction",
+  "version": 1,
+  "run_id": "8fb773ac99404901ba17592595ef4f52"
+ },
+ "evaluated_at_commit": "2ccd869373c75c61d87a518e553072cf34711364",
+ "mlflow_run_id": "b4123eabec454a1e9bab5a89530bb970"
+}

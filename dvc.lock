@@ -385,3 +385,51 @@ stages:
       hash: md5
       md5: 7c7193acd55653f6a8dd94ea67944d6f
       size: 161
+  evaluate:
+    cmd: python -m optpred.evaluate --final
+    deps:
+    - path: data/features
+      hash: md5
+      md5: 137d04227ecdf1b20efaee4df0c04c87.dir
+      size: 5035841
+      nfiles: 1
+    - path: reports/register.json
+      hash: md5
+      md5: 7c7193acd55653f6a8dd94ea67944d6f
+      size: 161
+    - path: src/optpred/evaluate.py
+      hash: md5
+      md5: 6c1b17fdc7c0e1ff01d2c70681c5088f
+      size: 11407
+    params:
+      params.yaml:
+        baselines:
+          random_seeds: 100
+          bootstrap_resamples: 5000
+          seed: 20261018
+        costs:
+          slippage_pts_per_leg: 0.31
+          sensitivity_pts_per_leg:
+          - 0.0
+          - 0.15
+          - 0.31
+        features:
+          out_dir: data/features
+          horizon_min: 2
+          first_minute: 560
+          qty: 65
+          strike_step: 50
+          entry_max_age_s: 20
+          min_entry_premium: 5.0
+          n_val_days: 6
+          n_test_days: 10
+        mlflow:
+          tracking_uri: sqlite:///mlflow/mlflow.db
+          artifact_root: mlflow/artifacts
+          experiment: nifty-option-direction
+          registered_model: nifty-option-direction
+    outs:
+    - path: reports/final.json
+      hash: md5
+      md5: be14d0656133ae797450dcdb3e6e7988
+      size: 9469
