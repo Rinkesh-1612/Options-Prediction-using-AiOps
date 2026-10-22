@@ -142,6 +142,16 @@ def test_locked_test_days_stay_hidden_until_the_final_marker_exists(env):
     assert c.post("/predict", json={"day": "2026-05-01", "minute": 600}).status_code == 200
 
 
+def test_results_appear_only_after_the_one_time_evaluation(env):
+    st, _ = env
+    c = client(env)
+    assert c.get("/results").status_code == 404
+    st.final_marker.write_text(json.dumps({"verdict": {"champion_net_per_day_rs": 0.0}}))
+    assert c.get("/results").json()["verdict"]["champion_net_per_day_rs"] == 0.0
+    st.final_marker.write_text("{not json")
+    assert c.get("/results").status_code == 500
+
+
 def test_predict_reports_what_actually_happened_with_the_same_costs_as_the_labels(env):
     _, df = env
     r = client(env).post("/predict", json={"day": "2026-03-01", "minute": 600}).json()

@@ -485,6 +485,16 @@ def create_app(
             raise HTTPException(404, "no champion model registered yet")
         return {"registered_model": name, **info}
 
+    @app.get("/results", summary="The one-time score on the locked test days (reports/final.json)")
+    def results():
+        if not final_done():
+            raise HTTPException(404, "the locked test days have not been scored yet")
+        try:
+            return json.loads(st.final_marker.read_text())
+        except (OSError, ValueError) as e:
+            log.error("cannot read %s: %s", st.final_marker, e)
+            raise HTTPException(500, f"the final results file is unreadable: {e}") from e
+
     @app.post("/rollback", dependencies=[Depends(require_admin)])
     def rollback():
         c, name = mlflow_api(), params["mlflow"]["registered_model"]

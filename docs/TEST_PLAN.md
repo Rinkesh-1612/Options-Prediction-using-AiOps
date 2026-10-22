@@ -2,7 +2,7 @@
 
 ## 1. Scope
 
-We test the code we wrote: the pipeline stages, the simulator, the model stage, the API,
+We test the code we wrote: the pipeline stages, the simulator, the model, register and evaluate stages, the API,
 the drift check, the replay tool and the web page configuration.
 We do not test Spark, LightGBM, MLflow or Docker themselves.
 
@@ -11,8 +11,8 @@ We do not test Spark, LightGBM, MLflow or Docker themselves.
 | Level | What it proves | Where |
 |---|---|---|
 | Unit | One function does what its name says (labels, costs, simulator, PSI, folds). | `tests/test_labels.py`, `test_sim.py`, `test_drift.py`, `test_tune.py`, `test_export.py` |
-| Integration | Stages work together on small planted data: Spark `check`, `bars`, `features`, `baselines`; the model stage with MLflow. | `tests/test_spark_stages.py`, `test_train.py` |
-| API contract | Each endpoint returns the documented status and body. The OpenAPI document equals `docs/LLD.md`. | `tests/test_api.py` |
+| Integration | Stages work together on small planted data: Spark `check`, `bars`, `features`, `baselines`; `train`, `register` and `evaluate` with a real MLflow store. | `tests/test_spark_stages.py`, `test_train.py`, `test_evaluate.py` |
+| API contract | Each endpoint returns the documented status and body. The OpenAPI document equals `docs/LLD.md`. Every path the page calls is in `docs/LLD.md`. | `tests/test_api.py`, `test_frontend.py` |
 | End to end | The running stack answers: page, API, model server, MLflow, Prometheus, Grafana. | Section 6 (smoke test) |
 
 ## 3. Method
@@ -22,7 +22,7 @@ We do not test Spark, LightGBM, MLflow or Docker themselves.
 * **Independent route.** One test recomputes the features from raw ticks with different code and compares.
 * **Fake model service.** API tests use a fake `ModelServer`. The real one is covered by the smoke test.
 * **No look-ahead.** One test changes future ticks and checks that the features do not move.
-* **Locked test days.** Tests check that the baselines stage and the API refuse them.
+* **Locked test days.** Tests check that the baselines stage, the API and the evaluate stage refuse them, and that `evaluate` refuses a second look.
 
 ## 4. Test cases
 
@@ -57,16 +57,25 @@ A script creates that report from pytest's own output.
 | T-24 | Serving | `test_serving_code_imports_without_spark` | The serving image needs no Spark. |
 | T-25 | UI | `test_page_reads_the_api_address_from_config_not_from_code` | No hard-coded back end address. |
 | T-26 | Replay | `test_every_minute_is_sent_once_per_loop` | One call per minute. |
+| T-27 | Register | `test_register_promotes_only_a_better_model_and_keeps_the_old_one_for_rollback` | Equal model: champion stays. Better model: champion moves, old one becomes `previous`. |
+| T-28 | Evaluate | `test_refuses_without_final_and_refuses_a_second_look` | Exit 2 without `--final`. Exit 3 when `reports/final.json` exists. |
+| T-29 | Evaluate | `test_scores_the_registered_champion_and_writes_the_marker` | Scores the registry champion with its own tau. A planted signal is detected on unseen days. MLflow run tagged `test_days_read=yes`. |
+| T-30 | Evaluate | `test_a_never_trade_model_scores_zero_and_finds_nothing_in_noise` | Never-trade model: 0 trades, Rs 0. Noise: nothing detected. |
+| T-31 | API | `test_results_appear_only_after_the_one_time_evaluation` | 404 before, the file after, 500 for a broken file. |
+| T-32 | UI | `test_every_backend_path_the_page_calls_is_in_the_low_level_design` | No undocumented endpoint is used by the page. |
 
-## 5. Acceptance criteria (written before the final run)
+## 5. Acceptance criteria
+
+Criteria 1–7 were written on 19 Oct, before the final run. Criterion 8 was added on 22 Oct with the `evaluate` stage.
 
 1. Every automated test passes. Zero failures. Zero errors.
 2. `ruff check .` reports no problem.
-3. `dvc dag` prints the six-stage graph without error.
+3. `dvc dag` prints the nine-stage graph without error, and `dvc status` reports nothing to rerun.
 4. The smoke test (section 6) passes every step.
 5. The web page opens, lists the days, and returns a prediction for a validation minute with no error shown.
-6. No locked test day is visible in the page or the API before the final evaluation.
+6. No locked test day is visible in the page or the API before the final evaluation. After it, they are visible and `/results` answers.
 7. Rolling back and rolling forward changes the champion version that `/model` shows.
+8. The final evaluation ran once, from a clean commit (`git_dirty: false` in the journal), after its protocol was committed.
 
 ## 6. Smoke test of the running stack
 
@@ -76,13 +85,15 @@ Run these after `./stack up -d --build`. Each step has an expected result.
 |---|---|---|
 | S-1 | `./stack ps` | Every service is `running`; mlflow, model, api are `healthy`. |
 | S-2 | `curl -s localhost:8000/healthz` | `{"status":"ok",...}` |
-| S-3 | `curl -s localhost:8000/days` | A list. No day with `split` equal to `test`. |
+| S-3 | `curl -s localhost:8000/days` | A list. Before the final evaluation: no day with `split` equal to `test`. After it: 10 test days. |
 | S-4 | `curl -s -XPOST localhost:8000/predict -H 'content-type: application/json' -d '{"day":"2026-09-30","minute":600}'` | Status 200 with `action`. |
 | S-5 | Open `http://127.0.0.1:9091/targets` | All targets are `UP`. |
 | S-6 | Open `http://127.0.0.1:3001` | The dashboard "NIFTY option model — live" loads. |
 | S-7 | `./stack --profile demo up -d replay` and wait 60 seconds | "Predictions served" rises on the dashboard. |
 | S-8 | `curl -XPOST 'localhost:8000/retrain?reason=smoke' -H "X-Admin-Token: $ADMIN_TOKEN"` | 202. A file appears in `state/`. |
 | S-9 | `curl -XPOST localhost:8000/rollback -H "X-Admin-Token: $ADMIN_TOKEN"` | 200 with swapped versions, or 409 when only one version exists. |
+| S-10 | `curl -s localhost:8000/results` | The final result: `verdict`, `by_slippage`, `information`. |
+| S-11 | Open the page, tab **Results** | The table of rules on the unseen days; no error banner. |
 
 ## 7. How to run
 

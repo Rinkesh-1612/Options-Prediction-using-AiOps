@@ -19,8 +19,9 @@ The model gives one of three answers:
 A trade must beat all of them to count as a win.
 
 > **Read this first.** The tool is a research aid. It does not trade for you.
-> At the time of writing, on the validation days, no simple rule made money after costs.
-> The trained model therefore says "Stay out" on every minute. This is a real result, not a fault.
+> No way of trading made money after costs, on the validation days or on the 10 locked test days.
+> The model therefore says "Stay out" on every minute. This is the measured result, not a fault.
+> The **Results** tab shows the numbers.
 
 ## Open the page
 
@@ -45,7 +46,23 @@ A trade must beat all of them to count as a win.
 **Yellow warning "The model was trained on this day".** The model has seen this day.
 A good result here proves nothing. Choose a validation day to judge the model.
 
-## Tab 2: Pipeline
+## Tab 2: Results
+
+This tab answers the main question: would the model have made money on days it never saw?
+
+* **The large text** gives the answer in one sentence.
+* **The table** compares the model with simple rules on the 10 unseen test days: always buy the call,
+  always buy the put, follow the last 2 minutes, pick at random, and perfect hindsight (which nobody can trade).
+  "Per day" is the average rupee result per day after all costs. "Likely range" is where the true average
+  probably lies. A range that is all below zero means the rule loses money.
+* **Extra cost per trade leg.** Change it to see the result with smaller costs. The marked value was
+  measured on real trades.
+* **Does the model know anything?** Whether its odds were better than plain guessing.
+* **Can it pick call or put?** Whether it chose the right side more often than random picks at the same moments.
+
+The test days were scored **once**, with rules written down before anyone looked. They cannot be scored again.
+
+## Tab 3: Pipeline
 
 This tab shows how the model was built.
 
@@ -93,7 +110,7 @@ To see the dashboard move without waiting for the market, start the demo feed:
 | Spread | The gap between the buy price (ask) and the sell price (bid). You pay it on every trade. |
 | Slippage | The price moves a little against you while the order fills. |
 | Validation day | A day used to choose the settings. Not used to teach the model. |
-| Test day | A day kept locked until the end. It gives the one honest score. |
+| Test day | A day kept locked until the end. It gives the one honest score. Now shown in the day list, marked "test". |
 | Drift | The market has changed from what the model learned. |
 | Champion | The model that is live now. |
 

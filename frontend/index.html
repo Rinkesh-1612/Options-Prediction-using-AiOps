@@ -80,6 +80,7 @@
 </header>
 <nav role="tablist">
   <button role="tab" id="tabPredict" aria-selected="true">Pick a minute</button>
+  <button role="tab" id="tabResults" aria-selected="false">Results</button>
   <button role="tab" id="tabPipeline" aria-selected="false">Pipeline</button>
 </nav>
 <main>
@@ -104,6 +105,10 @@
     <div id="result" aria-live="polite">
       <div class="banner info">Loading…</div>
     </div>
+  </section>
+
+  <section id="results" hidden>
+    <div id="resultsBody"><div class="banner info">Loading…</div></div>
   </section>
 
   <section id="pipeline" hidden>
@@ -263,11 +268,69 @@ async function act(path, confirmText) {
   $("actionMsg").textContent = JSON.stringify(r);
 }
 
+/* ---------- results tab ---------- */
+let final = null;
+const RULES = [
+  ["champion", "This model (its rule: stay out)"], ["always_ce", "Always buy the call"], ["always_pe", "Always buy the put"],
+  ["momentum", "Follow the last 2 minutes"], ["random", "Pick call or put at random"], ["oracle_not_tradable", "Perfect hindsight (impossible)"],
+];
+async function loadResults() {
+  try { final = await api("/results"); }
+  catch (e) {
+    $("resultsBody").innerHTML = `<div class="banner info">The unseen test days have not been scored yet. ${e.message}</div>`;
+    return;
+  }
+  const slips = Object.keys(final.by_slippage).sort((a, b) => b - a);
+  $("resultsBody").innerHTML = `
+    <div class="verdict wait"><div class="big" id="resHeadline"></div><p id="resSub"></p></div>
+    <div class="card" style="margin-top:14px"><h2>RESULT PER DAY ON ${final.days.length} DAYS THE MODEL NEVER SAW</h2>
+      <label for="slip">Extra cost per trade leg (slippage, points)</label>
+      <select id="slip" style="max-width:220px;margin-bottom:10px">${slips.map((x) => `<option value="${x}">${x}${x === String(final.verdict.headline_slippage) ? " (measured on real trades)" : ""}</option>`).join("")}</select>
+      <div class="tablewrap"><table id="resTable"></table></div>
+      <p class="muted">One lot. Bought at the asking price, sold at the bid 2 minutes later, all taxes included.
+      The range is where the true average per day likely lies (95%).</p></div>
+    <div class="row two">
+      <div class="card"><h2>DOES THE MODEL KNOW ANYTHING?</h2><p id="resInfo"></p></div>
+      <div class="card"><h2>CAN IT PICK CALL OR PUT?</h2><p id="resSide"></p></div>
+    </div>
+    <p class="muted">Model version ${final.model.version} · scored once, by rules written down before the test
+    (${final.protocol}) · code ${String(final.evaluated_at_commit).slice(0, 10)}</p>`;
+  $("slip").value = String(final.verdict.headline_slippage);
+  $("slip").onchange = drawResults;
+  drawResults();
+}
+function drawResults() {
+  const r = final.by_slippage[$("slip").value], v = final.verdict, inf = final.information;
+  const sp = r.side_picking, f = sp.forced_policy;
+  const row = (k) => (k === "champion" ? r.champion : r.baselines[k]);
+  const range = (x) => (x.per_day_ci95_rs ? `${rs(x.per_day_ci95_rs[0])} to ${rs(x.per_day_ci95_rs[1])}` : "–");
+  const cls = (x) => (x > 0 ? "pos" : x < 0 ? "neg" : "");
+  $("resHeadline").textContent = v.every_trading_baseline_lost
+    ? "No way of trading beat the costs. Staying out was right."
+    : "Some rule made money on these days. Check the table.";
+  $("resSub").textContent = `On ${final.days.length} unseen days the model never traded, so it made Rs 0. ` +
+    "Every rule below that trades lost money after the spread and taxes.";
+  $("resTable").innerHTML = "<tr><th>Rule</th><th>Per day</th><th>Likely range per day</th><th>Per trade</th><th>Trades won</th></tr>" +
+    RULES.map(([k, name]) => { const x = row(k);
+      return `<tr><td style="white-space:normal">${name}</td><td class="money ${cls(x.mean_net_per_day_rs)}">${x.mean_net_per_day_rs === 0 ? "Rs 0" : rs(x.mean_net_per_day_rs)}</td>
+        <td>${range(x)}</td><td>${x.mean_net_per_trade_rs == null ? "–" : rs(x.mean_net_per_trade_rs)}</td>
+        <td>${x.hit_rate == null ? "–" : Math.round(x.hit_rate * 100) + "%"}</td></tr>`; }).join("");
+  $("resInfo").innerHTML = inf.detected
+    ? `<b>A little.</b> Its odds were better than plain guessing on ${inf.days_with_gain} of ${final.days.length} days.`
+    : `<b>No.</b> Its odds were no better than plain guessing (better on ${inf.days_with_gain} of ${final.days.length} days).`;
+  $("resSide").innerHTML = (sp.detected ? "<b>Yes.</b> " : "<b>No.</b> ") +
+    `Forced to trade, it made ${rs(f.mean_net_per_day_rs)} a day. Random picks at the same moments made about ` +
+    `${rs(sp.coin_flip_same_minutes_per_day_mean)}. It beat ${sp.seeds_beaten} of ${sp.seeds} random tries (it needed ${Math.ceil(sp.seeds * 0.95)}).`;
+}
+
 /* ---------- wiring ---------- */
 function tab(name) {
-  $("predict").hidden = name !== "predict"; $("pipeline").hidden = name !== "pipeline";
-  $("tabPredict").setAttribute("aria-selected", name === "predict"); $("tabPipeline").setAttribute("aria-selected", name === "pipeline");
+  for (const t of ["predict", "results", "pipeline"]) {
+    $(t).hidden = name !== t;
+    $("tab" + t[0].toUpperCase() + t.slice(1)).setAttribute("aria-selected", name === t);
+  }
   if (name === "pipeline") guard(loadPipeline)();
+  if (name === "results") guard(loadResults)();
 }
 async function health() {
   try { await api("/healthz"); $("dot").className = "dot ok"; $("statusText").textContent = "connected, model ready"; }
@@ -277,6 +340,7 @@ async function init() {
   cfg = await (await fetch("config.json")).json();
   $("lMlflow").href = cfg.mlflow_url; $("lGrafana").href = cfg.grafana_url;
   $("tabPredict").onclick = () => tab("predict"); $("tabPipeline").onclick = () => tab("pipeline");
+  $("tabResults").onclick = () => tab("results");
   $("day").onchange = guard(loadMinutes);
   $("slider").oninput = guard(show);
   $("prev").onclick = () => { $("slider").value = Math.max(0, +$("slider").value - 1); guard(show)(); };

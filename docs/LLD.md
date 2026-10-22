@@ -108,6 +108,17 @@ Writes `state/retrain_request.json`. The runner trains a new model. The new mode
 | 202 | `{"accepted": true, "reason": "<text>"}` |
 | 401 | token missing or wrong |
 
+### `GET /results`
+The one-time score on the locked test days, as written by the `evaluate` stage (`reports/final.json`).
+The rules are in `docs/FINAL_TEST_PROTOCOL.md`.
+
+| | |
+|---|---|
+| Input | none |
+| 200 | `{days, rows, tau, model: {name, version, run_id}, by_slippage: {"<slip>": {champion: S, baselines: {stay_out, always_ce, always_pe, momentum, random, oracle_not_tradable}: S, side_picking: {forced_policy: S, coin_flip_same_minutes_per_day_mean, coin_flip_same_minutes_per_day_p5_p95, seeds, seeds_beaten, detected}}}, information: {model_logloss, prior_logloss, gain_per_day_mean, gain_per_day_ci95, days_with_gain, accuracy, detected}, verdict: {...}, protocol, evaluated_at_commit, mlflow_run_id}` where `S = {days, trades, trades_per_day, hit_rate, mean_net_per_trade_rs, mean_net_per_day_rs, positive_days, per_day_ci95_rs?}` |
+| 404 | the test days have not been scored yet |
+| 500 | the results file cannot be read |
+
 ## Monitoring
 
 ### `GET /drift`
@@ -190,7 +201,9 @@ The last lines of one run log, as plain text. The API serves only files under `l
 | features | `python -m optpred.features` | `data/bars/` | `data/features/`, `data/splits.json`, `reports/features.json` |
 | baselines | `python -m optpred.baselines` | `data/features/` | `reports/baselines.json` |
 | tune | `python -m optpred.tune` | train days of `data/features/` | `reports/tune.json`, MLflow run |
-| train | `python -m optpred.train` | train and validation days | MLflow run and registered model |
+| train | `python -m optpred.train` | train and validation days | MLflow run, new model version, `reports/train.json` |
+| register | `python -m optpred.register` | `reports/train.json`, registry | registry aliases, `reports/register.json` |
+| evaluate | `python -m optpred.evaluate --final` (once; frozen in DVC) | test days, registry `champion` | `reports/final.json`, MLflow run `final-evaluation` |
 | replay | `python -m optpred.replay --api URL` | API | none (calls `/predict`) |
 
 Every stage returns exit code 0 on success. A failure returns non-zero and still writes a journal line.

@@ -100,13 +100,13 @@ Known data problems and what we do about them:
 |---|---|
 | Reproduce a run | Each run has a Git commit hash, a params hash and an MLflow run ID. The journal stores all three. |
 | Version code, data, models | Git (code), Git LFS (one-day sample), DVC (data, models) with a local remote on the VPS. |
-| Chain the stages | `dvc.yaml`. One command, `dvc repro`, runs all stages. |
+| Chain the stages | `dvc.yaml`: export → check → bars → features → baselines, tune, train → register → evaluate. One command, `dvc repro`, runs all stages. `evaluate` is frozen after its single run. |
 | CI | A pre-push hook runs ruff, pytest and `dvc dag`. |
 | Track experiments | MLflow. We log more than autolog: day results, costs, baselines, quality report. |
 | Serve | `mlflow models serve` behind FastAPI. |
 | Same environment everywhere | Docker images. `MLproject` runs each stage in the pipeline image. |
 | Monitor | Prometheus pulls metrics. Grafana shows them. Alert rules cover drift, failures and slow responses. |
-| Maintain | Drift alert → retrain request → new candidate → promote only if better. Roll back with one call. |
+| Maintain | Drift alert → retrain request → `train` + `register` → new candidate → promoted only if strictly better on validation. Roll back with one call. |
 | Security | The data snapshot is encrypted with AES-256. The key is outside the repo. Admin calls need a token. |
 | Drift window | PSI over the last ~2,000 served rows (about 5 sessions). On real data a single day already shows PSI above 0.25 on half the features, even a training day, so a one-day window gives false alarms. |
 | Small serving image | Multi-stage `Dockerfile.serve` on a `-slim` base. `scripts/image_sizes.sh` builds the naive single-stage version too and prints the saving. |

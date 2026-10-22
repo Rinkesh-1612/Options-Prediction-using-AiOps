@@ -26,3 +26,16 @@ def test_container_script_writes_the_same_keys():
 
 def test_frontend_image_holds_no_python():
     assert "pip" not in (FRONT / "Dockerfile").read_text().replace("# Static web page only: no Python", "")
+
+
+def test_every_backend_path_the_page_calls_is_in_the_low_level_design():
+    html = (FRONT / "index.html").read_text()
+    doc = (FRONT.parent / "docs/LLD.md").read_text()
+    documented = [
+        re.sub(r"\{[^}]+\}", "[^/]+", p) for p in re.findall(r"^### `(?:GET|POST) (/\S*)`", doc, re.M)
+    ]
+    called = {p for p in re.findall(r"api\([\"`](/[^\"`?$]*)", html) if not p.endswith("/")}
+    called |= {p.split("/${")[0] + "/x/log" for p in re.findall(r"api\(`(/pipeline/runs/\$\{[^`]*)", html)}
+    assert {"/results", "/predict", "/days"} <= called
+    for path in called:
+        assert any(re.fullmatch(d, path) for d in documented), path
