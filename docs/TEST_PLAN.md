@@ -63,6 +63,14 @@ A script creates that report from pytest's own output.
 | T-30 | Evaluate | `test_a_never_trade_model_scores_zero_and_finds_nothing_in_noise` | Never-trade model: 0 trades, Rs 0. Noise: nothing detected. |
 | T-31 | API | `test_results_appear_only_after_the_one_time_evaluation` | 404 before, the file after, 500 for a broken file. |
 | T-32 | UI | `test_every_backend_path_the_page_calls_is_in_the_low_level_design` | No undocumented endpoint is used by the page. |
+| T-33 | v2 fills | `test_vectorised_fill_matches_the_v1_fill_row_by_row` | The fast book fill equals the v1 fill on 200 random books. |
+| T-34 | v2 barriers | `test_take_profit_stop_loss_and_time_stop`, `test_the_first_barrier_touched_wins` | The first barrier touched decides the exit; a gap fills at the worse price. |
+| T-35 | v2 barriers | `test_no_trade_without_an_entry_and_no_barrier_on_a_missing_bid` | A missing bid never fakes a stop loss. |
+| T-36 | v2 inputs | `test_rolling_sum_uses_only_the_past` | A change in the future does not move a past input. |
+| T-37 | v2 simulator | `test_one_position_at_a_time_with_barrier_holds` | Signals during an open trade are ignored; no overnight position. |
+| T-38 | v2 Spark | `test_ticks_keep_only_contracts_that_can_be_at_the_money` | One row per contract-second; strikes near the day's range only; volumes add up. |
+| T-39 | v2 micro | `test_micro_rows_have_every_input_and_a_barrier_trade_for_both_sides` | Every input exists; every row has a call and a put trade with a valid exit. |
+| T-40 | Splits | `test_forward_days_never_move_the_locked_split` | New days become "forward"; the v1 split never changes. |
 
 ## 5. Acceptance criteria
 
@@ -70,7 +78,7 @@ Criteria 1–7 were written on 19 Oct, before the final run. Criterion 8 was add
 
 1. Every automated test passes. Zero failures. Zero errors.
 2. `ruff check .` reports no problem.
-3. `dvc dag` prints the nine-stage graph without error, and `dvc status` reports nothing to rerun.
+3. `dvc dag` prints the graph (nine v1 stages and four v2 stages) without error, and `dvc status` reports nothing to rerun.
 4. The smoke test (section 6) passes every step.
 5. The web page opens, lists the days, and returns a prediction for a validation minute with no error shown.
 6. No locked test day is visible in the page or the API before the final evaluation. After it, they are visible and `/results` answers.

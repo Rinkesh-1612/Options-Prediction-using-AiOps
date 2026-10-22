@@ -44,6 +44,22 @@ For each decision minute *t* (data up to the end of *t* only):
 | 22 M snapshots, 27 M order-book records | Measured counts in section 2 | The proposal used estimates. The report uses measured numbers. |
 | Pipeline: collect, check, features, train, evaluate, register | Same, as DVC stages: `export`, `check`, `bars`, `features`, `baselines`, `tune`, `train`, `register`, `evaluate` | `bars` and `tune` were added. |
 
+### 1.3 v2: second-level model with barrier exits
+
+v1 answered the proposal's question: no. Every rule lost after costs, and the model could not pick the side.
+v2 keeps the system and changes the trading problem, as the author asked (rules in `docs/V2_PROTOCOL.md`):
+
+| Item | v1 (baseline) | v2 |
+|---|---|---|
+| Decision | end of each minute | every second |
+| Inputs | minute summaries | order-flow imbalance, microprice, signed trade flow, queue changes, futures flow, lead-lag gap |
+| Exit | fixed 2-minute hold | take profit +3.5, stop loss −2.0 points, time stop 180 s |
+| Model | one 3-class LightGBM | two binary LightGBM: P(call wins), P(put wins) |
+| Honest test | 10 locked days (opened once) | forward days recorded after v1 was frozen (opened once) |
+
+Entry stays a taker buy (at the ask). The question becomes: can the order book and the futures flow, read second
+by second, pick moments where a bought option reaches +3.5 before −2.0, often enough to pay the costs?
+
 ## 2. Data
 
 "Ravion" below is the author's own live trading system on the same server. Its recorder stores the
@@ -86,6 +102,11 @@ Known data problems and what we do about them:
 | LightGBM | A standard model for table data. It trains in seconds. |
 | Trade threshold chosen on validation. "Never trade" is allowed. | If nothing beats the costs, the model stays out. |
 | Decision rule inside the served model | The API never applies its own rule. Offline and online cannot differ. |
+| v2: Spark for per-second ticks | OFI and trade signs need each tick and the tick before it: a window over 32 M ticks. |
+| v2: barriers fixed before training | Barriers tuned on results would be a hidden trial. They came from move sizes on 6 train days. |
+| v2: tau from out-of-fold days | A fold's model never saw the days it scores, so tau is chosen on unseen days. |
+| v2: train on every 5th second | Neighbouring seconds share almost all their inputs. Fewer rows, same information, 5× faster. |
+| v2: forward days as the clean test | The v1 test days were already opened. Only days recorded later are clean. |
 | Same feature code offline and online | It prevents training-serving skew. |
 
 ## 4. Paradigm

@@ -46,6 +46,10 @@ git add logs runs && git commit -m "run: export" && git push
 ./pipe python -m optpred.tune                 # Ray Tune: best LightGBM settings (train days only)
 ./pipe python -m optpred.train                # logs to MLflow, writes a new model version
 ./pipe python -m optpred.register             # moves the champion alias only if better on validation
+# v2 (docs/V2_PROTOCOL.md): second-level microstructure model with barrier exits
+./pipe python -m optpred.ticks                # Spark: raw ticks -> one row per contract per second
+./pipe python -m optpred.micro                # decision seconds, inputs, barrier trades
+./pipe python -m optpred.micro_train          # walk-forward, tau, registers nifty-option-micro
 ./pipe dvc repro                              # or run every stage in order with DVC
 # evaluate: the ONE look at the locked test days. Already run (reports/final.json); frozen in DVC.
 # Its rules: docs/FINAL_TEST_PROTOCOL.md. It refuses to run a second time.
