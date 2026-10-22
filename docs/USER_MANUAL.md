@@ -33,6 +33,8 @@ A trade must beat all of them to count as a win.
 
 ## Tab 1: Pick a minute
 
+![Pick a minute, desktop](img/predict-desktop.png)
+
 1. Choose a **Day**. The list shows only days the tool may show.
 2. Move the **time slider**, or tap ◀ and ▶ to move one minute.
 3. Read the result card:
@@ -47,6 +49,8 @@ A trade must beat all of them to count as a win.
 A good result here proves nothing. Choose a validation day to judge the model.
 
 ## Tab 2: Results
+
+![Results on unseen days, desktop](img/results-desktop.png)
 
 This tab answers the main question: would the model have made money on days it never saw?
 
@@ -63,6 +67,8 @@ This tab answers the main question: would the model have made money on days it n
 The test days were scored **once**, with rules written down before anyone looked. They cannot be scored again.
 
 ## Tab 3: Pipeline
+
+![Pipeline console](img/pipeline-desktop.png)
 
 This tab shows how the model was built.
 
@@ -81,6 +87,8 @@ The first time you press one, the page asks for it. The token is `ADMIN_TOKEN` i
 
 ## Live monitoring (Grafana)
 
+![Grafana dashboard during a replay](img/grafana.png)
+
 Open `http://127.0.0.1:3001`. The dashboard refreshes every 5 seconds. It has four rows:
 
 1. **The problem.** What the model chose, prediction against what happened, hit rate, and result in rupees.
@@ -90,6 +98,19 @@ Open `http://127.0.0.1:3001`. The dashboard refreshes every 5 seconds. It has fo
 
 To see the dashboard move without waiting for the market, start the demo feed:
 `./stack --profile demo up -d replay`. It replays the six validation days in a loop. Stop it with `./stack stop replay`.
+
+## On a phone
+
+The page fits a phone screen. Tables keep the most important columns.
+
+<p><img src="img/predict-phone.png" width="260" alt="Pick a minute on a phone"> <img src="img/results-phone.png" width="260" alt="Results on a phone"></p>
+
+## Experiment tracking (MLflow)
+
+Open `http://127.0.0.1:5050`. Every run of `tune`, `train` and `evaluate` is listed with its parameters,
+metrics, Git commit and artifacts. The `final-evaluation` run holds the one-time test score.
+
+![The final evaluation run in MLflow](img/mlflow-final-run.png)
 
 ## When something goes wrong
 

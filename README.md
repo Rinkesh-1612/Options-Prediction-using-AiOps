@@ -2,7 +2,12 @@
 
 DA3408 course project: predict, each minute, whether buying the ATM NIFTY call,
 buying the put, or staying out pays **after costs** over the next 2 minutes.
-Design and every decision with its reason: [docs/HLD.md](docs/HLD.md). Results: [docs/RESULTS.md](docs/RESULTS.md).
+Design and every decision with its reason: [docs/HLD.md](docs/HLD.md).
+
+**Result:** no tradable edge on 10 locked test days; the model correctly chose to stay out
+([docs/RESULTS.md](docs/RESULTS.md)).
+
+![Results tab](docs/img/results-desktop.png)
 
 *Ravion* (named below) is the author's own live trading system on the same server. Its recorder holds the
 market data. This project reads a frozen copy of it and never writes to it.
@@ -39,8 +44,11 @@ git add logs runs && git commit -m "run: export" && git push
 ./pipe python -m optpred.features
 ./pipe python -m optpred.baselines            # train + validation only
 ./pipe python -m optpred.tune                 # Ray Tune: best LightGBM settings (train days only)
-./pipe python -m optpred.train                # logs to MLflow, registers the model
+./pipe python -m optpred.train                # logs to MLflow, writes a new model version
+./pipe python -m optpred.register             # moves the champion alias only if better on validation
 ./pipe dvc repro                              # or run every stage in order with DVC
+# evaluate: the ONE look at the locked test days. Already run (reports/final.json); frozen in DVC.
+# Its rules: docs/FINAL_TEST_PROTOCOL.md. It refuses to run a second time.
 git add logs runs reports data/days.json data/splits.json && git commit -m "run: ..." && git push
 ```
 
@@ -80,6 +88,7 @@ git config core.hooksPath .githooks          # once: turns on the pre-push hook 
 | High-level design | [docs/HLD.md](docs/HLD.md) |
 | Low-level design (endpoints, I/O) | [docs/LLD.md](docs/LLD.md) |
 | Test plan and cases | [docs/TEST_PLAN.md](docs/TEST_PLAN.md), report: `reports/test_report.md` |
+| Results and final test protocol | [docs/RESULTS.md](docs/RESULTS.md), [docs/FINAL_TEST_PROTOCOL.md](docs/FINAL_TEST_PROTOCOL.md) |
 | User manual | [docs/USER_MANUAL.md](docs/USER_MANUAL.md) |
 
 ## Data safety

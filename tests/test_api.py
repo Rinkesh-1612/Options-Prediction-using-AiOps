@@ -203,6 +203,11 @@ def test_pipeline_dag_comes_from_the_real_dvc_file(env):
     dag = client(env).get("/pipeline/dag").json()
     edges = {(e["from"], e["to"]) for e in dag["edges"]}
     assert {("export", "check"), ("check", "bars"), ("bars", "features"), ("features", "baselines")} <= edges
+    assert {
+        ("features", "train"),
+        ("train", "register"),
+        ("register", "evaluate"),
+    } <= edges  # metrics link too
 
 
 def test_rollback_swaps_champion_and_previous_and_refuses_without_one(env):

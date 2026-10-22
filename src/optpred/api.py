@@ -252,13 +252,18 @@ def load_features(path: Path, p: dict, slip: float) -> pd.DataFrame:
 
 
 def dag_from_dvc(dvc_yaml: dict) -> dict:
-    """Stages as nodes; an edge A -> B when one of B's dependencies lives under one of A's outputs."""
+    """Stages as nodes; an edge A -> B when one of B's dependencies lives under one of A's outputs.
+
+    Metrics and plots files are outputs too (train publishes reports/train.json as a metric).
+    """
     stages = dvc_yaml.get("stages", {})
 
     def paths(items):
         return [next(iter(i)) if isinstance(i, dict) else i for i in items or []]
 
-    outs = {n: paths(s.get("outs")) for n, s in stages.items()}
+    outs = {
+        n: paths(s.get("outs")) + paths(s.get("metrics")) + paths(s.get("plots")) for n, s in stages.items()
+    }
     edges = {
         (a, b)
         for b, sb in stages.items()

@@ -46,7 +46,7 @@
   },
   {
    "id": 2,
-   "title": "Prediction vs what happened (counts)",
+   "title": "What happened (rows) vs what the model said (columns)",
    "type": "table",
    "datasource": {
     "type": "prometheus",
@@ -74,8 +74,20 @@
     "defaults": {},
     "overrides": []
    },
-   "options": {},
-   "description": "Rows: the model's action. Columns: the best action in hindsight, after costs."
+   "options": {
+    "showHeader": true
+   },
+   "description": "Counts of served minutes. Rows: the best action in hindsight after costs. Columns: the model's action.",
+   "transformations": [
+    {
+     "id": "groupingToMatrix",
+     "options": {
+      "columnField": "predicted",
+      "rowField": "actual",
+      "valueField": "Value"
+     }
+    }
+   ]
   },
   {
    "id": 3,
@@ -103,7 +115,12 @@
    ],
    "fieldConfig": {
     "defaults": {
-     "unit": "percentunit"
+     "unit": "percentunit",
+     "noValue": "no trades",
+     "color": {
+      "mode": "fixed",
+      "fixedColor": "text"
+     }
     },
     "overrides": []
    },
@@ -130,7 +147,7 @@
       "type": "prometheus",
       "uid": "prom"
      },
-     "expr": "sum(model_result_rs_total{sign=\"gain\"}) - sum(model_result_rs_total{sign=\"loss\"})",
+     "expr": "(sum(model_result_rs_total{sign=\"gain\"}) or vector(0)) - (sum(model_result_rs_total{sign=\"loss\"}) or vector(0))",
      "refId": "A"
     }
    ],
@@ -145,8 +162,12 @@
         "value": null
        },
        {
-        "color": "green",
+        "color": "text",
         "value": 0
+       },
+       {
+        "color": "green",
+        "value": 0.01
        }
       ]
      }
@@ -181,7 +202,21 @@
     }
    ],
    "fieldConfig": {
-    "defaults": {},
+    "defaults": {
+     "color": {
+      "mode": "fixed",
+      "fixedColor": "blue"
+     },
+     "thresholds": {
+      "mode": "absolute",
+      "steps": [
+       {
+        "color": "blue",
+        "value": null
+       }
+      ]
+     }
+    },
     "overrides": []
    },
    "options": {},
@@ -577,7 +612,21 @@
     }
    ],
    "fieldConfig": {
-    "defaults": {},
+    "defaults": {
+     "color": {
+      "mode": "fixed",
+      "fixedColor": "blue"
+     },
+     "thresholds": {
+      "mode": "absolute",
+      "steps": [
+       {
+        "color": "blue",
+        "value": null
+       }
+      ]
+     }
+    },
     "overrides": []
    },
    "options": {},
@@ -626,7 +675,8 @@
         "value": 0.25
        }
       ]
-     }
+     },
+     "noValue": "waiting for enough served rows (see Drift window)"
     },
     "overrides": []
    },
@@ -655,7 +705,7 @@
       "type": "prometheus",
       "uid": "prom"
      },
-     "expr": "pipeline_last_run_ok",
+     "expr": "max by (stage) (pipeline_last_run_ok)",
      "refId": "A",
      "format": "table",
      "instant": true
@@ -665,7 +715,7 @@
       "type": "prometheus",
       "uid": "prom"
      },
-     "expr": "pipeline_last_duration_seconds",
+     "expr": "max by (stage) (pipeline_last_duration_seconds)",
      "refId": "B",
      "format": "table",
      "instant": true
@@ -675,7 +725,7 @@
       "type": "prometheus",
       "uid": "prom"
      },
-     "expr": "pipeline_last_rows_per_second",
+     "expr": "max by (stage) (pipeline_last_rows_per_second)",
      "refId": "C",
      "format": "table",
      "instant": true
@@ -683,10 +733,78 @@
    ],
    "fieldConfig": {
     "defaults": {},
-    "overrides": []
+    "overrides": [
+     {
+      "matcher": {
+       "id": "byName",
+       "options": "last run"
+      },
+      "properties": [
+       {
+        "id": "mappings",
+        "value": [
+         {
+          "type": "value",
+          "options": {
+           "1": {
+            "text": "ok",
+            "color": "green"
+           },
+           "0": {
+            "text": "failed",
+            "color": "red"
+           }
+          }
+         }
+        ]
+       },
+       {
+        "id": "custom.cellOptions",
+        "value": {
+         "type": "color-text"
+        }
+       }
+      ]
+     }
+    ]
    },
-   "options": {},
-   "description": "OK = 1. Duration in seconds. Rows per second for the Spark stages."
+   "options": {
+    "showHeader": true,
+    "sortBy": [
+     {
+      "displayName": "stage"
+     }
+    ]
+   },
+   "description": "OK = 1. Duration in seconds. Rows per second for the Spark stages.",
+   "transformations": [
+    {
+     "id": "merge",
+     "options": {}
+    },
+    {
+     "id": "organize",
+     "options": {
+      "excludeByName": {
+       "Time": true,
+       "__name__": true,
+       "instance": true,
+       "job": true
+      },
+      "indexByName": {
+       "stage": 0,
+       "Value #A": 1,
+       "Value #B": 2,
+       "Value #C": 3
+      },
+      "renameByName": {
+       "Value #A": "last run",
+       "Value #B": "seconds",
+       "Value #C": "rows per second"
+      }
+     }
+    }
+   ]
   },
   {
    "id": 17,
