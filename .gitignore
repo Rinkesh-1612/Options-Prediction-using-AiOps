@@ -16,3 +16,5 @@ __pycache__/
 /reports/junit.xml
 /mlflow_first_try
 /.dvc/cache
+/data/ticks
+/data/micro

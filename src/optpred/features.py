@@ -82,13 +82,21 @@ class FeatureError(RuntimeError):
     """Raised when the bars break an assumption this stage relies on."""
 
 
-def assign_splits(accepted: list[str], n_val: int, n_test: int) -> dict[str, str]:
-    """Whole days in time order: train first, then validation, then the locked test days."""
-    days = sorted(accepted)
+def assign_splits(
+    accepted: list[str], n_val: int, n_test: int, forward_from: str | None = None
+) -> dict[str, str]:
+    """Whole days in time order: train first, then validation, then the locked test days.
+
+    Days on or after `forward_from` were recorded after the model was frozen: they are "forward" days and
+    never change which earlier day is train, validation or test.
+    """
+    forward = sorted(d for d in accepted if forward_from and d >= forward_from)
+    days = sorted(d for d in accepted if d not in forward)
     if len(days) <= n_val + n_test:
         raise FeatureError(f"{len(days)} days is not enough for {n_val} validation + {n_test} test days")
     cut_val, cut_test = len(days) - n_val - n_test, len(days) - n_test
-    return {d: "train" if i < cut_val else "val" if i < cut_test else "test" for i, d in enumerate(days)}
+    out = {d: "train" if i < cut_val else "val" if i < cut_test else "test" for i, d in enumerate(days)}
+    return out | {d: "forward" for d in forward}
 
 
 def fill_price(prices, qtys, need: float, allow_thin: bool = False) -> float:
@@ -316,7 +324,7 @@ def main(argv: list[str], summary: dict) -> int:
         params = yaml.safe_load(f)
     p, costs, bars_dir = params["features"], params["costs"], Path(params["bars"]["out_dir"])
     accepted = json.loads(Path("data/days.json").read_text())["accepted"]
-    splits = assign_splits(accepted, p["n_val_days"], p["n_test_days"])
+    splits = assign_splits(accepted, p["n_val_days"], p["n_test_days"], p.get("forward_from"))
 
     drops = dict.fromkeys(
         [

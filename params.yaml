@@ -20,6 +20,10 @@ check:
 bars:
   out_dir: data/bars
 
+ticks:                     # v2: one row per contract per second (docs/V2_PROTOCOL.md)
+  out_dir: data/ticks
+  strike_margin: 150       # keep nearest-expiry strikes within this many points of the day's NIFTY range
+
 features:
   out_dir: data/features
   horizon_min: 2           # hold time; fixed BEFORE looking at any result (docs/HLD.md section 1.2)
@@ -30,6 +34,38 @@ features:
   min_entry_premium: 5.0   # skip near-worthless contracts (known at entry, so applied to everything)
   n_val_days: 6
   n_test_days: 10
+  forward_from: "2026-10-17"   # days from here on were recorded after v1 was frozen: split "forward"
+
+micro:                     # v2 decision rows and barrier trades. FIXED in docs/V2_PROTOCOL.md: never tune these
+  out_dir: data/micro
+  qty: 65
+  strike_step: 50
+  first_sec: 33600         # 09:20:00
+  last_sec: 55500          # 15:25:00: a 180 s time stop still exits by 15:28
+  entry_max_age_s: 5
+  min_entry_premium: 5.0
+  take_profit_pts: 3.5
+  stop_loss_pts: 2.0
+  max_hold_s: 180
+
+micro_train:               # v2 model (docs/V2_PROTOCOL.md section 6). Settings fixed before any v2 result
+  n_folds: 3
+  min_train_days: 14
+  train_stride: 5          # train on every 5th second: neighbours share almost all their inputs
+  tau_grid: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 1.01]   # 1.01 = never trade
+  min_oof_trades: 20
+  seed: 20261022
+  registered_model: nifty-option-micro
+  lgbm:
+    n_estimators: 300
+    learning_rate: 0.03
+    num_leaves: 31
+    min_child_samples: 1000
+    subsample: 0.8
+    subsample_freq: 1
+    colsample_bytree: 0.8
+    reg_lambda: 5.0
+    n_jobs: 4
 
 costs:
   # Charged ON TOP of crossing the spread (entry at ask, exit at bid). Ravion measured 0.31

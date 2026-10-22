@@ -38,7 +38,15 @@ def write_day(root: Path, day: date, frozen: bool = False, seed: int = 0) -> Non
             "oi": 0.0,
         }
     )
-    und.to_parquet(root / "und_tape" / f"{day}.parquet")
+    fut = und.assign(  # NIFTY futures: a premium over spot, traded every tick (tick-rule flow)
+        kind="FUT",
+        instrument_key="NSE_FO|NIFTYFUT",
+        trading_symbol="NIFTY FUT",
+        ltp=spot + 40.0,
+        ltq=75.0,
+        volume=np.arange(len(sod)) * 75.0,
+    )
+    pd.concat([und, fut]).to_parquet(root / "und_tape" / f"{day}.parquet")
 
     rows = []
     for k, strike in enumerate(range(22700, 23101, 50)):

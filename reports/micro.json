@@ -1,0 +1,30 @@
+{
+ "rows": 1071575,
+ "days": 49,
+ "rows_by_split": {
+  "train": 721638,
+  "test": 218672,
+  "val": 131265
+ },
+ "label_stats_days": "train+val only",
+ "ce": {
+  "win_share": 0.3124,
+  "mean_net_rs": -74.98,
+  "exit_reason_share": {
+   "take_profit": 0.2227,
+   "stop_loss": 0.5727,
+   "time": 0.2046
+  },
+  "mean_hold_s": 86.6
+ },
+ "pe": {
+  "win_share": 0.3355,
+  "mean_net_rs": -60.85,
+  "exit_reason_share": {
+   "take_profit": 0.2077,
+   "stop_loss": 0.5016,
+   "time": 0.2906
+  },
+  "mean_hold_s": 100.7
+ }
+}

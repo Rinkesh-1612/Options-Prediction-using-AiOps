@@ -38,6 +38,20 @@ stages:
     outs:
     - data/bars
 
+  ticks:
+    # v2 (docs/V2_PROTOCOL.md): Spark, raw ticks -> one row per contract per second with order-flow measures
+    cmd: python -m optpred.ticks
+    params:
+      - ticks
+      - spark
+    deps:
+      - src/optpred/ticks.py
+      - src/optpred/spark_common.py
+      - data/raw
+      - data/days.json
+    outs:
+      - data/ticks
+
   features:
     cmd: python -m optpred.features
     params:
@@ -137,3 +151,57 @@ stages:
     - reports/final.json:
         cache: false
     frozen: true
+
+  micro:
+    # v2: one row per decision second, microstructure inputs, triple-barrier trades for the ATM call and put
+    cmd: python -m optpred.micro
+    params:
+      - micro
+      - costs
+    deps:
+      - src/optpred/micro.py
+      - src/optpred/labels.py
+      - data/ticks
+      - data/features
+      - data/splits.json
+    outs:
+      - data/micro
+    metrics:
+      - reports/micro.json:
+          cache: false
+
+  micro_train:
+    # v2 model: walk-forward on the 39 development days, tau from out-of-fold results, registered model
+    cmd: python -m optpred.micro_train
+    params:
+      - micro
+      - micro_train
+      - costs
+      - baselines
+      - mlflow
+    deps:
+      - src/optpred/micro_train.py
+      - src/optpred/register.py
+      - src/optpred/sim.py
+      - data/micro
+    metrics:
+      - reports/micro_train.json:
+          cache: false
+
+  micro_evaluate:
+    # The ONE look at the forward days for v2 (plus the disclosed second look at the v1 test days).
+    cmd: python -m optpred.micro_evaluate --final
+    params:
+      - micro
+      - micro_train
+      - costs
+      - baselines
+      - mlflow
+    deps:
+      - src/optpred/micro_evaluate.py
+      - reports/micro_train.json
+      - data/micro
+    metrics:
+      - reports/micro_final.json:
+          cache: false
+

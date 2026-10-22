@@ -94,7 +94,7 @@ def test_features_match_raw_ticks_by_an_independent_route(workdir, feats):
     """Recompute entry/exit/strike straight from the raw ticks, not through bars or features."""
     day = "2026-10-15"
     tape = pd.read_parquet(workdir / f"data/raw/opt_tape/{day}.parquet")
-    und = pd.read_parquet(workdir / f"data/raw/und_tape/{day}.parquet")
+    und = pd.read_parquet(workdir / f"data/raw/und_tape/{day}.parquet").query("kind == 'INDEX'")
     for df in (tape, und):
         df["minute"] = (((df["ts_ns"] // 1_000_000_000) + 19800) % 86400) // 60
     row = feats[(feats["day"] == day) & (feats["minute"] == 700)].iloc[0]
@@ -132,3 +132,53 @@ def test_baselines_run_and_the_locked_test_days_stay_locked(workdir, feats):
     res = json.loads((workdir / "reports/baselines.json").read_text())["results"]["train"]["0.31"]
     assert res["stay_out"]["trades"] == 0 and res["stay_out"]["mean_net_per_day_rs"] == 0.0
     assert res["oracle_not_tradable"]["mean_net_per_trade_rs"] > res["random"]["mean_net_per_trade_rs"]
+
+
+@pytest.fixture(scope="module")
+def micro_rows(workdir, feats):
+    from optpred import micro, ticks
+
+    params = yaml.safe_load((workdir / "params.yaml").read_text())
+    params["ticks"] = {"out_dir": "data/ticks", "strike_margin": 150}
+    params["micro"] = {
+        "out_dir": "data/micro",
+        "qty": 65,
+        "strike_step": 50,
+        "first_sec": 33600,
+        "last_sec": 55500,
+        "entry_max_age_s": 5,
+        "min_entry_premium": 5.0,
+        "take_profit_pts": 3.5,
+        "stop_loss_pts": 2.0,
+        "max_hold_s": 180,
+    }
+    (workdir / "params.yaml").write_text(yaml.safe_dump(params))
+    assert ticks.main([], {}) == 0
+    assert micro.main(["--workers", "1"], {}) == 0
+    return pd.read_parquet(workdir / "data/micro/micro.parquet")
+
+
+def test_ticks_keep_only_contracts_that_can_be_at_the_money(workdir, micro_rows):
+    opt = pd.read_parquet(workdir / "data/ticks/opt")
+    spot = pd.read_parquet(workdir / "data/ticks/spot")
+    lo, hi = spot["ltp"].min() - 150, spot["ltp"].max() + 150
+    assert opt["strike"].between(lo, hi).all() and opt["strike"].nunique() < len(STRIKES)
+    assert not opt.duplicated(["day", "instrument_key", "sec"]).any()
+    assert opt["sec"].between(555 * 60, 929 * 60 + 59).all()
+    # the synthetic tape trades 65 every tick (a tick every 2 s): each traded second carries 65
+    traded = opt[opt["vol"] > 0]
+    assert np.allclose(traded["vol"], 65) and (traded["signed_vol"].abs() <= traded["vol"]).all()
+    fut = pd.read_parquet(workdir / "data/ticks/fut")
+    assert len(fut) > 0 and np.allclose(fut.loc[fut["vol"] > 0, "vol"], 75)
+
+
+def test_micro_rows_have_every_input_and_a_barrier_trade_for_both_sides(micro_rows):
+    from optpred.micro import MICRO_COLUMNS
+
+    assert set(MICRO_COLUMNS) <= set(micro_rows.columns)
+    assert micro_rows["sec"].between(33600, 55500).all()
+    for side in ("ce", "pe"):
+        assert micro_rows[f"{side}_reason"].isin([1, 2, 3]).all()
+        assert micro_rows[f"{side}_hold_s"].between(1, 180).all()
+        assert np.isfinite(micro_rows[f"{side}_gross_rs"]).all()
+    assert set(micro_rows["split"]) <= {"train", "val", "test", "forward"}

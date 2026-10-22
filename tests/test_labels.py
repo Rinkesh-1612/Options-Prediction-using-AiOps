@@ -43,3 +43,11 @@ def test_to_date_accepts_clickhouse_day_counts_and_real_dates():
     from_number = features.to_date(pd.Series([np.uint16(days)]))
     from_date = features.to_date(pd.Series([pd.Timestamp("2026-10-20").date()]))
     assert from_number[0] == from_date[0] == pd.Timestamp("2026-10-20")
+
+
+def test_forward_days_never_move_the_locked_split():
+    days = [f"2026-10-{d:02d}" for d in range(1, 13)]
+    before = features.assign_splits(days[:8], n_val=2, n_test=3, forward_from="2026-10-09")
+    after = features.assign_splits(days, n_val=2, n_test=3, forward_from="2026-10-09")
+    assert {d: s for d, s in after.items() if d in before} == before
+    assert {after[d] for d in days[8:]} == {"forward"}

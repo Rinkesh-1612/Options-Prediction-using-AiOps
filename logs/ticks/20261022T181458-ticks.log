@@ -1,0 +1,7 @@
+2026-10-22 12:44:58,224 INFO optpred.ticks: run 20261022T181458-ticks  commit 08388d5422 (DIRTY)
+2026-10-22 12:46:39,484 INFO optpred.ticks: wrote spot seconds: 1102043 rows
+2026-10-22 12:47:18,819 INFO optpred.ticks: wrote fut  seconds: 860745 rows
+2026-10-22 13:05:40,887 INFO optpred.ticks: wrote opt  seconds: 20557701 rows
+2026-10-22 13:11:46,390 INFO optpred.ticks: 32055358 option ticks (ATM candidates) in 1193s = 26874 rows/s
+2026-10-22 13:11:46,625 INFO optpred.ticks: run 20261022T181458-ticks finished: ok in 1608.2s
+2026-10-22 13:11:46,719 INFO py4j.clientserver: Closing down clientserver connection

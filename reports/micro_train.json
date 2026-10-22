@@ -1,0 +1,192 @@
+{
+ "mlflow_run_id": "671aaa8b336c48daa9814b948bd96c33",
+ "tau": 1.01,
+ "oof_days": [
+  "2026-08-21",
+  "2026-08-24",
+  "2026-08-25",
+  "2026-08-26",
+  "2026-08-27",
+  "2026-08-28",
+  "2026-08-31",
+  "2026-09-01",
+  "2026-09-02",
+  "2026-09-03",
+  "2026-09-04",
+  "2026-09-07",
+  "2026-09-08",
+  "2026-09-09",
+  "2026-09-10",
+  "2026-09-11",
+  "2026-09-15",
+  "2026-09-16",
+  "2026-09-17",
+  "2026-09-18",
+  "2026-09-21",
+  "2026-09-22",
+  "2026-09-23",
+  "2026-09-24"
+ ],
+ "tau_table": [
+  {
+   "tau": 0.5,
+   "days": 24,
+   "trades": 1189,
+   "trades_per_day": 49.5,
+   "hit_rate": 0.397,
+   "mean_net_per_trade_rs": -41.92,
+   "mean_net_per_day_rs": -2076.6,
+   "positive_days": 0
+  },
+  {
+   "tau": 0.55,
+   "days": 24,
+   "trades": 380,
+   "trades_per_day": 15.8,
+   "hit_rate": 0.3947,
+   "mean_net_per_trade_rs": -36.59,
+   "mean_net_per_day_rs": -579.3,
+   "positive_days": 6
+  },
+  {
+   "tau": 0.6,
+   "days": 24,
+   "trades": 68,
+   "trades_per_day": 2.8,
+   "hit_rate": 0.3529,
+   "mean_net_per_trade_rs": -48.69,
+   "mean_net_per_day_rs": -137.9,
+   "positive_days": 1
+  },
+  {
+   "tau": 0.65,
+   "days": 24,
+   "trades": 8,
+   "trades_per_day": 0.3,
+   "hit_rate": 0.5,
+   "mean_net_per_trade_rs": -31.94,
+   "mean_net_per_day_rs": -10.6,
+   "positive_days": 1
+  },
+  {
+   "tau": 0.7,
+   "days": 24,
+   "trades": 0,
+   "trades_per_day": 0.0,
+   "hit_rate": null,
+   "mean_net_per_trade_rs": null,
+   "mean_net_per_day_rs": 0.0,
+   "positive_days": 0
+  },
+  {
+   "tau": 0.75,
+   "days": 24,
+   "trades": 0,
+   "trades_per_day": 0.0,
+   "hit_rate": null,
+   "mean_net_per_trade_rs": null,
+   "mean_net_per_day_rs": 0.0,
+   "positive_days": 0
+  },
+  {
+   "tau": 0.8,
+   "days": 24,
+   "trades": 0,
+   "trades_per_day": 0.0,
+   "hit_rate": null,
+   "mean_net_per_trade_rs": null,
+   "mean_net_per_day_rs": 0.0,
+   "positive_days": 0
+  },
+  {
+   "tau": 1.01,
+   "days": 24,
+   "trades": 0,
+   "trades_per_day": 0.0,
+   "hit_rate": null,
+   "mean_net_per_trade_rs": null,
+   "mean_net_per_day_rs": 0.0,
+   "positive_days": 0
+  }
+ ],
+ "oof_chosen": {
+  "days": 24,
+  "trades": 0,
+  "trades_per_day": 0.0,
+  "hit_rate": null,
+  "mean_net_per_trade_rs": null,
+  "mean_net_per_day_rs": 0.0,
+  "positive_days": 0
+ },
+ "random_side_control": {
+  "seeds": 0,
+  "seeds_beaten": 0
+ },
+ "baselines_oof": {
+  "always_ce": {
+   "days": 24,
+   "trades": 8108,
+   "trades_per_day": 337.8,
+   "hit_rate": 0.3283,
+   "mean_net_per_trade_rs": -72.94,
+   "mean_net_per_day_rs": -24641.8,
+   "positive_days": 0,
+   "per_day_ci95_rs": [
+    -28387.0,
+    -21470.3
+   ],
+   "per_trade_ci95_rs": [
+    -78.02,
+    -67.36
+   ],
+   "resolvable_per_day_rs": 3564.1
+  },
+  "always_pe": {
+   "days": 24,
+   "trades": 6813,
+   "trades_per_day": 283.9,
+   "hit_rate": 0.3531,
+   "mean_net_per_trade_rs": -60.37,
+   "mean_net_per_day_rs": -17138.8,
+   "positive_days": 0,
+   "per_day_ci95_rs": [
+    -20489.7,
+    -14159.4
+   ],
+   "per_trade_ci95_rs": [
+    -66.19,
+    -53.8
+   ],
+   "resolvable_per_day_rs": 3260.8
+  },
+  "futures_flow": {
+   "days": 24,
+   "trades": 6114,
+   "trades_per_day": 254.8,
+   "hit_rate": 0.3466,
+   "mean_net_per_trade_rs": -62.87,
+   "mean_net_per_day_rs": -16016.2,
+   "positive_days": 0,
+   "per_day_ci95_rs": [
+    -18125.2,
+    -14033.4
+   ],
+   "per_trade_ci95_rs": [
+    -68.75,
+    -56.88
+   ],
+   "resolvable_per_day_rs": 2149.8
+  }
+ },
+ "pass_rule": {
+  "1_oof_positive_and_interval_excludes_zero": false,
+  "2_beats_random_side_in_95_of_100": false,
+  "3_forward_days_positive": "scored later by micro_evaluate"
+ },
+ "registry": {
+  "version": 1,
+  "promoted": true,
+  "champion_version": 1,
+  "previous_champion_val_net_per_day_rs": null
+ }
+}
