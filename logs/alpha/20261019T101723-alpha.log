@@ -1,0 +1,11 @@
+2026-10-19 04:47:23,249 INFO optpred.alpha: run 20261019T101723-alpha  commit 38f07b36e3 (DIRTY)
+2026-10-19 04:47:23,537 INFO optpred.alpha: hold 5 min: 14214 rows, 33 train days, 6 val days
+2026-10-19 04:48:59,368 INFO optpred.alpha: h5_A_base tau 1.01 | val net/day 0.0 (trades 0) | OOF net/day 0.0 ci None (trades 0) | pass False
+2026-10-19 04:50:37,050 INFO optpred.alpha: h5_B_plus tau 1.01 | val net/day 0.0 (trades 0) | OOF net/day 0.0 ci None (trades 0) | pass False
+2026-10-19 04:50:37,273 INFO optpred.alpha: hold 10 min: 14037 rows, 33 train days, 6 val days
+2026-10-19 04:50:54,767 INFO optpred.alpha: h10_A_base tau 1.01 | val net/day 0.0 (trades 0) | OOF net/day 0.0 ci None (trades 0) | pass False
+2026-10-19 04:51:34,760 INFO optpred.alpha: h10_B_plus tau 1.01 | val net/day 0.0 (trades 0) | OOF net/day 0.0 ci None (trades 0) | pass False
+2026-10-19 04:51:34,958 INFO optpred.alpha: hold 30 min: 13260 rows, 33 train days, 6 val days
+2026-10-19 04:52:50,779 INFO optpred.alpha: h30_A_base tau 0.40 | val net/day 909.8 (trades 72) | OOF net/day -1076.9 ci [-2621.9, 680.0] (trades 216) | pass False
+2026-10-19 04:53:51,174 INFO optpred.alpha: h30_B_plus tau 1.01 | val net/day 0.0 (trades 0) | OOF net/day 0.0 ci None (trades 0) | pass False
+2026-10-19 04:53:55,640 INFO optpred.alpha: run 20261019T101723-alpha finished: ok in 392.4s

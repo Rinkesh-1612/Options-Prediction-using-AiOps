@@ -1,0 +1,8 @@
+2026-10-19 04:24:03,009 INFO optpred.train: run 20261019T095402-train  commit 38f07b36e3 (DIRTY)
+2026-10-19 04:24:03,119 INFO optpred.train: train 12112 rows / 33 days, val 2204 rows / 6 days
+2026-10-19 04:24:10,589 INFO optpred.train: MLflow run 66f14647902f43adbad158024b2274b4  logloss 1.0865 (no-information prior 1.0964)  tau 1.01  [never trade]
+2026-10-19 04:24:10,589 INFO optpred.train: validation, selected policy: 0.0 trades/day, hit None, net/trade RsNone, net/day Rs0.0, 95% range/day None
+2026-10-19 04:24:10,589 INFO optpred.train: validation, same costs: random net/trade Rs-71.03, momentum Rs-73.9, oracle (hindsight) Rs146.58
+2026-10-19 04:24:10,589 INFO optpred.train: top features: pe_mid, minute, pe_tbq, ce_tbq, spot_range5, pe_ret3
+2026-10-19 04:24:10,589 INFO optpred.train: registry: version 2, champion=False
+2026-10-19 04:24:10,591 INFO optpred.train: run 20261019T095402-train finished: ok in 7.6s
