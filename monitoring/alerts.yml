@@ -1,0 +1,33 @@
+groups:
+  - name: optpred
+    rules:
+      - alert: DriftDetected          # Alertmanager sends this to the API, which asks for a retrain
+        expr: drift_detected == 1
+        for: 30s
+        labels: { severity: warning }
+        annotations:
+          summary: "Input drift: more than 30% of features moved away from the training data"
+      - alert: ModelServiceDown
+        expr: model_service_up == 0
+        for: 30s
+        labels: { severity: critical }
+        annotations:
+          summary: "The MLflow model server does not answer"
+      - alert: TargetDown
+        expr: up == 0
+        for: 30s
+        labels: { severity: critical }
+        annotations:
+          summary: "Prometheus cannot scrape {{ $labels.job }}"
+      - alert: PipelineStageFailed
+        expr: pipeline_last_run_ok == 0
+        for: 10s
+        labels: { severity: warning }
+        annotations:
+          summary: "The last run of stage {{ $labels.stage }} failed"
+      - alert: SlowApi
+        expr: histogram_quantile(0.95, sum by (le) (rate(api_request_seconds_bucket[1m]))) > 1
+        for: 1m
+        labels: { severity: warning }
+        annotations:
+          summary: "95th percentile API time is above 1 second"

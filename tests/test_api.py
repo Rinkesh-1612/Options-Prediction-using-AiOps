@@ -119,6 +119,7 @@ def env(tmp_path):
 
 def client(env, **kw):
     st, _ = env
+    kw.setdefault("mlflow_client", FakeRegistry())  # never reach for a real registry in tests
     return TestClient(api.create_app(st, model=kw.pop("model", FakeModel()), **kw))
 
 
@@ -238,3 +239,50 @@ def test_changing_the_served_model_needs_the_admin_token(env):
     assert c.post("/rollback", headers={"X-Admin-Token": "wrong"}).status_code == 401
     assert c.post("/rollback", headers={"X-Admin-Token": "s3cret"}).status_code == 200
     assert c.get("/days").status_code == 200  # reading stays open
+
+
+# ------------------------------------------------------------------ monitoring, drift, alerts, LLD
+def test_metrics_include_pipeline_journal_and_drift_series(env):
+    c = client(env)
+    text = c.get("/metrics").text
+    assert 'pipeline_last_run_ok{stage="train"} 1.0' in text
+    assert 'pipeline_runs{stage="train",status="ok"} 2.0' in text
+    assert "drift_detected 0.0" in text and "drift_window_rows 0.0" in text
+
+
+def test_predictions_feed_result_and_drift_window(env):
+    c = client(env)
+    for m in (560, 561, 562):
+        assert c.post("/predict", json={"day": "2026-03-01", "minute": m}).status_code == 200
+    text = c.get("/metrics").text
+    assert "drift_window_rows 3.0" in text and "model_result_rs_total" in text
+    assert c.get("/drift").json()["ready"] is False  # needs 100 rows
+
+
+def test_drift_alert_asks_for_a_retrain_once_per_cooldown(env):
+    st, _ = env
+    c = client(env)
+    firing = {"alerts": [{"status": "firing", "labels": {"alertname": "DriftDetected"}}]}
+    assert c.post("/alerts/webhook", json=firing).json()["accepted"] is True
+    assert "drift alert" in json.loads(st.retrain_request.read_text())["reason"]
+    st.retrain_request.unlink()
+    assert c.post("/alerts/webhook", json=firing).json()["accepted"] is False  # cooldown
+    assert not st.retrain_request.exists()
+
+
+def test_other_alerts_do_not_trigger_a_retrain(env):
+    st, _ = env
+    other = {"alerts": [{"status": "firing", "labels": {"alertname": "SlowApi"}}]}
+    assert client(env).post("/alerts/webhook", json=other).json()["accepted"] is False
+    assert not st.retrain_request.exists()
+
+
+def test_openapi_matches_the_low_level_design(env):
+    """Every endpoint in docs/LLD.md exists in the API, and every API endpoint is in the document."""
+    import re
+
+    doc = (REPO / "docs/LLD.md").read_text()
+    documented = set(re.findall(r"^### `(GET|POST) (/\S*)`", doc, flags=re.M))
+    spec = client(env).app.openapi()["paths"]
+    actual = {(m.upper(), path) for path, ops in spec.items() for m in ops}
+    assert documented == actual

@@ -36,8 +36,10 @@ from prometheus_client import (
     Histogram,
     generate_latest,
 )
+from prometheus_client.core import GaugeMetricFamily
 from pydantic import BaseModel, Field
 
+from optpred.drift import DriftMonitor, monitored
 from optpred.features import FEATURE_COLUMNS
 from optpred.labels import ACTION_NAMES, STAY_OUT, label_actions, net_rs
 from optpred.serving_model import NEVER_TRADE
@@ -58,6 +60,7 @@ class Settings:
     tracking_uri: str = "http://mlflow:5000"
     cors_origins: tuple[str, ...] = ("*",)
     admin_token: str = ""  # empty = no token required (local development only)
+    retrain_cooldown_s: float = 3600.0  # minimum time between retrains started by alerts
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -74,6 +77,7 @@ class Settings:
             tracking_uri=e.get("MLFLOW_TRACKING_URI", cls.tracking_uri),
             cors_origins=tuple(e.get("CORS_ORIGINS", "*").split(",")),
             admin_token=e.get("ADMIN_TOKEN", ""),
+            retrain_cooldown_s=float(e.get("RETRAIN_COOLDOWN_S", cls.retrain_cooldown_s)),
         )
 
 
@@ -124,6 +128,56 @@ class Metrics:
             registry=r,
         )
         self.model_up = Gauge("model_service_up", "1 if the model service answered its last ping", registry=r)
+        self.result_rs = Counter(
+            "model_result_rs_total",
+            "Rupees the model's actions would have made after costs (gain and loss kept apart)",
+            ["sign"],
+            registry=r,
+        )
+        self.drift_psi = Gauge("feature_psi", "Population stability index of a feature", ["feature"], registry=r)
+        self.drift_flag = Gauge("drift_detected", "1 if enough features have drifted", registry=r)
+        self.drift_rows = Gauge("drift_window_rows", "Served rows in the drift window", registry=r)
+        self.champion = Gauge("champion_model_version", "Registry version served as champion", registry=r)
+        self.retrains = Counter("retrain_requests_total", "Retrain requests", ["source"], registry=r)
+
+
+class PipelineCollector:
+    """Turns the run journal into Prometheus gauges at every scrape (white-box pipeline monitoring).
+
+    The pipeline runs in other containers and finishes, so it cannot be scraped. It leaves a
+    journal line per run instead; this collector reads that journal when Prometheus asks.
+    """
+
+    def __init__(self, runs_path: Path):
+        self.runs_path = runs_path
+
+    def describe(self):
+        return []
+
+    def collect(self):
+        last: dict[str, dict] = {}
+        counts: dict[tuple[str, str], int] = {}
+        for rec in journal(self.runs_path):
+            stage, status = rec.get("stage", "?"), rec.get("status", "?")
+            last[stage] = rec
+            counts[(stage, status)] = counts.get((stage, status), 0) + 1
+        dur = GaugeMetricFamily("pipeline_last_duration_seconds", "Duration of the last run", labels=["stage"])
+        ok = GaugeMetricFamily("pipeline_last_run_ok", "1 if the last run of the stage succeeded", labels=["stage"])
+        age = GaugeMetricFamily("pipeline_last_run_timestamp_seconds", "Start of the last run", labels=["stage"])
+        rows = GaugeMetricFamily("pipeline_last_rows_per_second", "Throughput of the last run", labels=["stage"])
+        runs = GaugeMetricFamily("pipeline_runs", "Runs in the journal", labels=["stage", "status"])
+        for stage, rec in last.items():
+            dur.add_metric([stage], float(rec.get("duration_s") or 0))
+            ok.add_metric([stage], 1.0 if rec.get("status") == "ok" else 0.0)
+            ts = pd.Timestamp(rec["started"]).timestamp() if rec.get("started") else 0.0
+            age.add_metric([stage], ts)
+            summ = rec.get("summary") or {}
+            rps = summ.get("rows_per_s") or summ.get("tape_rows_per_s")
+            if rps:
+                rows.add_metric([stage], float(rps))
+        for (stage, status), n in counts.items():
+            runs.add_metric([stage, status], n)
+        yield from (dur, ok, age, rows, runs)
 
 
 # ----------------------------------------------------------------------------- response shapes
@@ -247,6 +301,18 @@ def create_app(
     p = {**params["features"], "slip": params["costs"]["slippage_pts_per_leg"]}
     frame = load_features(st.features_path, p, p["slip"])
     index = {(d, m): i for i, (d, m) in enumerate(zip(frame["day"], frame["minute"], strict=True))}
+    metrics.registry.register(PipelineCollector(st.runs_path))
+    dp = params.get("drift", {})
+    drift = DriftMonitor(
+        frame[frame["split"] == "train"],
+        monitored(FEATURE_COLUMNS),
+        window=dp.get("window", 2000),
+        min_rows=int(os.environ.get("DRIFT_MIN_ROWS", dp.get("min_rows", 1000))),
+        psi_limit=float(os.environ.get("DRIFT_PSI_LIMIT", dp.get("psi_limit", 0.25))),
+        max_share=dp.get("max_feature_share", 0.3),
+    )
+    champ_checked = [-1e9]
+    last_auto_retrain = [0.0]  # monotonic time of the last retrain started by an alert
 
     app = FastAPI(title="NIFTY option direction API", version="1.0")
     app.add_middleware(
@@ -335,6 +401,7 @@ def create_app(
         out = model.invoke(X).iloc[0]
         metrics.model_seconds.observe(time.perf_counter() - t0)
         metrics.model_up.set(1)
+        drift.add(X.iloc[0])
 
         action = int(out["action"])
         probs = {
@@ -346,6 +413,7 @@ def create_app(
         got = {STAY_OUT: 0.0, 1: ce_net, 2: pe_net}[action]
         metrics.predictions.labels(ACTION_NAMES[action]).inc()
         metrics.vs_actual.labels(ACTION_NAMES[action], ACTION_NAMES[label]).inc()
+        metrics.result_rs.labels("gain" if got >= 0 else "loss").inc(abs(got))
         return PredictResponse(
             day=req.day,
             minute=req.minute,
@@ -418,13 +486,41 @@ def create_app(
         log.warning("rolled back champion v%s -> v%s", champ.version, prev.version)
         return {"champion": int(prev.version), "previous": int(champ.version)}
 
-    @app.post("/retrain", status_code=202, dependencies=[Depends(require_admin)])
-    def retrain(reason: str = Query("manual", max_length=200)):
+    def request_retrain(reason: str, source: str) -> None:
         st.retrain_request.parent.mkdir(parents=True, exist_ok=True)
         st.retrain_request.write_text(
             json.dumps({"requested": time.strftime("%Y-%m-%dT%H:%M:%S"), "reason": reason})
         )
+        metrics.retrains.labels(source).inc()
+
+    @app.post("/retrain", status_code=202, dependencies=[Depends(require_admin)])
+    def retrain(reason: str = Query("manual", max_length=200)):
+        request_retrain(reason, "manual")
         return {"accepted": True, "reason": reason}
+
+    @app.get("/drift")
+    def drift_status():
+        """Per-feature PSI of the recent served rows against the training rows."""
+        return {**drift.summary(), "psi": drift.scores()}
+
+    @app.post("/alerts/webhook", status_code=202)
+    async def alert_webhook(request: Request):
+        """Alertmanager calls this. A firing DriftDetected alert asks for a retrain.
+
+        Safe without a token: a retrain only registers a candidate model, and the candidate becomes
+        champion only if it validates better. A cooldown stops an alert storm from queueing runs.
+        """
+        body = await request.json()
+        firing = [
+            a for a in body.get("alerts", []) if a.get("status") == "firing" and a.get("labels", {}).get("alertname") == "DriftDetected"
+        ]
+        if not firing:
+            return {"accepted": False, "reason": "no firing DriftDetected alert"}
+        if time.monotonic() - last_auto_retrain[0] < st.retrain_cooldown_s and last_auto_retrain[0] > 0:
+            return {"accepted": False, "reason": "cooldown: a retrain was already requested recently"}
+        last_auto_retrain[0] = time.monotonic()
+        request_retrain("drift alert from Prometheus", "drift_alert")
+        return {"accepted": True}
 
     @app.get("/pipeline/dag")
     def pipeline_dag():
@@ -446,7 +542,21 @@ def create_app(
 
     @app.get("/metrics")
     def prometheus_metrics():
+        d = drift.summary()
+        metrics.drift_rows.set(d["rows"])
+        metrics.drift_flag.set(1 if d["drifted"] else 0)
+        for feat, v in drift.scores().items():
+            metrics.drift_psi.labels(feat).set(v)
+        if time.monotonic() - champ_checked[0] > 15:  # the registry changes rarely; do not ask every scrape
+            champ_checked[0] = time.monotonic()
+            _set_champion()
         return Response(generate_latest(metrics.registry), media_type=CONTENT_TYPE_LATEST)
+
+    def _set_champion() -> None:
+        try:
+            metrics.champion.set(int(mlflow_api().get_model_version_by_alias(params["mlflow"]["registered_model"], "champion").version))
+        except Exception:  # the registry may be down; the metric then keeps its last value
+            log.debug("champion version not available for /metrics")
 
     return app
 
