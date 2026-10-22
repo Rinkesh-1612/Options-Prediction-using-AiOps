@@ -36,7 +36,9 @@ git add logs runs && git commit -m "run: export" && git push
 ./pipe python -m optpred.bars
 ./pipe python -m optpred.features
 ./pipe python -m optpred.baselines            # train + validation only
+./pipe python -m optpred.tune                 # Ray Tune: best LightGBM settings (train days only)
 ./pipe python -m optpred.train                # logs to MLflow, registers the model
+./pipe dvc repro                              # or run every stage in order with DVC
 git add logs runs reports data/days.json data/splits.json && git commit -m "run: ..." && git push
 ```
 
@@ -53,11 +55,38 @@ cp .env.example .env && nano .env             # set ADMIN_TOKEN
 | Web page | http://127.0.0.1:8080 | `ssh -L 8080:127.0.0.1:8080 -L 8000:127.0.0.1:8000 -L 5050:127.0.0.1:5050 trader@<vps>` then open http://127.0.0.1:8080 |
 | Backend API docs | http://127.0.0.1:8000/docs | same tunnel |
 | MLflow UI | http://127.0.0.1:5050 | same tunnel |
+| Grafana dashboard | http://127.0.0.1:3001 | add `-L 3001:127.0.0.1:3001` |
+| Prometheus | http://127.0.0.1:9091 | add `-L 9091:127.0.0.1:9091` |
+
+Demo feed for the dashboard: `./stack --profile demo up -d replay`.
 
 Nothing is exposed publicly unless you set `BIND=0.0.0.0` in `.env`.
 
-## Tests
+## Tests and CI
 
 ```bash
-pytest -q && ruff check .
+git config core.hooksPath .githooks          # once: turns on the pre-push hook (CI)
+./pipe python scripts/test_report.py         # all tests -> reports/test_report.md
+./pipe ruff check .
 ```
+
+## Documents (`docs/`)
+
+| Document | File |
+|---|---|
+| Architecture diagram and blocks | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
+| High-level design | [docs/HLD.md](docs/HLD.md) |
+| Low-level design (endpoints, I/O) | [docs/LLD.md](docs/LLD.md) |
+| Test plan and cases | [docs/TEST_PLAN.md](docs/TEST_PLAN.md), report: `reports/test_report.md` |
+| User manual | [docs/USER_MANUAL.md](docs/USER_MANUAL.md) |
+| Viva preparation | [docs/VIVA.md](docs/VIVA.md) |
+| Rubric tracker | [RUBRIC.md](RUBRIC.md) |
+
+The documents follow simplified technical English (about 80% of ASD-STE100): short sentences,
+active voice, one word per meaning, steps as commands.
+
+## Data safety
+
+`scripts/encrypt_snapshot.sh` encrypts the frozen snapshot (GnuPG, AES-256) into `~/optpred-backups/`.
+The key is `~/.optpred_snapshot.key`. It is not in the repo. Copy it somewhere safe.
+`scripts/encrypt_snapshot.sh --verify <file>` proves the backup opens.

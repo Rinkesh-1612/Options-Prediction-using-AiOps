@@ -1,79 +1,89 @@
 # Rubric tracker (28 marks)
 
-Source: `DA3408/AI Application Evaluation Guideline.pdf`. Every line of the rubric is
-a question the grader asks; the "Evidence" column is the file or screen that answers it.
-Status: DONE / PARTIAL / TODO. Updated whenever something lands.
+Source: `DA3408/AI Application Evaluation Guideline.pdf`. Each line is a question the grader asks.
+"Evidence" names the file or screen that answers it.
+Status: DONE (built and checked), BUILT (written, not yet run end to end), TODO.
+Last full update: 2026-10-19.
 
 ## Demonstration (5)
 
 | Rubric question | What we do | Evidence | Status |
 |---|---|---|---|
-| UX intuitive for the problem; usable by a non-technical user | One page: pick a past date + minute, big BUY CALL / BUY PUT / STAY OUT card, one plain sentence saying why, expected result after costs | `frontend/` | TODO |
-| Foolproof; free of UI errors | Date/minute pickers only offer accepted days and valid minutes; every API failure shows a readable message, never a blank page | `tests/test_ui_*` | TODO |
-| Colours, shapes, look and feel | One palette, green/red/grey for call/put/stay out, consistent in light and dark | `frontend/` | TODO |
-| Responsive | Works at phone width (the operator uses a phone) | screenshot in test report | TODO |
-| User manual exists | Written for a trader, not an engineer, with screenshots | `docs/USER_MANUAL.md` | TODO |
-| Separate screen visualising the ML pipeline incl. data engineering | "Pipeline" tab: the DVC DAG drawn from `dvc.yaml`, each stage's last run, status, duration, rows/sec | `frontend/` Pipeline tab | TODO |
-| Pipeline management console: errors, failures, successes | Same tab: table of every run from `runs/runs.jsonl` (green/red), log viewer, retrain and rollback buttons | `runs/runs.jsonl` (already written) | PARTIAL |
-| Speed and throughput of the pipeline | Each Spark stage logs rows/sec; shown on the tab | `reports/quality.json`, run summaries | PARTIAL |
-| Orchestration across tools | Links from the tab to the MLflow and Grafana UIs | `frontend/` | TODO |
+| UX intuitive; usable by a non-technical user | One page: pick a day and minute. A large answer card says call, put or stay out, with one plain sentence. | `frontend/index.html` | DONE |
+| Foolproof; free of UI errors | Pickers offer only valid days and minutes. API errors show as readable banners. | `frontend/index.html`, `tests/test_frontend.py` | DONE |
+| Colours, shapes, look and feel | One palette. Green, red, grey. Light and dark theme. | `frontend/index.html` | DONE |
+| Responsive | Works at phone width. | `frontend/index.html` (grid and media query) | BUILT (no screenshot yet) |
+| User manual | Written for a trader. | `docs/USER_MANUAL.md` | DONE (no screenshots yet) |
+| Screen that shows the ML pipeline, incl. data engineering | "Pipeline" tab draws the DVC DAG from `dvc.yaml`. Colour = last run. | Pipeline tab | DONE |
+| Pipeline console: errors, failures, successes | Same tab lists every run from `runs/runs.jsonl`. Tap a row for its log. Retrain and rollback buttons. | Pipeline tab, `/pipeline/runs` | DONE |
+| Speed and throughput of the pipeline | Rows per second per Spark stage, in the Runs table and in Grafana. | `runs/runs.jsonl`, Grafana row 4 | DONE |
+| Orchestration across tools | Links to MLflow and Grafana from the Pipeline tab. | Pipeline tab | DONE |
 
 ## Software engineering (5)
 
 | Rubric question | What we do | Evidence | Status |
 |---|---|---|---|
-| Design document; OO or functional paradigm stated | HLD states: functional pipeline stages (pure functions over DataFrames) + small classes for API and registry client | `docs/HLD.md` | TODO |
-| LLD with every endpoint and its I/O | Table per endpoint: method, path, request schema, response schema, errors; generated check that FastAPI's OpenAPI matches the document | `docs/LLD.md` + `tests/test_openapi_matches_lld` | TODO |
-| Architecture diagram; HLD diagram | Two diagrams: components (containers and ports) and data flow | `docs/architecture.svg`, `docs/HLD.md` | TODO |
-| Frontend / backend loosely coupled over configurable REST | Frontend is static files in its own container; backend URL read from `config.json` at load time; no shared code | `docker-compose.yml` | TODO |
-| Python style standard | `ruff` with line length 110; runs in the pre-push hook | `pyproject.toml` | DONE |
-| Logging | Every stage logs to file and console; journal per run | `logs/`, `src/optpred/runlog.py` | DONE |
-| Comprehensive exception handling | Typed errors (`ExportError`, ...), stages return non-zero codes, API returns structured errors, crashes are journaled | `export.py`, `runlog.py` | PARTIAL |
-| Inline documentation | Each module starts with what it does and the conventions it relies on | all modules | DONE so far |
-| APIs follow the design doc | Test compares live OpenAPI to LLD | `tests/` | TODO |
-| Unit tests | pytest; currently 6 | `tests/` | PARTIAL |
-| Test plan; list of test cases; report with counts of passed and failed; acceptance criteria met | Acceptance criteria written **before** the final run; report generated from pytest's own output, not typed by hand | `docs/TEST_PLAN.md`, `reports/test_report.md` | TODO |
+| Design document; OO or functional paradigm | HLD section 4: functional stages, a few small classes. | `docs/HLD.md` | DONE |
+| LLD with every endpoint and its I/O | One heading per endpoint. A test compares the headings with the live OpenAPI. | `docs/LLD.md`, `test_openapi_matches_the_low_level_design` | DONE |
+| Architecture diagram; HLD diagram | One SVG with all blocks, ports and flows. | `docs/architecture.svg`, `docs/ARCHITECTURE.md` | DONE |
+| Frontend and backend loosely coupled over configurable REST | Static page in its own container. Address from `config.json`. | `docker-compose.yml`, `tests/test_frontend.py` | DONE |
+| Python style standard | `ruff`, line length 110. Runs in the pre-push hook. | `pyproject.toml`, `.githooks/pre-push` | DONE |
+| Logging | Every stage writes a log file and a journal line. The API logs to the console. | `logs/`, `runlog.py` | DONE |
+| Exception handling | Typed errors per module (`ExportError`, `FeatureError`, `TuneError`, `ReplayError`). Stages return non-zero and still journal. The API returns structured errors. | `src/optpred/` | DONE |
+| Inline documentation | Each module starts with what it does and the rules it keeps. | all modules | DONE |
+| APIs follow the design doc | Test compares OpenAPI with the LLD. | `tests/test_api.py` | DONE |
+| Unit tests | pytest, 67 cases, all passing (`reports/test_report.md`). | `tests/` | DONE |
+| Test plan, cases, report with counts, acceptance criteria | Plan with 26 named cases and 7 acceptance criteria. The report is generated from pytest output. | `docs/TEST_PLAN.md`, `reports/test_report.md` | DONE |
 
 ## AIOps implementation (10)
 
 | Rubric question | What we do | Evidence | Status |
 |---|---|---|---|
-| Data ingestion / transformation pipeline on Ray, Spark or K8s | Spark `check` and `bars`; Ray Tune for the model search. Two of the three named tools | `check.py`, `bars.py` | DONE (code), first real run pending |
-| Throughput and speed | rows/sec logged for each Spark stage, compared at 2 and 4 cores | run summaries | PARTIAL |
-| CI implemented with DVC; DVC DAG shown | `dvc.yaml` with all stages; `dvc dag` output in the manual; pre-push hook runs ruff, pytest and `dvc status` | `dvc.yaml`, `.githooks/pre-push` | PARTIAL |
-| Git, Git LFS and DVC all used | Git for code, **Git LFS for a one-day sample Parquet**, DVC for data and models with a local remote on the VPS | `.gitattributes`, `.dvc/config` | TODO |
-| Experiments tracked: metrics, params, artifacts | Every model run: params, seed, git commit, data hash, per-day P&L, confusion table, SHAP plot, model | MLflow | TODO |
-| Beyond autolog | Manual logging of per-day results, cost parameters, baseline comparisons, data-quality report, run journal entry | MLflow | TODO |
-| Prometheus instrumentation: what is monitored, are **all** components monitored | API (requests, latency, predictions by class), pipeline (stage duration, rows, failures via pushgateway), MLflow, host (node exporter), model (drift score per feature) | `monitoring/prometheus.yml` | TODO |
-| Grafana in near real time | 5-second scrape; replay mode feeds a past day minute by minute so the dashboard moves live during the demo | `monitoring/grafana/` | TODO |
-| MLflow used to expose the model | `mlflow models serve` container behind the FastAPI service | `docker-compose.yml` | TODO |
-| MLproject used for identical dev/test environments | `MLproject` + `environment.yml` | repo root | TODO |
-| FastAPI exposes what the UI needs | `/predict`, `/minutes`, `/pipeline/runs`, `/retrain`, `/rollback`, `/healthz`, `/metrics` | `api/` | TODO |
-| Backend and frontend dockerised, **two separate Compose services** | `api`, `frontend` (plus mlflow, prometheus, grafana) | `docker-compose.yml` | TODO |
+| Data pipeline on Ray, Spark or K8s | Spark for `check` and `bars`. Ray Tune for the settings search. | `check.py`, `bars.py`, `tune.py` | DONE (real runs in the journal) |
+| Throughput and speed | `check` and `bars` log rows per second. | `runs/runs.jsonl` | DONE |
+| CI with DVC; DVC DAG | `dvc.yaml` has seven stages. The pre-push hook runs ruff, pytest, `dvc dag`, `dvc status`. | `dvc.yaml`, `.githooks/pre-push` | DONE (hook not yet exercised by a real push) |
+| Git, Git LFS and DVC | Git: code. LFS: one-day sample. DVC: data and models, local remote `/home/trader/dvc-remote`. | `.gitattributes`, `.dvc/config`, `dvc.lock` | BUILT (first LFS push pending) |
+| Experiments tracked: metrics, params, artifacts | Params, seed, git commit, data hashes, metrics, plots, model. | MLflow | DONE |
+| Beyond autolog | Manual logging of day-level results, costs, baselines, tuning trials. | `train.py`, `tune.py` | DONE |
+| Prometheus: what is monitored; are all components monitored | API, MLflow, host, Prometheus, pipeline journal, model service (via the API), drift. | `monitoring/prometheus.yml`, `docs/LLD.md` | DONE (all four targets UP) |
+| Grafana in near real time | 5 s scrape and refresh. Replay feeds a moving stream. | `monitoring/grafana/dashboards/optpred.json` | DONE (checked through the API; look at it once by eye) |
+| MLflow exposes the model | `mlflow models serve` behind the API. Follows the `champion` alias. | `docker-compose.yml`, `scripts/serve_model.sh` | DONE |
+| MLproject | `MLproject` runs every stage in the pipeline image. `environment.yml` rebuilds without Docker. | `MLproject`, `environment.yml` | BUILT (not run with `mlflow run`) |
+| FastAPI exposes what the UI needs | 13 endpoints. | `docs/LLD.md` | DONE |
+| Backend and frontend in two Compose services | `api` and `frontend`, plus 8 more services. | `docker-compose.yml` | DONE |
+| Drift, retrain, rollback | PSI on served rows → `DriftDetected` → Alertmanager → API → runner → candidate. Rollback swaps aliases. | `drift.py`, `monitoring/alerts.yml` | DONE (chain ran once for real: registry version 2 was trained and not promoted) |
+| Encrypted data snapshot | AES-256 with GnuPG. Verified by decrypting and comparing the checksum. | `scripts/encrypt_snapshot.sh` | DONE |
 
 ## Viva (5)
 
 | Rubric line | Preparation | Status |
 |---|---|---|
-| Explain the entire project | One-page summary in plain words, in the operator's own wording | TODO |
-| Answer questions from Assignments 1-10 | Review `Mod1`, `Mod3` assignments and TA solutions; know DVC rollback, MLflow comparison, multi-stage Docker, Compose vs Kubernetes | TODO |
-| MLOps tools and use cases | Why each tool is here and what it replaced | TODO |
-| Design and implementation choices | PLAN.md §14 | PARTIAL |
-| Defend choices when challenged | Known weaknesses stated up front: 10 test days is small, slippage assumption, one market regime | TODO |
+| Explain the entire project | One-minute summary in `docs/VIVA.md`. Put it in your own words. | YOURS |
+| Answer questions from Assignments 1-10 | Review the Mod1 and Mod3 assignments and TA solutions. | YOURS |
+| MLOps tools and use cases | Table in `docs/VIVA.md`. | YOURS |
+| Design and implementation choices | `PLAN.md` section 14, `docs/HLD.md` section 3. | YOURS |
+| Defend choices when challenged | Known limits are in `docs/HLD.md` section 7. | YOURS |
 
 ## Mandatory documents
 
 | Document | File | Status |
 |---|---|---|
-| Architecture diagram with explanation of blocks | `docs/ARCHITECTURE.md` | TODO |
-| High-level design | `docs/HLD.md` | TODO |
-| Low-level design (endpoints and I/O) | `docs/LLD.md` | TODO |
-| Test plan and test cases | `docs/TEST_PLAN.md` | TODO |
-| User manual for a non-technical user | `docs/USER_MANUAL.md` | TODO |
-| AI disclosure (code of conduct) | `AI_DISCLOSURE.md` | DONE |
+| Architecture diagram with explanation | `docs/ARCHITECTURE.md`, `docs/architecture.svg` | DONE |
+| High-level design | `docs/HLD.md` | DONE |
+| Low-level design | `docs/LLD.md` | DONE |
+| Test plan and test cases | `docs/TEST_PLAN.md`, `reports/test_report.md` | DONE |
+| User manual | `docs/USER_MANUAL.md` | DONE |
+| AI disclosure | `AI_DISCLOSURE.md` | DONE (update the tool list for this session's work) |
 
-## Deliberate choices that cost marks, so we know them
+## Still open
 
-- **Kubernetes is not used.** The rubric names "Ray or Spark or Kubernetes", so Spark and Ray cover the line. On a shared VPS, adding a cluster adds risk to live trading for no extra mark.
-- **No GPU, no cloud.** Not allowed or not needed.
-- **If the model finds no edge**, the demo still scores fully on this rubric: it grades the system and the honesty of the measurement, not the profit.
+1. Locked test run (`--final`). Do it once, at the end. It is your decision. See `PLAN.md` section 3.
+2. Commit the new work and push. Runs journaled before the commit show `git_dirty: true`.
+3. Screenshots for the manual and the test report (phone width, Grafana).
+4. Run `mlflow run . -e test` once to prove `MLproject`.
+
+## Deliberate choices that cost marks
+
+* **Kubernetes is not used.** The rubric says "Ray or Spark or Kubernetes". Spark and Ray cover it. A cluster on the live-trading server adds risk and no mark.
+* **No GPU, no cloud.** Not allowed or not needed.
+* **No edge found.** The rubric grades the system and the honesty of the measurement.

@@ -166,6 +166,13 @@ minutes to close, days to expiry, expiry-day flag.
 Documents (mandatory): architecture diagram, HLD, LLD (endpoint I/O), test plan + test
 cases + test report, user manual.
 
+**Status note, 2026-10-19.** Monitoring uses ports 9091 (Prometheus) and 3001 (Grafana), because
+another project on this server holds 9090 and 3000. Pipeline metrics come from the run journal through
+the API (no Pushgateway). Drift uses PSI on a window of about 5 sessions: on real data a single day
+already shows PSI above 0.25 on half the features, even a training day, so a one-day window gives false alarms.
+Ray Tune ranks settings on walk-forward log loss of train days (not on profit). Result: 1.0890 best against
+1.0894 default, so tuning does not help. See `reports/tune.json`.
+
 ## 9. Constraints
 
 - Same VPS as live trading: Spark/Ray memory capped, heavy jobs after 15:30 IST,

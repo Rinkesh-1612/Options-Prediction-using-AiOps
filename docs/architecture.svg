@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 560" font-family="system-ui,sans-serif" font-size="13">
+  <title>Architecture: NIFTY option direction system</title>
+  <defs><marker id="a" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="#445"/></marker></defs>
+  <style>.b{fill:#fff;stroke:#445;stroke-width:1.5;rx:8}.p{fill:#e9f0ff}.d{fill:#eef8f0}.m{fill:#fff4dc}.t{fill:#f1ecfa}.l{stroke:#445;stroke-width:1.5;fill:none;marker-end:url(#a)}.h{font-weight:700}.s{fill:#556;font-size:11px}</style>
+  <text x="20" y="24" class="h" font-size="15">Everything runs on one VPS in Docker. No cloud service.</text>
+
+  <rect x="20" y="40" width="920" height="150" rx="10" fill="none" stroke="#99a" stroke-dasharray="5 4"/>
+  <text x="30" y="58" class="s">PIPELINE (image optpred-pipeline, started by ./pipe or by the runner service)</text>
+  <rect class="b d" x="30" y="70" width="110" height="52"/><text x="40" y="92" class="h">ClickHouse</text><text x="40" y="108" class="s">Ravion data, read only</text>
+  <rect class="b p" x="170" y="70" width="90" height="52"/><text x="180" y="92" class="h">export</text><text x="180" y="108" class="s">Parquet files</text>
+  <rect class="b p" x="290" y="70" width="90" height="52"/><text x="300" y="92" class="h">check</text><text x="300" y="108" class="s">Spark</text>
+  <rect class="b p" x="410" y="70" width="90" height="52"/><text x="420" y="92" class="h">bars</text><text x="420" y="108" class="s">Spark</text>
+  <rect class="b p" x="530" y="70" width="100" height="52"/><text x="540" y="92" class="h">features</text><text x="540" y="108" class="s">Spark, labels</text>
+  <rect class="b p" x="660" y="70" width="90" height="52"/><text x="670" y="92" class="h">tune</text><text x="670" y="108" class="s">Ray Tune</text>
+  <rect class="b p" x="780" y="70" width="150" height="52"/><text x="790" y="92" class="h">baselines, train</text><text x="790" y="108" class="s">LightGBM, MLflow</text>
+  <path class="l" d="M140,96 H170"/><path class="l" d="M260,96 H290"/><path class="l" d="M380,96 H410"/><path class="l" d="M500,96 H530"/><path class="l" d="M630,96 H660"/><path class="l" d="M750,96 H780"/>
+  <text x="30" y="150" class="s">DVC chains the stages (dvc.yaml). Git holds code. Git LFS holds the one-day sample. DVC holds data and models.</text>
+  <text x="30" y="168" class="s">Each run writes logs/ and runs/runs.jsonl (run journal). Pre-push hook = CI.</text>
+
+  <rect x="20" y="210" width="920" height="330" rx="10" fill="none" stroke="#99a" stroke-dasharray="5 4"/>
+  <text x="30" y="228" class="s">SERVING STACK (docker compose, project "optpred")</text>
+  <rect class="b t" x="30" y="245" width="130" height="60"/><text x="40" y="268" class="h">frontend</text><text x="40" y="285" class="s">nginx, static page :8080</text>
+  <rect class="b p" x="210" y="245" width="140" height="60"/><text x="220" y="268" class="h">api</text><text x="220" y="285" class="s">FastAPI :8000</text>
+  <rect class="b p" x="400" y="245" width="140" height="60"/><text x="410" y="268" class="h">model</text><text x="410" y="285" class="s">mlflow models serve :5001</text>
+  <rect class="b m" x="590" y="245" width="140" height="60"/><text x="600" y="268" class="h">mlflow</text><text x="600" y="285" class="s">tracking + registry :5050</text>
+  <rect class="b p" x="780" y="245" width="150" height="60"/><text x="790" y="268" class="h">runner</text><text x="790" y="285" class="s">retrains on request</text>
+  <path class="l" d="M160,275 H210"/><text x="164" y="268" class="s">REST</text>
+  <path class="l" d="M350,275 H400"/><path class="l" d="M540,275 H590"/><path class="l" d="M780,275 H730"/>
+  <path class="l" d="M280,305 V335 H850 V305" stroke-dasharray="4 3"/><text x="400" y="330" class="s">api writes state/retrain_request.json</text>
+
+  <rect class="b m" x="30" y="380" width="150" height="60"/><text x="40" y="403" class="h">prometheus</text><text x="40" y="420" class="s">scrapes every 5 s :9091</text>
+  <rect class="b m" x="230" y="380" width="150" height="60"/><text x="240" y="403" class="h">alertmanager</text><text x="240" y="420" class="s">routes DriftDetected</text>
+  <rect class="b m" x="430" y="380" width="150" height="60"/><text x="440" y="403" class="h">grafana</text><text x="440" y="420" class="s">live dashboard :3001</text>
+  <rect class="b m" x="630" y="380" width="150" height="60"/><text x="640" y="403" class="h">node-exporter</text><text x="640" y="420" class="s">host CPU, memory</text>
+  <rect class="b t" x="810" y="380" width="120" height="60"/><text x="820" y="403" class="h">replay</text><text x="820" y="420" class="s">demo feed (profile)</text>
+  <path class="l" d="M105,380 V345 H250 V305" stroke-dasharray="4 3"/>
+  <path class="l" d="M180,410 H230"/><path class="l" d="M430,410 H380" transform="translate(0 0)"/>
+  <path class="l" d="M305,380 V350" stroke-dasharray="4 3"/><text x="310" y="372" class="s">webhook to api</text>
+  <path class="l" d="M870,380 V345 H330 V305" stroke-dasharray="4 3"/>
+  <text x="30" y="470" class="s">Prometheus scrapes: api (requests, latency, predictions, drift, pipeline journal), mlflow, node-exporter, itself.</text>
+  <text x="30" y="488" class="s">Grafana reads Prometheus only. The browser reaches frontend, api, mlflow and grafana. Nothing is public unless BIND=0.0.0.0.</text>
+  <text x="30" y="506" class="s">Frontend and api share no code. They meet only over the REST address in config.json (API_URL).</text>
+  <text x="30" y="524" class="s">Blue = our code. Yellow = tools. Green = data source. Purple = user-facing or demo.</text>
+</svg>
