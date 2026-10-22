@@ -99,7 +99,7 @@ Known data problems and what we do about them:
 | Need | Answer |
 |---|---|
 | Reproduce a run | Each run has a Git commit hash, a params hash and an MLflow run ID. The journal stores all three. |
-| Version code, data, models | Git (code), Git LFS (one-day sample), DVC (data, models) with a local remote on the VPS. |
+| Version code, data, models | Git (code), Git LFS (one-day sample), DVC (raw data, bars, features, with a local remote on the VPS), MLflow model registry (every model version, with `champion` / `previous` / `candidate` aliases). |
 | Chain the stages | `dvc.yaml`: export → check → bars → features → baselines, tune, train → register → evaluate. One command, `dvc repro`, runs all stages. `evaluate` is frozen after its single run. |
 | CI | A pre-push hook runs ruff, pytest and `dvc dag`. |
 | Track experiments | MLflow. We log more than autolog: day results, costs, baselines, quality report. |

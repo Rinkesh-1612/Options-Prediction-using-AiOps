@@ -18,7 +18,7 @@
   <rect class="b p" x="780" y="145" width="150" height="52"/><text x="790" y="167" class="h">evaluate (once)</text><text x="790" y="183" class="s">locked test days, frozen</text>
   <path class="l" d="M140,96 H170"/><path class="l" d="M260,96 H290"/><path class="l" d="M380,96 H410"/><path class="l" d="M500,96 H530"/><path class="l" d="M630,96 H660"/>
   <path class="l" d="M630,84 C700,56 740,56 780,84"/><path class="l" d="M580,122 V145"/><path class="l" d="M630,171 H660"/><path class="l" d="M750,171 H780"/>
-  <text x="30" y="220" class="s">DVC chains the stages (dvc.yaml). Git holds code. Git LFS holds the one-day sample. DVC holds data and models.</text>
+  <text x="30" y="220" class="s">DVC chains the stages (dvc.yaml). Git holds code. Git LFS: one-day sample. DVC: data. MLflow registry: models.</text>
   <text x="30" y="238" class="s">Each run writes logs/ and runs/runs.jsonl (run journal). Pre-push hook = CI.</text>
 
   <g transform="translate(0 60)">
