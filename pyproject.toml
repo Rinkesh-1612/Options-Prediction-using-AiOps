@@ -17,3 +17,7 @@ src = ["src", "tests"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+[tool.ruff.lint]
+# PEP 8 (E, W), pyflakes (F), import order (I), bugbear (B), modern syntax (UP).
+select = ["E", "F", "W", "I", "B", "UP"]

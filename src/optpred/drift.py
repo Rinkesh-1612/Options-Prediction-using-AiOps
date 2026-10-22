@@ -51,7 +51,10 @@ def psi(reference: pd.Series, recent: pd.Series, bins: int = 10) -> float:
     edges = bin_edges(reference, bins)
     if len(edges) == 0:  # constant reference: any change is a change, but there is no scale for it
         return 0.0
-    ref, cur = shares(reference.dropna().to_numpy(float), edges), shares(recent.dropna().to_numpy(float), edges)
+    ref, cur = (
+        shares(reference.dropna().to_numpy(float), edges),
+        shares(recent.dropna().to_numpy(float), edges),
+    )
     return float(np.sum((cur - ref) * np.log(cur / ref)))
 
 

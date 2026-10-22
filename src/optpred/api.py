@@ -28,6 +28,7 @@ import yaml
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, PlainTextResponse
+from mlflow.exceptions import MlflowException
 from prometheus_client import (
     CONTENT_TYPE_LATEST,
     CollectorRegistry,
@@ -134,7 +135,9 @@ class Metrics:
             ["sign"],
             registry=r,
         )
-        self.drift_psi = Gauge("feature_psi", "Population stability index of a feature", ["feature"], registry=r)
+        self.drift_psi = Gauge(
+            "feature_psi", "Population stability index of a feature", ["feature"], registry=r
+        )
         self.drift_flag = Gauge("drift_detected", "1 if enough features have drifted", registry=r)
         self.drift_rows = Gauge("drift_window_rows", "Served rows in the drift window", registry=r)
         self.champion = Gauge("champion_model_version", "Registry version served as champion", registry=r)
@@ -161,10 +164,18 @@ class PipelineCollector:
             stage, status = rec.get("stage", "?"), rec.get("status", "?")
             last[stage] = rec
             counts[(stage, status)] = counts.get((stage, status), 0) + 1
-        dur = GaugeMetricFamily("pipeline_last_duration_seconds", "Duration of the last run", labels=["stage"])
-        ok = GaugeMetricFamily("pipeline_last_run_ok", "1 if the last run of the stage succeeded", labels=["stage"])
-        age = GaugeMetricFamily("pipeline_last_run_timestamp_seconds", "Start of the last run", labels=["stage"])
-        rows = GaugeMetricFamily("pipeline_last_rows_per_second", "Throughput of the last run", labels=["stage"])
+        dur = GaugeMetricFamily(
+            "pipeline_last_duration_seconds", "Duration of the last run", labels=["stage"]
+        )
+        ok = GaugeMetricFamily(
+            "pipeline_last_run_ok", "1 if the last run of the stage succeeded", labels=["stage"]
+        )
+        age = GaugeMetricFamily(
+            "pipeline_last_run_timestamp_seconds", "Start of the last run", labels=["stage"]
+        )
+        rows = GaugeMetricFamily(
+            "pipeline_last_rows_per_second", "Throughput of the last run", labels=["stage"]
+        )
         runs = GaugeMetricFamily("pipeline_runs", "Runs in the journal", labels=["stage", "status"])
         for stage, rec in last.items():
             dur.add_metric([stage], float(rec.get("duration_s") or 0))
@@ -455,7 +466,7 @@ def create_app(
             for alias in ("champion", "previous", "candidate"):
                 try:
                     v = c.get_model_version_by_alias(name, alias)
-                except Exception:
+                except MlflowException:  # this alias is not set: nothing to show for it
                     continue
                 run = c.get_run(v.run_id)
                 info[alias] = {
@@ -467,7 +478,8 @@ def create_app(
                         k: round(x, 4) for k, x in run.data.metrics.items() if k.startswith("val_")
                     },
                 }
-        except Exception as e:
+        except Exception as e:  # API boundary: any registry failure becomes a readable 503
+            log.error("model registry not reachable: %s", e)
             raise HTTPException(503, f"model registry not reachable: {e}") from e
         if "champion" not in info:
             raise HTTPException(404, "no champion model registered yet")
@@ -479,7 +491,8 @@ def create_app(
         try:
             champ = c.get_model_version_by_alias(name, "champion")
             prev = c.get_model_version_by_alias(name, "previous")
-        except Exception as e:
+        except MlflowException as e:
+            log.warning("rollback refused: %s", e)
             raise HTTPException(409, "there is no previous model to roll back to") from e
         c.set_registered_model_alias(name, "champion", prev.version)
         c.set_registered_model_alias(name, "previous", champ.version)
@@ -512,7 +525,9 @@ def create_app(
         """
         body = await request.json()
         firing = [
-            a for a in body.get("alerts", []) if a.get("status") == "firing" and a.get("labels", {}).get("alertname") == "DriftDetected"
+            a
+            for a in body.get("alerts", [])
+            if a.get("status") == "firing" and a.get("labels", {}).get("alertname") == "DriftDetected"
         ]
         if not firing:
             return {"accepted": False, "reason": "no firing DriftDetected alert"}
@@ -554,9 +569,15 @@ def create_app(
 
     def _set_champion() -> None:
         try:
-            metrics.champion.set(int(mlflow_api().get_model_version_by_alias(params["mlflow"]["registered_model"], "champion").version))
-        except Exception:  # the registry may be down; the metric then keeps its last value
-            log.debug("champion version not available for /metrics")
+            metrics.champion.set(
+                int(
+                    mlflow_api()
+                    .get_model_version_by_alias(params["mlflow"]["registered_model"], "champion")
+                    .version
+                )
+            )
+        except Exception as e:  # the registry may be down; the metric then keeps its last value
+            log.debug("champion version not available for /metrics: %s", e)
 
     return app
 
@@ -577,7 +598,10 @@ def reason(action: int, probs: dict, tau: float) -> str:
             "so its rule is to stay out. The probabilities below show what it thinks anyway."
         )
     if action == STAY_OUT:
-        return f"Not confident enough to trade: its best choice, buying {name}, is only {probs[side]:.0%} likely (it needs {tau:.0%})."
+        return (
+            f"Not confident enough to trade: its best choice, buying {name}, "
+            f"is only {probs[side]:.0%} likely (it needs {tau:.0%})."
+        )
     return f"Confident enough to trade: buying {name} is {probs[side]:.0%} likely (it needs {tau:.0%})."
 
 

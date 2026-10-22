@@ -26,7 +26,14 @@ def build_report(xml_path: Path, commit: str, when: str) -> tuple[str, bool]:
         for tag, name in (("failure", "FAILED"), ("error", "ERROR"), ("skipped", "SKIPPED")):
             if tc.find(tag) is not None:
                 status = name
-        cases.append((tc.get("classname", "").replace("tests.", ""), tc.get("name", ""), status, float(tc.get("time", 0))))
+        cases.append(
+            (
+                tc.get("classname", "").replace("tests.", ""),
+                tc.get("name", ""),
+                status,
+                float(tc.get("time", 0)),
+            )
+        )
     n = len(cases)
     counts = {s: sum(c[2] == s for c in cases) for s in ("PASSED", "FAILED", "ERROR", "SKIPPED")}
     ok = counts["FAILED"] == 0 and counts["ERROR"] == 0 and n > 0
@@ -54,7 +61,10 @@ def main() -> int:
     if not XML.exists():
         print("pytest wrote no report", file=sys.stderr)
         return 2
-    commit = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip() or "unknown"
+    commit = (
+        subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+        or "unknown"
+    )
     when = datetime.now(timezone(timedelta(hours=5, minutes=30))).strftime("%Y-%m-%d %H:%M IST")
     text, ok = build_report(XML, commit, when)
     OUT.write_text(text)

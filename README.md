@@ -2,13 +2,15 @@
 
 DA3408 course project: predict, each minute, whether buying the ATM NIFTY call,
 buying the put, or staying out pays **after costs** over the next 2 minutes.
-Plan and every decision with its reason: [PLAN.md](PLAN.md).
+Design and every decision with its reason: [docs/HLD.md](docs/HLD.md). Results: [docs/RESULTS.md](docs/RESULTS.md).
+
+*Ravion* (named below) is the author's own live trading system on the same server. Its recorder holds the
+market data. This project reads a frozen copy of it and never writes to it.
 
 ## Setup (on the VPS)
 
 ```bash
 git clone <this repo> && cd Options-Prediction-using-AiOps
-git checkout ccr-65d528eb-0u5j23
 python3 -m venv .venv && . .venv/bin/activate
 pip install -r requirements.txt && pip install -e .
 ```
@@ -79,11 +81,6 @@ git config core.hooksPath .githooks          # once: turns on the pre-push hook 
 | Low-level design (endpoints, I/O) | [docs/LLD.md](docs/LLD.md) |
 | Test plan and cases | [docs/TEST_PLAN.md](docs/TEST_PLAN.md), report: `reports/test_report.md` |
 | User manual | [docs/USER_MANUAL.md](docs/USER_MANUAL.md) |
-| Viva preparation | [docs/VIVA.md](docs/VIVA.md) |
-| Rubric tracker | [RUBRIC.md](RUBRIC.md) |
-
-The documents follow simplified technical English (about 80% of ASD-STE100): short sentences,
-active voice, one word per meaning, steps as commands.
 
 ## Data safety
 

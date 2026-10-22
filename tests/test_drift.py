@@ -8,7 +8,9 @@ from optpred import drift
 
 def frame(n, shift=0.0, seed=0, cols=("a", "b", "c", "d", "e")):
     rng = np.random.default_rng(seed)
-    return pd.DataFrame(rng.normal(size=(n, len(cols))), columns=list(cols)).assign(a=lambda d: d["a"] + shift)
+    return pd.DataFrame(rng.normal(size=(n, len(cols))), columns=list(cols)).assign(
+        a=lambda d: d["a"] + shift
+    )
 
 
 def test_psi_is_small_for_the_same_distribution():

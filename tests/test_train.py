@@ -6,7 +6,6 @@ import numpy as np
 import pandas as pd
 import yaml
 
-
 from optpred import train
 from optpred.features import FEATURE_COLUMNS
 from optpred.labels import STAY_OUT

@@ -22,7 +22,7 @@ bars:
 
 features:
   out_dir: data/features
-  horizon_min: 2           # hold time; fixed BEFORE looking at any result (PLAN.md section 4)
+  horizon_min: 2           # hold time; fixed BEFORE looking at any result (docs/HLD.md section 1.2)
   first_minute: 560        # 09:20 -- five minutes of history exist
   qty: 65                  # one lot
   strike_step: 50
@@ -75,7 +75,7 @@ tune:                      # Ray Tune: search LightGBM settings on train days on
     reg_lambda: [1.0, 20.0]          # log-uniform range
 
 drift:
-  window: 2000            # served rows kept: about 5 sessions. One day is too short (PLAN.md section 8)
+  window: 2000            # served rows kept: about 5 sessions. One day is too short (docs/HLD.md section 5)
   min_rows: 1000          # no drift verdict before this many rows. Env DRIFT_MIN_ROWS overrides (demo)
   psi_limit: 0.25         # env DRIFT_PSI_LIMIT overrides (demo)
   max_feature_share: 0.3  # drift is declared when more than this share of features pass the limit

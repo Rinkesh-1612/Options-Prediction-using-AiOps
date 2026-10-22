@@ -11,14 +11,20 @@ def fake_api(days, calls):
         if req.url.path == "/days":
             return httpx.Response(200, json=days)
         if req.url.path == "/minutes":
-            return httpx.Response(200, json=[{"minute": 600, "time": "10:00"}, {"minute": 601, "time": "10:01"}])
+            return httpx.Response(
+                200, json=[{"minute": 600, "time": "10:00"}, {"minute": 601, "time": "10:01"}]
+            )
         calls.append(req.read())
         return httpx.Response(200, json={})
 
     return httpx.Client(base_url="http://api", transport=httpx.MockTransport(handler))
 
 
-DAYS = [{"day": "2026-09-01", "split": "train"}, {"day": "2026-09-25", "split": "val"}, {"day": "2026-09-30", "split": "val"}]
+DAYS = [
+    {"day": "2026-09-01", "split": "train"},
+    {"day": "2026-09-25", "split": "val"},
+    {"day": "2026-09-30", "split": "val"},
+]
 
 
 def test_default_day_is_the_latest_validation_day():

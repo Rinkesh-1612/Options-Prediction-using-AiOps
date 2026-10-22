@@ -37,7 +37,9 @@ class TuneError(RuntimeError):
     """Raised when the data cannot support the requested folds."""
 
 
-def walk_forward_folds(days: list[str], n_folds: int, min_train_days: int = 10) -> list[tuple[list[str], list[str]]]:
+def walk_forward_folds(
+    days: list[str], n_folds: int, min_train_days: int = 10
+) -> list[tuple[list[str], list[str]]]:
     """Expanding-window folds: train on days[:k], score on the next block. Days stay in time order."""
     days = sorted(days)
     block = (len(days) - min_train_days) // n_folds
@@ -50,13 +52,17 @@ def walk_forward_folds(days: list[str], n_folds: int, min_train_days: int = 10) 
     return folds
 
 
-def cv_logloss(df: pd.DataFrame, lgbm: dict, folds, slip: float, qty: int, seed: int, n_jobs: int, rounds: int) -> dict:
+def cv_logloss(
+    df: pd.DataFrame, lgbm: dict, folds, slip: float, qty: int, seed: int, n_jobs: int, rounds: int
+) -> dict:
     """Mean multi-class log loss over the folds, and the mean best iteration."""
     losses, iters = [], []
     for tr_days, va_days in folds:
         tr, va = df[df["day"].isin(tr_days)], df[df["day"].isin(va_days)]
         y_tr, y_va = label_actions(tr, slip, qty), label_actions(va, slip, qty)
-        model = lgb.LGBMClassifier(objective="multiclass", random_state=seed, n_jobs=n_jobs, verbose=-1, **lgbm)
+        model = lgb.LGBMClassifier(
+            objective="multiclass", random_state=seed, n_jobs=n_jobs, verbose=-1, **lgbm
+        )
         model.fit(
             tr[FEATURE_COLUMNS],
             y_tr,
@@ -68,7 +74,11 @@ def cv_logloss(df: pd.DataFrame, lgbm: dict, folds, slip: float, qty: int, seed:
         proba[:, model.classes_] = model.predict_proba(va[FEATURE_COLUMNS])
         losses.append(float(-np.mean(np.log(np.clip(proba[np.arange(len(y_va)), y_va], 1e-12, None)))))
         iters.append(int(model.best_iteration_ or model.n_estimators))
-    return {"logloss": float(np.mean(losses)), "fold_logloss": losses, "mean_best_iteration": float(np.mean(iters))}
+    return {
+        "logloss": float(np.mean(losses)),
+        "fold_logloss": losses,
+        "mean_best_iteration": float(np.mean(iters)),
+    }
 
 
 def trial(config: dict, df: pd.DataFrame, folds, base_lgbm: dict, slip, qty, seed, n_jobs, rounds) -> None:
@@ -109,15 +119,25 @@ def main(argv: list[str], summary: dict) -> int:
     }
     base = {k: v for k, v in t["lgbm"].items() if k not in space}
     objective = tune.with_parameters(
-        trial, df=df, folds=folds, base_lgbm=base, slip=slip, qty=p["qty"], seed=t["seed"],
-        n_jobs=tu["cpus_per_trial"], rounds=t["early_stopping_rounds"],
+        trial,
+        df=df,
+        folds=folds,
+        base_lgbm=base,
+        slip=slip,
+        qty=p["qty"],
+        seed=t["seed"],
+        n_jobs=tu["cpus_per_trial"],
+        rounds=t["early_stopping_rounds"],
     )
     objective = tune.with_resources(objective, {"cpu": tu["cpus_per_trial"]})
     tuner = tune.Tuner(
         objective,
         param_space=space,
         tune_config=tune.TuneConfig(
-            metric="logloss", mode="min", num_samples=tu["num_samples"], max_concurrent_trials=tu["concurrent"],
+            metric="logloss",
+            mode="min",
+            num_samples=tu["num_samples"],
+            max_concurrent_trials=tu["concurrent"],
             search_alg=tune.search.BasicVariantGenerator(random_state=t["seed"]),
         ),
         run_config=RunConfig(storage_path=str(Path("state/ray").resolve()), verbose=0, name="tune"),
@@ -128,7 +148,9 @@ def main(argv: list[str], summary: dict) -> int:
     if not results:
         raise TuneError("no Ray Tune trial finished")
     best = min(results, key=lambda r: r.metrics["logloss"])
-    default = cv_logloss(df, t["lgbm"], folds, slip, p["qty"], t["seed"], tu["cpus"], t["early_stopping_rounds"])
+    default = cv_logloss(
+        df, t["lgbm"], folds, slip, p["qty"], t["seed"], tu["cpus"], t["early_stopping_rounds"]
+    )
     best_cfg = {k: (float(v) if isinstance(v, float) else v) for k, v in best.config.items()}
     out = {
         "objective": "mean walk-forward multi_logloss on train days",
@@ -138,7 +160,13 @@ def main(argv: list[str], summary: dict) -> int:
         "best_logloss": best.metrics["logloss"],
         "best_params": best_cfg,
         "trials": sorted(
-            ({**{k: (float(v) if isinstance(v, float) else v) for k, v in r.config.items()}, "logloss": r.metrics["logloss"]} for r in results),
+            (
+                {
+                    **{k: (float(v) if isinstance(v, float) else v) for k, v in r.config.items()},
+                    "logloss": r.metrics["logloss"],
+                }
+                for r in results
+            ),
             key=lambda d: d["logloss"],
         ),
     }
@@ -150,17 +178,41 @@ def main(argv: list[str], summary: dict) -> int:
         Path(uri.removeprefix("sqlite:///")).parent.mkdir(parents=True, exist_ok=True)
     mlflow.set_tracking_uri(uri)
     if mlflow.get_experiment_by_name(m["experiment"]) is None:
-        mlflow.create_experiment(m["experiment"], artifact_location=Path(m["artifact_root"]).resolve().as_uri())
+        mlflow.create_experiment(
+            m["experiment"], artifact_location=Path(m["artifact_root"]).resolve().as_uri()
+        )
     mlflow.set_experiment(m["experiment"])
     with mlflow.start_run(run_name="ray-tune") as run:
-        mlflow.set_tags({"git_commit": runlog._git("rev-parse", "HEAD"), "stage": "tune", "splits_used": "train"})
-        mlflow.log_params({"n_trials": len(results), "n_folds": len(folds), "seed": t["seed"], **{f"best_{k}": v for k, v in best_cfg.items()}})
-        mlflow.log_metrics({"cv_logloss_best": out["best_logloss"], "cv_logloss_default": out["default_logloss"]})
+        mlflow.set_tags(
+            {"git_commit": runlog._git("rev-parse", "HEAD"), "stage": "tune", "splits_used": "train"}
+        )
+        mlflow.log_params(
+            {
+                "n_trials": len(results),
+                "n_folds": len(folds),
+                "seed": t["seed"],
+                **{f"best_{k}": v for k, v in best_cfg.items()},
+            }
+        )
+        mlflow.log_metrics(
+            {"cv_logloss_best": out["best_logloss"], "cv_logloss_default": out["default_logloss"]}
+        )
         for i, tr in enumerate(out["trials"]):
             mlflow.log_metric("trial_logloss", tr["logloss"], step=i)
         mlflow.log_artifact("reports/tune.json")
-    log.info("default cv logloss %.4f, best %.4f (%d trials)", out["default_logloss"], out["best_logloss"], len(results))
-    summary.update(mlflow_run_id=run.info.run_id, n_trials=len(results), default_logloss=out["default_logloss"], best_logloss=out["best_logloss"], best_params=best_cfg)
+    log.info(
+        "default cv logloss %.4f, best %.4f (%d trials)",
+        out["default_logloss"],
+        out["best_logloss"],
+        len(results),
+    )
+    summary.update(
+        mlflow_run_id=run.info.run_id,
+        n_trials=len(results),
+        default_logloss=out["default_logloss"],
+        best_logloss=out["best_logloss"],
+        best_params=best_cfg,
+    )
     return 0
 
 

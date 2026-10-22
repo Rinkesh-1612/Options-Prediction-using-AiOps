@@ -44,8 +44,8 @@ import pyarrow.parquet as pq
 import yaml
 
 from optpred import runlog
-from optpred.labels import ACTION_NAMES, label_actions, statutory_cost_rs
 from optpred.clock import SESSION_FIRST_MIN, SESSION_LAST_MIN
+from optpred.labels import ACTION_NAMES, label_actions, statutory_cost_rs
 
 log = logging.getLogger("optpred.features")
 

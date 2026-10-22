@@ -8,6 +8,7 @@ import pandas as pd
 import pytest
 import yaml
 from fastapi.testclient import TestClient
+from mlflow.exceptions import MlflowException
 
 from optpred import api
 from optpred.features import FEATURE_COLUMNS
@@ -52,8 +53,8 @@ class FakeRegistry:
         self.alias = {"champion": 3} | ({"previous": 2} if with_previous else {})
 
     def get_model_version_by_alias(self, name, alias):
-        if alias not in self.alias:
-            raise KeyError(alias)
+        if alias not in self.alias:  # the real client raises this for an alias that is not set
+            raise MlflowException(f"alias {alias} not found")
         return type("V", (), {"version": str(self.alias[alias]), "run_id": "r"})()
 
     def set_registered_model_alias(self, name, alias, version):

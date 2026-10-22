@@ -53,7 +53,9 @@ def replay(
     c = client or httpx.Client(base_url=api, timeout=20)
     try:
         all_days = c.get("/days").raise_for_status().json()
-        names = sorted(d["day"] for d in all_days if d["split"] == split) if split else [pick_day(all_days, day)]
+        names = (
+            sorted(d["day"] for d in all_days if d["split"] == split) if split else [pick_day(all_days, day)]
+        )
         if not names:
             raise ReplayError(f"the API shows no days in split {split!r}")
         plan = [(d, c.get("/minutes", params={"day": d}).raise_for_status().json()) for d in names]
