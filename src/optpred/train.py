@@ -37,7 +37,6 @@ import mlflow
 import numpy as np
 import pandas as pd
 import yaml
-from mlflow import MlflowClient
 from mlflow.models import infer_signature
 
 from optpred import runlog
@@ -102,23 +101,6 @@ def file_sha(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()[:16]
 
 
-def register(client: MlflowClient, name: str, run_id: str, val_net_per_day: float) -> dict:
-    """Register the run's model. First version becomes champion; later ones only if better on val."""
-    mv = next(v for v in client.search_model_versions(f"name='{name}'") if v.run_id == run_id)
-    client.set_registered_model_alias(name, "candidate", mv.version)
-    try:
-        champ = client.get_model_version_by_alias(name, "champion")
-        champ_val = client.get_run(champ.run_id).data.metrics.get("val_net_per_day_rs_selected", -np.inf)
-        promoted = val_net_per_day > champ_val
-    except mlflow.exceptions.MlflowException:
-        champ, champ_val, promoted = None, None, True  # nothing deployed yet: initial deployment
-    if promoted:
-        if champ is not None:
-            client.set_registered_model_alias(name, "previous", champ.version)  # rollback target
-        client.set_registered_model_alias(name, "champion", mv.version)
-    return {"version": int(mv.version), "promoted": promoted, "previous_champion_val": champ_val}
-
-
 def main(argv: list[str], summary: dict) -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--params", default="params.yaml")
@@ -168,7 +150,6 @@ def main(argv: list[str], summary: dict) -> int:
             m["experiment"], artifact_location=Path(m["artifact_root"]).resolve().as_uri()
         )
     mlflow.set_experiment(m["experiment"])
-    client = MlflowClient()
 
     with mlflow.start_run(run_name=args.run_name) as run:
         mlflow.log_params(
@@ -264,8 +245,23 @@ def main(argv: list[str], summary: dict) -> int:
                     f"mlflow=={mlflow.__version__}",
                 ],
             )
-        reg = register(client, m["registered_model"], run.info.run_id, chosen["mean_net_per_day_rs"])
         run_id = run.info.run_id
+
+    # the register stage reads this file and decides the registry aliases (champion / previous / candidate)
+    Path("reports").mkdir(exist_ok=True)
+    Path("reports/train.json").write_text(
+        json.dumps(
+            {
+                "mlflow_run_id": run_id,
+                "tau": tau,
+                "val_net_per_day_rs_selected": chosen["mean_net_per_day_rs"],
+                "val_trades_per_day_selected": chosen["trades_per_day"],
+                "val_logloss": out["val_logloss"],
+                "val_logloss_prior": out["val_logloss_prior"],
+            },
+            indent=1,
+        )
+    )
 
     log.info(
         "MLflow run %s  logloss %.4f (no-information prior %.4f)  tau %.2f%s",
@@ -290,11 +286,9 @@ def main(argv: list[str], summary: dict) -> int:
         base["oracle_not_tradable"]["mean_net_per_trade_rs"],
     )
     log.info("top features: %s", ", ".join(imp.index[:6]))
-    log.info("registry: version %d, champion=%s", reg["version"], reg["promoted"])
     summary.update(
         mlflow_run_id=run_id,
         tau=tau,
-        registry=reg,
         val_selected=chosen,
         val_logloss=out["val_logloss"],
         val_logloss_prior=out["val_logloss_prior"],

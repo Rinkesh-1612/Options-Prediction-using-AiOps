@@ -88,9 +88,9 @@ stages:
           cache: false
 
   train:
-    # Tracking goes to MLflow (mlflow/ is its own versioned store: runs, params, metrics, models),
-    # so this stage declares no DVC output. It only reads train/val days; the test days are filtered
-    # out at the Parquet reader.
+    # Tracking goes to MLflow (mlflow/ is its own versioned store: runs, params, metrics, models).
+    # The DVC output is a small summary that the register stage reads.
+    # It only reads train/val days; the test days are filtered out at the Parquet reader.
     cmd: python -m optpred.train
     params:
       - features
@@ -104,3 +104,35 @@ stages:
       - src/optpred/sim.py
       - src/optpred/labels.py
       - data/features
+    metrics:
+      - reports/train.json:
+          cache: false
+
+  register:
+    # Moves the registry aliases: candidate = newest version; champion only if strictly better on validation.
+    cmd: python -m optpred.register
+    params:
+      - mlflow
+    deps:
+      - src/optpred/register.py
+      - reports/train.json
+    outs:
+      - reports/register.json:
+          cache: false
+
+  evaluate:
+    # The ONE look at the locked test days (docs/FINAL_TEST_PROTOCOL.md). Scores the registry's champion.
+    # Frozen after its single run, so `dvc repro` never opens the test days again.
+    cmd: python -m optpred.evaluate --final
+    params:
+      - features
+      - costs
+      - baselines
+      - mlflow
+    deps:
+      - src/optpred/evaluate.py
+      - reports/register.json
+      - data/features
+    metrics:
+      - reports/final.json:
+          cache: false

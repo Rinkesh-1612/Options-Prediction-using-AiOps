@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import yaml
 
-from optpred import train
+from optpred import register, train
 from optpred.features import FEATURE_COLUMNS
 from optpred.labels import STAY_OUT
 
@@ -55,12 +55,12 @@ def test_decision_rule():
     assert (train.decide(proba, train.NEVER_TRADE) == STAY_OUT).all()
 
 
-def test_stage_tracks_in_mlflow_and_registers_a_champion(tmp_path, monkeypatch):
-    import mlflow
-
+def stage_workspace(tmp_path, monkeypatch, signal=1.0):
+    """A temporary repo: features with train, val and test days, params.yaml, its own MLflow store."""
     monkeypatch.chdir(tmp_path)
     df = pd.concat(
-        [make(12, 1.0, 0, "train"), make(4, 1.0, 1, "val"), make(3, 1.0, 2, "test")], ignore_index=True
+        [make(12, signal, 0, "train"), make(4, signal, 1, "val"), make(3, signal, 2, "test")],
+        ignore_index=True,
     )
     df.loc[df["split"] == "val", "day"] = df.loc[df["split"] == "val", "day"].str.replace(
         "2026-01", "2026-03"
@@ -75,7 +75,7 @@ def test_stage_tracks_in_mlflow_and_registers_a_champion(tmp_path, monkeypatch):
         yaml.safe_dump(
             {
                 "features": {"out_dir": "data/features", "qty": 65, "horizon_min": 2},
-                "costs": {"slippage_pts_per_leg": 0.31},
+                "costs": {"slippage_pts_per_leg": 0.31, "sensitivity_pts_per_leg": [0.0, 0.31]},
                 "baselines": {"random_seeds": 3, "bootstrap_resamples": 50, "seed": 1},
                 "train": {**T, "seed": 1, "lgbm": LGBM},
                 "mlflow": {
@@ -88,8 +88,16 @@ def test_stage_tracks_in_mlflow_and_registers_a_champion(tmp_path, monkeypatch):
         )
     )
     monkeypatch.delenv("MLFLOW_TRACKING_URI", raising=False)
+    return df
+
+
+def test_stage_tracks_in_mlflow_and_registers_a_champion(tmp_path, monkeypatch):
+    import mlflow
+
+    df = stage_workspace(tmp_path, monkeypatch)
     summary = {}
     assert train.main([], summary) == 0
+    assert register.main([], {}) == 0  # the register stage moves the aliases
     client = mlflow.MlflowClient()
     run = client.get_run(summary["mlflow_run_id"])
     assert run.data.tags["test_days_read"] == "no" and "git_commit" in run.data.tags
@@ -103,3 +111,22 @@ def test_stage_tracks_in_mlflow_and_registers_a_champion(tmp_path, monkeypatch):
     assert list(served.columns) == ["p_stay_out", "p_buy_ce", "p_buy_pe", "action", "tau", "drivers"]
     assert np.allclose(served[["p_stay_out", "p_buy_ce", "p_buy_pe"]].sum(axis=1), 1.0)
     assert len(json.loads(served["drivers"][0])) == 3
+
+
+def test_register_promotes_only_a_better_model_and_keeps_the_old_one_for_rollback(tmp_path, monkeypatch):
+    import mlflow
+
+    stage_workspace(tmp_path, monkeypatch)
+    assert register.main([], {}) == 2  # no train report yet
+    assert train.main([], {}) == 0 and register.main([], {}) == 0
+    client = mlflow.MlflowClient()
+    first = client.get_model_version_by_alias("m", "champion").version
+    assert train.main([], {}) == 0 and register.main([], {}) == 0  # same data: not strictly better
+    assert client.get_model_version_by_alias("m", "champion").version == first
+    assert client.get_model_version_by_alias("m", "candidate").version != first
+    out = json.loads((tmp_path / "reports/train.json").read_text())
+    report = tmp_path / "reports/train.json"
+    report.write_text(json.dumps({**out, "val_net_per_day_rs_selected": 1e9}))  # pretend it is better
+    assert register.main([], {}) == 0
+    assert client.get_model_version_by_alias("m", "champion").version != first
+    assert client.get_model_version_by_alias("m", "previous").version == first
