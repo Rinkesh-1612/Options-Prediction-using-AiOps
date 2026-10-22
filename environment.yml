@@ -1,0 +1,11 @@
+# Rebuilds the pipeline environment without Docker (conda or mamba). Docker stays the reference:
+# it also installs Java 17, which Spark needs. Install Java 17 yourself when you use this file.
+name: optpred
+channels: [conda-forge]
+dependencies:
+  - python=3.11
+  - openjdk=17
+  - pip
+  - pip:
+      - -r requirements.txt
+      - -e .

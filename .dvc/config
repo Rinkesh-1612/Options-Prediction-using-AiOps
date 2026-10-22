@@ -1,2 +1,5 @@
 [core]
     autostage = true
+    remote = vps
+['remote "vps"']
+    url = /home/trader/dvc-remote

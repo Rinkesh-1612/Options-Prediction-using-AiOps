@@ -12,3 +12,7 @@ __pycache__/
 /mlflow
 /state
 .env
+/state/ray
+/reports/junit.xml
+/mlflow_first_try
+/.dvc/cache
