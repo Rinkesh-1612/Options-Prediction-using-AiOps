@@ -148,3 +148,8 @@ Watch Grafana. The "Drift detected" tile turns red. Prometheus fires `DriftDetec
 Alertmanager calls the API. The API writes a retrain request. The runner trains a new model.
 The Pipeline tab shows the new run. The new model replaces the champion only if it validates better.
 Then restore the real limits: `./stack up -d api`.
+
+With the real limits, replaying the six validation days is already enough: after about 1,000 replayed minutes the
+validation days differ from the training days (spreads and volumes changed), so drift is declared and a retrain starts.
+
+![Grafana after drift was detected](img/grafana-drift.png)

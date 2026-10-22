@@ -108,3 +108,21 @@ The pre-push hook runs the same checks before every `git push`.
 
 The test report is `reports/test_report.md`. It lists the number of cases, passed and failed,
 and the result of every case. A script generates it. Nobody edits it by hand.
+
+## 9. Acceptance record (22 Oct 2026)
+
+| # | Criterion | Result | Evidence |
+|---|---|---|---|
+| 1 | All automated tests pass | **Met.** 73 of 73 | `reports/test_report.md`; the same 73 pass under `mlflow run . -e test` (`reports/mlproject_test_run.log`) |
+| 2 | `ruff check .` clean | **Met** | pre-push hook; `./pipe ruff check .` |
+| 3 | Nine-stage DAG, nothing to rerun | **Met** | `./pipe dvc dag`; `./pipe dvc status` → "Data and pipelines are up to date" (`evaluate` frozen) |
+| 4 | Smoke test S-1 to S-11 | **Met** | S-1 all services up, 3 healthy; S-2 ok; S-3 33 train, 6 val, 10 test days; S-4 200; S-5 targets api, host, mlflow, prometheus all `up`; S-6, S-7 `docs/img/grafana.png`; S-8 401 without token, 202 with it, runner retrained (registry v5, not promoted); S-9 409 (no previous model, as expected); S-10 verdict returned; S-11 `docs/img/results-desktop.png` |
+| 5 | Page lists days and predicts with no error | **Met** | `docs/img/predict-desktop.png`, `docs/img/predict-phone.png` |
+| 6 | Test days hidden until the final evaluation, visible after | **Met** | T-17, T-31; S-3 after the run |
+| 7 | Roll back and forward changes the champion | **Met by tests only** (T-20, T-27). Live: no second model has ever beaten version 1 on validation, so there is no `previous` version and the API answers 409, as designed. |
+| 8 | Final evaluation once, clean commit, protocol first | **Met** | protocol commit `7d65338`; journal `20261022T161450-evaluate`, `git_dirty: false`; a second run exits 3 (T-28) |
+
+**Drift → retrain, end to end (observed, not staged).** During the replay demo the drift window passed 1,000 rows.
+Ten features crossed PSI 0.25, Prometheus fired `DriftDetected`, Alertmanager called the API, the API wrote a
+retrain request, and the runner trained and registered version 4 (`state/retrain_20261022T112001_ok.json`,
+journal `20261022T164936-train`). It was not promoted: it was no better on validation.

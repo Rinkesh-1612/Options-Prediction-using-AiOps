@@ -360,14 +360,14 @@ stages:
     outs:
     - path: reports/train.json
       hash: md5
-      md5: 74505bff82788bb05237a95deed7880a
+      md5: 2ee591e8cf6749e31c286076414be530
       size: 221
   register:
     cmd: python -m optpred.register
     deps:
     - path: reports/train.json
       hash: md5
-      md5: 74505bff82788bb05237a95deed7880a
+      md5: 2ee591e8cf6749e31c286076414be530
       size: 221
     - path: src/optpred/register.py
       hash: md5
@@ -383,7 +383,7 @@ stages:
     outs:
     - path: reports/register.json
       hash: md5
-      md5: 7c7193acd55653f6a8dd94ea67944d6f
+      md5: 8b676a89ac31119b63a5ed4ba0e19547
       size: 161
   evaluate:
     cmd: python -m optpred.evaluate --final

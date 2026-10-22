@@ -2,25 +2,32 @@ name: nifty-option-direction
 
 # Every entry point runs in the same pipeline image, so a laptop, the VPS and a grader's machine
 # get identical Python, Java and library versions. Build it once with `./pipe build`.
+#   mlflow run . -e test                                   # the whole test suite
+#   mlflow run . -e train -A user=$(id -u):$(id -g)        # files written to the repo stay yours
+# MLflow starts the command without a shell, so each command runs through `bash -c`.
+# There is no entry point for `evaluate`: it scores the locked test days once and is frozen in DVC.
 docker_env:
   image: optpred-pipeline:latest
-  volumes: ["${PWD}:/app"]
+  # /etc/passwd and /etc/group: Spark refuses a user ID with no name inside the container (as in ./pipe)
+  volumes: ["${PWD}:/app", "/etc/passwd:/etc/passwd:ro", "/etc/group:/etc/group:ro"]
   environment: [["HOME", "/tmp"], ["SPARK_LOCAL_IP", "127.0.0.1"]]
 
 entry_points:
   check:
-    command: "cd /app && python -m optpred.check"
+    command: "bash -c 'cd /app && python -m optpred.check'"
   bars:
-    command: "cd /app && python -m optpred.bars"
+    command: "bash -c 'cd /app && python -m optpred.bars'"
   features:
-    command: "cd /app && python -m optpred.features"
+    command: "bash -c 'cd /app && python -m optpred.features'"
   baselines:
-    command: "cd /app && python -m optpred.baselines"
+    command: "bash -c 'cd /app && python -m optpred.baselines'"
   tune:
-    command: "cd /app && python -m optpred.tune"
+    command: "bash -c 'cd /app && python -m optpred.tune'"
   train:
     parameters:
       run_name: { type: string, default: "mlproject" }
-    command: "cd /app && python -m optpred.train --run-name {run_name}"
+    command: "bash -c 'cd /app && python -m optpred.train --run-name {run_name}'"
+  register:
+    command: "bash -c 'cd /app && python -m optpred.register'"
   test:
-    command: "cd /app && pytest -q"
+    command: "bash -c 'cd /app && pytest -q -p no:cacheprovider'"

@@ -24,7 +24,7 @@ Both run in Docker on one VPS. No cloud service is used.
 | model | `mlflow models serve` | Serves the champion model over REST. Follows the alias. | mlflow |
 | api | FastAPI | The only back end. Predicts, shows the pipeline, rolls back, retrains, exports metrics. | model, mlflow |
 | frontend | nginx | A static web page. It calls the api over REST. | api |
-| runner | shell loop | Runs `train` when the api writes a retrain request. | state/ |
+| runner | shell loop | Runs `dvc repro` of `train` and `register` when the api writes a retrain request. | state/ |
 | prometheus | Prometheus | Pulls metrics every 5 seconds. Evaluates alert rules. | api, mlflow, node-exporter |
 | alertmanager | Alertmanager | Sends the `DriftDetected` alert to the api. | api |
 | grafana | Grafana | Draws the live dashboard. | prometheus |

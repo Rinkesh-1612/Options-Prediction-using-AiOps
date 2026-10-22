@@ -10,7 +10,8 @@ while true; do
   if [ -f "$REQ" ]; then
     echo "retrain requested: $(cat "$REQ")"
     mv "$REQ" state/retrain_running.json
-    if python -m optpred.train && python -m optpred.register; then result=ok; else result=FAILED; fi
+    # through DVC, so dvc.lock records the new train/register outputs (--force: retrain on the same data too)
+    if dvc repro --force --single-item train && dvc repro --single-item register; then result=ok; else result=FAILED; fi
     echo "retrain $result"
     mv state/retrain_running.json "state/retrain_$(date +%Y%m%dT%H%M%S)_$result.json"
   fi

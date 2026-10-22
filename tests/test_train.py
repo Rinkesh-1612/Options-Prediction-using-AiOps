@@ -87,7 +87,9 @@ def stage_workspace(tmp_path, monkeypatch, signal=1.0):
             }
         )
     )
-    monkeypatch.delenv("MLFLOW_TRACKING_URI", raising=False)
+    # isolate from an outer MLflow run (`mlflow run` sets these in its container)
+    for var in ("MLFLOW_TRACKING_URI", "MLFLOW_RUN_ID", "MLFLOW_EXPERIMENT_ID", "MLFLOW_EXPERIMENT_NAME"):
+        monkeypatch.delenv(var, raising=False)
     return df
 
 
