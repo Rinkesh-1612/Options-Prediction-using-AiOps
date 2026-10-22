@@ -1,0 +1,359 @@
+schema: '2.0'
+stages:
+  export:
+    cmd: python -m optpred.export
+    deps:
+    - path: src/optpred/export.py
+      hash: md5
+      md5: ff034354a1d1856d041a23850a46be07
+      size: 8681
+    params:
+      params.yaml:
+        export:
+          clickhouse_url: http://127.0.0.1:9100
+          start_date: '2026-08-03'
+          end_date: '2026-10-16'
+          out_dir: data/raw
+          timeout_s: 600
+          tables:
+          - opt_tape
+          - und_tape
+          - option_chain_snap
+    outs:
+    - path: data/raw
+      hash: md5
+      md5: b9214ff5bc24fb4d3260a845bb713373.dir
+      size: 4378681779
+      nfiles: 160
+  check:
+    cmd: python -m optpred.check
+    deps:
+    - path: data/raw
+      hash: md5
+      md5: b9214ff5bc24fb4d3260a845bb713373.dir
+      size: 4378681779
+      nfiles: 160
+    - path: src/optpred/check.py
+      hash: md5
+      md5: f307ebad601a2ee166a94dfa3fd4ed0a
+      size: 6418
+    - path: src/optpred/spark_common.py
+      hash: md5
+      md5: 45f76500f10988a28cf806bb136f5b83
+      size: 2842
+    params:
+      params.yaml:
+        check:
+          min_coverage: 0.95
+        spark:
+          cores: 4
+          driver_memory: 6g
+          shuffle_partitions: 16
+    outs:
+    - path: data/days.json
+      hash: md5
+      md5: 96ba327842a4cc8892310a4dcf8a9365
+      size: 1678
+    - path: reports/quality.json
+      hash: md5
+      md5: 8bbab536ac6d90a33dde1e1c5186961f
+      size: 26648
+  bars:
+    cmd: python -m optpred.bars
+    deps:
+    - path: data/days.json
+      hash: md5
+      md5: 96ba327842a4cc8892310a4dcf8a9365
+      size: 1678
+    - path: data/raw
+      hash: md5
+      md5: b9214ff5bc24fb4d3260a845bb713373.dir
+      size: 4378681779
+      nfiles: 160
+    - path: src/optpred/bars.py
+      hash: md5
+      md5: 4a26b81500d1ce6616dd927c564a760d
+      size: 4437
+    - path: src/optpred/spark_common.py
+      hash: md5
+      md5: 45f76500f10988a28cf806bb136f5b83
+      size: 2842
+    params:
+      params.yaml:
+        bars:
+          out_dir: data/bars
+        spark:
+          cores: 4
+          driver_memory: 6g
+          shuffle_partitions: 16
+    outs:
+    - path: data/bars
+      hash: md5
+      md5: 0f89d0f4fb6d8825c97f8e9498df341a.dir
+      size: 155945783
+      nfiles: 2260
+  features:
+    cmd: python -m optpred.features
+    deps:
+    - path: data/bars
+      hash: md5
+      md5: 0f89d0f4fb6d8825c97f8e9498df341a.dir
+      size: 155945783
+      nfiles: 2260
+    - path: data/days.json
+      hash: md5
+      md5: 96ba327842a4cc8892310a4dcf8a9365
+      size: 1678
+    - path: src/optpred/features.py
+      hash: md5
+      md5: 193ea961b63db85b78ff2d02c8ddd584
+      size: 16378
+    - path: src/optpred/labels.py
+      hash: md5
+      md5: b79ed731558a18861511f11b5deebb32
+      size: 2449
+    params:
+      params.yaml:
+        bars:
+          out_dir: data/bars
+        costs:
+          slippage_pts_per_leg: 0.31
+          sensitivity_pts_per_leg:
+          - 0.0
+          - 0.15
+          - 0.31
+        features:
+          out_dir: data/features
+          horizon_min: 2
+          first_minute: 560
+          qty: 65
+          strike_step: 50
+          entry_max_age_s: 20
+          min_entry_premium: 5.0
+          n_val_days: 6
+          n_test_days: 10
+    outs:
+    - path: data/features
+      hash: md5
+      md5: 137d04227ecdf1b20efaee4df0c04c87.dir
+      size: 5035841
+      nfiles: 1
+    - path: reports/features.json
+      hash: md5
+      md5: 2b18416966b90009a5e4ed4669728961
+      size: 1895
+  baselines:
+    cmd: python -m optpred.baselines
+    deps:
+    - path: data/features
+      hash: md5
+      md5: 137d04227ecdf1b20efaee4df0c04c87.dir
+      size: 5035841
+      nfiles: 1
+    - path: src/optpred/baselines.py
+      hash: md5
+      md5: 0ad279fd617669484ac0293472af5294
+      size: 5207
+    - path: src/optpred/labels.py
+      hash: md5
+      md5: b79ed731558a18861511f11b5deebb32
+      size: 2449
+    - path: src/optpred/sim.py
+      hash: md5
+      md5: 0dc2413bdee0d9a0a0442f413f171c75
+      size: 4200
+    params:
+      params.yaml:
+        baselines:
+          random_seeds: 100
+          bootstrap_resamples: 5000
+          seed: 20261018
+        costs:
+          slippage_pts_per_leg: 0.31
+          sensitivity_pts_per_leg:
+          - 0.0
+          - 0.15
+          - 0.31
+        features:
+          out_dir: data/features
+          horizon_min: 2
+          first_minute: 560
+          qty: 65
+          strike_step: 50
+          entry_max_age_s: 20
+          min_entry_premium: 5.0
+          n_val_days: 6
+          n_test_days: 10
+    outs:
+    - path: reports/baselines.json
+      hash: md5
+      md5: 5709e7a0863266854cf83422b4d10d11
+      size: 18274
+  tune:
+    cmd: python -m optpred.tune
+    deps:
+    - path: data/features
+      hash: md5
+      md5: 137d04227ecdf1b20efaee4df0c04c87.dir
+      size: 5035841
+      nfiles: 1
+    - path: src/optpred/labels.py
+      hash: md5
+      md5: b79ed731558a18861511f11b5deebb32
+      size: 2449
+    - path: src/optpred/tune.py
+      hash: md5
+      md5: 3a91ab505c6ed27c01f210d5531d4814
+      size: 8024
+    params:
+      params.yaml:
+        costs:
+          slippage_pts_per_leg: 0.31
+          sensitivity_pts_per_leg:
+          - 0.0
+          - 0.15
+          - 0.31
+        features:
+          out_dir: data/features
+          horizon_min: 2
+          first_minute: 560
+          qty: 65
+          strike_step: 50
+          entry_max_age_s: 20
+          min_entry_premium: 5.0
+          n_val_days: 6
+          n_test_days: 10
+        mlflow:
+          tracking_uri: sqlite:///mlflow/mlflow.db
+          artifact_root: mlflow/artifacts
+          experiment: nifty-option-direction
+          registered_model: nifty-option-direction
+        train:
+          seed: 20261018
+          n_jobs: 4
+          early_stopping_rounds: 50
+          threshold_grid:
+          - 0.0
+          - 0.4
+          - 0.45
+          - 0.5
+          - 0.55
+          - 0.6
+          - 0.7
+          - 1.01
+          use_tuned: false
+          min_val_trades: 30
+          lgbm:
+            n_estimators: 600
+            learning_rate: 0.03
+            num_leaves: 15
+            min_child_samples: 100
+            subsample: 0.8
+            subsample_freq: 1
+            colsample_bytree: 0.8
+            reg_lambda: 5.0
+        tune:
+          n_folds: 3
+          min_train_days: 14
+          num_samples: 16
+          cpus: 4
+          cpus_per_trial: 2
+          concurrent: 2
+          space:
+            num_leaves:
+            - 7
+            - 15
+            - 31
+            min_child_samples:
+            - 50
+            - 100
+            - 200
+            learning_rate:
+            - 0.01
+            - 0.1
+            colsample_bytree:
+            - 0.5
+            - 1.0
+            reg_lambda:
+            - 1.0
+            - 20.0
+    outs:
+    - path: reports/tune.json
+      hash: md5
+      md5: 6973c8edec1f672e60dbbbefafe70a13
+      size: 4178
+  train:
+    cmd: python -m optpred.train
+    deps:
+    - path: data/features
+      hash: md5
+      md5: 137d04227ecdf1b20efaee4df0c04c87.dir
+      size: 5035841
+      nfiles: 1
+    - path: src/optpred/baselines.py
+      hash: md5
+      md5: 0ad279fd617669484ac0293472af5294
+      size: 5207
+    - path: src/optpred/labels.py
+      hash: md5
+      md5: b79ed731558a18861511f11b5deebb32
+      size: 2449
+    - path: src/optpred/sim.py
+      hash: md5
+      md5: 0dc2413bdee0d9a0a0442f413f171c75
+      size: 4200
+    - path: src/optpred/train.py
+      hash: md5
+      md5: 10ab63bcec58e08b46c31f594c3876cd
+      size: 13820
+    params:
+      params.yaml:
+        baselines:
+          random_seeds: 100
+          bootstrap_resamples: 5000
+          seed: 20261018
+        costs:
+          slippage_pts_per_leg: 0.31
+          sensitivity_pts_per_leg:
+          - 0.0
+          - 0.15
+          - 0.31
+        features:
+          out_dir: data/features
+          horizon_min: 2
+          first_minute: 560
+          qty: 65
+          strike_step: 50
+          entry_max_age_s: 20
+          min_entry_premium: 5.0
+          n_val_days: 6
+          n_test_days: 10
+        mlflow:
+          tracking_uri: sqlite:///mlflow/mlflow.db
+          artifact_root: mlflow/artifacts
+          experiment: nifty-option-direction
+          registered_model: nifty-option-direction
+        train:
+          seed: 20261018
+          n_jobs: 4
+          early_stopping_rounds: 50
+          threshold_grid:
+          - 0.0
+          - 0.4
+          - 0.45
+          - 0.5
+          - 0.55
+          - 0.6
+          - 0.7
+          - 1.01
+          use_tuned: false
+          min_val_trades: 30
+          lgbm:
+            n_estimators: 600
+            learning_rate: 0.03
+            num_leaves: 15
+            min_child_samples: 100
+            subsample: 0.8
+            subsample_freq: 1
+            colsample_bytree: 0.8
+            reg_lambda: 5.0

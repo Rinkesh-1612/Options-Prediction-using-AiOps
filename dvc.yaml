@@ -70,6 +70,23 @@ stages:
       - reports/baselines.json:
           cache: false
 
+  tune:
+    # Ray Tune: walk-forward search of LightGBM settings on TRAIN days only. Logs a run to MLflow.
+    cmd: python -m optpred.tune
+    params:
+      - features
+      - costs
+      - train
+      - tune
+      - mlflow
+    deps:
+      - src/optpred/tune.py
+      - src/optpred/labels.py
+      - data/features
+    metrics:
+      - reports/tune.json:
+          cache: false
+
   train:
     # Tracking goes to MLflow (mlflow/ is its own versioned store: runs, params, metrics, models),
     # so this stage declares no DVC output. It only reads train/val days; the test days are filtered

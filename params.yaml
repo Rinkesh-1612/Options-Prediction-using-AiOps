@@ -48,6 +48,7 @@ train:
   n_jobs: 4
   early_stopping_rounds: 50
   threshold_grid: [0.0, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 1.01]   # 1.01 = never trade
+  use_tuned: false         # true = train with the settings in reports/tune.json (from `tune`)
   min_val_trades: 30       # a threshold with fewer validation trades is not trusted
   lgbm:
     n_estimators: 600
@@ -58,6 +59,26 @@ train:
     subsample_freq: 1
     colsample_bytree: 0.8
     reg_lambda: 5.0
+
+tune:                      # Ray Tune: search LightGBM settings on train days only
+  n_folds: 3               # walk-forward folds (expanding window, by day)
+  min_train_days: 14       # the first fold trains on at least this many days
+  num_samples: 16          # settings tried
+  cpus: 4
+  cpus_per_trial: 2
+  concurrent: 2
+  space:
+    num_leaves: [7, 15, 31]
+    min_child_samples: [50, 100, 200]
+    learning_rate: [0.01, 0.1]       # log-uniform range
+    colsample_bytree: [0.5, 1.0]
+    reg_lambda: [1.0, 20.0]          # log-uniform range
+
+drift:
+  window: 2000            # served rows kept: about 5 sessions. One day is too short (PLAN.md section 8)
+  min_rows: 1000          # no drift verdict before this many rows. Env DRIFT_MIN_ROWS overrides (demo)
+  psi_limit: 0.25         # env DRIFT_PSI_LIMIT overrides (demo)
+  max_feature_share: 0.3  # drift is declared when more than this share of features pass the limit
 
 mlflow:
   tracking_uri: "sqlite:///mlflow/mlflow.db"   # env MLFLOW_TRACKING_URI overrides (e.g. the compose server)

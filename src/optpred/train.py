@@ -129,6 +129,10 @@ def main(argv: list[str], summary: dict) -> int:
     p, t, m, b = params["features"], params["train"], params["mlflow"], params["baselines"]
     p["_slip"] = params["costs"]["slippage_pts_per_leg"]
     path = Path(p["out_dir"]) / "features.parquet"
+    tuned = Path("reports/tune.json")
+    if t.get("use_tuned") and tuned.exists():  # settings found by `tune` on train days only
+        t["lgbm"] = {**t["lgbm"], **json.loads(tuned.read_text())["best_params"]}
+        log.info("using tuned LightGBM settings from %s", tuned)
 
     # the locked test days are filtered out inside the Parquet reader: they never reach memory
     df = pd.read_parquet(path, filters=[("split", "in", ["train", "val"])]).sort_values(["day", "minute"])
