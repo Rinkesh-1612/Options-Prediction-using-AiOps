@@ -102,3 +102,13 @@ at zero slippage had shown +Rs 59 per day (interval −203 to +315). So:
 **New break-even hit rate:** about 41% (win +3.5 − 0.28, loss −2.0 − 0.28 points).
 
 Trials counted after this amendment: two cost settings × one feature set × one model family × 8 tau values.
+
+## 10. Amendment 2 (2026-10-23): no forward days
+
+**Change.** The author decided to use only the data already exported (3 Aug – 16 Oct 2026). No forward day is added.
+The v2 held-out test becomes the 10 v1 test days (1 – 15 Oct), scored **once** by `micro_evaluate`.
+
+**What it costs in honesty.** These days were opened once for v1 (aggregate v1 results only). No v2 model, setting or
+tau was chosen with them, and no v2 number on them has been seen before this run. They are still a "second look",
+not a clean test, and every result on them carries that label. Pass rule 3 becomes: mean net per day on these
+days above zero.
