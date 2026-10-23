@@ -1,5 +1,7 @@
 # High-level design
 
+> **DEPRECATED (2026-10-23).** This document was written before the owner reviewed the project. It is not approved by the owner. Do not use it as a reference. A reviewed version will replace it.
+
 ## 1. Problem
 
 At the end of each minute, choose one action for the at-the-money (ATM) NIFTY option of the nearest expiry:

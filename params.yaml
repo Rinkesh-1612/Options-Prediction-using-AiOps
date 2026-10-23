@@ -17,6 +17,30 @@ spark:
 check:
   min_coverage: 0.95       # a day needs data in >= 95% of the 375 session minutes
 
+eda:                       # cleaning rules and missing-value policy (docs/steps/eda.md)
+  clean_dir: data/clean
+  workers: 2               # one day per worker; ~3 GB RAM each
+  spread_min_mid: 1.0      # below Rs1 the 0.05 tick dominates the relative spread
+  max_rel_spread: 0.25     # spread > 25% of mid on a >=Rs1 option = stale side of the book
+  max_mid_jump: 0.20       # a >20% mid jump that reverts on the next tick = bad print
+  close_from_s: 55680      # 15:28:00: NSE closing-price print window
+  close_max_jump: 0.0015   # an index tick jump > 0.15% there = closing print
+  max_spot_gap_pts: 25     # chain spot more than 25 pts from the index = stale chain
+  max_age_s:               # forward fill limit per table (optpred.eda.fill)
+    opt_tape: 20
+    index: 5
+    future: 30
+    option_chain_snap: 30
+
+grid:                      # model-ready 1-second table (optpred.transform.grid)
+  out_dir: data/grid
+  strike_step: 50
+  n_strikes: 2             # legs ATM-2 .. ATM+2, CE and PE
+
+feat:                      # feature library (optpred.featurelib); add features in featurelib/groups/
+  out_dir: data/feat
+  groups: all              # or a list, e.g. [time, spot, book]
+
 bars:
   out_dir: data/bars
 

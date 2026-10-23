@@ -1,0 +1,3 @@
+2026-10-23 12:48:31,439 INFO optpred.grid: run 20261023T181831-grid  commit b1eb0bc122 (DIRTY)
+2026-10-23 12:49:44,036 INFO optpred.transform.grid: 49 days, 1102500 rows; highest NaN share: {'chain_age_s': 0.0063, 'pe_iv': 0.0071, 'pe_delta': 0.0071, 'ce_iv': 0.0076, 'ce_delta': 0.0076}
+2026-10-23 12:49:44,037 INFO optpred.grid: run 20261023T181831-grid finished: ok in 72.6s

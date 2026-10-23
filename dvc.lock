@@ -778,3 +778,192 @@ stages:
       hash: md5
       md5: 0d4b5d0729a052e0814ce757463957f0
       size: 5960
+  clean:
+    cmd: python -m optpred.eda.clean
+    deps:
+    - path: data/days.json
+      hash: md5
+      md5: 96ba327842a4cc8892310a4dcf8a9365
+      size: 1678
+    - path: data/raw
+      hash: md5
+      md5: b9214ff5bc24fb4d3260a845bb713373.dir
+      size: 4378681779
+      nfiles: 160
+    - path: src/optpred/eda/clean.py
+      hash: md5
+      md5: e0a5d0bed147267583af2129ba634edd
+      size: 2996
+    - path: src/optpred/eda/rules.py
+      hash: md5
+      md5: 111b6394dcd9f6e47cb53631d66b8fc0
+      size: 6441
+    params:
+      params.yaml:
+        eda:
+          clean_dir: data/clean
+          workers: 2
+          spread_min_mid: 1.0
+          max_rel_spread: 0.25
+          max_mid_jump: 0.2
+          close_from_s: 55680
+          close_max_jump: 0.0015
+          max_spot_gap_pts: 25
+          max_age_s:
+            opt_tape: 20
+            index: 5
+            future: 30
+            option_chain_snap: 30
+    outs:
+    - path: data/clean
+      hash: md5
+      md5: 967a67cc2646291b1eb735ef95190417.dir
+      size: 5144448147
+      nfiles: 147
+    - path: reports/eda/cleaning.json
+      hash: md5
+      md5: bf1ab354b0c8eaed9da5040aba06f327
+      size: 38776
+  eda:
+    cmd: python -m optpred.eda.profile
+    deps:
+    - path: data/clean
+      hash: md5
+      md5: 967a67cc2646291b1eb735ef95190417.dir
+      size: 5144448147
+      nfiles: 147
+    - path: data/days.json
+      hash: md5
+      md5: 96ba327842a4cc8892310a4dcf8a9365
+      size: 1678
+    - path: src/optpred/eda/fill.py
+      hash: md5
+      md5: 061b2c945fc95f1cf10eabc25698bd15
+      size: 1585
+    - path: src/optpred/eda/profile.py
+      hash: md5
+      md5: 5c415482e06bce514da8404fb48b20db
+      size: 9254
+    params:
+      params.yaml:
+        eda:
+          clean_dir: data/clean
+          workers: 2
+          spread_min_mid: 1.0
+          max_rel_spread: 0.25
+          max_mid_jump: 0.2
+          close_from_s: 55680
+          close_max_jump: 0.0015
+          max_spot_gap_pts: 25
+          max_age_s:
+            opt_tape: 20
+            index: 5
+            future: 30
+            option_chain_snap: 30
+    outs:
+    - path: reports/eda/coverage.png
+      hash: md5
+      md5: d4e7baf9c081bfd302cf9160d77a530a
+      size: 46690
+    - path: reports/eda/index_returns.png
+      hash: md5
+      md5: 55832ef23bbfe65c3d80af689fcbc544
+      size: 25929
+    - path: reports/eda/intraday.png
+      hash: md5
+      md5: 262c3b24b3fc68882dd80854d79b7104
+      size: 69612
+    - path: reports/eda/profile.json
+      hash: md5
+      md5: ac25721ca0bb5d071c361d197019217f
+      size: 165594
+    - path: reports/eda/spread_premium.png
+      hash: md5
+      md5: 738a53f4a7d90a494fa0fee8a28bb63c
+      size: 14662
+  grid:
+    cmd: python -m optpred.transform.grid
+    deps:
+    - path: data/clean
+      hash: md5
+      md5: 967a67cc2646291b1eb735ef95190417.dir
+      size: 5144448147
+      nfiles: 147
+    - path: data/days.json
+      hash: md5
+      md5: 96ba327842a4cc8892310a4dcf8a9365
+      size: 1678
+    - path: src/optpred/eda/fill.py
+      hash: md5
+      md5: 061b2c945fc95f1cf10eabc25698bd15
+      size: 1585
+    - path: src/optpred/transform/grid.py
+      hash: md5
+      md5: 010b55aa5cb8a2845ff0609b7ffc7f4a
+      size: 6720
+    params:
+      params.yaml:
+        eda:
+          clean_dir: data/clean
+          workers: 2
+          spread_min_mid: 1.0
+          max_rel_spread: 0.25
+          max_mid_jump: 0.2
+          close_from_s: 55680
+          close_max_jump: 0.0015
+          max_spot_gap_pts: 25
+          max_age_s:
+            opt_tape: 20
+            index: 5
+            future: 30
+            option_chain_snap: 30
+        grid:
+          out_dir: data/grid
+          strike_step: 50
+          n_strikes: 2
+    outs:
+    - path: data/grid
+      hash: md5
+      md5: e3421995d54abc9e07dfdb182f8364aa.dir
+      size: 338988523
+      nfiles: 49
+    - path: reports/grid.json
+      hash: md5
+      md5: 256a1aef286e5d422e91c0f2c9387e9f
+      size: 26042
+  feat:
+    cmd: python -m optpred.featurelib.build
+    deps:
+    - path: data/days.json
+      hash: md5
+      md5: 96ba327842a4cc8892310a4dcf8a9365
+      size: 1678
+    - path: data/grid
+      hash: md5
+      md5: e3421995d54abc9e07dfdb182f8364aa.dir
+      size: 338988523
+      nfiles: 49
+    - path: src/optpred/featurelib
+      hash: md5
+      md5: e1eaed71702dda25ec444294b73b3518.dir
+      size: 42326
+      nfiles: 14
+    params:
+      params.yaml:
+        feat:
+          out_dir: data/feat
+          groups: all
+    outs:
+    - path: data/feat
+      hash: md5
+      md5: ac9d155210d03d0ff2844936431facf8.dir
+      size: 265269016
+      nfiles: 49
+    - path: reports/feat.json
+      hash: md5
+      md5: 586e6df6fbdc9afe035c7d3c3b5c5aeb
+      size: 5392
+    - path: reports/feature_catalog.md
+      hash: md5
+      md5: 0cf0f41e78eb7b97190d90093dd16b99
+      size: 2318

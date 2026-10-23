@@ -1,0 +1,1554 @@
+{
+ "total": {
+  "opt_tape": {
+   "rows_in": 84731099,
+   "drop_outside_session": 2292576,
+   "drop_one_sided_book": 4501,
+   "drop_crossed_book": 0,
+   "drop_wide_spread": 1500,
+   "drop_mid_spike": 0,
+   "null_volume_above_later": 1238,
+   "null_oi_not_positive": 2711,
+   "rows_out": 82432522
+  },
+  "und_tape": {
+   "rows_in": 14751899,
+   "drop_outside_session": 1286327,
+   "drop_not_positive_price": 0,
+   "drop_duplicate": 0,
+   "drop_index_closing_print": 12412,
+   "rows_out": 13453160
+  },
+  "option_chain_snap": {
+   "rows_in": 11586075,
+   "drop_outside_session": 703375,
+   "null_ce_iv_placeholder": 320460,
+   "null_ce_bad_book": 1803,
+   "null_pe_iv_placeholder": 977666,
+   "null_pe_bad_book": 1672,
+   "null_spot_off_index": 10950,
+   "rows_out": 10882700
+  }
+ },
+ "days": {
+  "2026-08-03": {
+   "opt_tape": {
+    "rows_in": 1078219,
+    "drop_outside_session": 28807,
+    "drop_one_sided_book": 2,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 11,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 30,
+    "null_oi_not_positive": 0,
+    "rows_out": 1049399
+   },
+   "und_tape": {
+    "rows_in": 250346,
+    "drop_outside_session": 22032,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 438,
+    "rows_out": 227876
+   },
+   "option_chain_snap": {
+    "rows_in": 235300,
+    "drop_outside_session": 11650,
+    "null_ce_iv_placeholder": 25233,
+    "null_ce_bad_book": 1,
+    "null_pe_iv_placeholder": 2511,
+    "null_pe_bad_book": 8,
+    "null_spot_off_index": 550,
+    "rows_out": 223650
+   }
+  },
+  "2026-08-04": {
+   "opt_tape": {
+    "rows_in": 1180112,
+    "drop_outside_session": 31636,
+    "drop_one_sided_book": 11,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 35,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 12,
+    "null_oi_not_positive": 0,
+    "rows_out": 1148430
+   },
+   "und_tape": {
+    "rows_in": 254978,
+    "drop_outside_session": 21692,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 790,
+    "rows_out": 232496
+   },
+   "option_chain_snap": {
+    "rows_in": 238600,
+    "drop_outside_session": 14900,
+    "null_ce_iv_placeholder": 19116,
+    "null_ce_bad_book": 40,
+    "null_pe_iv_placeholder": 17896,
+    "null_pe_bad_book": 465,
+    "null_spot_off_index": 1000,
+    "rows_out": 223700
+   }
+  },
+  "2026-08-05": {
+   "opt_tape": {
+    "rows_in": 960857,
+    "drop_outside_session": 25815,
+    "drop_one_sided_book": 2,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 32,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 14,
+    "null_oi_not_positive": 0,
+    "rows_out": 935008
+   },
+   "und_tape": {
+    "rows_in": 247191,
+    "drop_outside_session": 21183,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 620,
+    "rows_out": 225388
+   },
+   "option_chain_snap": {
+    "rows_in": 238600,
+    "drop_outside_session": 14800,
+    "null_ce_iv_placeholder": 725,
+    "null_ce_bad_book": 0,
+    "null_pe_iv_placeholder": 8892,
+    "null_pe_bad_book": 14,
+    "null_spot_off_index": 750,
+    "rows_out": 223800
+   }
+  },
+  "2026-08-06": {
+   "opt_tape": {
+    "rows_in": 955796,
+    "drop_outside_session": 25989,
+    "drop_one_sided_book": 1,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 19,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 14,
+    "null_oi_not_positive": 0,
+    "rows_out": 929787
+   },
+   "und_tape": {
+    "rows_in": 246334,
+    "drop_outside_session": 21506,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 224828
+   },
+   "option_chain_snap": {
+    "rows_in": 238800,
+    "drop_outside_session": 14600,
+    "null_ce_iv_placeholder": 309,
+    "null_ce_bad_book": 3,
+    "null_pe_iv_placeholder": 8843,
+    "null_pe_bad_book": 6,
+    "null_spot_off_index": 0,
+    "rows_out": 224200
+   }
+  },
+  "2026-08-07": {
+   "opt_tape": {
+    "rows_in": 987497,
+    "drop_outside_session": 27827,
+    "drop_one_sided_book": 0,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 7,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 17,
+    "null_oi_not_positive": 0,
+    "rows_out": 959663
+   },
+   "und_tape": {
+    "rows_in": 242887,
+    "drop_outside_session": 21385,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 221502
+   },
+   "option_chain_snap": {
+    "rows_in": 237425,
+    "drop_outside_session": 14600,
+    "null_ce_iv_placeholder": 385,
+    "null_ce_bad_book": 3,
+    "null_pe_iv_placeholder": 5874,
+    "null_pe_bad_book": 2,
+    "null_spot_off_index": 0,
+    "rows_out": 222825
+   }
+  },
+  "2026-08-10": {
+   "opt_tape": {
+    "rows_in": 1070023,
+    "drop_outside_session": 28766,
+    "drop_one_sided_book": 0,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 8,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 28,
+    "null_oi_not_positive": 0,
+    "rows_out": 1041249
+   },
+   "und_tape": {
+    "rows_in": 236408,
+    "drop_outside_session": 16310,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 220098
+   },
+   "option_chain_snap": {
+    "rows_in": 237100,
+    "drop_outside_session": 14425,
+    "null_ce_iv_placeholder": 176,
+    "null_ce_bad_book": 0,
+    "null_pe_iv_placeholder": 36483,
+    "null_pe_bad_book": 3,
+    "null_spot_off_index": 0,
+    "rows_out": 222675
+   }
+  },
+  "2026-08-11": {
+   "opt_tape": {
+    "rows_in": 1765495,
+    "drop_outside_session": 49998,
+    "drop_one_sided_book": 7,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 1,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 26,
+    "null_oi_not_positive": 0,
+    "rows_out": 1715489
+   },
+   "und_tape": {
+    "rows_in": 238837,
+    "drop_outside_session": 16386,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 222451
+   },
+   "option_chain_snap": {
+    "rows_in": 238000,
+    "drop_outside_session": 14550,
+    "null_ce_iv_placeholder": 390,
+    "null_ce_bad_book": 2,
+    "null_pe_iv_placeholder": 45441,
+    "null_pe_bad_book": 165,
+    "null_spot_off_index": 0,
+    "rows_out": 223450
+   }
+  },
+  "2026-08-12": {
+   "opt_tape": {
+    "rows_in": 1776248,
+    "drop_outside_session": 46755,
+    "drop_one_sided_book": 2,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 27,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 37,
+    "null_oi_not_positive": 0,
+    "rows_out": 1729464
+   },
+   "und_tape": {
+    "rows_in": 247631,
+    "drop_outside_session": 17323,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 784,
+    "rows_out": 229524
+   },
+   "option_chain_snap": {
+    "rows_in": 238725,
+    "drop_outside_session": 14550,
+    "null_ce_iv_placeholder": 159,
+    "null_ce_bad_book": 3,
+    "null_pe_iv_placeholder": 12965,
+    "null_pe_bad_book": 1,
+    "null_spot_off_index": 900,
+    "rows_out": 224175
+   }
+  },
+  "2026-08-13": {
+   "opt_tape": {
+    "rows_in": 1745600,
+    "drop_outside_session": 46784,
+    "drop_one_sided_book": 10,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 22,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 42,
+    "null_oi_not_positive": 0,
+    "rows_out": 1698784
+   },
+   "und_tape": {
+    "rows_in": 246667,
+    "drop_outside_session": 21595,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 526,
+    "rows_out": 224546
+   },
+   "option_chain_snap": {
+    "rows_in": 239050,
+    "drop_outside_session": 14650,
+    "null_ce_iv_placeholder": 916,
+    "null_ce_bad_book": 0,
+    "null_pe_iv_placeholder": 24675,
+    "null_pe_bad_book": 5,
+    "null_spot_off_index": 400,
+    "rows_out": 224400
+   }
+  },
+  "2026-08-14": {
+   "opt_tape": {
+    "rows_in": 1814834,
+    "drop_outside_session": 49326,
+    "drop_one_sided_book": 4,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 36,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 21,
+    "null_oi_not_positive": 0,
+    "rows_out": 1765468
+   },
+   "und_tape": {
+    "rows_in": 244861,
+    "drop_outside_session": 21137,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 223724
+   },
+   "option_chain_snap": {
+    "rows_in": 238500,
+    "drop_outside_session": 14600,
+    "null_ce_iv_placeholder": 1380,
+    "null_ce_bad_book": 2,
+    "null_pe_iv_placeholder": 22468,
+    "null_pe_bad_book": 0,
+    "null_spot_off_index": 0,
+    "rows_out": 223900
+   }
+  },
+  "2026-08-17": {
+   "opt_tape": {
+    "rows_in": 1928332,
+    "drop_outside_session": 53079,
+    "drop_one_sided_book": 8,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 27,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 37,
+    "null_oi_not_positive": 0,
+    "rows_out": 1875218
+   },
+   "und_tape": {
+    "rows_in": 247031,
+    "drop_outside_session": 21023,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 1354,
+    "rows_out": 224654
+   },
+   "option_chain_snap": {
+    "rows_in": 238650,
+    "drop_outside_session": 14600,
+    "null_ce_iv_placeholder": 2465,
+    "null_ce_bad_book": 3,
+    "null_pe_iv_placeholder": 38269,
+    "null_pe_bad_book": 6,
+    "null_spot_off_index": 1050,
+    "rows_out": 224050
+   }
+  },
+  "2026-08-18": {
+   "opt_tape": {
+    "rows_in": 1975238,
+    "drop_outside_session": 52002,
+    "drop_one_sided_book": 56,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 37,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 26,
+    "null_oi_not_positive": 0,
+    "rows_out": 1923143
+   },
+   "und_tape": {
+    "rows_in": 246946,
+    "drop_outside_session": 21406,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 225540
+   },
+   "option_chain_snap": {
+    "rows_in": 238125,
+    "drop_outside_session": 14550,
+    "null_ce_iv_placeholder": 7762,
+    "null_ce_bad_book": 119,
+    "null_pe_iv_placeholder": 37674,
+    "null_pe_bad_book": 356,
+    "null_spot_off_index": 0,
+    "rows_out": 223575
+   }
+  },
+  "2026-08-19": {
+   "opt_tape": {
+    "rows_in": 1670176,
+    "drop_outside_session": 44585,
+    "drop_one_sided_book": 1,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 182,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 27,
+    "null_oi_not_positive": 585,
+    "rows_out": 1625408
+   },
+   "und_tape": {
+    "rows_in": 244937,
+    "drop_outside_session": 18665,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 226272
+   },
+   "option_chain_snap": {
+    "rows_in": 238900,
+    "drop_outside_session": 14750,
+    "null_ce_iv_placeholder": 7071,
+    "null_ce_bad_book": 1,
+    "null_pe_iv_placeholder": 5372,
+    "null_pe_bad_book": 5,
+    "null_spot_off_index": 0,
+    "rows_out": 224150
+   }
+  },
+  "2026-08-20": {
+   "opt_tape": {
+    "rows_in": 1712829,
+    "drop_outside_session": 47833,
+    "drop_one_sided_book": 3,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 36,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 40,
+    "null_oi_not_positive": 0,
+    "rows_out": 1664957
+   },
+   "und_tape": {
+    "rows_in": 247411,
+    "drop_outside_session": 17703,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 229708
+   },
+   "option_chain_snap": {
+    "rows_in": 238000,
+    "drop_outside_session": 14050,
+    "null_ce_iv_placeholder": 3255,
+    "null_ce_bad_book": 0,
+    "null_pe_iv_placeholder": 17324,
+    "null_pe_bad_book": 0,
+    "null_spot_off_index": 0,
+    "rows_out": 223950
+   }
+  },
+  "2026-08-21": {
+   "opt_tape": {
+    "rows_in": 1731655,
+    "drop_outside_session": 49982,
+    "drop_one_sided_book": 6,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 20,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 18,
+    "null_oi_not_positive": 0,
+    "rows_out": 1681647
+   },
+   "und_tape": {
+    "rows_in": 244849,
+    "drop_outside_session": 16301,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 228548
+   },
+   "option_chain_snap": {
+    "rows_in": 238525,
+    "drop_outside_session": 14600,
+    "null_ce_iv_placeholder": 8871,
+    "null_ce_bad_book": 1,
+    "null_pe_iv_placeholder": 15271,
+    "null_pe_bad_book": 0,
+    "null_spot_off_index": 0,
+    "rows_out": 223925
+   }
+  },
+  "2026-08-24": {
+   "opt_tape": {
+    "rows_in": 1858747,
+    "drop_outside_session": 52444,
+    "drop_one_sided_book": 12,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 22,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 19,
+    "null_oi_not_positive": 0,
+    "rows_out": 1806269
+   },
+   "und_tape": {
+    "rows_in": 258386,
+    "drop_outside_session": 18574,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 239812
+   },
+   "option_chain_snap": {
+    "rows_in": 234525,
+    "drop_outside_session": 14325,
+    "null_ce_iv_placeholder": 17645,
+    "null_ce_bad_book": 1,
+    "null_pe_iv_placeholder": 19623,
+    "null_pe_bad_book": 6,
+    "null_spot_off_index": 0,
+    "rows_out": 220200
+   }
+  },
+  "2026-08-25": {
+   "opt_tape": {
+    "rows_in": 1974032,
+    "drop_outside_session": 51232,
+    "drop_one_sided_book": 1022,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 5,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 26,
+    "null_oi_not_positive": 0,
+    "rows_out": 1921773
+   },
+   "und_tape": {
+    "rows_in": 254570,
+    "drop_outside_session": 21140,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 1256,
+    "rows_out": 232174
+   },
+   "option_chain_snap": {
+    "rows_in": 235800,
+    "drop_outside_session": 14700,
+    "null_ce_iv_placeholder": 18247,
+    "null_ce_bad_book": 475,
+    "null_pe_iv_placeholder": 41776,
+    "null_pe_bad_book": 75,
+    "null_spot_off_index": 950,
+    "rows_out": 221100
+   }
+  },
+  "2026-08-26": {
+   "opt_tape": {
+    "rows_in": 1724823,
+    "drop_outside_session": 50133,
+    "drop_one_sided_book": 5,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 47,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 7,
+    "null_oi_not_positive": 0,
+    "rows_out": 1674638
+   },
+   "und_tape": {
+    "rows_in": 246846,
+    "drop_outside_session": 19114,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 738,
+    "rows_out": 226994
+   },
+   "option_chain_snap": {
+    "rows_in": 237650,
+    "drop_outside_session": 14600,
+    "null_ce_iv_placeholder": 590,
+    "null_ce_bad_book": 10,
+    "null_pe_iv_placeholder": 44492,
+    "null_pe_bad_book": 2,
+    "null_spot_off_index": 700,
+    "rows_out": 223050
+   }
+  },
+  "2026-08-27": {
+   "opt_tape": {
+    "rows_in": 1739343,
+    "drop_outside_session": 49513,
+    "drop_one_sided_book": 6,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 42,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 16,
+    "null_oi_not_positive": 0,
+    "rows_out": 1689782
+   },
+   "und_tape": {
+    "rows_in": 256224,
+    "drop_outside_session": 21592,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 1524,
+    "rows_out": 233108
+   },
+   "option_chain_snap": {
+    "rows_in": 238600,
+    "drop_outside_session": 14650,
+    "null_ce_iv_placeholder": 35,
+    "null_ce_bad_book": 0,
+    "null_pe_iv_placeholder": 45316,
+    "null_pe_bad_book": 4,
+    "null_spot_off_index": 1150,
+    "rows_out": 223950
+   }
+  },
+  "2026-08-28": {
+   "opt_tape": {
+    "rows_in": 1773400,
+    "drop_outside_session": 50294,
+    "drop_one_sided_book": 12,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 24,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 27,
+    "null_oi_not_positive": 0,
+    "rows_out": 1723070
+   },
+   "und_tape": {
+    "rows_in": 247256,
+    "drop_outside_session": 21449,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 225807
+   },
+   "option_chain_snap": {
+    "rows_in": 238750,
+    "drop_outside_session": 14750,
+    "null_ce_iv_placeholder": 929,
+    "null_ce_bad_book": 4,
+    "null_pe_iv_placeholder": 52009,
+    "null_pe_bad_book": 1,
+    "null_spot_off_index": 0,
+    "rows_out": 224000
+   }
+  },
+  "2026-08-31": {
+   "opt_tape": {
+    "rows_in": 1875605,
+    "drop_outside_session": 53277,
+    "drop_one_sided_book": 5,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 47,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 29,
+    "null_oi_not_positive": 0,
+    "rows_out": 1822276
+   },
+   "und_tape": {
+    "rows_in": 249147,
+    "drop_outside_session": 19669,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 229478
+   },
+   "option_chain_snap": {
+    "rows_in": 238400,
+    "drop_outside_session": 14450,
+    "null_ce_iv_placeholder": 318,
+    "null_ce_bad_book": 2,
+    "null_pe_iv_placeholder": 61109,
+    "null_pe_bad_book": 1,
+    "null_spot_off_index": 0,
+    "rows_out": 223950
+   }
+  },
+  "2026-09-01": {
+   "opt_tape": {
+    "rows_in": 2046817,
+    "drop_outside_session": 52249,
+    "drop_one_sided_book": 13,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 7,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 55,
+    "null_oi_not_positive": 0,
+    "rows_out": 1994548
+   },
+   "und_tape": {
+    "rows_in": 251103,
+    "drop_outside_session": 18687,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 106,
+    "rows_out": 232310
+   },
+   "option_chain_snap": {
+    "rows_in": 239150,
+    "drop_outside_session": 14850,
+    "null_ce_iv_placeholder": 4621,
+    "null_ce_bad_book": 7,
+    "null_pe_iv_placeholder": 43368,
+    "null_pe_bad_book": 3,
+    "null_spot_off_index": 100,
+    "rows_out": 224300
+   }
+  },
+  "2026-09-02": {
+   "opt_tape": {
+    "rows_in": 1672319,
+    "drop_outside_session": 46612,
+    "drop_one_sided_book": 15,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 59,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 23,
+    "null_oi_not_positive": 497,
+    "rows_out": 1625633
+   },
+   "und_tape": {
+    "rows_in": 251043,
+    "drop_outside_session": 19683,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 231360
+   },
+   "option_chain_snap": {
+    "rows_in": 238700,
+    "drop_outside_session": 14800,
+    "null_ce_iv_placeholder": 16354,
+    "null_ce_bad_book": 5,
+    "null_pe_iv_placeholder": 14425,
+    "null_pe_bad_book": 3,
+    "null_spot_off_index": 0,
+    "rows_out": 223900
+   }
+  },
+  "2026-09-03": {
+   "opt_tape": {
+    "rows_in": 1743788,
+    "drop_outside_session": 50450,
+    "drop_one_sided_book": 28,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 42,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 17,
+    "null_oi_not_positive": 0,
+    "rows_out": 1693268
+   },
+   "und_tape": {
+    "rows_in": 252057,
+    "drop_outside_session": 21575,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 230482
+   },
+   "option_chain_snap": {
+    "rows_in": 238450,
+    "drop_outside_session": 14800,
+    "null_ce_iv_placeholder": 2143,
+    "null_ce_bad_book": 0,
+    "null_pe_iv_placeholder": 22461,
+    "null_pe_bad_book": 2,
+    "null_spot_off_index": 0,
+    "rows_out": 223650
+   }
+  },
+  "2026-09-04": {
+   "opt_tape": {
+    "rows_in": 1841637,
+    "drop_outside_session": 51221,
+    "drop_one_sided_book": 5,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 47,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 7,
+    "null_oi_not_positive": 0,
+    "rows_out": 1790364
+   },
+   "und_tape": {
+    "rows_in": 248032,
+    "drop_outside_session": 19128,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 1032,
+    "rows_out": 227872
+   },
+   "option_chain_snap": {
+    "rows_in": 239000,
+    "drop_outside_session": 14650,
+    "null_ce_iv_placeholder": 898,
+    "null_ce_bad_book": 2,
+    "null_pe_iv_placeholder": 29216,
+    "null_pe_bad_book": 0,
+    "null_spot_off_index": 900,
+    "rows_out": 224350
+   }
+  },
+  "2026-09-07": {
+   "opt_tape": {
+    "rows_in": 1866149,
+    "drop_outside_session": 52700,
+    "drop_one_sided_book": 8,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 27,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 22,
+    "null_oi_not_positive": 0,
+    "rows_out": 1813414
+   },
+   "und_tape": {
+    "rows_in": 249751,
+    "drop_outside_session": 21183,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 228568
+   },
+   "option_chain_snap": {
+    "rows_in": 164700,
+    "drop_outside_session": 6000,
+    "null_ce_iv_placeholder": 5758,
+    "null_ce_bad_book": 0,
+    "null_pe_iv_placeholder": 43888,
+    "null_pe_bad_book": 0,
+    "null_spot_off_index": 0,
+    "rows_out": 158700
+   }
+  },
+  "2026-09-08": {
+   "opt_tape": {
+    "rows_in": 1975115,
+    "drop_outside_session": 52147,
+    "drop_one_sided_book": 302,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 53,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 8,
+    "null_oi_not_positive": 369,
+    "rows_out": 1922613
+   },
+   "und_tape": {
+    "rows_in": 251441,
+    "drop_outside_session": 21779,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 229662
+   },
+   "option_chain_snap": {
+    "rows_in": 238150,
+    "drop_outside_session": 14450,
+    "null_ce_iv_placeholder": 6420,
+    "null_ce_bad_book": 15,
+    "null_pe_iv_placeholder": 58732,
+    "null_pe_bad_book": 82,
+    "null_spot_off_index": 0,
+    "rows_out": 223700
+   }
+  },
+  "2026-09-09": {
+   "opt_tape": {
+    "rows_in": 1683917,
+    "drop_outside_session": 47435,
+    "drop_one_sided_book": 8,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 45,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 23,
+    "null_oi_not_positive": 83,
+    "rows_out": 1636429
+   },
+   "und_tape": {
+    "rows_in": 258185,
+    "drop_outside_session": 28283,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 229902
+   },
+   "option_chain_snap": {
+    "rows_in": 239000,
+    "drop_outside_session": 14750,
+    "null_ce_iv_placeholder": 11052,
+    "null_ce_bad_book": 0,
+    "null_pe_iv_placeholder": 20578,
+    "null_pe_bad_book": 2,
+    "null_spot_off_index": 0,
+    "rows_out": 224250
+   }
+  },
+  "2026-09-10": {
+   "opt_tape": {
+    "rows_in": 1686801,
+    "drop_outside_session": 49077,
+    "drop_one_sided_book": 12,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 9,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 59,
+    "null_oi_not_positive": 0,
+    "rows_out": 1637703
+   },
+   "und_tape": {
+    "rows_in": 242705,
+    "drop_outside_session": 19011,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 512,
+    "rows_out": 223182
+   },
+   "option_chain_snap": {
+    "rows_in": 239150,
+    "drop_outside_session": 14600,
+    "null_ce_iv_placeholder": 7066,
+    "null_ce_bad_book": 4,
+    "null_pe_iv_placeholder": 24950,
+    "null_pe_bad_book": 7,
+    "null_spot_off_index": 475,
+    "rows_out": 224550
+   }
+  },
+  "2026-09-11": {
+   "opt_tape": {
+    "rows_in": 1830092,
+    "drop_outside_session": 52502,
+    "drop_one_sided_book": 11,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 32,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 32,
+    "null_oi_not_positive": 49,
+    "rows_out": 1777547
+   },
+   "und_tape": {
+    "rows_in": 250841,
+    "drop_outside_session": 20657,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 68,
+    "rows_out": 230116
+   },
+   "option_chain_snap": {
+    "rows_in": 236350,
+    "drop_outside_session": 14750,
+    "null_ce_iv_placeholder": 7069,
+    "null_ce_bad_book": 5,
+    "null_pe_iv_placeholder": 4064,
+    "null_pe_bad_book": 0,
+    "null_spot_off_index": 25,
+    "rows_out": 221600
+   }
+  },
+  "2026-09-15": {
+   "opt_tape": {
+    "rows_in": 2016340,
+    "drop_outside_session": 51915,
+    "drop_one_sided_book": 696,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 50,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 17,
+    "null_oi_not_positive": 0,
+    "rows_out": 1963679
+   },
+   "und_tape": {
+    "rows_in": 380814,
+    "drop_outside_session": 34356,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 782,
+    "rows_out": 345676
+   },
+   "option_chain_snap": {
+    "rows_in": 238675,
+    "drop_outside_session": 14225,
+    "null_ce_iv_placeholder": 6461,
+    "null_ce_bad_book": 108,
+    "null_pe_iv_placeholder": 25085,
+    "null_pe_bad_book": 164,
+    "null_spot_off_index": 625,
+    "rows_out": 224450
+   }
+  },
+  "2026-09-16": {
+   "opt_tape": {
+    "rows_in": 1733712,
+    "drop_outside_session": 47288,
+    "drop_one_sided_book": 12,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 20,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 23,
+    "null_oi_not_positive": 0,
+    "rows_out": 1686392
+   },
+   "und_tape": {
+    "rows_in": 369845,
+    "drop_outside_session": 26495,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 343350
+   },
+   "option_chain_snap": {
+    "rows_in": 231100,
+    "drop_outside_session": 14350,
+    "null_ce_iv_placeholder": 220,
+    "null_ce_bad_book": 1,
+    "null_pe_iv_placeholder": 425,
+    "null_pe_bad_book": 0,
+    "null_spot_off_index": 0,
+    "rows_out": 216750
+   }
+  },
+  "2026-09-17": {
+   "opt_tape": {
+    "rows_in": 1798830,
+    "drop_outside_session": 49142,
+    "drop_one_sided_book": 7,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 22,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 12,
+    "null_oi_not_positive": 0,
+    "rows_out": 1749659
+   },
+   "und_tape": {
+    "rows_in": 381610,
+    "drop_outside_session": 37982,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 343628
+   },
+   "option_chain_snap": {
+    "rows_in": 239600,
+    "drop_outside_session": 14975,
+    "null_ce_iv_placeholder": 1426,
+    "null_ce_bad_book": 2,
+    "null_pe_iv_placeholder": 1432,
+    "null_pe_bad_book": 2,
+    "null_spot_off_index": 0,
+    "rows_out": 224625
+   }
+  },
+  "2026-09-18": {
+   "opt_tape": {
+    "rows_in": 1801710,
+    "drop_outside_session": 50059,
+    "drop_one_sided_book": 3,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 26,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 11,
+    "null_oi_not_positive": 0,
+    "rows_out": 1751622
+   },
+   "und_tape": {
+    "rows_in": 377858,
+    "drop_outside_session": 38138,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 339720
+   },
+   "option_chain_snap": {
+    "rows_in": 239000,
+    "drop_outside_session": 14450,
+    "null_ce_iv_placeholder": 3780,
+    "null_ce_bad_book": 1,
+    "null_pe_iv_placeholder": 2494,
+    "null_pe_bad_book": 0,
+    "null_spot_off_index": 0,
+    "rows_out": 224550
+   }
+  },
+  "2026-09-21": {
+   "opt_tape": {
+    "rows_in": 1872427,
+    "drop_outside_session": 54501,
+    "drop_one_sided_book": 4,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 34,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 31,
+    "null_oi_not_positive": 0,
+    "rows_out": 1817888
+   },
+   "und_tape": {
+    "rows_in": 379838,
+    "drop_outside_session": 37954,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 341884
+   },
+   "option_chain_snap": {
+    "rows_in": 239350,
+    "drop_outside_session": 14850,
+    "null_ce_iv_placeholder": 14380,
+    "null_ce_bad_book": 3,
+    "null_pe_iv_placeholder": 3518,
+    "null_pe_bad_book": 2,
+    "null_spot_off_index": 0,
+    "rows_out": 224500
+   }
+  },
+  "2026-09-22": {
+   "opt_tape": {
+    "rows_in": 2023388,
+    "drop_outside_session": 50582,
+    "drop_one_sided_book": 590,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 20,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 26,
+    "null_oi_not_positive": 0,
+    "rows_out": 1972196
+   },
+   "und_tape": {
+    "rows_in": 384044,
+    "drop_outside_session": 38130,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 345914
+   },
+   "option_chain_snap": {
+    "rows_in": 238950,
+    "drop_outside_session": 14475,
+    "null_ce_iv_placeholder": 28330,
+    "null_ce_bad_book": 76,
+    "null_pe_iv_placeholder": 6531,
+    "null_pe_bad_book": 183,
+    "null_spot_off_index": 0,
+    "rows_out": 224475
+   }
+  },
+  "2026-09-23": {
+   "opt_tape": {
+    "rows_in": 1692536,
+    "drop_outside_session": 46208,
+    "drop_one_sided_book": 5,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 22,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 18,
+    "null_oi_not_positive": 0,
+    "rows_out": 1646301
+   },
+   "und_tape": {
+    "rows_in": 382212,
+    "drop_outside_session": 37810,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 344402
+   },
+   "option_chain_snap": {
+    "rows_in": 239000,
+    "drop_outside_session": 14550,
+    "null_ce_iv_placeholder": 4243,
+    "null_ce_bad_book": 4,
+    "null_pe_iv_placeholder": 3928,
+    "null_pe_bad_book": 2,
+    "null_spot_off_index": 0,
+    "rows_out": 224450
+   }
+  },
+  "2026-09-24": {
+   "opt_tape": {
+    "rows_in": 1765251,
+    "drop_outside_session": 37060,
+    "drop_one_sided_book": 3,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 38,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 46,
+    "null_oi_not_positive": 0,
+    "rows_out": 1728150
+   },
+   "und_tape": {
+    "rows_in": 391632,
+    "drop_outside_session": 36196,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 355436
+   },
+   "option_chain_snap": {
+    "rows_in": 238150,
+    "drop_outside_session": 14650,
+    "null_ce_iv_placeholder": 4964,
+    "null_ce_bad_book": 2,
+    "null_pe_iv_placeholder": 1650,
+    "null_pe_bad_book": 1,
+    "null_spot_off_index": 25,
+    "rows_out": 223500
+   }
+  },
+  "2026-09-30": {
+   "opt_tape": {
+    "rows_in": 1696091,
+    "drop_outside_session": 44172,
+    "drop_one_sided_book": 17,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 18,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 20,
+    "null_oi_not_positive": 613,
+    "rows_out": 1651884
+   },
+   "und_tape": {
+    "rows_in": 389154,
+    "drop_outside_session": 37716,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 351438
+   },
+   "option_chain_snap": {
+    "rows_in": 238150,
+    "drop_outside_session": 14500,
+    "null_ce_iv_placeholder": 8507,
+    "null_ce_bad_book": 5,
+    "null_pe_iv_placeholder": 8371,
+    "null_pe_bad_book": 10,
+    "null_spot_off_index": 25,
+    "rows_out": 223650
+   }
+  },
+  "2026-10-01": {
+   "opt_tape": {
+    "rows_in": 1789456,
+    "drop_outside_session": 48575,
+    "drop_one_sided_book": 11,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 23,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 14,
+    "null_oi_not_positive": 515,
+    "rows_out": 1740847
+   },
+   "und_tape": {
+    "rows_in": 393692,
+    "drop_outside_session": 37654,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 356038
+   },
+   "option_chain_snap": {
+    "rows_in": 237625,
+    "drop_outside_session": 14600,
+    "null_ce_iv_placeholder": 13522,
+    "null_ce_bad_book": 5,
+    "null_pe_iv_placeholder": 5671,
+    "null_pe_bad_book": 2,
+    "null_spot_off_index": 0,
+    "rows_out": 223025
+   }
+  },
+  "2026-10-05": {
+   "opt_tape": {
+    "rows_in": 1925133,
+    "drop_outside_session": 50491,
+    "drop_one_sided_book": 11,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 32,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 41,
+    "null_oi_not_positive": 0,
+    "rows_out": 1874599
+   },
+   "und_tape": {
+    "rows_in": 387764,
+    "drop_outside_session": 37694,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 350070
+   },
+   "option_chain_snap": {
+    "rows_in": 238400,
+    "drop_outside_session": 14700,
+    "null_ce_iv_placeholder": 1573,
+    "null_ce_bad_book": 8,
+    "null_pe_iv_placeholder": 29014,
+    "null_pe_bad_book": 6,
+    "null_spot_off_index": 0,
+    "rows_out": 223700
+   }
+  },
+  "2026-10-06": {
+   "opt_tape": {
+    "rows_in": 2002751,
+    "drop_outside_session": 51244,
+    "drop_one_sided_book": 580,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 19,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 28,
+    "null_oi_not_positive": 0,
+    "rows_out": 1950908
+   },
+   "und_tape": {
+    "rows_in": 387626,
+    "drop_outside_session": 37654,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 636,
+    "rows_out": 349336
+   },
+   "option_chain_snap": {
+    "rows_in": 238200,
+    "drop_outside_session": 14600,
+    "null_ce_iv_placeholder": 25210,
+    "null_ce_bad_book": 518,
+    "null_pe_iv_placeholder": 7282,
+    "null_pe_bad_book": 7,
+    "null_spot_off_index": 450,
+    "rows_out": 223600
+   }
+  },
+  "2026-10-07": {
+   "opt_tape": {
+    "rows_in": 1692745,
+    "drop_outside_session": 44925,
+    "drop_one_sided_book": 8,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 30,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 24,
+    "null_oi_not_positive": 0,
+    "rows_out": 1647782
+   },
+   "und_tape": {
+    "rows_in": 386388,
+    "drop_outside_session": 37524,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 348864
+   },
+   "option_chain_snap": {
+    "rows_in": 237000,
+    "drop_outside_session": 14300,
+    "null_ce_iv_placeholder": 4632,
+    "null_ce_bad_book": 4,
+    "null_pe_iv_placeholder": 1585,
+    "null_pe_bad_book": 4,
+    "null_spot_off_index": 0,
+    "rows_out": 222700
+   }
+  },
+  "2026-10-08": {
+   "opt_tape": {
+    "rows_in": 1758772,
+    "drop_outside_session": 47250,
+    "drop_one_sided_book": 23,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 24,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 26,
+    "null_oi_not_positive": 0,
+    "rows_out": 1711475
+   },
+   "und_tape": {
+    "rows_in": 390794,
+    "drop_outside_session": 37658,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 353136
+   },
+   "option_chain_snap": {
+    "rows_in": 236700,
+    "drop_outside_session": 14400,
+    "null_ce_iv_placeholder": 2496,
+    "null_ce_bad_book": 2,
+    "null_pe_iv_placeholder": 1304,
+    "null_pe_bad_book": 9,
+    "null_spot_off_index": 25,
+    "rows_out": 222300
+   }
+  },
+  "2026-10-09": {
+   "opt_tape": {
+    "rows_in": 1810259,
+    "drop_outside_session": 48439,
+    "drop_one_sided_book": 13,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 26,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 16,
+    "null_oi_not_positive": 0,
+    "rows_out": 1761781
+   },
+   "und_tape": {
+    "rows_in": 388062,
+    "drop_outside_session": 38224,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 349838
+   },
+   "option_chain_snap": {
+    "rows_in": 236900,
+    "drop_outside_session": 14400,
+    "null_ce_iv_placeholder": 1275,
+    "null_ce_bad_book": 0,
+    "null_pe_iv_placeholder": 7406,
+    "null_pe_bad_book": 4,
+    "null_spot_off_index": 0,
+    "rows_out": 222500
+   }
+  },
+  "2026-10-12": {
+   "opt_tape": {
+    "rows_in": 1928611,
+    "drop_outside_session": 51141,
+    "drop_one_sided_book": 9,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 30,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 39,
+    "null_oi_not_positive": 0,
+    "rows_out": 1877431
+   },
+   "und_tape": {
+    "rows_in": 384938,
+    "drop_outside_session": 37318,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 358,
+    "rows_out": 347262
+   },
+   "option_chain_snap": {
+    "rows_in": 237750,
+    "drop_outside_session": 14500,
+    "null_ce_iv_placeholder": 9294,
+    "null_ce_bad_book": 4,
+    "null_pe_iv_placeholder": 3617,
+    "null_pe_bad_book": 3,
+    "null_spot_off_index": 225,
+    "rows_out": 223250
+   }
+  },
+  "2026-10-13": {
+   "opt_tape": {
+    "rows_in": 2053402,
+    "drop_outside_session": 52058,
+    "drop_one_sided_book": 918,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 18,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 24,
+    "null_oi_not_positive": 0,
+    "rows_out": 2000408
+   },
+   "und_tape": {
+    "rows_in": 387262,
+    "drop_outside_session": 37782,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 349480
+   },
+   "option_chain_snap": {
+    "rows_in": 237550,
+    "drop_outside_session": 14600,
+    "null_ce_iv_placeholder": 6386,
+    "null_ce_bad_book": 341,
+    "null_pe_iv_placeholder": 41679,
+    "null_pe_bad_book": 25,
+    "null_spot_off_index": 0,
+    "rows_out": 222950
+   }
+  },
+  "2026-10-14": {
+   "opt_tape": {
+    "rows_in": 1820116,
+    "drop_outside_session": 47202,
+    "drop_one_sided_book": 11,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 26,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 26,
+    "null_oi_not_positive": 0,
+    "rows_out": 1772877
+   },
+   "und_tape": {
+    "rows_in": 372266,
+    "drop_outside_session": 26012,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 0,
+    "rows_out": 346254
+   },
+   "option_chain_snap": {
+    "rows_in": 237550,
+    "drop_outside_session": 14850,
+    "null_ce_iv_placeholder": 4240,
+    "null_ce_bad_book": 7,
+    "null_pe_iv_placeholder": 312,
+    "null_pe_bad_book": 9,
+    "null_spot_off_index": 0,
+    "rows_out": 222700
+   }
+  },
+  "2026-10-15": {
+   "opt_tape": {
+    "rows_in": 1904073,
+    "drop_outside_session": 49854,
+    "drop_one_sided_book": 3,
+    "drop_crossed_book": 0,
+    "drop_wide_spread": 14,
+    "drop_mid_spike": 0,
+    "null_volume_above_later": 37,
+    "null_oi_not_positive": 0,
+    "rows_out": 1854202
+   },
+   "und_tape": {
+    "rows_in": 381199,
+    "drop_outside_session": 26859,
+    "drop_not_positive_price": 0,
+    "drop_duplicate": 0,
+    "drop_index_closing_print": 888,
+    "rows_out": 353452
+   },
+   "option_chain_snap": {
+    "rows_in": 237750,
+    "drop_outside_session": 14400,
+    "null_ce_iv_placeholder": 2163,
+    "null_ce_bad_book": 4,
+    "null_pe_iv_placeholder": 397,
+    "null_pe_bad_book": 15,
+    "null_spot_off_index": 625,
+    "rows_out": 223350
+   }
+  }
+ }
+}

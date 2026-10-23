@@ -1,5 +1,7 @@
 # Alpha sprint (written 2026-10-23, before any sprint code or result)
 
+> **DEPRECATED (2026-10-23).** This document was written before the owner reviewed the project. It is not approved by the owner. Do not use it as a reference. A reviewed version will replace it.
+
 Builds on v2 (`docs/V2_PROTOCOL.md`, amendment 1: statutory costs only). Buy side only, taker entry (ask in, bid out).
 Development: the 39 train + validation days, walk-forward (3 expanding folds, 24 scored days), as v2.
 Clean test: the forward days (19, 22, 23 Oct 2026), opened once, only for trials that pass rules 1 and 2.

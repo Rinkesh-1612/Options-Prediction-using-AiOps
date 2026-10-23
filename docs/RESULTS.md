@@ -1,5 +1,7 @@
 # Results
 
+> **DEPRECATED (2026-10-23).** This document was written before the owner reviewed the project. It is not approved by the owner. Do not use it as a reference. A reviewed version will replace it.
+
 **Verdict: no tradable edge detected.**
 
 * **v1 (minute model, fixed 2-minute hold):** on 10 locked test days every rule that trades lost Rs 11,500 – 13,300

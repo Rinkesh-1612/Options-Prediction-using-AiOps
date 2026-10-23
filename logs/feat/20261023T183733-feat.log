@@ -1,0 +1,4 @@
+2026-10-23 13:07:33,527 INFO optpred.feat: run 20261023T183733-feat  commit b1eb0bc122 (DIRTY)
+2026-10-23 13:07:39,260 INFO optpred.featurelib.build: 49 days, 1102500 rows, 46 feature columns from 10 features
+2026-10-23 13:07:39,264 INFO optpred.featurelib.build: highest NaN share: {'pe_p0_oi_chg_300s': 0.32487, 'ce_p0_oi_chg_300s': 0.32483, 'pe_p0_ret_60s': 0.13416, 'pe_p0_vol_60s': 0.13416, 'cp_vol_ratio_60s': 0.13416}
+2026-10-23 13:07:39,265 INFO optpred.feat: run 20261023T183733-feat finished: ok in 5.7s

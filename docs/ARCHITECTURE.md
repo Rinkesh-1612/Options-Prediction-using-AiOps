@@ -1,5 +1,7 @@
 # Architecture
 
+> **DEPRECATED (2026-10-23).** This document was written before the owner reviewed the project. It is not approved by the owner. Do not use it as a reference. A reviewed version will replace it.
+
 ![Architecture diagram](architecture.svg)
 
 The system has two parts. The **pipeline** turns recorded market data into a model.

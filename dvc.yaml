@@ -25,6 +25,78 @@ stages:
     - reports/quality.json:
         cache: false
 
+  clean:
+    # EDA rules (docs/steps/eda.md): raw -> clean, every dropped row / nulled field counted
+    cmd: python -m optpred.eda.clean
+    params:
+    - eda
+    deps:
+    - src/optpred/eda/clean.py
+    - src/optpred/eda/rules.py
+    - data/raw
+    - data/days.json
+    outs:
+    - data/clean
+    metrics:
+    - reports/eda/cleaning.json:
+        cache: false
+
+  eda:
+    cmd: python -m optpred.eda.profile
+    params:
+    - eda
+    deps:
+    - src/optpred/eda/profile.py
+    - src/optpred/eda/fill.py
+    - data/clean
+    - data/days.json
+    outs:
+    - reports/eda/coverage.png:
+        cache: false
+    - reports/eda/intraday.png:
+        cache: false
+    - reports/eda/spread_premium.png:
+        cache: false
+    - reports/eda/index_returns.png:
+        cache: false
+    metrics:
+    - reports/eda/profile.json:
+        cache: false
+
+  grid:
+    # model-ready 1-second table: index, future, ATM+-2 option legs, ATM chain (docs/steps/cleaning_transformation.md)
+    cmd: python -m optpred.transform.grid
+    params:
+    - grid
+    - eda
+    deps:
+    - src/optpred/transform/grid.py
+    - src/optpred/eda/fill.py
+    - data/clean
+    - data/days.json
+    outs:
+    - data/grid
+    metrics:
+    - reports/grid.json:
+        cache: false
+
+  feat:
+    # feature library: every registered feature over data/grid (docs/steps/feature_engineering.md)
+    cmd: python -m optpred.featurelib.build
+    params:
+    - feat
+    deps:
+    - src/optpred/featurelib
+    - data/grid
+    - data/days.json
+    outs:
+    - data/feat
+    metrics:
+    - reports/feat.json:
+        cache: false
+    - reports/feature_catalog.md:
+        cache: false
+
   bars:
     cmd: python -m optpred.data.bars
     params:

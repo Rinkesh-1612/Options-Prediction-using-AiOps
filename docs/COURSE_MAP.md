@@ -1,5 +1,7 @@
 # Course map
 
+> **DEPRECATED (2026-10-23).** This document was written before the owner reviewed the project. It is not approved by the owner. Do not use it as a reference. A reviewed version will replace it.
+
 Each line of `docs/AI Application Evaluation Guideline.pdf` → the part of the project that answers it → the evidence.
 Code paths are under `src/optpred/`. Commands assume the repository root (`make help` lists them).
 

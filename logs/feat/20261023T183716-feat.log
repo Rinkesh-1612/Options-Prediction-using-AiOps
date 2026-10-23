@@ -1,0 +1,61 @@
+2026-10-23 13:07:16,113 INFO optpred.feat: run 20261023T183716-feat  commit b1eb0bc122 (DIRTY)
+2026-10-23 13:07:16,649 ERROR optpred.feat: crashed:
+concurrent.futures.process._RemoteTraceback: 
+"""
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/concurrent/futures/process.py", line 261, in _process_worker
+    r = call_item.fn(*call_item.args, **call_item.kwargs)
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/process.py", line 210, in _process_chunk
+    return [fn(*args) for args in chunk]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/process.py", line 210, in <listcomp>
+    return [fn(*args) for args in chunk]
+            ^^^^^^^^^
+  File "/app/src/optpred/featurelib/build.py", line 36, in build_day
+    out.to_parquet(out_dir / f"{day}.parquet", index=False)
+  File "/usr/local/lib/python3.11/site-packages/pandas/util/_decorators.py", line 333, in wrapper
+    return func(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pandas/core/frame.py", line 3113, in to_parquet
+    return to_parquet(
+           ^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pandas/io/parquet.py", line 480, in to_parquet
+    impl.write(
+  File "/usr/local/lib/python3.11/site-packages/pandas/io/parquet.py", line 190, in write
+    table = self.api.Table.from_pandas(df, **from_pandas_kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "pyarrow/table.pxi", line 4623, in pyarrow.lib.Table.from_pandas
+  File "/usr/local/lib/python3.11/site-packages/pyarrow/pandas_compat.py", line 572, in dataframe_to_arrays
+    convert_fields) = _get_columns_to_convert(df, schema, preserve_index,
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/pyarrow/pandas_compat.py", line 354, in _get_columns_to_convert
+    raise ValueError(
+ValueError: Duplicate column names found: ['day', 'sod', 'atm', 'dte', 'min_since_open', 'min_to_close', 'dte', 'is_expiry_day', 'spot_ret_5s', 'spot_ret_15s', 'spot_ret_30s', 'spot_ret_60s', 'spot_ret_120s', 'spot_ret_300s', 'spot_vol_60s', 'spot_vol_300s', 'spot_range_pos_300s', 'spot_atm_offset', 'basis', 'basis_chg_60s', 'basis_chg_300s', 'fut_lead_15s', 'fut_vol_10s', 'fut_vol_60s', 'ce_p0_spread_bp', 'ce_p0_l1_imb', 'ce_p0_depth_imb', 'ce_p0_micro_off', 'ce_p0_depth_imb_10s', 'pe_p0_spread_bp', 'pe_p0_l1_imb', 'pe_p0_depth_imb', 'pe_p0_micro_off', 'pe_p0_depth_imb_10s', 'ce_p0_ret_15s', 'ce_p0_ret_60s', 'ce_p0_vol_10s', 'ce_p0_vol_60s', 'ce_p0_oi_chg_300s', 'pe_p0_ret_15s', 'pe_p0_ret_60s', 'pe_p0_vol_10s', 'pe_p0_vol_60s', 'pe_p0_oi_chg_300s', 'cp_vol_ratio_60s', 'cp_depth_imb_diff', 'atm_iv', 'iv_skew', 'atm_iv_chg_300s', 'straddle_bp']
+"""
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/app/src/optpred/common/runlog.py", line 90, in run
+    code = main(argv, summary)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/app/src/optpred/featurelib/build.py", line 77, in main
+    res = list(ex.map(work, days))
+          ^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/process.py", line 620, in _chain_from_iterable_of_lists
+    for element in iterable:
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 619, in result_iterator
+    yield _result_or_cancel(fs.pop())
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 317, in _result_or_cancel
+    return fut.result(timeout)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 456, in result
+    return self.__get_result()
+           ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/concurrent/futures/_base.py", line 401, in __get_result
+    raise self._exception
+ValueError: Duplicate column names found: ['day', 'sod', 'atm', 'dte', 'min_since_open', 'min_to_close', 'dte', 'is_expiry_day', 'spot_ret_5s', 'spot_ret_15s', 'spot_ret_30s', 'spot_ret_60s', 'spot_ret_120s', 'spot_ret_300s', 'spot_vol_60s', 'spot_vol_300s', 'spot_range_pos_300s', 'spot_atm_offset', 'basis', 'basis_chg_60s', 'basis_chg_300s', 'fut_lead_15s', 'fut_vol_10s', 'fut_vol_60s', 'ce_p0_spread_bp', 'ce_p0_l1_imb', 'ce_p0_depth_imb', 'ce_p0_micro_off', 'ce_p0_depth_imb_10s', 'pe_p0_spread_bp', 'pe_p0_l1_imb', 'pe_p0_depth_imb', 'pe_p0_micro_off', 'pe_p0_depth_imb_10s', 'ce_p0_ret_15s', 'ce_p0_ret_60s', 'ce_p0_vol_10s', 'ce_p0_vol_60s', 'ce_p0_oi_chg_300s', 'pe_p0_ret_15s', 'pe_p0_ret_60s', 'pe_p0_vol_10s', 'pe_p0_vol_60s', 'pe_p0_oi_chg_300s', 'cp_vol_ratio_60s', 'cp_depth_imb_diff', 'atm_iv', 'iv_skew', 'atm_iv_chg_300s', 'straddle_bp']
+
+2026-10-23 13:07:16,650 INFO optpred.feat: run 20261023T183716-feat finished: failed in 0.5s

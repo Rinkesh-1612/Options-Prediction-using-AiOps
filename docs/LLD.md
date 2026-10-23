@@ -1,5 +1,7 @@
 # Low-level design
 
+> **DEPRECATED (2026-10-23).** This document was written before the owner reviewed the project. It is not approved by the owner. Do not use it as a reference. A reviewed version will replace it.
+
 This document lists every endpoint of the API with its input and output.
 A test (`test_openapi_matches_the_low_level_design`) reads the headings below.
 It fails if an endpoint exists in the API but not here, or the reverse.

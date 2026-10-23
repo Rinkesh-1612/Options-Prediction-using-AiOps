@@ -1,0 +1,54 @@
+2026-10-23 12:12:22,054 INFO optpred.clean: run 20261023T174222-clean  commit b1eb0bc122 (DIRTY)
+2026-10-23 12:15:42,396 INFO optpred.eda.clean: 2026-08-03  opt 1078219 -> 1049399 rows
+2026-10-23 12:15:42,398 INFO optpred.eda.clean: 2026-08-04  opt 1180112 -> 1148430 rows
+2026-10-23 12:15:42,398 INFO optpred.eda.clean: 2026-08-05  opt 960857 -> 935008 rows
+2026-10-23 12:15:42,398 INFO optpred.eda.clean: 2026-08-06  opt 955796 -> 929787 rows
+2026-10-23 12:15:42,398 INFO optpred.eda.clean: 2026-08-07  opt 987497 -> 959663 rows
+2026-10-23 12:15:42,398 INFO optpred.eda.clean: 2026-08-10  opt 1070023 -> 1041249 rows
+2026-10-23 12:15:42,399 INFO optpred.eda.clean: 2026-08-11  opt 1765495 -> 1715489 rows
+2026-10-23 12:15:42,399 INFO optpred.eda.clean: 2026-08-12  opt 1776248 -> 1729464 rows
+2026-10-23 12:15:42,399 INFO optpred.eda.clean: 2026-08-13  opt 1745600 -> 1698784 rows
+2026-10-23 12:15:42,399 INFO optpred.eda.clean: 2026-08-14  opt 1814834 -> 1765468 rows
+2026-10-23 12:15:42,399 INFO optpred.eda.clean: 2026-08-17  opt 1928332 -> 1875218 rows
+2026-10-23 12:15:42,399 INFO optpred.eda.clean: 2026-08-18  opt 1975238 -> 1923143 rows
+2026-10-23 12:15:42,399 INFO optpred.eda.clean: 2026-08-19  opt 1670176 -> 1625408 rows
+2026-10-23 12:15:42,399 INFO optpred.eda.clean: 2026-08-20  opt 1712829 -> 1664957 rows
+2026-10-23 12:15:42,399 INFO optpred.eda.clean: 2026-08-21  opt 1731655 -> 1681647 rows
+2026-10-23 12:15:42,399 INFO optpred.eda.clean: 2026-08-24  opt 1858747 -> 1806269 rows
+2026-10-23 12:15:42,399 INFO optpred.eda.clean: 2026-08-25  opt 1974032 -> 1921773 rows
+2026-10-23 12:15:42,400 INFO optpred.eda.clean: 2026-08-26  opt 1724823 -> 1674638 rows
+2026-10-23 12:15:42,400 INFO optpred.eda.clean: 2026-08-27  opt 1739343 -> 1689782 rows
+2026-10-23 12:15:42,400 INFO optpred.eda.clean: 2026-08-28  opt 1773400 -> 1723070 rows
+2026-10-23 12:15:42,400 INFO optpred.eda.clean: 2026-08-31  opt 1875605 -> 1822276 rows
+2026-10-23 12:15:42,400 INFO optpred.eda.clean: 2026-09-01  opt 2046817 -> 1994548 rows
+2026-10-23 12:15:42,400 INFO optpred.eda.clean: 2026-09-02  opt 1672319 -> 1625633 rows
+2026-10-23 12:15:42,400 INFO optpred.eda.clean: 2026-09-03  opt 1743788 -> 1693268 rows
+2026-10-23 12:15:42,400 INFO optpred.eda.clean: 2026-09-04  opt 1841637 -> 1790364 rows
+2026-10-23 12:15:42,401 INFO optpred.eda.clean: 2026-09-07  opt 1866149 -> 1813414 rows
+2026-10-23 12:15:42,401 INFO optpred.eda.clean: 2026-09-08  opt 1975115 -> 1922613 rows
+2026-10-23 12:15:42,401 INFO optpred.eda.clean: 2026-09-09  opt 1683917 -> 1636429 rows
+2026-10-23 12:15:42,401 INFO optpred.eda.clean: 2026-09-10  opt 1686801 -> 1637703 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-09-11  opt 1830092 -> 1777547 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-09-15  opt 2016340 -> 1963679 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-09-16  opt 1733712 -> 1686392 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-09-17  opt 1798830 -> 1749659 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-09-18  opt 1801710 -> 1751622 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-09-21  opt 1872427 -> 1817888 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-09-22  opt 2023388 -> 1972196 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-09-23  opt 1692536 -> 1646301 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-09-24  opt 1765251 -> 1728150 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-09-30  opt 1696091 -> 1651884 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-10-01  opt 1789456 -> 1740847 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-10-05  opt 1925133 -> 1874599 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-10-06  opt 2002751 -> 1950908 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-10-07  opt 1692745 -> 1647782 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-10-08  opt 1758772 -> 1711475 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-10-09  opt 1810259 -> 1761781 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-10-12  opt 1928611 -> 1877431 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-10-13  opt 2053402 -> 2000408 rows
+2026-10-23 12:15:42,402 INFO optpred.eda.clean: 2026-10-14  opt 1820116 -> 1772877 rows
+2026-10-23 12:15:42,403 INFO optpred.eda.clean: 2026-10-15  opt 1904073 -> 1854202 rows
+2026-10-23 12:15:42,403 INFO optpred.eda.clean: opt_tape: {'rows_in': 84731099, 'drop_outside_session': 2292576, 'drop_one_sided_book': 4501, 'drop_crossed_book': 0, 'drop_wide_spread': 1500, 'drop_mid_spike': 0, 'null_volume_above_later': 1238, 'null_oi_not_positive': 2711, 'rows_out': 82432522}
+2026-10-23 12:15:42,403 INFO optpred.eda.clean: und_tape: {'rows_in': 14751899, 'drop_outside_session': 1286327, 'drop_not_positive_price': 0, 'drop_duplicate': 0, 'drop_index_closing_print': 12412, 'rows_out': 13453160}
+2026-10-23 12:15:42,403 INFO optpred.eda.clean: option_chain_snap: {'rows_in': 11586075, 'drop_outside_session': 703375, 'null_ce_iv_placeholder': 320460, 'null_ce_bad_book': 1803, 'null_pe_iv_placeholder': 977666, 'null_pe_bad_book': 1672, 'null_spot_off_index': 10950, 'rows_out': 10882700}
+2026-10-23 12:15:42,407 INFO optpred.clean: run 20261023T174222-clean finished: ok in 200.4s

@@ -1,5 +1,7 @@
 # Final test protocol (written before the test days are opened)
 
+> **DEPRECATED (2026-10-23).** This document was written before the owner reviewed the project. It is not approved by the owner. Do not use it as a reference. A reviewed version will replace it.
+
 Committed on 2026-10-22, before `src/optpred/evaluate.py` existed. The Git commit of this file is the proof
 that every rule below was fixed before any test-day number was seen.
 

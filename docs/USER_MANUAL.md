@@ -1,5 +1,7 @@
 # User manual
 
+> **DEPRECATED (2026-10-23).** This document was written before the owner reviewed the project. It is not approved by the owner. Do not use it as a reference. A reviewed version will replace it.
+
 For a trader. No programming knowledge is needed.
 
 ## What this tool does
