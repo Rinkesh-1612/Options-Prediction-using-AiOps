@@ -12,6 +12,21 @@ Design and every decision with its reason: [docs/HLD.md](docs/HLD.md).
 *Ravion* (named below) is the author's own live trading system on the same server. Its recorder holds the
 market data. This project reads a frozen copy of it and never writes to it.
 
+## Layout
+
+| Folder | Course component |
+|---|---|
+| `src/optpred/common/` | logging (run journal), clock, Spark session |
+| `src/optpred/data/` | data engineering with Spark: `export`, `check`, `bars`, `ticks` |
+| `src/optpred/features/` | features and labels: `minute` (v1), `micro` (v2), `labels` |
+| `src/optpred/models/` | MLflow-tracked models, Ray Tune, registry, evaluation, sprint |
+| `src/optpred/serving/` | FastAPI back end, MLflow pyfunc model |
+| `src/optpred/monitoring/` + `monitoring/` | drift check, replay; Prometheus, Alertmanager, Grafana |
+| `frontend/`, `docker/` | web page; container images |
+| `tests/{unit,integration,api}/` | 85 tests |
+
+Every rubric line → code → evidence: [docs/COURSE_MAP.md](docs/COURSE_MAP.md). Routine commands: `make help`.
+
 ## Setup (on the VPS)
 
 ```bash
