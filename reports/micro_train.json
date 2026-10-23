@@ -1,6 +1,6 @@
 {
- "mlflow_run_id": "b1c8da10e3e84d6daf0c133347f4b4ca",
- "tau": 1.01,
+ "mlflow_run_id": "24e2f9847d634520abf3dea72c78fd97",
+ "tau": 0.65,
  "oof_days": [
   "2026-08-21",
   "2026-08-24",
@@ -31,52 +31,52 @@
   {
    "tau": 0.5,
    "days": 24,
-   "trades": 1189,
-   "trades_per_day": 49.5,
-   "hit_rate": 0.397,
-   "mean_net_per_trade_rs": -41.92,
-   "mean_net_per_day_rs": -2076.6,
-   "positive_days": 0
+   "trades": 2666,
+   "trades_per_day": 111.1,
+   "hit_rate": 0.4089,
+   "mean_net_per_trade_rs": -14.09,
+   "mean_net_per_day_rs": -1565.7,
+   "positive_days": 5
   },
   {
    "tau": 0.55,
    "days": 24,
-   "trades": 380,
-   "trades_per_day": 15.8,
-   "hit_rate": 0.3947,
-   "mean_net_per_trade_rs": -36.59,
-   "mean_net_per_day_rs": -579.3,
-   "positive_days": 6
+   "trades": 1136,
+   "trades_per_day": 47.3,
+   "hit_rate": 0.4331,
+   "mean_net_per_trade_rs": -6.37,
+   "mean_net_per_day_rs": -301.4,
+   "positive_days": 11
   },
   {
    "tau": 0.6,
    "days": 24,
-   "trades": 68,
-   "trades_per_day": 2.8,
-   "hit_rate": 0.3529,
-   "mean_net_per_trade_rs": -48.69,
-   "mean_net_per_day_rs": -137.9,
-   "positive_days": 1
+   "trades": 346,
+   "trades_per_day": 14.4,
+   "hit_rate": 0.4104,
+   "mean_net_per_trade_rs": -9.37,
+   "mean_net_per_day_rs": -135.0,
+   "positive_days": 8
   },
   {
    "tau": 0.65,
    "days": 24,
-   "trades": 8,
-   "trades_per_day": 0.3,
-   "hit_rate": 0.5,
-   "mean_net_per_trade_rs": -31.94,
-   "mean_net_per_day_rs": -10.6,
-   "positive_days": 1
+   "trades": 66,
+   "trades_per_day": 2.8,
+   "hit_rate": 0.4697,
+   "mean_net_per_trade_rs": 4.87,
+   "mean_net_per_day_rs": 13.4,
+   "positive_days": 3
   },
   {
    "tau": 0.7,
    "days": 24,
-   "trades": 0,
-   "trades_per_day": 0.0,
-   "hit_rate": null,
-   "mean_net_per_trade_rs": null,
-   "mean_net_per_day_rs": 0.0,
-   "positive_days": 0
+   "trades": 10,
+   "trades_per_day": 0.4,
+   "hit_rate": 0.5,
+   "mean_net_per_trade_rs": 23.0,
+   "mean_net_per_day_rs": 9.6,
+   "positive_days": 2
   },
   {
    "tau": 0.75,
@@ -111,76 +111,90 @@
  ],
  "oof_chosen": {
   "days": 24,
-  "trades": 0,
-  "trades_per_day": 0.0,
-  "hit_rate": null,
-  "mean_net_per_trade_rs": null,
-  "mean_net_per_day_rs": 0.0,
-  "positive_days": 0
+  "trades": 66,
+  "trades_per_day": 2.8,
+  "hit_rate": 0.4697,
+  "mean_net_per_trade_rs": 4.87,
+  "mean_net_per_day_rs": 13.4,
+  "positive_days": 3,
+  "per_day_ci95_rs": [
+   -88.5,
+   146.3
+  ],
+  "per_trade_ci95_rs": [
+   -47.04,
+   39.92
+  ],
+  "resolvable_per_day_rs": 118.8
  },
  "random_side_control": {
-  "seeds": 0,
-  "seeds_beaten": 0
+  "seeds": 100,
+  "seeds_beaten": 98,
+  "control_per_day_mean": -62.7,
+  "control_per_day_p5_p95": [
+   -147.8,
+   4.4
+  ]
  },
  "baselines_oof": {
   "always_ce": {
    "days": 24,
    "trades": 8108,
    "trades_per_day": 337.8,
-   "hit_rate": 0.3283,
-   "mean_net_per_trade_rs": -72.94,
-   "mean_net_per_day_rs": -24641.8,
+   "hit_rate": 0.3485,
+   "mean_net_per_trade_rs": -32.64,
+   "mean_net_per_day_rs": -11027.2,
    "positive_days": 0,
    "per_day_ci95_rs": [
-    -28387.0,
-    -21470.3
+    -13427.3,
+    -8908.8
    ],
    "per_trade_ci95_rs": [
-    -78.02,
-    -67.36
+    -37.72,
+    -27.06
    ],
-   "resolvable_per_day_rs": 3564.1
+   "resolvable_per_day_rs": 2333.8
   },
   "always_pe": {
    "days": 24,
    "trades": 6813,
    "trades_per_day": 283.9,
-   "hit_rate": 0.3531,
-   "mean_net_per_trade_rs": -60.37,
-   "mean_net_per_day_rs": -17138.8,
-   "positive_days": 0,
+   "hit_rate": 0.381,
+   "mean_net_per_trade_rs": -20.07,
+   "mean_net_per_day_rs": -5698.7,
+   "positive_days": 3,
    "per_day_ci95_rs": [
-    -20489.7,
-    -14159.4
+    -7782.0,
+    -3700.1
    ],
    "per_trade_ci95_rs": [
-    -66.19,
-    -53.8
+    -25.89,
+    -13.5
    ],
-   "resolvable_per_day_rs": 3260.8
+   "resolvable_per_day_rs": 2093.3
   },
   "futures_flow": {
    "days": 24,
    "trades": 6114,
    "trades_per_day": 254.8,
-   "hit_rate": 0.3466,
-   "mean_net_per_trade_rs": -62.87,
-   "mean_net_per_day_rs": -16016.2,
-   "positive_days": 0,
+   "hit_rate": 0.3744,
+   "mean_net_per_trade_rs": -22.57,
+   "mean_net_per_day_rs": -5749.7,
+   "positive_days": 2,
    "per_day_ci95_rs": [
-    -18125.2,
-    -14033.4
+    -7297.2,
+    -4230.4
    ],
    "per_trade_ci95_rs": [
-    -68.75,
-    -56.88
+    -28.45,
+    -16.58
    ],
-   "resolvable_per_day_rs": 2149.8
+   "resolvable_per_day_rs": 1580.2
   }
  },
  "pass_rule": {
   "1_oof_positive_and_interval_excludes_zero": false,
-  "2_beats_random_side_in_95_of_100": false,
+  "2_beats_random_side_in_95_of_100": true,
   "3_forward_days_positive": "scored later by micro_evaluate"
  },
  "diagnostics_not_pass_rule": {
@@ -189,88 +203,97 @@
     {
      "tau": 0.5,
      "days": 24,
-     "trades": 1189,
-     "trades_per_day": 49.5,
-     "hit_rate": 0.4298,
-     "mean_net_per_trade_rs": -1.62,
-     "mean_net_per_day_rs": -80.1,
-     "positive_days": 12,
+     "trades": 2666,
+     "trades_per_day": 111.1,
+     "hit_rate": 0.4089,
+     "mean_net_per_trade_rs": -14.09,
+     "mean_net_per_day_rs": -1565.7,
+     "positive_days": 5,
      "per_day_ci95_rs": [
-      -439.8,
-      294.6
+      -2296.2,
+      -823.0
      ],
      "per_trade_ci95_rs": [
-      -9.94,
-      5.54
+      -20.24,
+      -7.66
      ],
-     "resolvable_per_day_rs": 373.9
+     "resolvable_per_day_rs": 754.1
     },
     {
      "tau": 0.55,
      "days": 24,
-     "trades": 380,
-     "trades_per_day": 15.8,
-     "hit_rate": 0.45,
-     "mean_net_per_trade_rs": 3.71,
-     "mean_net_per_day_rs": 58.7,
-     "positive_days": 12,
+     "trades": 1136,
+     "trades_per_day": 47.3,
+     "hit_rate": 0.4331,
+     "mean_net_per_trade_rs": -6.37,
+     "mean_net_per_day_rs": -301.4,
+     "positive_days": 11,
      "per_day_ci95_rs": [
-      -203.1,
-      314.7
+      -687.1,
+      82.3
      ],
      "per_trade_ci95_rs": [
-      -11.76,
-      25.09
+      -15.1,
+      1.75
      ],
-     "resolvable_per_day_rs": 269.4
+     "resolvable_per_day_rs": 398.8
     },
     {
      "tau": 0.6,
      "days": 24,
-     "trades": 68,
-     "trades_per_day": 2.8,
-     "hit_rate": 0.3971,
-     "mean_net_per_trade_rs": -8.39,
-     "mean_net_per_day_rs": -23.8,
-     "positive_days": 5,
+     "trades": 346,
+     "trades_per_day": 14.4,
+     "hit_rate": 0.4104,
+     "mean_net_per_trade_rs": -9.37,
+     "mean_net_per_day_rs": -135.0,
+     "positive_days": 8,
      "per_day_ci95_rs": [
-      -133.6,
-      101.0
+      -349.6,
+      68.6
      ],
      "per_trade_ci95_rs": [
-      -88.97,
-      22.4
+      -27.77,
+      4.95
      ],
-     "resolvable_per_day_rs": 118.6
+     "resolvable_per_day_rs": 212.5
     },
     {
      "tau": 0.65,
      "days": 24,
-     "trades": 8,
-     "trades_per_day": 0.3,
-     "hit_rate": 0.5,
-     "mean_net_per_trade_rs": 8.36,
-     "mean_net_per_day_rs": 2.8,
-     "positive_days": 2,
+     "trades": 66,
+     "trades_per_day": 2.8,
+     "hit_rate": 0.4697,
+     "mean_net_per_trade_rs": 4.87,
+     "mean_net_per_day_rs": 13.4,
+     "positive_days": 3,
      "per_day_ci95_rs": [
-      -24.1,
-      30.5
+      -88.5,
+      146.3
      ],
      "per_trade_ci95_rs": [
-      -207.72,
-      45.42
+      -47.04,
+      39.92
      ],
-     "resolvable_per_day_rs": 26.1
+     "resolvable_per_day_rs": 118.8
     },
     {
      "tau": 0.7,
      "days": 24,
-     "trades": 0,
-     "trades_per_day": 0.0,
-     "hit_rate": null,
-     "mean_net_per_trade_rs": null,
-     "mean_net_per_day_rs": 0.0,
-     "positive_days": 0
+     "trades": 10,
+     "trades_per_day": 0.4,
+     "hit_rate": 0.5,
+     "mean_net_per_trade_rs": 23.0,
+     "mean_net_per_day_rs": 9.6,
+     "positive_days": 2,
+     "per_day_ci95_rs": [
+      -25.8,
+      54.4
+     ],
+     "per_trade_ci95_rs": [
+      -111.93,
+      209.12
+     ],
+     "resolvable_per_day_rs": 39.6
     },
     {
      "tau": 0.75,
@@ -307,88 +330,97 @@
     {
      "tau": 0.5,
      "days": 24,
-     "trades": 1189,
-     "trades_per_day": 49.5,
-     "hit_rate": 0.413,
-     "mean_net_per_trade_rs": -21.12,
-     "mean_net_per_day_rs": -1046.1,
-     "positive_days": 2,
+     "trades": 2666,
+     "trades_per_day": 111.1,
+     "hit_rate": 0.3848,
+     "mean_net_per_trade_rs": -33.59,
+     "mean_net_per_day_rs": -3731.8,
+     "positive_days": 1,
      "per_day_ci95_rs": [
-      -1446.1,
-      -659.8
+      -4661.0,
+      -2857.2
      ],
      "per_trade_ci95_rs": [
-      -29.44,
-      -13.96
+      -39.74,
+      -27.16
      ],
-     "resolvable_per_day_rs": 399.8
+     "resolvable_per_day_rs": 912.1
     },
     {
      "tau": 0.55,
      "days": 24,
-     "trades": 380,
-     "trades_per_day": 15.8,
-     "hit_rate": 0.4237,
-     "mean_net_per_trade_rs": -15.79,
-     "mean_net_per_day_rs": -250.0,
-     "positive_days": 10,
+     "trades": 1136,
+     "trades_per_day": 47.3,
+     "hit_rate": 0.4005,
+     "mean_net_per_trade_rs": -25.87,
+     "mean_net_per_day_rs": -1224.4,
+     "positive_days": 5,
      "per_day_ci95_rs": [
-      -605.8,
-      59.8
+      -1711.6,
+      -766.9
      ],
      "per_trade_ci95_rs": [
-      -31.26,
-      5.59
+      -34.6,
+      -17.75
      ],
-     "resolvable_per_day_rs": 342.7
+     "resolvable_per_day_rs": 491.3
     },
     {
      "tau": 0.6,
      "days": 24,
-     "trades": 68,
-     "trades_per_day": 2.8,
-     "hit_rate": 0.3824,
-     "mean_net_per_trade_rs": -27.89,
-     "mean_net_per_day_rs": -79.0,
-     "positive_days": 4,
+     "trades": 346,
+     "trades_per_day": 14.4,
+     "hit_rate": 0.3844,
+     "mean_net_per_trade_rs": -28.87,
+     "mean_net_per_day_rs": -416.2,
+     "positive_days": 6,
      "per_day_ci95_rs": [
-      -173.4,
-      11.2
+      -657.0,
+      -181.3
      ],
      "per_trade_ci95_rs": [
-      -108.47,
-      2.9
+      -47.27,
+      -14.55
      ],
-     "resolvable_per_day_rs": 95.0
+     "resolvable_per_day_rs": 250.7
     },
     {
      "tau": 0.65,
      "days": 24,
-     "trades": 8,
-     "trades_per_day": 0.3,
-     "hit_rate": 0.5,
-     "mean_net_per_trade_rs": -11.14,
-     "mean_net_per_day_rs": -3.7,
-     "positive_days": 2,
+     "trades": 66,
+     "trades_per_day": 2.8,
+     "hit_rate": 0.4394,
+     "mean_net_per_trade_rs": -14.63,
+     "mean_net_per_day_rs": -40.2,
+     "positive_days": 3,
      "per_day_ci95_rs": [
-      -27.3,
-      14.0
+      -140.5,
+      69.4
      ],
      "per_trade_ci95_rs": [
-      -227.22,
-      25.92
+      -66.54,
+      20.42
      ],
-     "resolvable_per_day_rs": 21.2
+     "resolvable_per_day_rs": 105.6
     },
     {
      "tau": 0.7,
      "days": 24,
-     "trades": 0,
-     "trades_per_day": 0.0,
-     "hit_rate": null,
-     "mean_net_per_trade_rs": null,
-     "mean_net_per_day_rs": 0.0,
-     "positive_days": 0
+     "trades": 10,
+     "trades_per_day": 0.4,
+     "hit_rate": 0.4,
+     "mean_net_per_trade_rs": 3.5,
+     "mean_net_per_day_rs": 1.5,
+     "positive_days": 1,
+     "per_day_ci95_rs": [
+      -35.1,
+      45.1
+     ],
+     "per_trade_ci95_rs": [
+      -131.43,
+      189.62
+     ],
+     "resolvable_per_day_rs": 38.8
     },
     {
      "tau": 0.75,
@@ -425,88 +457,97 @@
     {
      "tau": 0.5,
      "days": 24,
-     "trades": 1189,
-     "trades_per_day": 49.5,
-     "hit_rate": 0.397,
-     "mean_net_per_trade_rs": -41.92,
-     "mean_net_per_day_rs": -2076.6,
+     "trades": 2666,
+     "trades_per_day": 111.1,
+     "hit_rate": 0.3597,
+     "mean_net_per_trade_rs": -54.39,
+     "mean_net_per_day_rs": -6042.3,
      "positive_days": 0,
      "per_day_ci95_rs": [
-      -2658.0,
-      -1511.5
+      -7244.7,
+      -4908.0
      ],
      "per_trade_ci95_rs": [
-      -50.24,
-      -34.76
+      -60.54,
+      -47.96
      ],
-     "resolvable_per_day_rs": 589.2
+     "resolvable_per_day_rs": 1179.5
     },
     {
      "tau": 0.55,
      "days": 24,
-     "trades": 380,
-     "trades_per_day": 15.8,
-     "hit_rate": 0.3947,
-     "mean_net_per_trade_rs": -36.59,
-     "mean_net_per_day_rs": -579.3,
-     "positive_days": 6,
+     "trades": 1136,
+     "trades_per_day": 47.3,
+     "hit_rate": 0.3644,
+     "mean_net_per_trade_rs": -46.67,
+     "mean_net_per_day_rs": -2208.9,
+     "positive_days": 2,
      "per_day_ci95_rs": [
-      -1069.8,
-      -171.2
+      -2907.6,
+      -1554.7
      ],
      "per_trade_ci95_rs": [
-      -52.06,
-      -15.21
+      -55.4,
+      -38.55
      ],
-     "resolvable_per_day_rs": 459.4
+     "resolvable_per_day_rs": 696.3
     },
     {
      "tau": 0.6,
      "days": 24,
-     "trades": 68,
-     "trades_per_day": 2.8,
-     "hit_rate": 0.3529,
-     "mean_net_per_trade_rs": -48.69,
-     "mean_net_per_day_rs": -137.9,
-     "positive_days": 1,
+     "trades": 346,
+     "trades_per_day": 14.4,
+     "hit_rate": 0.3642,
+     "mean_net_per_trade_rs": -49.67,
+     "mean_net_per_day_rs": -716.0,
+     "positive_days": 4,
      "per_day_ci95_rs": [
-      -228.8,
-      -55.3
+      -1046.2,
+      -385.8
      ],
      "per_trade_ci95_rs": [
-      -129.27,
-      -17.9
+      -68.07,
+      -35.35
      ],
-     "resolvable_per_day_rs": 90.0
+     "resolvable_per_day_rs": 349.3
     },
     {
      "tau": 0.65,
      "days": 24,
-     "trades": 8,
-     "trades_per_day": 0.3,
-     "hit_rate": 0.5,
-     "mean_net_per_trade_rs": -31.94,
-     "mean_net_per_day_rs": -10.6,
-     "positive_days": 1,
+     "trades": 66,
+     "trades_per_day": 2.8,
+     "hit_rate": 0.3788,
+     "mean_net_per_trade_rs": -35.43,
+     "mean_net_per_day_rs": -97.4,
+     "positive_days": 3,
      "per_day_ci95_rs": [
-      -31.8,
-      0.4
+      -204.4,
+      -1.2
      ],
      "per_trade_ci95_rs": [
-      -248.02,
-      5.12
+      -87.34,
+      -0.38
      ],
-     "resolvable_per_day_rs": 20.3
+     "resolvable_per_day_rs": 104.0
     },
     {
      "tau": 0.7,
      "days": 24,
-     "trades": 0,
-     "trades_per_day": 0.0,
-     "hit_rate": null,
-     "mean_net_per_trade_rs": null,
-     "mean_net_per_day_rs": 0.0,
-     "positive_days": 0
+     "trades": 10,
+     "trades_per_day": 0.4,
+     "hit_rate": 0.4,
+     "mean_net_per_trade_rs": -17.3,
+     "mean_net_per_day_rs": -7.2,
+     "positive_days": 1,
+     "per_day_ci95_rs": [
+      -46.1,
+      33.6
+     ],
+     "per_trade_ci95_rs": [
+      -152.23,
+      168.82
+     ],
+     "resolvable_per_day_rs": 39.7
     },
     {
      "tau": 0.75,
@@ -544,36 +585,45 @@
    "0.5": {
     "seeds": 100,
     "seeds_beaten": 100,
-    "control_per_day_mean": -3067.5,
+    "control_per_day_mean": -2517.2,
     "control_per_day_p5_p95": [
-     -3430.8,
-     -2718.9
+     -3025.3,
+     -2086.2
     ]
    },
    "0.55": {
     "seeds": 100,
     "seeds_beaten": 100,
-    "control_per_day_mean": -904.5,
+    "control_per_day_mean": -1066.3,
     "control_per_day_p5_p95": [
-     -1109.6,
-     -683.0
+     -1380.9,
+     -690.7
     ]
    },
    "0.6": {
     "seeds": 100,
-    "seeds_beaten": 82,
-    "control_per_day_mean": -186.3,
+    "seeds_beaten": 91,
+    "control_per_day_mean": -300.6,
     "control_per_day_p5_p95": [
-     -277.9,
-     -96.0
+     -461.9,
+     -110.4
+    ]
+   },
+   "0.65": {
+    "seeds": 100,
+    "seeds_beaten": 98,
+    "control_per_day_mean": -62.7,
+    "control_per_day_p5_p95": [
+     -147.8,
+     4.4
     ]
    }
   }
  },
  "registry": {
-  "version": 1,
+  "version": 2,
   "promoted": true,
-  "champion_version": 1,
-  "previous_champion_val_net_per_day_rs": null
+  "champion_version": 2,
+  "previous_champion_val_net_per_day_rs": 0.0
  }
 }
