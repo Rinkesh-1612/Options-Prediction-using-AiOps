@@ -119,6 +119,17 @@ The rules are in `docs/FINAL_TEST_PROTOCOL.md`.
 | 404 | the test days have not been scored yet |
 | 500 | the results file cannot be read |
 
+### `GET /results/v2`
+v2 (second-level model) and the alpha sprint, from `reports/micro_train.json`, `reports/micro_final.json` and
+`reports/sprint.json`.
+
+| | |
+|---|---|
+| Input | none |
+| 200 | `{model: {name, version, run_id}, tau, development: {days, chosen: S, random_side_control, baselines: {always_ce, always_pe, futures_flow}: S, pass_rule}, held_out: {days, rows, by_slippage: {"<slip>": {model: S, random_side_same_entries, baselines}}}, held_out_note, sprint: {"<trial>": {tau, trades, hit_rate, mean_net_per_day_rs, per_day_ci99_rs, control_seeds_beaten, passed}}, protocols}` with `S` as in `GET /results` |
+| 404 | v2 has not been scored yet |
+| 500 | a v2 results file cannot be read |
+
 ## Monitoring
 
 ### `GET /drift`

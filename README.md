@@ -4,7 +4,8 @@ DA3408 course project: predict, each minute, whether buying the ATM NIFTY call,
 buying the put, or staying out pays **after costs** over the next 2 minutes.
 Design and every decision with its reason: [docs/HLD.md](docs/HLD.md).
 
-**Result:** no tradable edge on 10 locked test days; the model correctly chose to stay out
+**Result:** no tradable edge. v1 (minute model) correctly chose to stay out on 10 locked test days; v2 (second-level
+order book) picks the side but does not pay reliably; six further ideas failed a 99% rule
 ([docs/RESULTS.md](docs/RESULTS.md)).
 
 ![Results tab](docs/img/results-desktop.png)
@@ -23,7 +24,7 @@ market data. This project reads a frozen copy of it and never writes to it.
 | `src/optpred/serving/` | FastAPI back end, MLflow pyfunc model |
 | `src/optpred/monitoring/` + `monitoring/` | drift check, replay; Prometheus, Alertmanager, Grafana |
 | `frontend/`, `docker/` | web page; container images |
-| `tests/{unit,integration,api}/` | 85 tests |
+| `tests/{unit,integration,api}/` | 87 tests |
 
 Every rubric line → code → evidence: [docs/COURSE_MAP.md](docs/COURSE_MAP.md). Routine commands: `make help`.
 

@@ -1,9 +1,15 @@
 # Results
 
-**Verdict: no tradable edge detected on 10 unseen days.** The model chose "never trade" on validation, and that was
-the right call: every rule that trades lost between Rs 11,500 and Rs 13,300 per day on the test days. The model does
-know *something* about the next two minutes (it beats the no-information baseline on 9 of 10 test days), but it cannot
-pick the winning side: when forced to trade it did no better than coin flips.
+**Verdict: no tradable edge detected.**
+
+* **v1 (minute model, fixed 2-minute hold):** on 10 locked test days every rule that trades lost Rs 11,500 – 13,300
+  per day. The model chose "never trade", which was right. It knew a little about the next minutes, but could not
+  pick the side.
+* **v2 (second-level order book and futures flow, barrier exits, statutory costs only):** it **can** pick the side
+  (it beats random side choice in 98 of 100 tries), but the gain is about Rs 5 per trade and the 95% interval
+  includes zero. On the 10 held-out days it traded once and lost Rs 136.
+* **Alpha sprint (six pre-registered ideas, 99% bar):** none passed. Two leads remain for paper trading only:
+  the first 25 minutes of the session, and expiry-day afternoons.
 
 Every number below comes from a journaled run (`runs/runs.jsonl`, `logs/`) or an MLflow run, named next to it.
 The test-day rules were fixed in advance in [FINAL_TEST_PROTOCOL.md](FINAL_TEST_PROTOCOL.md) (commit `7d65338`).
@@ -121,3 +127,71 @@ ATM NIFTY options was not predictable enough to pay in this data.
 
 Not on this data. The system measured it honestly: the model carries real but small information, the costs
 are larger than what that information can earn, and the model's own rule correctly chose to stay out.
+
+## 7. v2: second-level microstructure model
+
+Rules: `docs/V2_PROTOCOL.md` (written before any v2 code), amendment 1 (statutory costs only, author's decision after
+seeing development results) and amendment 2 (no forward days; the v1 test days are the held-out set).
+
+| Item | Value |
+|---|---|
+| Decisions | every second 09:20:00 – 15:25:00; 1,071,575 decision seconds over 49 days |
+| Trade | buy the ATM call or put at the ask; exit at the bid on +3.5 / −2.0 points or after 180 s |
+| Cost | statutory charges only (brokerage is zero); 0.15 and 0.31 points slippage as sensitivity |
+| Model | two LightGBM binary models, P(call wins), P(put wins); trade the likelier side if P ≥ tau |
+| Spark stage `ticks` | 32 M option ticks → 20.6 M contract-seconds with order-flow imbalance and signed volume (journal `20261022T192516-ticks`) |
+
+### Development days, out of fold (24 days; journal `micro_train`, `reports/micro_train.json`)
+
+| tau | Trades | Net per day (Rs) |
+|---|---|---|
+| 0.50 | 2,666 | −1,566 |
+| 0.55 | 1,136 | −301 |
+| 0.60 | 346 | −135 |
+| **0.65 (chosen)** | **66** | **+13** (95% interval −89 to +146; hit rate 47%; +Rs 4.9 per trade) |
+| 0.70 | 10 | +10 |
+
+Random side at the same entry seconds: the model beats it in 98 of 100 seeds. Blind entries on the same days:
+always call −Rs 11,027, always put −Rs 5,699, futures-flow rule −Rs 5,750 per day.
+Pass rule 1 (interval above zero): **failed**. Pass rule 2 (side picking): **passed**.
+
+### Held-out days, one look (10 v1 test days, second look; journal `20261023T164424-micro_evaluate`, `reports/micro_final.json`)
+
+| Rule | Trades | Net per day (Rs) |
+|---|---|---|
+| **v2 model (tau 0.65)** | **1** | **−14** |
+| Always call | 5,919 | −19,059 |
+| Always put | 5,920 | −17,849 |
+| Futures-flow rule | 5,392 | −16,204 |
+
+The model's probabilities rarely reached 0.65 on these days, so it almost never traded. Pass rule 3: **failed**.
+One trade is no evidence either way.
+
+## 8. Alpha sprint (six pre-registered trials, out of fold, 99% bar)
+
+Rules: `docs/ALPHA_SPRINT.md`. Numbers: `reports/sprint.json`. Statutory costs only.
+
+| Trial | Trades | Hit rate | Net per day (Rs) | 99% interval | Beats control |
+|---|---|---|---|---|---|
+| v2 (reference) | 66 | 47% | +13 | −116 to +193 | 98/100 |
+| A: magnitude gate | 24 | 50% | +35 | −46 to +128 | 89/100 |
+| C: trailing-stop exit | 234 | 47% | +74 | −217 to +395 | 92/100 |
+| D1: 09:20 – 09:45 only | 187 | 49% | +131 | −163 to +456 | 100/100 |
+| D2: expiry day after 13:00 | 85 | 54% | +115 | −41 to +395 | 85/100 |
+| D3: realised > implied vol | 60 | 47% | +35 | −173 to +245 | 94/100 |
+| E: liquidity sweep (no model) | 6,774 | 36% | −7,477 | −10,248 to −5,322 | 0/100 |
+
+No trial passed. D1 and D2 are leads for a live paper trade, not findings: they are the best 2 of about 19 trials
+in this project.
+
+**Disclosure.** The first version of `reports/micro.json` printed label base rates (share of winning trades) over
+all 49 days, including the v1 test days. It was corrected to development days only before any v2 model existed.
+
+## 9. What the project shows
+
+1. After the bid/ask spread and taxes, buying ATM NIFTY options on 2-minute or barrier horizons did not pay in
+   Aug – Oct 2026, for any blind rule and for both models.
+2. Minute summaries carry information about *when* moves come, not *which way*. Second-level order flow and
+   futures flow add a measurable but small ability to pick the side.
+3. The cost assumption decides the sign of the result. A real slippage measurement would settle the question
+   better than any further model search.

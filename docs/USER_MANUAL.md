@@ -66,6 +66,13 @@ This tab answers the main question: would the model have made money on days it n
 
 The test days were scored **once**, with rules written down before anyone looked. They cannot be scored again.
 
+Below that, two more cards:
+
+* **Second-level model.** A second model reads the order book every second and exits at +3.5 or −2.0 points, or after
+  3 minutes. The card shows its result on days it did not train on, and on the 10 held-out days.
+* **Other ideas tested.** Six more ideas, judged by a strict rule. An idea passes only if even the low end of its
+  likely range makes money. None passed.
+
 ## Tab 3: Pipeline
 
 ![Pipeline console](img/pipeline-desktop.png)

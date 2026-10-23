@@ -152,6 +152,40 @@ def test_results_appear_only_after_the_one_time_evaluation(env):
     assert c.get("/results").status_code == 500
 
 
+def test_v2_results_need_all_three_reports(env):
+    st, _ = env
+    c = client(env)
+    assert c.get("/results/v2").status_code == 404
+    rep = st.final_marker.parent
+    s = {"days": 1, "trades": 1, "hit_rate": 1.0, "mean_net_per_day_rs": 5.0}
+    (rep / "micro_final.json").write_text(
+        json.dumps({"model": {"version": 2}, "second_look_v1_test": {"days": ["d"]}})
+    )
+    (rep / "micro_train.json").write_text(
+        json.dumps(
+            {
+                "tau": 0.65,
+                "oof_days": ["a", "b"],
+                "oof_chosen": s,
+                "random_side_control": {},
+                "baselines_oof": {},
+                "pass_rule": {},
+            }
+        )
+    )
+    assert c.get("/results/v2").status_code == 404  # the sprint report is still missing
+    sprint = {
+        "tau": 0.7,
+        "oof": {**s, "per_day_ci99_rs": [-1, 9]},
+        "control": {"seeds_beaten": 99},
+        "rule_1_positive_and_99pct_interval_above_zero": False,
+        "rule_2_beats_control_95_of_100": True,
+    }
+    (rep / "sprint.json").write_text(json.dumps({"results": {"D1": sprint}}))
+    r = c.get("/results/v2").json()
+    assert r["tau"] == 0.65 and r["development"]["days"] == 2 and r["sprint"]["D1"]["passed"] is False
+
+
 def test_predict_reports_what_actually_happened_with_the_same_costs_as_the_labels(env):
     _, df = env
     r = client(env).post("/predict", json={"day": "2026-03-01", "minute": 600}).json()

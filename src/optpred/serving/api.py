@@ -500,6 +500,46 @@ def create_app(
             log.error("cannot read %s: %s", st.final_marker, e)
             raise HTTPException(500, f"the final results file is unreadable: {e}") from e
 
+    @app.get("/results/v2", summary="v2 and the alpha sprint: development, held-out and sprint results")
+    def results_v2():
+        reports = st.final_marker.parent  # the same folder as the v1 result
+        try:
+            held_out = json.loads((reports / "micro_final.json").read_text())
+            trained = json.loads((reports / "micro_train.json").read_text())
+            sprint = json.loads((reports / "sprint.json").read_text())
+        except FileNotFoundError as e:
+            raise HTTPException(404, f"v2 has not been scored yet ({e.filename})") from e
+        except (OSError, ValueError) as e:
+            log.error("cannot read the v2 reports: %s", e)
+            raise HTTPException(500, f"a v2 results file is unreadable: {e}") from e
+        return {
+            "model": held_out["model"],
+            "tau": trained["tau"],
+            "development": {
+                "days": len(trained["oof_days"]),
+                "chosen": trained["oof_chosen"],
+                "random_side_control": trained["random_side_control"],
+                "baselines": trained["baselines_oof"],
+                "pass_rule": trained["pass_rule"],
+            },
+            "held_out": held_out["second_look_v1_test"],
+            "held_out_note": "v1 test days, opened once for v1: a second look (V2_PROTOCOL.md amendment 2)",
+            "sprint": {
+                k: {
+                    "tau": r["tau"],
+                    "trades": r["oof"]["trades"],
+                    "hit_rate": r["oof"]["hit_rate"],
+                    "mean_net_per_day_rs": r["oof"]["mean_net_per_day_rs"],
+                    "per_day_ci99_rs": r["oof"].get("per_day_ci99_rs"),
+                    "control_seeds_beaten": r["control"].get("seeds_beaten"),
+                    "passed": r["rule_1_positive_and_99pct_interval_above_zero"]
+                    and r["rule_2_beats_control_95_of_100"],
+                }
+                for k, r in sprint["results"].items()
+            },
+            "protocols": ["docs/V2_PROTOCOL.md", "docs/ALPHA_SPRINT.md"],
+        }
+
     @app.post("/rollback", dependencies=[Depends(require_admin)])
     def rollback():
         c, name = mlflow_api(), params["mlflow"]["registered_model"]

@@ -71,6 +71,8 @@ A script creates that report from pytest's own output.
 | T-38 | v2 Spark | `test_ticks_keep_only_contracts_that_can_be_at_the_money` | One row per contract-second; strikes near the day's range only; volumes add up. |
 | T-39 | v2 micro | `test_micro_rows_have_every_input_and_a_barrier_trade_for_both_sides` | Every input exists; every row has a call and a put trade with a valid exit. |
 | T-40 | Splits | `test_forward_days_never_move_the_locked_split` | New days become "forward"; the v1 split never changes. |
+| T-41 | v2 evaluate | `test_v2_evaluation_refuses_without_final_and_refuses_a_second_look` | Exit 2 without `--final`; exit 3 on a second run. |
+| T-42 | API | `test_v2_results_need_all_three_reports` | `/results/v2` is 404 until all three v2 reports exist. |
 
 ## 5. Acceptance criteria
 

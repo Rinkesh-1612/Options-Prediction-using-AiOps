@@ -44,8 +44,8 @@ Code paths are under `src/optpred/`. Commands assume the repository root (`make 
 | Logging | Every stage writes a log file and a journal line (commit, params hash, status, duration). | `src/optpred/common/runlog.py` |
 | Exception handling | Typed errors per stage; non-zero exit still journals; the API returns readable 4xx/5xx. | `src/optpred/serving/api.py` |
 | Inline documentation | Each module states what it does and the rules it keeps. | module docstrings |
-| Unit tests | 85 tests in `unit/`, `integration/`, `api/`. | `reports/test_report.md` |
-| Test plan, cases, report, acceptance | Plan with 40 named cases and 8 criteria; acceptance record. | `docs/TEST_PLAN.md` |
+| Unit tests | 87 tests in `unit/`, `integration/`, `api/`. | `reports/test_report.md` |
+| Test plan, cases, report, acceptance | Plan with 42 named cases and 8 criteria; acceptance record. | `docs/TEST_PLAN.md` |
 
 ## AIOps implementation (10)
 
@@ -60,7 +60,7 @@ Code paths are under `src/optpred/`. Commands assume the repository root (`make 
 | Grafana in near real time | 5 s refresh; replay feed for demos; drift and retrain visible. | `docs/img/grafana.png`, `docs/img/grafana-drift.png` |
 | MLflow to expose the model | `mlflow models serve` of the `champion` alias behind the API. | `docker-compose.yml` service `model` |
 | MLproject | Entry points run in the pipeline image; `mlflow run . -e test` passes. | `MLproject`, `reports/mlproject_test_run.log` |
-| FastAPI for the UI | 14 endpoints, all in the LLD. | `src/optpred/serving/api.py` |
+| FastAPI for the UI | 15 endpoints, all in the LLD. | `src/optpred/serving/api.py` |
 | Dockerised front end and back end, Compose | Separate services `frontend` and `api`, plus model, MLflow, runner, monitoring. | `docker-compose.yml`, `docker/` |
 | Drift → retrain, rollback | PSI → `DriftDetected` → Alertmanager → API → runner (`dvc repro train register`). Observed end to end. | `docs/TEST_PLAN.md` section 9 |
 | Encryption | AES-256 snapshot, key outside the repo. | `scripts/encrypt_snapshot.sh` |
@@ -70,5 +70,5 @@ Code paths are under `src/optpred/`. Commands assume the repository root (`make 
 | Item | Where |
 |---|---|
 | v1 one-time test on locked days | `docs/RESULTS.md`, `docs/FINAL_TEST_PROTOCOL.md` |
-| v2 second-level model | `docs/V2_PROTOCOL.md`, `reports/micro_train.json` |
+| v2 second-level model | `docs/V2_PROTOCOL.md`, `reports/micro_train.json`, `reports/micro_final.json` (held-out, one look) |
 | Alpha sprint (six trials, 99% bar) | `docs/ALPHA_SPRINT.md`, `reports/sprint.json` |

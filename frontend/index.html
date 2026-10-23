@@ -295,10 +295,48 @@ async function loadResults() {
       <div class="card"><h2>CAN IT PICK CALL OR PUT?</h2><p id="resSide"></p></div>
     </div>
     <p class="muted">Model version ${final.model.version} · scored once, by rules written down before the test
-    (${final.protocol}) · code ${String(final.evaluated_at_commit).slice(0, 10)}</p>`;
+    (${final.protocol}) · code ${String(final.evaluated_at_commit).slice(0, 10)}</p>
+    <div id="v2Body"></div>`;
   $("slip").value = String(final.verdict.headline_slippage);
   $("slip").onchange = drawResults;
   drawResults();
+  try { drawV2(await api("/results/v2")); }
+  catch (e) { $("v2Body").innerHTML = `<div class="banner info">The second-level model has no results yet. ${e.message}</div>`; }
+}
+
+/* v2: second-level model and the other ideas tested (statutory costs only) */
+const SPRINT = {
+  v2: "Second-level model", A: "Only when a big move is likely", C: "Trailing stop instead of a fixed target",
+  D1: "Only 09:20–09:45", D2: "Only expiry day after 13:00", D3: "Only when the market moves more than expected",
+  E: "Follow a sudden burst of buying (no model)",
+};
+function drawV2(v) {
+  const d = v.development, dc = d.chosen, h = v.held_out.by_slippage["0.0"], hm = h.model;
+  const money = (x) => (x === 0 ? "Rs 0" : rs(x));
+  const cls = (x) => (x > 0 ? "pos" : x < 0 ? "neg" : "");
+  const rng = (r) => (r ? `${rs(r[0])} to ${rs(r[1])}` : "–");
+  const sprint = Object.entries(v.sprint).map(([k, r]) => `<tr><td style="white-space:normal">${SPRINT[k] || k}</td>
+    <td class="money ${cls(r.mean_net_per_day_rs)}">${money(r.mean_net_per_day_rs)}</td><td class="opt">${rng(r.per_day_ci99_rs)}</td>
+    <td>${r.trades}</td><td>${r.passed ? "yes" : "no"}</td></tr>`).join("");
+  $("v2Body").innerHTML = `
+    <div class="card" style="margin-top:14px"><h2>SECOND-LEVEL MODEL (READS THE ORDER BOOK EVERY SECOND)</h2>
+      <p>It buys the call or the put and exits at +3.5 points, at −2.0 points, or after 3 minutes.
+      Costs: taxes only, no slippage.</p>
+      <div class="tablewrap"><table>
+        <tr><th></th><th>Days</th><th>Trades</th><th>Per day</th><th class="opt">Likely range</th></tr>
+        <tr><td style="white-space:normal">Days it did not train on (development)</td><td>${d.days}</td><td>${dc.trades}</td>
+          <td class="money ${cls(dc.mean_net_per_day_rs)}">${money(dc.mean_net_per_day_rs)}</td><td class="opt">${rng(dc.per_day_ci95_rs)}</td></tr>
+        <tr><td style="white-space:normal">The 10 held-out days (one look)</td><td>${v.held_out.days.length}</td><td>${hm.trades}</td>
+          <td class="money ${cls(hm.mean_net_per_day_rs)}">${money(hm.mean_net_per_day_rs)}</td><td class="opt">${rng(hm.per_day_ci95_rs)}</td></tr>
+      </table></div>
+      <p><b>It can pick the side:</b> it beat random picks at the same moments in ${d.random_side_control.seeds_beaten} of
+      ${d.random_side_control.seeds} tries. <b>It does not pay reliably:</b> the likely range includes losing money.</p>
+      <p class="muted">${v.held_out_note}.</p></div>
+    <div class="card"><h2>OTHER IDEAS TESTED (DEVELOPMENT DAYS, STRICT 99% RULE)</h2>
+      <div class="tablewrap"><table><tr><th>Idea</th><th>Per day</th><th class="opt">Likely range (99%)</th><th>Trades</th><th>Passed</th></tr>
+      ${sprint}</table></div>
+      <p class="muted">An idea passes only if even the low end of its range makes money. None did.
+      Rules written before the test: ${v.protocols.join(", ")}.</p></div>`;
 }
 function drawResults() {
   const r = final.by_slippage[$("slip").value], v = final.verdict, inf = final.information;
