@@ -151,6 +151,7 @@ def micro_rows(workdir, feats):
         "take_profit_pts": 3.5,
         "stop_loss_pts": 2.0,
         "max_hold_s": 180,
+        "slippage_pts_per_leg": 0.0,
     }
     (workdir / "params.yaml").write_text(yaml.safe_dump(params))
     assert ticks.main([], {}) == 0

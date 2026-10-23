@@ -160,7 +160,7 @@ def main(argv: list[str], summary: dict) -> int:
     with open(args.params) as f:
         params = yaml.safe_load(f)
     p, mt, b, m = params["micro"], params["micro_train"], params["baselines"], params["mlflow"]
-    slip, qty = params["costs"]["slippage_pts_per_leg"], p["qty"]
+    slip, qty = p["slippage_pts_per_leg"], p["qty"]  # v2 headline cost (protocol amendment 1)
 
     path = Path(p["out_dir"]) / "micro.parquet"
     df = (

@@ -319,7 +319,7 @@ def main(argv: list[str], summary: dict) -> int:
     out = Path(p["out_dir"])
     out.mkdir(parents=True, exist_ok=True)
     df.to_parquet(out / "micro.parquet", index=False)
-    rep = report(df, p, params["costs"]["slippage_pts_per_leg"])
+    rep = report(df, p, p["slippage_pts_per_leg"])  # v2 headline cost (protocol amendment 1)
     Path("reports").mkdir(exist_ok=True)
     Path("reports/micro.json").write_text(json.dumps(rep, indent=1))
     log.info(

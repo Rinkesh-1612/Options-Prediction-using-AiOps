@@ -47,6 +47,7 @@ micro:                     # v2 decision rows and barrier trades. FIXED in docs/
   take_profit_pts: 3.5
   stop_loss_pts: 2.0
   max_hold_s: 180
+  slippage_pts_per_leg: 0.0  # v2 headline cost: statutory only (docs/V2_PROTOCOL.md amendment 1). v1 keeps costs.*
 
 micro_train:               # v2 model (docs/V2_PROTOCOL.md section 6). Settings fixed before any v2 result
   n_folds: 3

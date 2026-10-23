@@ -86,9 +86,9 @@ def main(argv: list[str], summary: dict) -> int:
             continue
         served = model.predict(part[MICRO_COLUMNS].astype(float))
         res[name] = score_split(part, served, slips, p["qty"], b)
-        head = res[name]["by_slippage"][str(costs["slippage_pts_per_leg"])]["model"]
+        head = res[name]["by_slippage"][str(p["slippage_pts_per_leg"])]["model"]
         log.info("%s: %d days, model %s", name, len(res[name]["days"]), head)
-    head = res["clean_forward"]["by_slippage"][str(costs["slippage_pts_per_leg"])]["model"]
+    head = res["clean_forward"]["by_slippage"][str(p["slippage_pts_per_leg"])]["model"]
     res["pass_rule_3_forward_days_positive"] = bool(head["mean_net_per_day_rs"] > 0 and head["trades"] > 0)
 
     mlflow.set_experiment(m["experiment"])
