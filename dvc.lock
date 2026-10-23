@@ -618,8 +618,8 @@ stages:
     outs:
     - path: reports/micro_train.json
       hash: md5
-      md5: 097d0a18fadd5d52c0ef04c7d47ee110
-      size: 12209
+      md5: 548c4c3cc523c991f584c5f44891e58d
+      size: 12211
   sprint:
     cmd: python -m optpred.models.sprint
     deps:

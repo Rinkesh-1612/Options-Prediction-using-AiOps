@@ -1,5 +1,5 @@
 {
- "mlflow_run_id": "24e2f9847d634520abf3dea72c78fd97",
+ "mlflow_run_id": "d57da11e84884476a89724a97f78c81d",
  "tau": 0.65,
  "oof_days": [
   "2026-08-21",
@@ -621,9 +621,9 @@
   }
  },
  "registry": {
-  "version": 2,
-  "promoted": true,
+  "version": 3,
+  "promoted": false,
   "champion_version": 2,
-  "previous_champion_val_net_per_day_rs": 0.0
+  "previous_champion_val_net_per_day_rs": 13.4
  }
 }
