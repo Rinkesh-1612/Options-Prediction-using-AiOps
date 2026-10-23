@@ -696,3 +696,85 @@ stages:
       hash: md5
       md5: 634bff93d3ec6ed468bc7da0998f33fb
       size: 17148
+  micro_evaluate:
+    cmd: python -m optpred.models.micro_evaluate --final
+    deps:
+    - path: data/micro
+      hash: md5
+      md5: 37ff3fc3649c4d98ca619b78c04eb45b.dir
+      size: 229709811
+      nfiles: 1
+    - path: reports/micro_train.json
+      hash: md5
+      md5: 548c4c3cc523c991f584c5f44891e58d
+      size: 12211
+    - path: src/optpred/models/micro_evaluate.py
+      hash: md5
+      md5: 4bf049feeca1ad614fb3a949de7654b5
+      size: 4833
+    params:
+      params.yaml:
+        baselines:
+          random_seeds: 100
+          bootstrap_resamples: 5000
+          seed: 20261018
+        costs:
+          slippage_pts_per_leg: 0.31
+          sensitivity_pts_per_leg:
+          - 0.0
+          - 0.15
+          - 0.31
+        micro:
+          out_dir: data/micro
+          qty: 65
+          strike_step: 50
+          first_sec: 33600
+          last_sec: 55500
+          entry_max_age_s: 5
+          min_entry_premium: 5.0
+          take_profit_pts: 3.5
+          stop_loss_pts: 2.0
+          max_hold_s: 180
+          trail_start_pts: 2.0
+          trail_pts: 2.0
+          trail_max_hold_s: 300
+          sweep_min_ask_jump: 0.1
+          sweep_min_lots: 2
+          big_move_horizon_s: 120
+          slippage_pts_per_leg: 0.0
+        micro_train:
+          n_folds: 3
+          min_train_days: 14
+          train_stride: 5
+          tau_grid:
+          - 0.5
+          - 0.55
+          - 0.6
+          - 0.65
+          - 0.7
+          - 0.75
+          - 0.8
+          - 1.01
+          min_oof_trades: 20
+          seed: 20261022
+          registered_model: nifty-option-micro
+          lgbm:
+            n_estimators: 300
+            learning_rate: 0.03
+            num_leaves: 31
+            min_child_samples: 1000
+            subsample: 0.8
+            subsample_freq: 1
+            colsample_bytree: 0.8
+            reg_lambda: 5.0
+            n_jobs: 4
+        mlflow:
+          tracking_uri: sqlite:///mlflow/mlflow.db
+          artifact_root: mlflow/artifacts
+          experiment: nifty-option-direction
+          registered_model: nifty-option-direction
+    outs:
+    - path: reports/micro_final.json
+      hash: md5
+      md5: 0d4b5d0729a052e0814ce757463957f0
+      size: 5960

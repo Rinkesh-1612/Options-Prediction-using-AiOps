@@ -42,15 +42,15 @@ stages:
     # v2 (docs/V2_PROTOCOL.md): Spark, raw ticks -> one row per contract per second with order-flow measures
     cmd: python -m optpred.data.ticks
     params:
-      - ticks
-      - spark
+    - ticks
+    - spark
     deps:
-      - src/optpred/data/ticks.py
-      - src/optpred/common/spark.py
-      - data/raw
-      - data/days.json
+    - src/optpred/data/ticks.py
+    - src/optpred/common/spark.py
+    - data/raw
+    - data/days.json
     outs:
-      - data/ticks
+    - data/ticks
 
   features:
     cmd: python -m optpred.features.minute
@@ -156,68 +156,69 @@ stages:
     # v2: one row per decision second, microstructure inputs, triple-barrier trades for the ATM call and put
     cmd: python -m optpred.features.micro
     params:
-      - micro
-      - costs
+    - micro
+    - costs
     deps:
-      - src/optpred/features/micro.py
-      - src/optpred/features/labels.py
-      - data/ticks
-      - data/features
-      - data/splits.json
+    - src/optpred/features/micro.py
+    - src/optpred/features/labels.py
+    - data/ticks
+    - data/features
+    - data/splits.json
     outs:
-      - data/micro
+    - data/micro
     metrics:
-      - reports/micro.json:
-          cache: false
+    - reports/micro.json:
+        cache: false
 
   micro_train:
     # v2 model: walk-forward on the 39 development days, tau from out-of-fold results, registered model
     cmd: python -m optpred.models.micro_train
     params:
-      - micro
-      - micro_train
-      - costs
-      - baselines
-      - mlflow
+    - micro
+    - micro_train
+    - costs
+    - baselines
+    - mlflow
     deps:
-      - src/optpred/models/micro_train.py
-      - src/optpred/models/register.py
-      - src/optpred/models/sim.py
-      - data/micro
+    - src/optpred/models/micro_train.py
+    - src/optpred/models/register.py
+    - src/optpred/models/sim.py
+    - data/micro
     metrics:
-      - reports/micro_train.json:
-          cache: false
+    - reports/micro_train.json:
+        cache: false
 
   micro_evaluate:
     # The ONE v2 look at the held-out v1 test days (second look, disclosed; protocol amendment 2). Frozen after.
     cmd: python -m optpred.models.micro_evaluate --final
     params:
-      - micro
-      - micro_train
-      - costs
-      - baselines
-      - mlflow
+    - baselines
+    - costs
+    - micro
+    - micro_train
+    - mlflow
     deps:
-      - src/optpred/models/micro_evaluate.py
-      - reports/micro_train.json
-      - data/micro
+    - data/micro
+    - reports/micro_train.json
+    - src/optpred/models/micro_evaluate.py
     metrics:
-      - reports/micro_final.json:
-          cache: false
+    - reports/micro_final.json:
+        cache: false
 
 
+    frozen: true
   sprint:
     # The six pre-registered alpha-sprint trials (docs/ALPHA_SPRINT.md), out of fold, 99% pass bar
     cmd: python -m optpred.models.sprint
     params:
-      - micro
-      - micro_train
-      - baselines
-      - mlflow
+    - micro
+    - micro_train
+    - baselines
+    - mlflow
     deps:
-      - src/optpred/models/sprint.py
-      - src/optpred/models/micro_train.py
-      - data/micro
+    - src/optpred/models/sprint.py
+    - src/optpred/models/micro_train.py
+    - data/micro
     metrics:
-      - reports/sprint.json:
-          cache: false
+    - reports/sprint.json:
+        cache: false
