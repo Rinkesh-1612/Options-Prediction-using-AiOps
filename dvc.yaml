@@ -189,7 +189,7 @@ stages:
           cache: false
 
   micro_evaluate:
-    # The ONE look at the forward days for v2 (plus the disclosed second look at the v1 test days).
+    # The ONE v2 look at the held-out v1 test days (second look, disclosed; protocol amendment 2). Frozen after.
     cmd: python -m optpred.models.micro_evaluate --final
     params:
       - micro

@@ -97,3 +97,12 @@ def test_spot_excursion_label_looks_ahead_only_within_the_horizon():
     x = np.array([0, 1, 5, 2, 0, 0], dtype=float)
     out = micro.max_excursion(x, 2)
     assert list(out[:4]) == [5, 4, 5, 2] and np.isnan(out[4:]).all()
+
+
+def test_v2_evaluation_refuses_without_final_and_refuses_a_second_look(tmp_path):
+    from optpred.models import micro_evaluate
+
+    out = tmp_path / "micro_final.json"
+    assert micro_evaluate.main(["--out", str(out)], {}) == 2
+    out.write_text("{}")
+    assert micro_evaluate.main(["--final", "--out", str(out)], {}) == 3
