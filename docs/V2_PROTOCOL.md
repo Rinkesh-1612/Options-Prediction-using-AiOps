@@ -83,3 +83,22 @@ trade", not a finding. A fail is "no edge detected at this sample size".
 ## 8. Trials counted
 
 One feature set, one model family, 8 tau values, one barrier set. Any extra trial is added to this list before it runs.
+
+## 9. Amendment 1 (2026-10-23): costs without slippage
+
+**Change.** For v2 the headline cost is the statutory charges only (brokerage is zero on this account).
+Slippage on top of the bid/ask is set to **0** points per leg. Entry is still at the ask and exit at the bid,
+so the spread is still paid. The tables still report 0.15 and 0.31 as sensitivity.
+
+**Why.** The author's decision: the 0.31 figure came from 10 live legs, and its reference price is not documented
+(it may already include the spread; `docs/HLD.md`, known limits).
+
+**What it costs in honesty.** This change was made **after** the development results were seen. The diagnostic
+at zero slippage had shown +Rs 59 per day (interval −203 to +315). So:
+* the development (out-of-fold) result at zero slippage is now a **chosen** result, not a clean test;
+* the forward days (section 3) are the only clean evidence;
+* the labels change (a trade "wins" at a lower bar), so the models are retrained. This is a second trial.
+
+**New break-even hit rate:** about 41% (win +3.5 − 0.28, loss −2.0 − 0.28 points).
+
+Trials counted after this amendment: two cost settings × one feature set × one model family × 8 tau values.
