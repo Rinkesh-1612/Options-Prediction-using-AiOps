@@ -10,14 +10,14 @@ We do not test Spark, LightGBM, MLflow or Docker themselves.
 
 | Level | What it proves | Where |
 |---|---|---|
-| Unit | One function does what its name says (labels, costs, simulator, PSI, folds). | `tests/test_labels.py`, `test_sim.py`, `test_drift.py`, `test_tune.py`, `test_export.py` |
-| Integration | Stages work together on small planted data: Spark `check`, `bars`, `features`, `baselines`; `train`, `register` and `evaluate` with a real MLflow store. | `tests/test_spark_stages.py`, `test_train.py`, `test_evaluate.py` |
-| API contract | Each endpoint returns the documented status and body. The OpenAPI document equals `docs/LLD.md`. Every path the page calls is in `docs/LLD.md`. | `tests/test_api.py`, `test_frontend.py` |
+| Unit | One function does what its name says (labels, costs, simulator, PSI, folds). | `tests/unit/` (labels, simulator, PSI, folds, export, v2 fills and barriers, replay, serving imports) |
+| Integration | Stages work together on small planted data: Spark `check`, `bars`, `features`, `baselines`; `train`, `register` and `evaluate` with a real MLflow store. | `tests/integration/` (Spark stages incl. v2 `ticks` and `micro`, train, register, evaluate) |
+| API contract | Each endpoint returns the documented status and body. The OpenAPI document equals `docs/LLD.md`. Every path the page calls is in `docs/LLD.md`. | `tests/api/` (API contract, page-to-API contract) |
 | End to end | The running stack answers: page, API, model server, MLflow, Prometheus, Grafana. | Section 6 (smoke test) |
 
 ## 3. Method
 
-* **Planted data.** `tests/synth.py` and `tests/test_train.py::make` build data where we know the answer.
+* **Planted data.** `tests/helpers/synth.py` and `tests/helpers/planted.py` build data where we know the answer.
   A planted signal must be found. Pure noise must give "never trade".
 * **Independent route.** One test recomputes the features from raw ticks with different code and compares.
 * **Fake model service.** API tests use a fake `ModelServer`. The real one is covered by the smoke test.

@@ -24,8 +24,8 @@ pip install -r requirements.txt && pip install -e .
 
 ```bash
 export CH_PASSWORD="$(grep '^CLICKHOUSE_PASSWORD=' ~/Ravion-V2/.env | cut -d= -f2-)"
-python -m optpred.export --dry-run   # rows per day per table, writes nothing
-python -m optpred.export             # writes data/raw/<table>/<day>.parquet + manifest.json
+python -m optpred.data.export --dry-run   # rows per day per table, writes nothing
+python -m optpred.data.export             # writes data/raw/<table>/<day>.parquet + manifest.json
 ```
 
 Every run is journaled: `logs/<stage>/<run_id>.log` + one line in `runs/runs.jsonl`
@@ -39,17 +39,17 @@ git add logs runs && git commit -m "run: export" && git push
 
 ```bash
 ./pipe build                                  # once, ~5-8 min
-./pipe python -m optpred.check
-./pipe python -m optpred.bars
-./pipe python -m optpred.features
-./pipe python -m optpred.baselines            # train + validation only
-./pipe python -m optpred.tune                 # Ray Tune: best LightGBM settings (train days only)
-./pipe python -m optpred.train                # logs to MLflow, writes a new model version
-./pipe python -m optpred.register             # moves the champion alias only if better on validation
+./pipe python -m optpred.data.check
+./pipe python -m optpred.data.bars
+./pipe python -m optpred.features.minute
+./pipe python -m optpred.models.baselines            # train + validation only
+./pipe python -m optpred.models.tune                 # Ray Tune: best LightGBM settings (train days only)
+./pipe python -m optpred.models.train                # logs to MLflow, writes a new model version
+./pipe python -m optpred.models.register             # moves the champion alias only if better on validation
 # v2 (docs/V2_PROTOCOL.md): second-level microstructure model with barrier exits
-./pipe python -m optpred.ticks                # Spark: raw ticks -> one row per contract per second
-./pipe python -m optpred.micro                # decision seconds, inputs, barrier trades
-./pipe python -m optpred.micro_train          # walk-forward, tau, registers nifty-option-micro
+./pipe python -m optpred.data.ticks                # Spark: raw ticks -> one row per contract per second
+./pipe python -m optpred.features.micro                # decision seconds, inputs, barrier trades
+./pipe python -m optpred.models.micro_train          # walk-forward, tau, registers nifty-option-micro
 ./pipe dvc repro                              # or run every stage in order with DVC
 # evaluate: the ONE look at the locked test days. Already run (reports/final.json); frozen in DVC.
 # Its rules: docs/FINAL_TEST_PROTOCOL.md. It refuses to run a second time.

@@ -2,8 +2,8 @@
 # Builds the serving image both ways and prints the size difference (course Docker assignment, Q1).
 set -euo pipefail
 cd "$(dirname "$0")/.."
-docker build -q -f Dockerfile.serve.naive -t optpred-serve-naive:latest . > /dev/null
-docker build -q -f Dockerfile.serve -t optpred-serve:latest . > /dev/null
+docker build -q -f docker/Dockerfile.serve.naive -t optpred-serve-naive:latest . > /dev/null
+docker build -q -f docker/Dockerfile.serve -t optpred-serve:latest . > /dev/null
 naive=$(docker image inspect optpred-serve-naive:latest --format '{{.Size}}')
 multi=$(docker image inspect optpred-serve:latest --format '{{.Size}}')
 python3 - "$naive" "$multi" <<'PY'

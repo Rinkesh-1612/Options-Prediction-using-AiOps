@@ -195,20 +195,20 @@ The last lines of one run log, as plain text. The API serves only files under `l
 
 | Stage | Command | Reads | Writes |
 |---|---|---|---|
-| export | `python -m optpred.export` | ClickHouse | `data/raw/`, `data/raw/manifest.json` |
-| check | `python -m optpred.check` | `data/raw/` | `data/days.json`, `reports/quality.json` |
-| bars | `python -m optpred.bars` | `data/raw/`, `data/days.json` | `data/bars/` |
-| ticks (v2) | `python -m optpred.ticks` (Spark) | `data/raw/`, `data/days.json` | `data/ticks/{opt,fut,spot}/`: one row per contract per second, with OFI and signed volume |
-| features | `python -m optpred.features` | `data/bars/` | `data/features/`, `data/splits.json`, `reports/features.json` |
-| baselines | `python -m optpred.baselines` | `data/features/` | `reports/baselines.json` |
-| tune | `python -m optpred.tune` | train days of `data/features/` | `reports/tune.json`, MLflow run |
-| train | `python -m optpred.train` | train and validation days | MLflow run, new model version, `reports/train.json` |
-| register | `python -m optpred.register` | `reports/train.json`, registry | registry aliases, `reports/register.json` |
-| evaluate | `python -m optpred.evaluate --final` (once; frozen in DVC) | test days, registry `champion` | `reports/final.json`, MLflow run `final-evaluation` |
-| micro (v2) | `python -m optpred.micro` | `data/ticks/`, v1 features (IV of the previous minute), `data/splits.json` | `data/micro/micro.parquet` (one row per decision second, inputs and barrier trades), `reports/micro.json` |
-| micro_train (v2) | `python -m optpred.micro_train` | development days of `data/micro/` | MLflow run, registered model `nifty-option-micro`, `reports/micro_train.json` |
-| micro_evaluate (v2) | `python -m optpred.micro_evaluate --final` (once) | forward days and v1 test days of `data/micro/`, registry `champion` | `reports/micro_final.json`, MLflow run `micro-final-evaluation` |
-| replay | `python -m optpred.replay --api URL` | API | none (calls `/predict`) |
+| export | `python -m optpred.data.export` | ClickHouse | `data/raw/`, `data/raw/manifest.json` |
+| check | `python -m optpred.data.check` | `data/raw/` | `data/days.json`, `reports/quality.json` |
+| bars | `python -m optpred.data.bars` | `data/raw/`, `data/days.json` | `data/bars/` |
+| ticks (v2) | `python -m optpred.data.ticks` (Spark) | `data/raw/`, `data/days.json` | `data/ticks/{opt,fut,spot}/`: one row per contract per second, with OFI and signed volume |
+| features | `python -m optpred.features.minute` | `data/bars/` | `data/features/`, `data/splits.json`, `reports/features.json` |
+| baselines | `python -m optpred.models.baselines` | `data/features/` | `reports/baselines.json` |
+| tune | `python -m optpred.models.tune` | train days of `data/features/` | `reports/tune.json`, MLflow run |
+| train | `python -m optpred.models.train` | train and validation days | MLflow run, new model version, `reports/train.json` |
+| register | `python -m optpred.models.register` | `reports/train.json`, registry | registry aliases, `reports/register.json` |
+| evaluate | `python -m optpred.models.evaluate --final` (once; frozen in DVC) | test days, registry `champion` | `reports/final.json`, MLflow run `final-evaluation` |
+| micro (v2) | `python -m optpred.features.micro` | `data/ticks/`, v1 features (IV of the previous minute), `data/splits.json` | `data/micro/micro.parquet` (one row per decision second, inputs and barrier trades), `reports/micro.json` |
+| micro_train (v2) | `python -m optpred.models.micro_train` | development days of `data/micro/` | MLflow run, registered model `nifty-option-micro`, `reports/micro_train.json` |
+| micro_evaluate (v2) | `python -m optpred.models.micro_evaluate --final` (once) | forward days and v1 test days of `data/micro/`, registry `champion` | `reports/micro_final.json`, MLflow run `micro-final-evaluation` |
+| replay | `python -m optpred.monitoring.replay --api URL` | API | none (calls `/predict`) |
 
 Every stage returns exit code 0 on success. A failure returns non-zero and still writes a journal line.
 All tunable numbers are in `params.yaml`.

@@ -130,7 +130,7 @@ Known data problems and what we do about them:
 | Maintain | Drift alert → retrain request → `train` + `register` → new candidate → promoted only if strictly better on validation. Roll back with one call. |
 | Security | The data snapshot is encrypted with AES-256. The key is outside the repo. Admin calls need a token. |
 | Drift window | PSI over the last ~2,000 served rows (about 5 sessions). On real data a single day already shows PSI above 0.25 on half the features, even a training day, so a one-day window gives false alarms. |
-| Small serving image | Multi-stage `Dockerfile.serve` on a `-slim` base. `scripts/image_sizes.sh` builds the naive single-stage version too and prints the saving. |
+| Small serving image | Multi-stage `docker/Dockerfile.serve` on a `-slim` base. `scripts/image_sizes.sh` builds the naive single-stage version too and prints the saving. |
 | Test once | The locked test days are refused by every stage except `evaluate`, which runs once and is then frozen in DVC. The protocol was committed before the run (`docs/FINAL_TEST_PROTOCOL.md`). |
 
 ## 6. Constraints

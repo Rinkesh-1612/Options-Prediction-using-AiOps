@@ -1,12 +1,12 @@
 schema: '2.0'
 stages:
   export:
-    cmd: python -m optpred.export
+    cmd: python -m optpred.data.export
     deps:
-    - path: src/optpred/export.py
+    - path: src/optpred/data/export.py
       hash: md5
-      md5: ff034354a1d1856d041a23850a46be07
-      size: 8681
+      md5: e74e689c25e45b60ef995c25da7f841d
+      size: 8708
     params:
       params.yaml:
         export:
@@ -26,21 +26,21 @@ stages:
       size: 4378681779
       nfiles: 160
   check:
-    cmd: python -m optpred.check
+    cmd: python -m optpred.data.check
     deps:
     - path: data/raw
       hash: md5
       md5: b9214ff5bc24fb4d3260a845bb713373.dir
       size: 4378681779
       nfiles: 160
-    - path: src/optpred/check.py
+    - path: src/optpred/common/spark.py
       hash: md5
-      md5: f307ebad601a2ee166a94dfa3fd4ed0a
-      size: 6418
-    - path: src/optpred/spark_common.py
+      md5: fd1ec692ca9d41f02d911fdf9ad65ee0
+      size: 2856
+    - path: src/optpred/data/check.py
       hash: md5
-      md5: 45f76500f10988a28cf806bb136f5b83
-      size: 2842
+      md5: 116fe999b0d95cbadf52fc1a39b42c7b
+      size: 6437
     params:
       params.yaml:
         check:
@@ -59,7 +59,7 @@ stages:
       md5: 8bbab536ac6d90a33dde1e1c5186961f
       size: 26648
   bars:
-    cmd: python -m optpred.bars
+    cmd: python -m optpred.data.bars
     deps:
     - path: data/days.json
       hash: md5
@@ -70,14 +70,14 @@ stages:
       md5: b9214ff5bc24fb4d3260a845bb713373.dir
       size: 4378681779
       nfiles: 160
-    - path: src/optpred/bars.py
+    - path: src/optpred/common/spark.py
       hash: md5
-      md5: 4a26b81500d1ce6616dd927c564a760d
-      size: 4437
-    - path: src/optpred/spark_common.py
+      md5: fd1ec692ca9d41f02d911fdf9ad65ee0
+      size: 2856
+    - path: src/optpred/data/bars.py
       hash: md5
-      md5: 45f76500f10988a28cf806bb136f5b83
-      size: 2842
+      md5: 373de4d642932c40be950db1c3db7472
+      size: 4449
     params:
       params.yaml:
         bars:
@@ -93,7 +93,7 @@ stages:
       size: 155945783
       nfiles: 2260
   features:
-    cmd: python -m optpred.features
+    cmd: python -m optpred.features.minute
     deps:
     - path: data/bars
       hash: md5
@@ -104,14 +104,14 @@ stages:
       hash: md5
       md5: 96ba327842a4cc8892310a4dcf8a9365
       size: 1678
-    - path: src/optpred/features.py
-      hash: md5
-      md5: 731c0565cd7407ec25bc3e4cd42a6997
-      size: 16776
-    - path: src/optpred/labels.py
+    - path: src/optpred/features/labels.py
       hash: md5
       md5: b79ed731558a18861511f11b5deebb32
       size: 2449
+    - path: src/optpred/features/minute.py
+      hash: md5
+      md5: b2663be6c0f95710294a6211ce3c9611
+      size: 16806
     params:
       params.yaml:
         bars:
@@ -144,25 +144,25 @@ stages:
       md5: 2b18416966b90009a5e4ed4669728961
       size: 1895
   baselines:
-    cmd: python -m optpred.baselines
+    cmd: python -m optpred.models.baselines
     deps:
     - path: data/features
       hash: md5
       md5: 137d04227ecdf1b20efaee4df0c04c87.dir
       size: 5035841
       nfiles: 1
-    - path: src/optpred/baselines.py
-      hash: md5
-      md5: 0ad279fd617669484ac0293472af5294
-      size: 5207
-    - path: src/optpred/labels.py
+    - path: src/optpred/features/labels.py
       hash: md5
       md5: b79ed731558a18861511f11b5deebb32
       size: 2449
-    - path: src/optpred/sim.py
+    - path: src/optpred/models/baselines.py
       hash: md5
-      md5: 0dc2413bdee0d9a0a0442f413f171c75
-      size: 4200
+      md5: a2bb7889811e976f3296f6731f6f2fd7
+      size: 5237
+    - path: src/optpred/models/sim.py
+      hash: md5
+      md5: 0512c9c01425ecbcd794bfe6ac90c9ba
+      size: 4218
     params:
       params.yaml:
         baselines:
@@ -192,21 +192,21 @@ stages:
       md5: 5709e7a0863266854cf83422b4d10d11
       size: 18274
   tune:
-    cmd: python -m optpred.tune
+    cmd: python -m optpred.models.tune
     deps:
     - path: data/features
       hash: md5
       md5: 137d04227ecdf1b20efaee4df0c04c87.dir
       size: 5035841
       nfiles: 1
-    - path: src/optpred/labels.py
+    - path: src/optpred/features/labels.py
       hash: md5
       md5: b79ed731558a18861511f11b5deebb32
       size: 2449
-    - path: src/optpred/tune.py
+    - path: src/optpred/models/tune.py
       hash: md5
-      md5: fdd60f207f16d824cdcdd0889a24eb12
-      size: 8553
+      md5: 5ced910d4767f7e5fe3f472e7b31c9b2
+      size: 8583
     params:
       params.yaml:
         costs:
@@ -286,29 +286,29 @@ stages:
       md5: 6973c8edec1f672e60dbbbefafe70a13
       size: 4178
   train:
-    cmd: python -m optpred.train
+    cmd: python -m optpred.models.train
     deps:
     - path: data/features
       hash: md5
       md5: 137d04227ecdf1b20efaee4df0c04c87.dir
       size: 5035841
       nfiles: 1
-    - path: src/optpred/baselines.py
-      hash: md5
-      md5: 0ad279fd617669484ac0293472af5294
-      size: 5207
-    - path: src/optpred/labels.py
+    - path: src/optpred/features/labels.py
       hash: md5
       md5: b79ed731558a18861511f11b5deebb32
       size: 2449
-    - path: src/optpred/sim.py
+    - path: src/optpred/models/baselines.py
       hash: md5
-      md5: 0dc2413bdee0d9a0a0442f413f171c75
-      size: 4200
-    - path: src/optpred/train.py
+      md5: a2bb7889811e976f3296f6731f6f2fd7
+      size: 5237
+    - path: src/optpred/models/sim.py
       hash: md5
-      md5: cfc5b8750562f549798dd4769b0fe1b8
-      size: 13118
+      md5: 0512c9c01425ecbcd794bfe6ac90c9ba
+      size: 4218
+    - path: src/optpred/models/train.py
+      hash: md5
+      md5: c66fc8d3454ccd325e9c23e68ebc12b0
+      size: 13170
     params:
       params.yaml:
         baselines:
@@ -367,16 +367,16 @@ stages:
       md5: 2ee591e8cf6749e31c286076414be530
       size: 221
   register:
-    cmd: python -m optpred.register
+    cmd: python -m optpred.models.register
     deps:
     - path: reports/train.json
       hash: md5
       md5: 2ee591e8cf6749e31c286076414be530
       size: 221
-    - path: src/optpred/register.py
+    - path: src/optpred/models/register.py
       hash: md5
-      md5: 2525dd54271e41a387aa76e9f24ff1ee
-      size: 3392
+      md5: 96ea97c60f9fb652088ee6b52388595d
+      size: 3406
     params:
       params.yaml:
         mlflow:
@@ -390,7 +390,7 @@ stages:
       md5: 8b676a89ac31119b63a5ed4ba0e19547
       size: 161
   evaluate:
-    cmd: python -m optpred.evaluate --final
+    cmd: python -m optpred.models.evaluate --final
     deps:
     - path: data/features
       hash: md5
@@ -399,12 +399,12 @@ stages:
       nfiles: 1
     - path: reports/register.json
       hash: md5
-      md5: 7c7193acd55653f6a8dd94ea67944d6f
+      md5: 8b676a89ac31119b63a5ed4ba0e19547
       size: 161
-    - path: src/optpred/evaluate.py
+    - path: src/optpred/models/evaluate.py
       hash: md5
-      md5: 6c1b17fdc7c0e1ff01d2c70681c5088f
-      size: 11407
+      md5: 4effd1a275ac0f3cdb1353648cacb1b5
+      size: 11459
     params:
       params.yaml:
         baselines:
@@ -427,6 +427,7 @@ stages:
           min_entry_premium: 5.0
           n_val_days: 6
           n_test_days: 10
+          forward_from: '2026-10-17'
         mlflow:
           tracking_uri: sqlite:///mlflow/mlflow.db
           artifact_root: mlflow/artifacts
@@ -438,7 +439,7 @@ stages:
       md5: be14d0656133ae797450dcdb3e6e7988
       size: 9469
   ticks:
-    cmd: python -m optpred.ticks
+    cmd: python -m optpred.data.ticks
     deps:
     - path: data/days.json
       hash: md5
@@ -449,14 +450,14 @@ stages:
       md5: b9214ff5bc24fb4d3260a845bb713373.dir
       size: 4378681779
       nfiles: 160
-    - path: src/optpred/spark_common.py
+    - path: src/optpred/common/spark.py
       hash: md5
-      md5: 45f76500f10988a28cf806bb136f5b83
-      size: 2842
-    - path: src/optpred/ticks.py
+      md5: fd1ec692ca9d41f02d911fdf9ad65ee0
+      size: 2856
+    - path: src/optpred/data/ticks.py
       hash: md5
-      md5: 18ff6ff29d20b4288786cbc24e99bacd
-      size: 7901
+      md5: 1f5c6a595324357d847d1e912e3e49f9
+      size: 7913
     params:
       params.yaml:
         spark:
@@ -473,7 +474,7 @@ stages:
       size: 970934732
       nfiles: 1990
   micro:
-    cmd: python -m optpred.micro
+    cmd: python -m optpred.features.micro
     deps:
     - path: data/features
       hash: md5
@@ -489,14 +490,14 @@ stages:
       md5: 16f6a3b9549398029176973eacbcae79.dir
       size: 970934732
       nfiles: 1990
-    - path: src/optpred/labels.py
+    - path: src/optpred/features/labels.py
       hash: md5
       md5: b79ed731558a18861511f11b5deebb32
       size: 2449
-    - path: src/optpred/micro.py
+    - path: src/optpred/features/micro.py
       hash: md5
-      md5: 53e9c80e8430db666825485376fa7c12
-      size: 17014
+      md5: da41d9b5394bd0eb26d7a68622a1051a
+      size: 17046
     params:
       params.yaml:
         costs:
@@ -534,25 +535,25 @@ stages:
       md5: b3aab74759e02c4e1f00b0569d6767e0
       size: 512
   micro_train:
-    cmd: python -m optpred.micro_train
+    cmd: python -m optpred.models.micro_train
     deps:
     - path: data/micro
       hash: md5
-      md5: 672400d2fd7f3975aae03e156dcc0838.dir
-      size: 215909112
+      md5: 37ff3fc3649c4d98ca619b78c04eb45b.dir
+      size: 229709811
       nfiles: 1
-    - path: src/optpred/micro_train.py
+    - path: src/optpred/models/micro_train.py
       hash: md5
-      md5: b9b8f298d0dec212cfbe4d693ee40344
-      size: 14304
-    - path: src/optpred/register.py
+      md5: d715a40f59c3890745c3156ceb158676
+      size: 14357
+    - path: src/optpred/models/register.py
       hash: md5
-      md5: 2525dd54271e41a387aa76e9f24ff1ee
-      size: 3392
-    - path: src/optpred/sim.py
+      md5: 96ea97c60f9fb652088ee6b52388595d
+      size: 3406
+    - path: src/optpred/models/sim.py
       hash: md5
-      md5: 0dc2413bdee0d9a0a0442f413f171c75
-      size: 4200
+      md5: 0512c9c01425ecbcd794bfe6ac90c9ba
+      size: 4218
     params:
       params.yaml:
         baselines:
@@ -576,6 +577,12 @@ stages:
           take_profit_pts: 3.5
           stop_loss_pts: 2.0
           max_hold_s: 180
+          trail_start_pts: 2.0
+          trail_pts: 2.0
+          trail_max_hold_s: 300
+          sweep_min_ask_jump: 0.1
+          sweep_min_lots: 2
+          big_move_horizon_s: 120
           slippage_pts_per_leg: 0.0
         micro_train:
           n_folds: 3
@@ -614,21 +621,21 @@ stages:
       md5: 097d0a18fadd5d52c0ef04c7d47ee110
       size: 12209
   sprint:
-    cmd: python -m optpred.sprint
+    cmd: python -m optpred.models.sprint
     deps:
     - path: data/micro
       hash: md5
       md5: 37ff3fc3649c4d98ca619b78c04eb45b.dir
       size: 229709811
       nfiles: 1
-    - path: src/optpred/micro_train.py
+    - path: src/optpred/models/micro_train.py
       hash: md5
-      md5: b9b8f298d0dec212cfbe4d693ee40344
-      size: 14304
-    - path: src/optpred/sprint.py
+      md5: d715a40f59c3890745c3156ceb158676
+      size: 14357
+    - path: src/optpred/models/sprint.py
       hash: md5
-      md5: d65ab1ee46cec890b5d7529b7dd9b4e5
-      size: 10614
+      md5: 624a4a398757d94853746b4830efea80
+      size: 10667
     params:
       params.yaml:
         baselines:

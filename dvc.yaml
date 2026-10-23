@@ -1,22 +1,22 @@
 stages:
   export:
-    cmd: python -m optpred.export
+    cmd: python -m optpred.data.export
     params:
     - export
     deps:
-    - src/optpred/export.py
+    - src/optpred/data/export.py
     outs:
     - data/raw:
         persist: true     # a re-run only adds missing days; never wipes the snapshot
 
   check:
-    cmd: python -m optpred.check
+    cmd: python -m optpred.data.check
     params:
     - check
     - spark
     deps:
-    - src/optpred/check.py
-    - src/optpred/spark_common.py
+    - src/optpred/data/check.py
+    - src/optpred/common/spark.py
     - data/raw
     outs:
     - data/days.json:
@@ -26,13 +26,13 @@ stages:
         cache: false
 
   bars:
-    cmd: python -m optpred.bars
+    cmd: python -m optpred.data.bars
     params:
     - bars
     - spark
     deps:
-    - src/optpred/bars.py
-    - src/optpred/spark_common.py
+    - src/optpred/data/bars.py
+    - src/optpred/common/spark.py
     - data/raw
     - data/days.json
     outs:
@@ -40,27 +40,27 @@ stages:
 
   ticks:
     # v2 (docs/V2_PROTOCOL.md): Spark, raw ticks -> one row per contract per second with order-flow measures
-    cmd: python -m optpred.ticks
+    cmd: python -m optpred.data.ticks
     params:
       - ticks
       - spark
     deps:
-      - src/optpred/ticks.py
-      - src/optpred/spark_common.py
+      - src/optpred/data/ticks.py
+      - src/optpred/common/spark.py
       - data/raw
       - data/days.json
     outs:
       - data/ticks
 
   features:
-    cmd: python -m optpred.features
+    cmd: python -m optpred.features.minute
     params:
     - features
     - costs
     - bars
     deps:
-    - src/optpred/features.py
-    - src/optpred/labels.py
+    - src/optpred/features/minute.py
+    - src/optpred/features/labels.py
     - data/bars
     - data/days.json
     outs:
@@ -70,15 +70,15 @@ stages:
         cache: false
 
   baselines:
-    cmd: python -m optpred.baselines
+    cmd: python -m optpred.models.baselines
     params:
     - features
     - costs
     - baselines
     deps:
-    - src/optpred/baselines.py
-    - src/optpred/sim.py
-    - src/optpred/labels.py
+    - src/optpred/models/baselines.py
+    - src/optpred/models/sim.py
+    - src/optpred/features/labels.py
     - data/features
     metrics:
     - reports/baselines.json:
@@ -86,7 +86,7 @@ stages:
 
   tune:
     # Ray Tune: walk-forward search of LightGBM settings on TRAIN days only. Logs a run to MLflow.
-    cmd: python -m optpred.tune
+    cmd: python -m optpred.models.tune
     params:
     - features
     - costs
@@ -94,8 +94,8 @@ stages:
     - tune
     - mlflow
     deps:
-    - src/optpred/tune.py
-    - src/optpred/labels.py
+    - src/optpred/models/tune.py
+    - src/optpred/features/labels.py
     - data/features
     metrics:
     - reports/tune.json:
@@ -105,7 +105,7 @@ stages:
     # Tracking goes to MLflow (mlflow/ is its own versioned store: runs, params, metrics, models).
     # The DVC output is a small summary that the register stage reads.
     # It only reads train/val days; the test days are filtered out at the Parquet reader.
-    cmd: python -m optpred.train
+    cmd: python -m optpred.models.train
     params:
     - features
     - costs
@@ -113,10 +113,10 @@ stages:
     - train
     - mlflow
     deps:
-    - src/optpred/train.py
-    - src/optpred/baselines.py
-    - src/optpred/sim.py
-    - src/optpred/labels.py
+    - src/optpred/models/train.py
+    - src/optpred/models/baselines.py
+    - src/optpred/models/sim.py
+    - src/optpred/features/labels.py
     - data/features
     metrics:
     - reports/train.json:
@@ -124,11 +124,11 @@ stages:
 
   register:
     # Moves the registry aliases: candidate = newest version; champion only if strictly better on validation.
-    cmd: python -m optpred.register
+    cmd: python -m optpred.models.register
     params:
     - mlflow
     deps:
-    - src/optpred/register.py
+    - src/optpred/models/register.py
     - reports/train.json
     outs:
     - reports/register.json:
@@ -137,7 +137,7 @@ stages:
   evaluate:
     # The ONE look at the locked test days (docs/FINAL_TEST_PROTOCOL.md). Scores the registry's champion.
     # Frozen after its single run, so `dvc repro` never opens the test days again.
-    cmd: python -m optpred.evaluate --final
+    cmd: python -m optpred.models.evaluate --final
     params:
     - baselines
     - costs
@@ -146,7 +146,7 @@ stages:
     deps:
     - data/features
     - reports/register.json
-    - src/optpred/evaluate.py
+    - src/optpred/models/evaluate.py
     metrics:
     - reports/final.json:
         cache: false
@@ -154,13 +154,13 @@ stages:
 
   micro:
     # v2: one row per decision second, microstructure inputs, triple-barrier trades for the ATM call and put
-    cmd: python -m optpred.micro
+    cmd: python -m optpred.features.micro
     params:
       - micro
       - costs
     deps:
-      - src/optpred/micro.py
-      - src/optpred/labels.py
+      - src/optpred/features/micro.py
+      - src/optpred/features/labels.py
       - data/ticks
       - data/features
       - data/splits.json
@@ -172,7 +172,7 @@ stages:
 
   micro_train:
     # v2 model: walk-forward on the 39 development days, tau from out-of-fold results, registered model
-    cmd: python -m optpred.micro_train
+    cmd: python -m optpred.models.micro_train
     params:
       - micro
       - micro_train
@@ -180,9 +180,9 @@ stages:
       - baselines
       - mlflow
     deps:
-      - src/optpred/micro_train.py
-      - src/optpred/register.py
-      - src/optpred/sim.py
+      - src/optpred/models/micro_train.py
+      - src/optpred/models/register.py
+      - src/optpred/models/sim.py
       - data/micro
     metrics:
       - reports/micro_train.json:
@@ -190,7 +190,7 @@ stages:
 
   micro_evaluate:
     # The ONE look at the forward days for v2 (plus the disclosed second look at the v1 test days).
-    cmd: python -m optpred.micro_evaluate --final
+    cmd: python -m optpred.models.micro_evaluate --final
     params:
       - micro
       - micro_train
@@ -198,7 +198,7 @@ stages:
       - baselines
       - mlflow
     deps:
-      - src/optpred/micro_evaluate.py
+      - src/optpred/models/micro_evaluate.py
       - reports/micro_train.json
       - data/micro
     metrics:
@@ -208,15 +208,15 @@ stages:
 
   sprint:
     # The six pre-registered alpha-sprint trials (docs/ALPHA_SPRINT.md), out of fold, 99% pass bar
-    cmd: python -m optpred.sprint
+    cmd: python -m optpred.models.sprint
     params:
       - micro
       - micro_train
       - baselines
       - mlflow
     deps:
-      - src/optpred/sprint.py
-      - src/optpred/micro_train.py
+      - src/optpred/models/sprint.py
+      - src/optpred/models/micro_train.py
       - data/micro
     metrics:
       - reports/sprint.json:
