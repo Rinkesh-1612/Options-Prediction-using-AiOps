@@ -47,6 +47,13 @@ micro:                     # v2 decision rows and barrier trades. FIXED in docs/
   take_profit_pts: 3.5
   stop_loss_pts: 2.0
   max_hold_s: 180
+  # alpha sprint (docs/ALPHA_SPRINT.md), fixed before any sprint result
+  trail_start_pts: 2.0     # trial C: the stop starts trailing once the bid is this far above entry
+  trail_pts: 2.0           # trial C: distance of the trailing stop below the best bid since entry
+  trail_max_hold_s: 300    # trial C: time stop
+  sweep_min_ask_jump: 0.10 # trial E: best ask rises at least this much in one second
+  sweep_min_lots: 2        # trial E: aggressive buy volume in that second, in lots
+  big_move_horizon_s: 120  # trial A: horizon of the spot excursion label
   slippage_pts_per_leg: 0.0  # v2 headline cost: statutory only (docs/V2_PROTOCOL.md amendment 1). v1 keeps costs.*
 
 micro_train:               # v2 model (docs/V2_PROTOCOL.md section 6). Settings fixed before any v2 result

@@ -79,3 +79,21 @@ def test_one_position_at_a_time_with_barrier_holds():
     # 100 opens a 3 s call (busy to 103); 104 opens a 1 s put; 105 is busy; 200 and day e open
     assert list(tr["sec"]) == [100, 104, 200, 100] and list(tr["side"]) == [1, 2, 1, 1]
     assert list(tr["net_rs"]) == [100.0, -50.0, 100.0, 100.0]
+
+
+def test_trailing_stop_follows_the_best_bid_and_keeps_the_initial_stop_before_it_arms():
+    bid = np.array([100, 101, 103, 106, 105, 103.9, 110], dtype=float)
+    entry = np.array([100.0] + [np.nan] * 6)
+    exit_px, hold, reason = micro.trailing_exits(entry, bid, bid, stop=2.0, start=2.0, trail=2.0, max_hold=10)
+    # arms at 103 (>= 102); best 106 -> stop 104; 105 holds; 103.9 <= 104 exits at k=5
+    assert (reason[0], hold[0], exit_px[0]) == (2, 5, 103.9)
+    bid2 = np.array([100, 101, 97.9, 120], dtype=float)
+    e2 = np.array([100.0, np.nan, np.nan, np.nan])
+    px2, hold2, _ = micro.trailing_exits(e2, bid2, bid2, stop=2.0, start=2.0, trail=2.0, max_hold=10)
+    assert (hold2[0], px2[0]) == (2, 97.9)  # the initial stop works before the trail arms
+
+
+def test_spot_excursion_label_looks_ahead_only_within_the_horizon():
+    x = np.array([0, 1, 5, 2, 0, 0], dtype=float)
+    out = micro.max_excursion(x, 2)
+    assert list(out[:4]) == [5, 4, 5, 2] and np.isnan(out[4:]).all()

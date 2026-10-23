@@ -147,6 +147,39 @@ def barrier_exits(entry, bid1, exit_fill, tp: float, sl: float, max_hold: int):
     return exit_px, hold, reason
 
 
+def trailing_exits(entry, bid1, exit_fill, stop: float, start: float, trail: float, max_hold: int):
+    """Sprint trial C: stop at entry - stop; once the bid reaches entry + start, the stop trails `trail`
+    below the highest bid since entry; time stop after max_hold.
+
+    Returns exit price, seconds held and reason (2 stop, 3 time). The stop level at second k uses only the
+    bids before k, so a single second can never both raise the stop and trigger it.
+    """
+    n = len(entry)
+    exit_px, hold, reason = np.full(n, np.nan), np.zeros(n, dtype=np.int16), np.zeros(n, dtype=np.int8)
+    alive = np.isfinite(entry)
+    best = np.full(n, -np.inf)
+    for k in range(1, max_hold + 1):
+        j = np.minimum(np.arange(n) + k, n - 1)
+        b = bid1[j]
+        level = np.where(best >= entry + start, best - trail, entry - stop)  # the stop set by earlier seconds
+        hit = alive & (b <= level)
+        exit_px[hit], hold[hit], reason[hit] = exit_fill[j[hit]], k, 2
+        alive &= ~hit
+        best = np.where(alive, np.fmax(best, b), best)
+    j = np.minimum(np.arange(n) + max_hold, n - 1)
+    exit_px[alive], hold[alive], reason[alive] = exit_fill[j[alive]], max_hold, 3
+    return exit_px, hold, reason
+
+
+def max_excursion(x: np.ndarray, horizon: int) -> np.ndarray:
+    """Largest |x[t+k] - x[t]| for k = 1..horizon. A LABEL (it looks ahead), never an input."""
+    out = np.zeros(len(x))
+    for k in range(1, horizon + 1):
+        out = np.fmax(out, np.abs(np.roll(x, -k) - x))
+    out[len(x) - horizon :] = np.nan  # not enough future left
+    return out
+
+
 # ----------------------------------------------------------------------------- per contract
 def contract_series(rows: pd.DataFrame, day_epoch: float, p: dict) -> dict[str, np.ndarray]:
     """Second-grid features, entry/exit fills and barrier trades for ONE contract on one day."""
@@ -198,6 +231,16 @@ def contract_series(rows: pd.DataFrame, day_epoch: float, p: dict) -> dict[str, 
         p["max_hold_s"],  # NaN bid: no barrier
     )
     f.update(entry=entry, exit=exit_px, hold_s=hold.astype(float), reason=reason.astype(float))
+    tr_px, tr_hold, _ = trailing_exits(
+        entry, b1, exit_fill, p["stop_loss_pts"], p["trail_start_pts"], p["trail_pts"], p["trail_max_hold_s"]
+    )
+    f.update(tr_exit=tr_px, tr_hold_s=tr_hold.astype(float))
+    # sprint trial E: in this second the best ask rose by a jump and aggressive buyers traded at least N lots
+    with np.errstate(invalid="ignore"):
+        f["sweep"] = (
+            ((a1 - lag(a1, 1)) >= p["sweep_min_ask_jump"])
+            & (flow["signed_vol"] >= p["sweep_min_lots"] * p["qty"])
+        ).astype(float)
     return f
 
 
@@ -235,7 +278,7 @@ def build_day(day: str, ticks_dir: str, feats_path: str, p: dict) -> pd.DataFram
     out = {"day": day, "sec_idx": idx}
     for side in ("ce", "pe"):
         names = [lookup.get((int(a), side.upper())) for a in atm[idx]]
-        cols = SIDE_FEATURES + ["entry", "exit", "hold_s", "reason", "chg5"]
+        cols = SIDE_FEATURES + ["entry", "exit", "hold_s", "reason", "chg5", "tr_exit", "tr_hold_s", "sweep"]
         mat = {c: np.full(len(idx), np.nan) for c in cols}
         mat["key"] = np.array(names, dtype=object)
         for key in set(n for n in names if n is not None):
@@ -250,6 +293,7 @@ def build_day(day: str, ticks_dir: str, feats_path: str, p: dict) -> pd.DataFram
     df["lead_gap5"] = fut_chg5[idx] - (df["ce_chg5"] - df["pe_chg5"])
     df["strike"] = atm[idx]
     df["spot"] = s[idx]
+    df["spot_mfe120"] = max_excursion(s, p["big_move_horizon_s"])[idx]  # label for sprint trial A
     df["dte"] = float((expiry - pd.Timestamp(day)).days)
     df = df.drop(columns=["sec_idx", "ce_chg5", "pe_chg5"])
 
@@ -264,6 +308,8 @@ def build_day(day: str, ticks_dir: str, feats_path: str, p: dict) -> pd.DataFram
     for side in ("ce", "pe"):
         df[f"{side}_gross_rs"] = (df[f"{side}_exit"] - df[f"{side}_entry"]) * p["qty"]
         df[f"{side}_stat_rs"] = statutory_cost_rs(df[f"{side}_entry"], df[f"{side}_exit"], p["qty"])
+        df[f"{side}_tr_gross_rs"] = (df[f"{side}_tr_exit"] - df[f"{side}_entry"]) * p["qty"]
+        df[f"{side}_tr_stat_rs"] = statutory_cost_rs(df[f"{side}_entry"], df[f"{side}_tr_exit"], p["qty"])
     num = df.select_dtypes("float64").columns
     df[num] = df[num].astype("float32")
     return df.reset_index(drop=True)

@@ -205,3 +205,19 @@ stages:
       - reports/micro_final.json:
           cache: false
 
+
+  sprint:
+    # The six pre-registered alpha-sprint trials (docs/ALPHA_SPRINT.md), out of fold, 99% pass bar
+    cmd: python -m optpred.sprint
+    params:
+      - micro
+      - micro_train
+      - baselines
+      - mlflow
+    deps:
+      - src/optpred/sprint.py
+      - src/optpred/micro_train.py
+      - data/micro
+    metrics:
+      - reports/sprint.json:
+          cache: false
