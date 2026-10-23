@@ -1,0 +1,13 @@
+2026-10-23 10:51:44,953 INFO optpred.sprint: run 20261023T162144-sprint  commit 0b57301e14
+2026-10-23 10:52:11,078 INFO optpred.sprint: fold scored 2026-08-21..2026-09-01 (big move >= 9.4 spot points)
+2026-10-23 10:52:38,249 INFO optpred.sprint: fold scored 2026-09-02..2026-09-11 (big move >= 9.2 spot points)
+2026-10-23 10:53:10,931 INFO optpred.sprint: fold scored 2026-09-15..2026-09-24 (big move >= 9.4 spot points)
+2026-10-23 10:53:11,596 INFO optpred.sprint: v2  tau 0.65: 66 trades, hit 0.4697, net/day Rs13.4, 99% [-115.9, 192.8], control beaten 98/100
+2026-10-23 10:53:11,935 INFO optpred.sprint: A   tau 0.8: 24 trades, hit 0.5, net/day Rs35.2, 99% [-45.7, 128.2], control beaten 89/100
+2026-10-23 10:53:12,228 INFO optpred.sprint: C   tau 0.7: 234 trades, hit 0.4744, net/day Rs73.9, 99% [-217.3, 394.6], control beaten 92/100
+2026-10-23 10:53:12,467 INFO optpred.sprint: D1  tau 0.7: 187 trades, hit 0.4866, net/day Rs130.6, 99% [-163.3, 456.4], control beaten 100/100
+2026-10-23 10:53:12,668 INFO optpred.sprint: D2  tau 0.55: 85 trades, hit 0.5412, net/day Rs115.2, 99% [-41.4, 395.4], control beaten 85/100
+2026-10-23 10:53:12,965 INFO optpred.sprint: D3  tau 0.75: 60 trades, hit 0.4667, net/day Rs34.8, 99% [-173.4, 245.0], control beaten 94/100
+2026-10-23 10:53:16,997 INFO optpred.sprint: E   tau 1.01: 6774 trades, hit 0.3632, net/day Rs-7476.8, 99% [-10248.0, -5321.8], control beaten 0/100
+2026-10-23 10:53:19,150 INFO optpred.sprint: passed rules 1 and 2: none
+2026-10-23 10:53:19,174 INFO optpred.sprint: run 20261023T162144-sprint finished: ok in 94.2s

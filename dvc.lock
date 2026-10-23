@@ -495,8 +495,8 @@ stages:
       size: 2449
     - path: src/optpred/micro.py
       hash: md5
-      md5: d768fd074476d60a99ff2ec90c196b32
-      size: 14562
+      md5: 53e9c80e8430db666825485376fa7c12
+      size: 17014
     params:
       params.yaml:
         costs:
@@ -516,12 +516,18 @@ stages:
           take_profit_pts: 3.5
           stop_loss_pts: 2.0
           max_hold_s: 180
+          trail_start_pts: 2.0
+          trail_pts: 2.0
+          trail_max_hold_s: 300
+          sweep_min_ask_jump: 0.1
+          sweep_min_lots: 2
+          big_move_horizon_s: 120
           slippage_pts_per_leg: 0.0
     outs:
     - path: data/micro
       hash: md5
-      md5: 672400d2fd7f3975aae03e156dcc0838.dir
-      size: 215909112
+      md5: 37ff3fc3649c4d98ca619b78c04eb45b.dir
+      size: 229709811
       nfiles: 1
     - path: reports/micro.json
       hash: md5
@@ -607,3 +613,79 @@ stages:
       hash: md5
       md5: 097d0a18fadd5d52c0ef04c7d47ee110
       size: 12209
+  sprint:
+    cmd: python -m optpred.sprint
+    deps:
+    - path: data/micro
+      hash: md5
+      md5: 37ff3fc3649c4d98ca619b78c04eb45b.dir
+      size: 229709811
+      nfiles: 1
+    - path: src/optpred/micro_train.py
+      hash: md5
+      md5: b9b8f298d0dec212cfbe4d693ee40344
+      size: 14304
+    - path: src/optpred/sprint.py
+      hash: md5
+      md5: d65ab1ee46cec890b5d7529b7dd9b4e5
+      size: 10614
+    params:
+      params.yaml:
+        baselines:
+          random_seeds: 100
+          bootstrap_resamples: 5000
+          seed: 20261018
+        micro:
+          out_dir: data/micro
+          qty: 65
+          strike_step: 50
+          first_sec: 33600
+          last_sec: 55500
+          entry_max_age_s: 5
+          min_entry_premium: 5.0
+          take_profit_pts: 3.5
+          stop_loss_pts: 2.0
+          max_hold_s: 180
+          trail_start_pts: 2.0
+          trail_pts: 2.0
+          trail_max_hold_s: 300
+          sweep_min_ask_jump: 0.1
+          sweep_min_lots: 2
+          big_move_horizon_s: 120
+          slippage_pts_per_leg: 0.0
+        micro_train:
+          n_folds: 3
+          min_train_days: 14
+          train_stride: 5
+          tau_grid:
+          - 0.5
+          - 0.55
+          - 0.6
+          - 0.65
+          - 0.7
+          - 0.75
+          - 0.8
+          - 1.01
+          min_oof_trades: 20
+          seed: 20261022
+          registered_model: nifty-option-micro
+          lgbm:
+            n_estimators: 300
+            learning_rate: 0.03
+            num_leaves: 31
+            min_child_samples: 1000
+            subsample: 0.8
+            subsample_freq: 1
+            colsample_bytree: 0.8
+            reg_lambda: 5.0
+            n_jobs: 4
+        mlflow:
+          tracking_uri: sqlite:///mlflow/mlflow.db
+          artifact_root: mlflow/artifacts
+          experiment: nifty-option-direction
+          registered_model: nifty-option-direction
+    outs:
+    - path: reports/sprint.json
+      hash: md5
+      md5: 634bff93d3ec6ed468bc7da0998f33fb
+      size: 17148
