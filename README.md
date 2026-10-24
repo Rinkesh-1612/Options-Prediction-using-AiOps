@@ -1,118 +1,52 @@
 # Options-Prediction-using-AiOps
 
-DA3408 course project: predict, each minute, whether buying the ATM NIFTY call,
-buying the put, or staying out pays **after costs** over the next 2 minutes.
-Design and every decision with its reason: [docs/HLD.md](docs/HLD.md).
+DA3408 course project. Every second of the NIFTY session: buy the ATM call, buy the ATM put, or stay out —
+judged **after costs**, with a holding time set by the market (triple barrier). Built as a controlled AIOps
+pipeline, and as a signal library for the author's trading system (Ravion V2).
 
-**Result:** no tradable edge. v1 (minute model) correctly chose to stay out on 10 locked test days; v2 (second-level
-order book) picks the side but does not pay reliably; six further ideas failed a 99% rule
-([docs/RESULTS.md](docs/RESULTS.md)).
+**Result: no edge detected.** Nine model families were trained on 39 days and scored on 10 later test days.
+None beats "stay out" with confidence after costs ([Results](reports/zoo/comparison.md)).
 
-![Results tab](docs/img/results-desktop.png)
+![Signal tab](docs/img/signal.png)
 
-*Ravion* (named below) is the author's own live trading system on the same server. Its recorder holds the
-market data. This project reads a frozen copy of it and never writes to it.
+## Documents
+
+| | |
+|---|---|
+| [Architecture](docs/ARCHITECTURE.md) | diagram, blocks, ports, versioning |
+| [High-level design](docs/HLD.md) | problem, design rules, decisions, technology map |
+| [Low-level design](docs/LLD.md) | every API endpoint and pipeline stage with its input and output |
+| [Test plan](docs/TEST_PLAN.md) | levels, 90 test cases, acceptance criteria; report in `reports/test_report.md` |
+| [User manual](docs/USER_MANUAL.md) | the web page, tab by tab; operator commands |
+| [Rubric steps](docs/steps/PROGRESS.md) | one short note per course item |
 
 ## Layout
 
-| Folder | Course component |
+| Path | What |
 |---|---|
-| `src/optpred/common/` | logging (run journal), clock, Spark session |
-| `src/optpred/data/` | data engineering with Spark: `export`, `check`, `bars`, `ticks` |
-| `src/optpred/features/` | features and labels: `minute` (v1), `micro` (v2), `labels` |
-| `src/optpred/models/` | MLflow-tracked models, Ray Tune, registry, evaluation, sprint |
-| `src/optpred/serving/` | FastAPI back end, MLflow pyfunc model |
-| `src/optpred/monitoring/` + `monitoring/` | drift check, replay; Prometheus, Alertmanager, Grafana |
-| `frontend/`, `docker/` | web page; container images |
-| `tests/{unit,integration,api}/` | 87 tests |
+| `src/optpred/data/` | `export` (ClickHouse → Parquet), `check` (Spark day check) |
+| `src/optpred/eda/`, `transform/` | `clean`, `eda`, `grid` (Ray per day) |
+| `src/optpred/featurelib/` | feature library (registry + CI) |
+| `src/optpred/labels/` | costs, triple-barrier labels |
+| `src/optpred/zoo/` | model families, simulator, training (Ray Tune, MLflow), evaluation, deploy gate |
+| `src/optpred/drift/` | PSI drift (per day and online) |
+| `src/optpred/serving/` | FastAPI signal API |
+| `frontend/`, `monitoring/`, `docker/` | web page; Prometheus, Alertmanager, Grafana; images |
+| `dvc.yaml`, `params.yaml` | the pipeline and every setting |
+| `tests/` | unit, integration, API, end-to-end |
 
-Every rubric line → code → evidence: [docs/COURSE_MAP.md](docs/COURSE_MAP.md). Routine commands: `make help`.
-
-## Setup (on the VPS)
-
-```bash
-git clone <this repo> && cd Options-Prediction-using-AiOps
-python3 -m venv .venv && . .venv/bin/activate
-pip install -r requirements.txt && pip install -e .
-```
-
-## Stage 1 — export (read-only copy out of Ravion's ClickHouse)
+## Run it
 
 ```bash
-export CH_PASSWORD="$(grep '^CLICKHOUSE_PASSWORD=' ~/Ravion-V2/.env | cut -d= -f2-)"
-python -m optpred.data.export --dry-run   # rows per day per table, writes nothing
-python -m optpred.data.export             # writes data/raw/<table>/<day>.parquet + manifest.json
+./pipe build                 # pipeline image (Python, Java/Spark, Ray, LightGBM, PyTorch)
+export CH_PASSWORD=...       # only for the export stage (Ravion ClickHouse, read-only)
+./pipe dvc repro             # the whole pipeline; deploys a new champion only if it passes the gate
+./stack up -d --build        # web 8080 · API 8000 · MLflow 5050 · Grafana 3001 · Prometheus 9091
+make test                    # all tests; `make e2e` against the running stack; `make help` for the rest
+git config core.hooksPath .githooks   # CI: lint + tests + dvc dag before every push
 ```
 
-Every run is journaled: `logs/<stage>/<run_id>.log` + one line in `runs/runs.jsonl`
-(git commit, params hash, duration, exit code, summary). Commit both after a run:
+Without the ClickHouse data, `data/sample/` (Git LFS) holds one test day of features and labels, and
+`dvc pull` restores all data from the DVC remote.
 
-```bash
-git add logs runs && git commit -m "run: export" && git push
-```
-
-## Stages 2-6 — the pipeline (inside the pipeline image)
-
-```bash
-./pipe build                                  # once, ~5-8 min
-./pipe python -m optpred.data.check
-./pipe python -m optpred.data.bars
-./pipe python -m optpred.features.minute
-./pipe python -m optpred.models.baselines            # train + validation only
-./pipe python -m optpred.models.tune                 # Ray Tune: best LightGBM settings (train days only)
-./pipe python -m optpred.models.train                # logs to MLflow, writes a new model version
-./pipe python -m optpred.models.register             # moves the champion alias only if better on validation
-# v2 (docs/V2_PROTOCOL.md): second-level microstructure model with barrier exits
-./pipe python -m optpred.data.ticks                # Spark: raw ticks -> one row per contract per second
-./pipe python -m optpred.features.micro                # decision seconds, inputs, barrier trades
-./pipe python -m optpred.models.micro_train          # walk-forward, tau, registers nifty-option-micro
-./pipe dvc repro                              # or run every stage in order with DVC
-# evaluate: the ONE look at the locked test days. Already run (reports/final.json); frozen in DVC.
-# Its rules: docs/FINAL_TEST_PROTOCOL.md. It refuses to run a second time.
-git add logs runs reports data/days.json data/splits.json && git commit -m "run: ..." && git push
-```
-
-## The web stack (MLflow, model server, API, web page, retrain runner)
-
-```bash
-cp .env.example .env && nano .env             # set ADMIN_TOKEN
-./stack up -d --build                         # first build ~5 min
-./stack ps                                    # everything should say "healthy"
-```
-
-| What | Address on the VPS | From your laptop (SSH tunnel) |
-|---|---|---|
-| Web page | http://127.0.0.1:8080 | `ssh -L 8080:127.0.0.1:8080 -L 8000:127.0.0.1:8000 -L 5050:127.0.0.1:5050 trader@<vps>` then open http://127.0.0.1:8080 |
-| Backend API docs | http://127.0.0.1:8000/docs | same tunnel |
-| MLflow UI | http://127.0.0.1:5050 | same tunnel |
-| Grafana dashboard | http://127.0.0.1:3001 | add `-L 3001:127.0.0.1:3001` |
-| Prometheus | http://127.0.0.1:9091 | add `-L 9091:127.0.0.1:9091` |
-
-Demo feed for the dashboard: `./stack --profile demo up -d replay`.
-
-Nothing is exposed publicly unless you set `BIND=0.0.0.0` in `.env`.
-
-## Tests and CI
-
-```bash
-git config core.hooksPath .githooks          # once: turns on the pre-push hook (CI)
-./pipe python scripts/test_report.py         # all tests -> reports/test_report.md
-./pipe ruff check .
-```
-
-## Documents (`docs/`)
-
-| Document | File |
-|---|---|
-| Architecture diagram and blocks | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) |
-| High-level design | [docs/HLD.md](docs/HLD.md) |
-| Low-level design (endpoints, I/O) | [docs/LLD.md](docs/LLD.md) |
-| Test plan and cases | [docs/TEST_PLAN.md](docs/TEST_PLAN.md), report: `reports/test_report.md` |
-| Results and final test protocol | [docs/RESULTS.md](docs/RESULTS.md), [docs/FINAL_TEST_PROTOCOL.md](docs/FINAL_TEST_PROTOCOL.md) |
-| User manual | [docs/USER_MANUAL.md](docs/USER_MANUAL.md) |
-
-## Data safety
-
-`scripts/encrypt_snapshot.sh` encrypts the frozen snapshot (GnuPG, AES-256) into `~/optpred-backups/`.
-The key is `~/.optpred_snapshot.key`. It is not in the repo. Copy it somewhere safe.
-`scripts/encrypt_snapshot.sh --verify <file>` proves the backup opens.
+AI use: [AI_DISCLOSURE.md](AI_DISCLOSURE.md).

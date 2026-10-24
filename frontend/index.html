@@ -299,7 +299,7 @@ const loaded = {};
 function show(tab) {
   document.querySelectorAll("nav button").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === tab));
   document.querySelectorAll("main > section").forEach((s) => (s.hidden = s.id !== "tab-" + tab));
-  history.replaceState(null, "", "#" + tab);
+  history.replaceState(null, "", "#" + tab + (tab === "signal" && $("#day").value ? `&day=${$("#day").value}&t=${$("#t").value}` : ""));
   if (!loaded[tab]) { loaded[tab] = true; ({ results: loadResults, pipeline: loadPipeline, ops: loadOps })[tab]?.(); }
 }
 document.querySelectorAll("nav button").forEach((b) => b.addEventListener("click", () => show(b.dataset.tab)));
@@ -397,6 +397,7 @@ async function getSignal() {
   try {
     const r = await api(`/signal?day=${encodeURIComponent(day)}&sod=${sod}`);
     renderSignal(r);
+    history.replaceState(null, "", `#signal&day=${day}&t=${sod}`);
     sess.push({ day, time: r.time, action: r.action, net: r.outcome?.net_rs ?? null,
       exit: r.outcome ? `${BARRIER[r.outcome.barrier]}, ${dur(r.outcome.hold_s)}` : "" });
     renderSess();
@@ -584,7 +585,10 @@ $("#retrain").addEventListener("click", async () => {
   status(); setInterval(status, 15000);
   try { await loadDays(); } catch (e) { toast("Days: " + e.message); }
   api("/results").then((r) => (TAU = r.results?.[r.champion]?.tau ?? null)).catch(() => {});
-  const tab = location.hash.slice(1);
+  // shareable link: #signal&day=2026-10-15&t=36000 opens that day and second
+  const [tab, ...kv] = location.hash.slice(1).split("&"), q = Object.fromEntries(kv.map((x) => x.split("=")));
+  if (q.day && [...$("#day").options].some((o) => o.value === q.day)) $("#day").value = q.day;
+  if (q.t && /^[0-9]+$/.test(q.t)) setT(+q.t);
   show(["signal", "results", "pipeline", "ops"].includes(tab) ? tab : "signal");
   if ($("#day").value) getSignal();  // open on a real example, not an empty card
 })();

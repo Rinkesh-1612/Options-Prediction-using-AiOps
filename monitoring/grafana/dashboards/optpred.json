@@ -114,8 +114,8 @@
    "options": {}
   },
   {
-   "type": "bargauge",
-   "title": "Net \u20b9 per served trade (distribution)",
+   "type": "timeseries",
+   "title": "Served trades won and lost (per 5 min)",
    "id": 5,
    "description": "",
    "datasource": {
@@ -131,8 +131,8 @@
    "targets": [
     {
      "refId": "A",
-     "expr": "sum by (le) (signal_trade_net_rupees_bucket)",
-     "legendFormat": "{{le}}"
+     "expr": "sum by (result) (increase(signal_outcomes_total[5m]))",
+     "legendFormat": "{{result}}"
     }
    ],
    "fieldConfig": {
@@ -215,8 +215,8 @@
    "targets": [
     {
      "refId": "A",
-     "expr": "sum by (source) (retrain_requests_total)",
-     "legendFormat": "{{source}}"
+     "expr": "sum(retrain_requests_total) or vector(0)",
+     "legendFormat": "requests"
     }
    ],
    "fieldConfig": {
@@ -349,7 +349,9 @@
     "defaults": {},
     "overrides": []
    },
-   "options": {}
+   "options": {
+    "colorMode": "none"
+   }
   },
   {
    "type": "row",

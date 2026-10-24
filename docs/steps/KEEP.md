@@ -8,6 +8,7 @@ Updated at each step.
 | Path | Why |
 |---|---|
 | `docs/steps/` | reviewed write-ups, progress, this list |
+| `docs/ARCHITECTURE.md`, `HLD.md`, `LLD.md`, `TEST_PLAN.md`, `USER_MANUAL.md`, `docs/img/`, `README.md`, `AI_DISCLOSURE.md` | documents |
 | `src/optpred/common/clock.py`, `runlog.py`, `spark.py`, `parallel.py` | session clock, run journal, Spark (`check`), Ray per-day tasks |
 | `src/optpred/data/export.py`, `check.py` | stages export, check |
 | `src/optpred/eda/` | stages clean, eda (rules, fill policy) |
@@ -21,7 +22,8 @@ Updated at each step.
 | `frontend/` (index.html, nginx.conf, Dockerfile, config.json, 40-config.sh) | the web page |
 | `docker-compose.yml`, `stack`, `scripts/serve_model.sh`, `scripts/runner.sh` | serving stack, CD, rollback, retraining |
 | `scripts/encrypt_snapshot.sh` | AES-256 encryption of data + models (`--verify` checks a backup) |
-| `tests/unit/test_export.py`, `test_eda_rules.py`, `test_grid.py`, `test_featurelib.py`, `test_barrier.py`, `test_zoo.py`, `test_promote.py`, `test_psi.py`, `test_parallel.py`, `tests/api/test_signal_api.py`, `tests/integration/test_data_pipeline.py` | tests of the stages above |
+| `tests/unit/test_export.py`, `test_eda_rules.py`, `test_grid.py`, `test_featurelib.py`, `test_barrier.py`, `test_zoo.py`, `test_promote.py`, `test_psi.py`, `test_parallel.py`, `tests/api/test_signal_api.py`, `tests/integration/test_data_pipeline.py`, `tests/api/test_lld.py`, `tests/e2e/` | tests |
+| `scripts/test_report.py`, `reports/test_report.md` | test report |
 | `tests/helpers/grid_synth.py`, `tests/helpers/synth.py` | synthetic data for the tests |
 | `dvc.yaml` stages `export`, `check`, `clean`, `eda`, `grid`, `feat`, `labels`, `zoo_train`, `zoo_eval`, `drift` | pipeline |
 | `params.yaml` sections `export`, `spark`, `check`, `eda`, `grid`, `feat`, `labels`, `zoo`, `drift` | settings |
@@ -35,7 +37,7 @@ Updated at each step.
 ## Not reviewed yet (decide in a later step)
 
 `docker/Dockerfile.serve.naive` + `scripts/image_sizes.sh`
-(image size comparison), `scripts/test_report.py`, `README.md`, `AI_DISCLOSURE.md`.
+(image size comparison).
 
 ## Deleted on 2026-10-23 (in Git history before this date)
 

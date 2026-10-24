@@ -46,7 +46,7 @@ def build_report(xml_path: Path, commit: str, when: str) -> tuple[str, bool]:
         "|---|---|---|---|---|",
         f"| {n} | {counts['PASSED']} | {counts['FAILED']} | {counts['ERROR']} | {counts['SKIPPED']} |",
         "",
-        f"**Acceptance criterion (docs/TEST_PLAN.md section 5): {'MET' if ok else 'NOT MET'}.**",
+        f"**Acceptance criterion (docs/TEST_PLAN.md section 4): {'MET' if ok else 'NOT MET'}.**",
         "",
         "| Module | Test case | Result | Seconds |",
         "|---|---|---|---|",

@@ -1,0 +1,89 @@
+# Low-level design
+
+## 1. API (`src/optpred/serving/signal_api.py`)
+
+Base URL: `http://<host>:8000`. JSON unless stated. OpenAPI: `/docs`. Errors: `{"detail": "<text>"}`.
+`tests/api/test_lld.py` checks that this list and the real routes are the same.
+
+### GET /healthz
+Out: `{"ok": true}`. 503 when the model server does not answer `/ping`.
+
+### GET /days
+Out: `[{"day": "2026-10-15", "split": "test" | "dev"}]`, every accepted day.
+
+### GET /signal
+In (query): `day` (an accepted day), `sod` (seconds since IST midnight, 33300–55799).
+Out: `day, sod, time, atm, action (BUY_CE | BUY_PE | STAY_OUT), score_ce, score_pe, blocked,`
+`outcome {net_rs, hold_s, barrier (1 take-profit, -1 stop-loss, 0 time limit), entry, exit} | null,`
+`hindsight {ce, pe: {net_rs, hold_s, barrier} | null}`.
+The API sends the last 120 feature rows up to `sod` to the model server; nothing after `sod`.
+`blocked` = the model wanted a side, but no entry was possible at `sod`. Errors: 404 unknown day, 422 bad `sod`,
+503 model server down or data being rebuilt.
+
+### GET /model
+Out: `{"champion": V, "previous": V}`, V = `{version, family, git_commit, deploy_check, metrics}`.
+
+### GET /results
+Out: `reports/zoo/test.json` (`test_days, champion, results{family: net_per_day, ci95_net_per_day, trades,`
+`hit_rate, ic_ce, ic_pe, cv_net_per_day, tau, per_day}`) + `cv {dev_days, folds, trials}`, `importance`
+(top 15 gain share), `ablation`. Non-finite numbers are `null`. 404 before `zoo_eval` has run.
+
+### POST /rollback
+Header: `X-Admin-Token` (when `ADMIN_TOKEN` is set). Swaps the aliases `champion` and `previous`.
+Out: `{"champion": int, "previous": int}`. 401 bad token, 409 no previous version.
+
+### POST /retrain
+Header: `X-Admin-Token`. In (query): `reason` (≤ 200 characters). Writes `state/retrain_request.json`.
+Out (202): `{"accepted": true, "reason": str}`.
+
+### GET /drift
+Out: `{rows, ready, drift, share, psi{feature: value}}` for the last 1,000 served rows. 404 before the
+`drift` stage has written its reference.
+
+### POST /alerts/webhook
+In: Alertmanager webhook body. `DriftDetected` or `ModelLosing` (firing) → retrain request, at most once per
+`RETRAIN_COOLDOWN_S`. Out (202): `{"alerts": [names], "retrain_requested": bool}`.
+
+### GET /drift/daily
+Out: `[{day, split, share, drift}]` from `reports/drift/daily.json`.
+
+### GET /pipeline
+Out: `{"stages": [{name, cmd, last}], "edges": [[from, to]]}`. Edges: an output of one stage is a
+dependency of the other (`dvc.yaml`). `last` = the newest run in the journal.
+
+### GET /pipeline/runs
+In (query): `limit` (1–500, default 50), `stage` (optional). Out: runs of current stages, newest first:
+`{run_id, stage, started, status, duration_s, git_commit, git_dirty, exit_code, summary}`.
+
+### GET /pipeline/runs/{run_id}/log
+In: `run_id` (`[0-9T]+-[a-z_]+`), `tail` (1–5000 lines). Out: text. 400 bad id, 404 unknown run or no file.
+
+### GET /quality
+Out: `{accepted: [days], rejected: {day: [reasons]}, cleaning: {table: {rows_in, rows_out, drop_*, null_*}}}`.
+
+### GET /metrics
+Prometheus text. Main series: `signals_total{action}`, `signal_outcomes_total{result}`,
+`signal_net_rupees_total`, `api_request_seconds`, `model_call_seconds`, `model_version`, `model_service_up`,
+`drift_detected`, `drift_share`, `feature_psi{feature}`, `pipeline_last_run_ok{stage}`,
+`data_rows_dropped_share{table}`, `retrain_requests_total{source}`.
+
+## 2. Pipeline stages (`dvc.yaml`, settings in `params.yaml`)
+
+| Stage | In | Out |
+|---|---|---|
+| export | ClickHouse (read-only) | `data/raw/<table>/<day>.parquet`, `manifest.json` |
+| check | `data/raw` | `data/days.json`, `reports/quality.json` |
+| clean | `data/raw`, `data/days.json` | `data/clean/<table>/<day>.parquet`, `reports/eda/cleaning.json` |
+| eda | `data/clean` | `reports/eda/profile.json`, 4 plots |
+| grid | `data/clean` | `data/grid/<day>.parquet` (22,500 rows × 116 columns per day), `reports/grid.json` |
+| feat | `data/grid` | `data/feat/<day>.parquet` (46 float features + `day, sod, atm`), `reports/feat.json`, `reports/feature_catalog.md` |
+| labels | `data/grid` | `data/labels/<day>.parquet` (per side: `valid, entry, sigma, hit, hold_s, exit, net_rs`), `reports/labels.json` |
+| zoo_train | `data/feat`, `data/labels` (dev days) | `reports/zoo/cv.json`, `reports/zoo/importance.json`, MLflow runs |
+| zoo_eval | + test days, `cv.json` | `reports/zoo/test.json`, `comparison.md`, registered + deployed model |
+| drift | `data/feat` | `reports/drift/reference.json`, `daily.json`, `daily.png` |
+
+## 3. Model interface (`src/optpred/zoo/models.py`)
+
+`make(family, params, features)` → object with `fit(ds, rows)` and `predict_day(X) -> (n, 2)` scores (CE, PE).
+The served pyfunc (`zoo/pyfunc.py`) returns `score_ce, score_pe, action` per row; the threshold `tau` is
+inside the model.
