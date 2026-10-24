@@ -191,7 +191,7 @@
  },
  "deployment": {
   "deployed": true,
-  "version": 1,
-  "previous": null
+  "version": 2,
+  "previous": 1
  }
 }

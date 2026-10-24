@@ -1385,8 +1385,8 @@ stages:
       size: 1732
     - path: reports/vol/test.json
       hash: md5
-      md5: 47caa0bea6440e4ed87ffb89b7369fb3
-      size: 5101
+      md5: a5e92d00a3017e47a9295c3edd437007
+      size: 5098
     - path: reports/vol/test_scatter.png
       hash: md5
       md5: 3c0093d64eaaf5735a5ddf2671649fa2
