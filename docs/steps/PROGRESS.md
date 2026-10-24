@@ -20,6 +20,7 @@
   per-signal explainability (SHAP), scalability note, documentation (architecture, HLD/LLD, test plan,
   user manual), collaboration / continuous-improvement note.
 - Done from the guideline: Ray runs every per-day data stage (`optpred.common.parallel.map_days`);
-  final pipeline rerun on the committed code (same results, dvc.lock up to date); integration test of
+  reproducibility: final zoo_train / zoo_eval / drift runs on clean commit 08f847c (MLflow tags
+  git_commit=08f847c, git_dirty=False; same results; champion v7); integration test of
   check -> clean -> grid -> feat -> labels; encryption of data + models (AES-256, verified);
   Git LFS sample = one test day of feat + labels; automatic rollback tested (broken v6 -> back to v5).

@@ -1,0 +1,13 @@
+2026-10-24 03:56:29,963 INFO optpred.zoo_eval: run 20261024T092629-zoo_eval  commit 08f847c15c
+2026-10-24 03:56:32,013 INFO optpred.zoo.evaluate: champion (chosen on cross-validation): lgbm_reg
+2026-10-24 03:56:33,652 INFO optpred.zoo.evaluate: stay_out    test net/day      0.0 [    0.0,     0.0]  trades    0  hit 0.00
+2026-10-24 03:56:34,243 INFO optpred.zoo.evaluate: random      test net/day      0.0 [    0.0,     0.0]  trades    0  hit 0.00
+2026-10-24 03:56:34,710 INFO optpred.zoo.evaluate: momentum    test net/day    -85.7 [-1841.6,  1496.3]  trades  237  hit 0.48
+2026-10-24 03:56:39,045 INFO optpred.zoo.evaluate: linear      test net/day   -136.9 [ -686.1,   275.3]  trades    9  hit 0.56
+2026-10-24 03:56:48,190 INFO optpred.zoo.evaluate: lgbm_reg    test net/day  -1376.4 [-2936.5,     0.0]  trades  132  hit 0.41
+2026-10-24 03:56:53,621 INFO optpred.zoo.promote: deployed version 7 (previous: 5)
+2026-10-24 03:57:05,797 INFO optpred.zoo.evaluate: lgbm_clf    test net/day   -134.4 [ -395.6,     0.0]  trades    6  hit 0.33
+2026-10-24 03:57:11,851 INFO optpred.zoo.evaluate: meta        test net/day   -619.4 [-1696.0,   269.5]  trades   36  hit 0.39
+2026-10-24 03:58:45,749 INFO optpred.zoo.evaluate: gru         test net/day    -81.1 [ -316.0,    72.6]  trades    4  hit 0.50
+2026-10-24 04:00:25,339 INFO optpred.zoo.evaluate: transformer test net/day      0.0 [    0.0,     0.0]  trades    0  hit 0.00
+2026-10-24 04:00:25,452 INFO optpred.zoo_eval: run 20261024T092629-zoo_eval finished: ok in 235.5s
