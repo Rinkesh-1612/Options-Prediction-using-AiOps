@@ -18,6 +18,7 @@ Updated at each step.
 | `src/optpred/drift/` | stage drift + online drift (PSI) |
 | `src/optpred/serving/signal_api.py` | the API (signal, model, rollback, retrain, drift, webhook, metrics) |
 | `monitoring/` (prometheus, alerts, alertmanager, grafana dashboard) | monitoring and alerting |
+| `frontend/` (index.html, nginx.conf, Dockerfile, config.json, 40-config.sh) | the web page |
 | `docker-compose.yml`, `stack`, `scripts/serve_model.sh`, `scripts/runner.sh` | serving stack, CD, rollback, retraining |
 | `scripts/encrypt_snapshot.sh` | AES-256 encryption of data + models (`--verify` checks a backup) |
 | `tests/unit/test_export.py`, `test_eda_rules.py`, `test_grid.py`, `test_featurelib.py`, `test_barrier.py`, `test_zoo.py`, `test_promote.py`, `test_psi.py`, `test_parallel.py`, `tests/api/test_signal_api.py`, `tests/integration/test_data_pipeline.py` | tests of the stages above |
@@ -33,7 +34,7 @@ Updated at each step.
 
 ## Not reviewed yet (decide in a later step)
 
-`frontend/` (old UI: calls the deleted API; rebuild in the UI step), `docker/Dockerfile.serve.naive` + `scripts/image_sizes.sh`
+`docker/Dockerfile.serve.naive` + `scripts/image_sizes.sh`
 (image size comparison), `scripts/test_report.py`, `README.md`, `AI_DISCLOSURE.md`.
 
 ## Deleted on 2026-10-23 (in Git history before this date)

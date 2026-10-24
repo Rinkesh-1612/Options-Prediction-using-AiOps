@@ -4,7 +4,12 @@
   GET  /days               accepted days and their split (dev / test)
   GET  /signal?day&sod     the champion's action at that second, and what happened after it (the label)
   GET  /model              champion and previous versions, family, CV and test metrics
-  GET  /results            the zoo comparison on the test days (reports/zoo)
+  GET  /results            the zoo comparison: test days, cross-validation, feature importance (reports/zoo)
+  GET  /drift/daily        drift per day against the training days (reports/drift)
+  GET  /pipeline           the DVC stages, their edges and the last run of each (dvc.yaml + run journal)
+  GET  /pipeline/runs      recent runs of the pipeline stages (newest first)
+  GET  /pipeline/runs/{id}/log   the log of one run
+  GET  /quality            data quality: accepted / rejected days with reasons, rows removed per rule
   POST /rollback           champion <-> previous (needs X-Admin-Token when ADMIN_TOKEN is set)
   POST /retrain            ask the runner to retrain (zoo_train -> zoo_eval -> gate -> deploy); admin
   GET  /drift              online drift: PSI per feature of the served rows vs the training days
@@ -20,7 +25,9 @@ from __future__ import annotations
 import hmac
 import json
 import logging
+import math
 import os
+import re
 import time
 from dataclasses import dataclass
 from functools import lru_cache
@@ -28,8 +35,10 @@ from pathlib import Path
 
 import httpx
 import pandas as pd
+import yaml
 from fastapi import Depends, FastAPI, Header, HTTPException, Query, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import PlainTextResponse
 from prometheus_client import (
     CONTENT_TYPE_LATEST,
     CollectorRegistry,
@@ -62,6 +71,8 @@ class Settings:
     runs_path: Path = Path("runs/runs.jsonl")
     retrain_request: Path = Path("state/retrain_request.json")
     retrain_cooldown_s: float = 3600.0  # alerts cannot start retrains more often than this
+    dvc_path: Path = Path("dvc.yaml")
+    logs_root: Path = Path("logs")
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -80,7 +91,20 @@ class Settings:
             runs_path=Path(e.get("RUNS_PATH", cls.runs_path)),
             retrain_request=Path(e.get("RETRAIN_REQUEST", cls.retrain_request)),
             retrain_cooldown_s=float(e.get("RETRAIN_COOLDOWN_S", cls.retrain_cooldown_s)),
+            dvc_path=Path(e.get("DVC_PATH", cls.dvc_path)),
+            logs_root=Path(e.get("LOGS_ROOT", cls.logs_root)),
         )
+
+
+def finite(x):
+    """Reports may hold inf/NaN (a model that never trades has tau = inf); JSON cannot. They become null."""
+    if isinstance(x, float):
+        return x if math.isfinite(x) else None
+    if isinstance(x, dict):
+        return {k: finite(v) for k, v in x.items()}
+    if isinstance(x, list):
+        return [finite(v) for v in x]
+    return x
 
 
 class ModelUnavailable(RuntimeError):
@@ -273,6 +297,18 @@ def create_app(settings: Settings | None = None, model: ModelServer | None = Non
             m.outcomes.labels("win" if net > 0 else "loss").inc()
             m.net.inc(net)
             m.net_hist.observe(net)
+        hindsight = {
+            side: (
+                {
+                    "net_rs": float(row[f"{side}_net_rs"]),
+                    "hold_s": float(row[f"{side}_hold_s"]),
+                    "barrier": int(row[f"{side}_hit"]),
+                }
+                if bool(row[f"{side}_valid"])
+                else None
+            )
+            for side in ("ce", "pe")
+        }
         return {
             "day": day,
             "sod": sod,
@@ -283,6 +319,7 @@ def create_app(settings: Settings | None = None, model: ModelServer | None = Non
             "score_pe": float(pred["score_pe"]),
             "blocked": blocked,
             "outcome": outcome,
+            "hindsight": hindsight,  # what each side would have made: known only AFTER the fact
         }
 
     @app.get("/model")
@@ -310,7 +347,20 @@ def create_app(settings: Settings | None = None, model: ModelServer | None = Non
         p = st.zoo_dir / "test.json"
         if not p.exists():
             raise HTTPException(404, "zoo_eval has not run yet")
-        return json.loads(p.read_text())
+        out = json.loads(p.read_text())
+        cv, imp = st.zoo_dir / "cv.json", st.zoo_dir / "importance.json"
+        if cv.exists():
+            c = json.loads(cv.read_text())
+            out["cv"] = {
+                "dev_days": [c["dev_days"][0], c["dev_days"][-1]],
+                "folds": len(c["folds"]),
+                "trials": len(c["all"]),
+            }
+        if imp.exists():
+            i = json.loads(imp.read_text())
+            out["importance"] = dict(list(i["gain_share"].items())[:15])
+            out["ablation"] = i["ablation_delta_vs_full"]
+        return finite(out)
 
     @app.post("/rollback", dependencies=[Depends(require_admin)])
     def rollback():
@@ -349,6 +399,88 @@ def create_app(settings: Settings | None = None, model: ModelServer | None = Non
         )
         return {"alerts": sorted(n for n in names if n), "retrain_requested": acted}
 
+    @app.get("/drift/daily")
+    def drift_daily():
+        p = st.reports_dir / "drift" / "daily.json"
+        if not p.exists():
+            raise HTTPException(404, "the drift stage has not run yet")
+        d = json.loads(p.read_text())
+        return [
+            {"day": k, "split": v["split"], "share": v["share"], "drift": v["drift"]} for k, v in d.items()
+        ]
+
+    def stages() -> dict[str, dict]:
+        return yaml.safe_load(st.dvc_path.read_text())["stages"] if st.dvc_path.exists() else {}
+
+    def journal() -> list[dict]:
+        if not st.runs_path.exists():
+            return []
+        out = []
+        for line in st.runs_path.read_text().splitlines():
+            try:
+                out.append(json.loads(line))
+            except ValueError:
+                continue
+        return out
+
+    def run_view(r: dict) -> dict:
+        keep = ("run_id", "stage", "started", "status", "duration_s", "git_commit", "git_dirty", "exit_code")
+        return {k: r.get(k) for k in keep} | {"summary": r.get("summary") or {}}
+
+    @app.get("/pipeline")
+    def pipeline():
+        sts = stages()
+
+        def paths(items):
+            return [next(iter(i)) if isinstance(i, dict) else i for i in items or []]
+
+        outs = {name: paths(v.get("outs")) + paths(v.get("metrics")) for name, v in sts.items()}
+        edges = []
+        for b, v in sts.items():
+            for dep in paths(v.get("deps")):
+                for a, produced in outs.items():
+                    if a != b and any(dep == o or dep.startswith(o.rstrip("/") + "/") for o in produced):
+                        edges.append([a, b])
+        last = {}
+        for r in journal():
+            last[r.get("stage")] = run_view(r)
+        nodes = [{"name": n, "cmd": v.get("cmd"), "last": last.get(n)} for n, v in sts.items()]
+        return {"stages": nodes, "edges": sorted({tuple(e) for e in edges})}
+
+    @app.get("/pipeline/runs")
+    def pipeline_runs(limit: int = Query(50, ge=1, le=500), stage: str | None = None):
+        names = set(stages())
+        rows = [
+            run_view(r)
+            for r in journal()
+            if r.get("stage") in names and (stage is None or r["stage"] == stage)
+        ]
+        return rows[::-1][:limit]
+
+    @app.get("/pipeline/runs/{run_id}/log", response_class=PlainTextResponse)
+    def run_log(run_id: str, tail: int = Query(300, ge=1, le=5000)):
+        if not re.fullmatch(r"[0-9T]+-[a-z_]+", run_id):
+            raise HTTPException(400, "bad run id")
+        r = next((x for x in journal() if x.get("run_id") == run_id), None)
+        if r is None:
+            raise HTTPException(404, "no such run")
+        p = st.logs_root / r["stage"] / f"{run_id}.log"
+        if not p.exists():
+            raise HTTPException(404, "the log file of this run is not available")
+        return "\n".join(p.read_text(errors="replace").splitlines()[-tail:])
+
+    @app.get("/quality")
+    def quality():
+        out = {}
+        if st.days_path.exists():
+            d = json.loads(st.days_path.read_text())
+            out["accepted"] = d.get("accepted", [])
+            out["rejected"] = d.get("rejected", {})
+        cleaning = st.reports_dir / "eda" / "cleaning.json"
+        if cleaning.exists():
+            out["cleaning"] = json.loads(cleaning.read_text())["total"]
+        return out
+
     def refresh_gauges() -> None:
         m.model_up.set(1 if srv.ping() else 0)
         if drift is not None:
@@ -371,16 +503,10 @@ def create_app(settings: Settings | None = None, model: ModelServer | None = Non
                 for k, v in c.items():
                     if k.startswith(("drop_", "null_")):
                         m.rule_rows.labels(table, k).set(v)
-        if st.runs_path.exists():
-            last = {}
-            for line in st.runs_path.read_text().splitlines():
-                try:
-                    r = json.loads(line)
-                    last[r["stage"]] = r.get("status") == "ok"
-                except (ValueError, KeyError):
-                    continue
-            for stage, ok in last.items():
-                m.stage_ok.labels(stage).set(1 if ok else 0)
+        names = set(stages())  # only the stages of the current pipeline, not removed ones
+        last = {r["stage"]: r.get("status") == "ok" for r in journal() if r.get("stage") in names}
+        for stage, ok in last.items():
+            m.stage_ok.labels(stage).set(1 if ok else 0)
 
     @app.get("/metrics")
     def metrics():

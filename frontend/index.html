@@ -3,397 +3,591 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NIFTY Option Direction</title>
-<link rel="icon" href="data:,">
+<title>NIFTY Signal</title>
 <style>
+:root {
+  --bg: #f5f6f8; --panel: #ffffff; --ink: #14171c; --muted: #5d6673; --line: #e2e5ea; --soft: #eef1f5;
+  --accent: #2f5bea; --accent-ink: #ffffff; --good: #138a4f; --bad: #c8372d; --warn: #b7791f;
+  --ce: #138a4f; --pe: #c8372d; --dev: #4c72b0; --test: #dd8452;
+  --shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.08);
+  --radius: 12px; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
   :root {
-    --bg: #f6f7f9; --card: #ffffff; --ink: #1b1f27; --muted: #5d6675; --line: #dfe3ea;
-    --go: #0f8a4f; --go-bg: #e4f5ec; --stop: #c4382f; --stop-bg: #fbe9e7;
-    --wait: #4b5668; --wait-bg: #eceff4; --warn: #8a5a00; --warn-bg: #fff3d6; --accent: #2457d6;
+    --bg: #0f1216; --panel: #171b21; --ink: #e8ebef; --muted: #98a2b0; --line: #2a3039; --soft: #1e232b;
+    --accent: #6d8eff; --accent-ink: #0f1216; --good: #3cc47c; --bad: #ff6b5e; --warn: #e3a948;
+    --ce: #3cc47c; --pe: #ff6b5e; --dev: #7ea2e0; --test: #f0a070;
+    --shadow: 0 1px 2px rgba(0,0,0,.4);
   }
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #12151b; --card: #1b2029; --ink: #e8ebf1; --muted: #9aa3b2; --line: #2d3442;
-      --go: #4cc38a; --go-bg: #123626; --stop: #ff7b72; --stop-bg: #3b1d1b;
-      --wait: #aab3c3; --wait-bg: #262c38; --warn: #f2c15c; --warn-bg: #3a2f12; --accent: #7aa2ff;
-    }
-  }
-  * { box-sizing: border-box; }
-  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.45 system-ui, -apple-system, "Segoe UI", sans-serif; }
-  header { padding: 14px 16px 0; max-width: 980px; margin: 0 auto; }
-  h1 { font-size: 20px; margin: 0 0 2px; }
-  .sub { color: var(--muted); font-size: 14px; margin: 0 0 10px; }
-  .status { display: inline-flex; gap: 8px; align-items: center; font-size: 13px; color: var(--muted); flex-wrap: wrap; }
-  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); display: inline-block; }
-  .dot.ok { background: var(--go); } .dot.bad { background: var(--stop); }
-  nav { display: flex; gap: 4px; max-width: 980px; margin: 12px auto 0; padding: 0 16px; border-bottom: 1px solid var(--line); }
-  nav button { background: none; border: 0; padding: 10px 14px; font: inherit; color: var(--muted); cursor: pointer; border-bottom: 3px solid transparent; }
-  nav button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
-  main { max-width: 980px; margin: 0 auto; padding: 16px; }
-  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin-bottom: 14px; }
-  .card h2 { font-size: 15px; margin: 0 0 10px; color: var(--muted); font-weight: 600; letter-spacing: .02em; }
-  label { display: block; font-size: 13px; color: var(--muted); margin-bottom: 4px; }
-  select, input[type=range] { width: 100%; font: inherit; }
-  select { padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--ink); }
-  .row { display: grid; gap: 14px; grid-template-columns: 1fr; }
-  @media (min-width: 720px) { .row.two { grid-template-columns: 1fr 1fr; } }
-  .time { display: flex; align-items: center; gap: 10px; }
-  .time button, .btn { font: inherit; padding: 9px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; min-height: 44px; }
-  .btn.primary { background: var(--accent); color: #fff; border-color: var(--accent); }
-  .btn.danger { color: var(--stop); border-color: var(--stop); }
-  .clock { font-size: 22px; font-weight: 700; min-width: 70px; text-align: center; font-variant-numeric: tabular-nums; }
-  .verdict { border-radius: 12px; padding: 16px; }
-  .verdict.go { background: var(--go-bg); color: var(--go); } .verdict.wait { background: var(--wait-bg); color: var(--wait); }
-  .verdict .big { font-size: 28px; font-weight: 800; line-height: 1.15; }
-  .verdict p { color: var(--ink); margin: 8px 0 0; font-size: 15px; }
-  .bar { display: grid; grid-template-columns: 78px 1fr 46px; gap: 8px; align-items: center; margin: 6px 0; font-size: 14px; }
-  .bar .track { background: var(--wait-bg); border-radius: 6px; height: 12px; overflow: hidden; }
-  .bar .fill { height: 100%; background: var(--accent); }
-  .bar .pct { text-align: right; font-variant-numeric: tabular-nums; }
-  .why { list-style: none; padding: 0; margin: 0; }
-  .why li { display: flex; justify-content: space-between; gap: 10px; padding: 8px 0; border-top: 1px solid var(--line); font-size: 14px; }
-  .why li:first-child { border-top: 0; }
-  .pos { color: var(--go); } .neg { color: var(--stop); }
-  .banner { padding: 10px 12px; border-radius: 8px; font-size: 14px; margin-bottom: 14px; }
-  .banner.warn { background: var(--warn-bg); color: var(--warn); } .banner.err { background: var(--stop-bg); color: var(--stop); }
-  .banner.info { background: var(--wait-bg); color: var(--ink); }
-  .money { font-variant-numeric: tabular-nums; font-weight: 700; }
-  table { width: 100%; border-collapse: collapse; font-size: 14px; }
-  th, td { text-align: left; padding: 8px 6px; border-top: 1px solid var(--line); white-space: nowrap; }
-  th { color: var(--muted); font-weight: 600; border-top: 0; }
-  tr.click { cursor: pointer; } tr.click:hover { background: var(--wait-bg); }
-  .tablewrap { overflow-x: auto; }
-  .pill { padding: 2px 9px; border-radius: 999px; font-size: 12px; font-weight: 700; }
-  .pill.ok { background: var(--go-bg); color: var(--go); } .pill.failed { background: var(--stop-bg); color: var(--stop); }
-  pre { background: var(--wait-bg); padding: 12px; border-radius: 8px; overflow-x: auto; font-size: 12px; max-height: 320px; }
-  .links a { color: var(--accent); margin-right: 14px; }
-  .muted { color: var(--muted); font-size: 13px; }
-  svg text { fill: var(--ink); font-size: 12px; } svg .edge { stroke: var(--muted); fill: none; }
-  @media (max-width: 560px) { .opt { display: none; } }  /* phones: keep the table one screen wide */
-  [hidden] { display: none !important; }
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--bg); color: var(--ink);
+  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+a { color: var(--accent); }
+header { position: sticky; top: 0; z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line); }
+.bar { max-width: 1180px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+.brand { font-weight: 700; font-size: 17px; letter-spacing: .2px; margin-right: auto; }
+.brand small { color: var(--muted); font-weight: 500; margin-left: 6px; }
+.pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px;
+  background: var(--soft); color: var(--muted); font-size: 13px; white-space: nowrap; }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.dot.ok { background: var(--good); } .dot.bad { background: var(--bad); } .dot.warn { background: var(--warn); }
+nav { max-width: 1180px; margin: 0 auto; padding: 0 16px; display: flex; gap: 4px; overflow-x: auto; }
+nav button { border: 0; background: none; color: var(--muted); padding: 10px 14px; font: inherit; cursor: pointer;
+  border-bottom: 2px solid transparent; white-space: nowrap; }
+nav button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
+main { max-width: 1180px; margin: 0 auto; padding: 18px 16px 48px; }
+section[hidden] { display: none; }
+.grid { display: grid; gap: 16px; }
+.cols-2 { grid-template-columns: 340px 1fr; }
+.cols-even { grid-template-columns: 1fr 1fr; }
+@media (max-width: 860px) { .cols-2, .cols-even { grid-template-columns: 1fr; } }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; min-width: 0; }
+.card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin: 0 0 12px; font-weight: 600; }
+.card h3 { font-size: 15px; margin: 18px 0 8px; }
+label { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 6px; }
+select, input[type="text"], input[type="password"] { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px;
+  background: var(--panel); color: var(--ink); font: inherit; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.btn { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 8px 12px;
+  font: inherit; cursor: pointer; }
+.btn:hover:not(:disabled) { background: var(--soft); }
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
+.btn.danger { color: var(--bad); border-color: var(--bad); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.btn.small { padding: 4px 9px; font-size: 13px; }
+.clock { font: 600 28px/1 var(--mono); letter-spacing: .5px; }
+.muted { color: var(--muted); } .good { color: var(--good); } .bad { color: var(--bad); } .warn { color: var(--warn); }
+.mono { font-family: var(--mono); }
+.action { border-radius: var(--radius); padding: 18px; text-align: center; border: 1px solid var(--line); background: var(--soft); }
+.action .label { font-size: 30px; font-weight: 800; letter-spacing: .5px; }
+.action.ce { background: color-mix(in srgb, var(--ce) 14%, var(--panel)); border-color: var(--ce); }
+.action.ce .label { color: var(--ce); }
+.action.pe { background: color-mix(in srgb, var(--pe) 14%, var(--panel)); border-color: var(--pe); }
+.action.pe .label { color: var(--pe); }
+.scores[hidden] { display: none; }
+.scores { display: grid; grid-template-columns: 60px 1fr 90px; gap: 6px 10px; align-items: center; margin-top: 14px; font-size: 14px; }
+.track { position: relative; height: 10px; background: var(--soft); border-radius: 5px; overflow: hidden; }
+.track .fill { position: absolute; top: 0; bottom: 0; border-radius: 5px; }
+.track { overflow: visible; }
+.track .tau { position: absolute; top: -4px; bottom: -4px; width: 3px; margin-left: -1px; border-radius: 2px; background: var(--ink); }
+.kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 14px; }
+.kv dt { color: var(--muted); } .kv dd { margin: 0; font-weight: 600; }
+.note { font-size: 13px; color: var(--muted); margin-top: 10px; }
+.banner { border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; border: 1px solid var(--line); background: var(--soft); }
+.banner.bad { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 10%, var(--panel)); }
+.banner.good { border-color: var(--good); background: color-mix(in srgb, var(--good) 10%, var(--panel)); }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th { text-align: left; color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .4px; }
+th, td { padding: 8px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr.click { cursor: pointer; } tr.click:hover { background: var(--soft); } tr.sel { background: var(--soft); }
+.scroll { overflow-x: auto; }
+.scroll.tall { max-height: 460px; overflow-y: auto; }
+.scroll.tall thead th { position: sticky; top: 0; background: var(--panel); }
+.chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--soft); color: var(--muted); }
+.chip.ok { color: var(--good); background: color-mix(in srgb, var(--good) 14%, var(--panel)); }
+.chip.bad { color: var(--bad); background: color-mix(in srgb, var(--bad) 14%, var(--panel)); }
+.chip.acc { color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--panel)); }
+.bars { display: flex; align-items: flex-end; gap: 2px; height: 140px; position: relative; padding-top: 6px; }
+.bars div { flex: 1; min-width: 3px; border-radius: 2px 2px 0 0; }
+.bars .limit { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--muted); }
+.legend { display: flex; gap: 14px; font-size: 13px; color: var(--muted); margin-top: 8px; flex-wrap: wrap; }
+.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
+.hbar { display: grid; grid-template-columns: minmax(120px, 210px) 1fr 52px; gap: 8px; align-items: center; font-size: 13px; margin: 4px 0; }
+.hbar .t { height: 8px; background: var(--accent); border-radius: 4px; }
+.dag { position: relative; display: flex; gap: 18px; overflow-x: auto; padding: 6px 2px 10px; }
+.dag svg { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.layer { display: flex; flex-direction: column; gap: 12px; justify-content: center; position: relative; z-index: 1; }
+.node { width: 132px; padding: 8px 9px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); cursor: pointer; font-size: 13px; }
+.node b { display: flex; gap: 6px; align-items: center; font-size: 14px; }
+.node.ok { border-color: color-mix(in srgb, var(--good) 60%, var(--line)); }
+.node.bad { border-color: var(--bad); }
+.node.sel { outline: 2px solid var(--accent); }
+pre.log { background: var(--soft); border-radius: 8px; padding: 12px; max-height: 360px; overflow: auto; font: 12px/1.5 var(--mono); white-space: pre-wrap; word-break: break-word; margin: 0; }
+.toast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); max-width: min(560px, calc(100% - 32px));
+  background: var(--ink); color: var(--panel); padding: 10px 14px; border-radius: 10px; font-size: 14px; z-index: 20; box-shadow: var(--shadow); }
+.toast[hidden] { display: none; }
+.ci { width: 160px; height: 18px; }
+.skeleton { color: var(--muted); font-size: 14px; }
 </style>
 </head>
 <body>
 <header>
-  <h1>NIFTY option direction</h1>
-  <p class="sub">Pick a past minute. See what the model would have said, and what really happened next.</p>
-  <div class="status"><span class="dot" id="dot"></span><span id="statusText">connecting…</span><span id="modelBadge"></span></div>
+  <div class="bar">
+    <div class="brand">NIFTY Signal <small>intraday options · AIOps</small></div>
+    <span class="pill" title="Signal API"><span class="dot" id="st-api"></span>API</span>
+    <span class="pill" title="Champion model in the registry"><span class="dot" id="st-model"></span><span id="st-model-t">Model</span></span>
+    <span class="pill" title="Online data drift of the served rows"><span class="dot" id="st-drift"></span><span id="st-drift-t">Drift</span></span>
+  </div>
+  <nav role="tablist">
+    <button role="tab" data-tab="signal" aria-selected="true">Signal</button>
+    <button role="tab" data-tab="results" aria-selected="false">Results</button>
+    <button role="tab" data-tab="pipeline" aria-selected="false">Pipeline</button>
+    <button role="tab" data-tab="ops" aria-selected="false">Operations</button>
+  </nav>
 </header>
-<nav role="tablist">
-  <button role="tab" id="tabPredict" aria-selected="true">Pick a minute</button>
-  <button role="tab" id="tabResults" aria-selected="false">Results</button>
-  <button role="tab" id="tabPipeline" aria-selected="false">Pipeline</button>
-</nav>
-<main>
-  <div id="error" class="banner err" role="alert" hidden></div>
 
-  <section id="predict">
+<main>
+<!-- ============================== SIGNAL ============================== -->
+<section id="tab-signal">
+  <div class="grid cols-2">
     <div class="card">
-      <div class="row two">
-        <div><label for="day">Day</label><select id="day"></select></div>
-        <div>
-          <label for="slider">Time (the moment the decision is made)</label>
-          <div class="time">
-            <button id="prev" aria-label="one minute earlier">◀</button>
-            <span class="clock" id="clock">--:--</span>
-            <button id="next" aria-label="one minute later">▶</button>
-          </div>
-          <input type="range" id="slider" min="0" max="0" value="0" aria-label="time slider">
+      <h2>Pick a moment</h2>
+      <label for="day">Trading day</label>
+      <select id="day"></select>
+      <label for="t">Time (entries 09:20 – 15:15)</label>
+      <div class="clock" id="clock">10:00:00</div>
+      <input type="range" id="t" min="33600" max="54900" step="1" value="36000" aria-label="time of day">
+      <div class="row" style="margin-top:8px">
+        <button class="btn small" data-step="-60">−1 min</button>
+        <button class="btn small" data-step="-1">−1 s</button>
+        <button class="btn small" data-step="1">+1 s</button>
+        <button class="btn small" data-step="60">+1 min</button>
+      </div>
+      <div class="row" style="margin-top:14px">
+        <button class="btn primary" id="go">Get signal</button>
+        <button class="btn" id="play" aria-pressed="false">▶ Play</button>
+        <select id="speed" style="width:auto" aria-label="play speed">
+          <option value="1000">1× (live)</option><option value="250" selected>4×</option><option value="80">fast</option>
+        </select>
+      </div>
+      <p class="note">Play steps one market second per tick, like a live feed. The model only sees data up to the chosen second.</p>
+    </div>
+
+    <div class="grid">
+      <div class="card" aria-live="polite">
+        <h2>What the model says</h2>
+        <div class="action" id="action"><div class="label">—</div><div class="muted" id="action-sub">Pick a day and a time, then press <b>Get signal</b>.</div></div>
+        <div class="scores" id="scores" hidden>
+          <span>Call</span><div class="track"><div class="fill" id="bar-ce" style="background:var(--ce)"></div><div class="tau" id="tau-ce"></div></div><span class="num mono" id="sc-ce"></span>
+          <span>Put</span><div class="track"><div class="fill" id="bar-pe" style="background:var(--pe)"></div><div class="tau" id="tau-pe"></div></div><span class="num mono" id="sc-pe"></span>
         </div>
+        <p class="note" id="explain"></p>
+      </div>
+      <div class="card">
+        <h2>What happened next</h2>
+        <div id="outcome" class="skeleton">The result appears here after a signal.</div>
       </div>
     </div>
-    <div id="sampleWarn" class="banner warn" hidden>The model was trained on this day, so a good result here proves nothing. Pick a validation or later day to judge it.</div>
-    <div id="result" aria-live="polite">
-      <div class="banner info">Loading…</div>
-    </div>
-  </section>
+  </div>
 
-  <section id="results" hidden>
-    <div id="resultsBody"><div class="banner info">Loading…</div></div>
-  </section>
+  <div class="card" style="margin-top:16px">
+    <div class="row" style="justify-content:space-between">
+      <h2 style="margin:0">This session</h2>
+      <div class="row"><span class="muted" id="sess-sum">0 signals · 0 trades · ₹0</span><button class="btn small" id="clear">Clear</button></div>
+    </div>
+    <div class="scroll"><table><thead><tr><th>Day</th><th>Time</th><th>Action</th><th class="num">Net ₹</th><th>Exit</th></tr></thead><tbody id="sess"></tbody></table></div>
+  </div>
+</section>
 
-  <section id="pipeline" hidden>
-    <div class="card"><h2>PIPELINE (each box is a stage; colour is its latest run)</h2>
-      <div class="tablewrap"><svg id="dag" width="100%" style="min-width:560px" role="img" aria-label="pipeline stages"></svg></div>
-      <p class="muted">Green = last run succeeded, red = failed, grey = no run recorded.</p>
+<!-- ============================== RESULTS ============================== -->
+<section id="tab-results" hidden>
+  <div id="verdict" class="banner">Loading results…</div>
+  <div class="card">
+    <h2>Every model on the test days</h2>
+    <p class="note" id="res-meta" style="margin-top:-6px"></p>
+    <div class="scroll"><table>
+      <thead><tr><th>Model</th><th class="num">CV ₹/day</th><th class="num">Test ₹/day</th><th>95% interval (test)</th><th class="num">Trades</th><th class="num">Hit rate</th></tr></thead>
+      <tbody id="res-table"></tbody>
+    </table></div>
+    <p class="note">CV = walk-forward cross-validation on the dev days (used to choose the champion and its threshold). Test = the last 10 days, never used for training or tuning. Net ₹ after the spread and all statutory costs, one lot.</p>
+  </div>
+  <div class="grid cols-even" style="margin-top:16px">
+    <div class="card">
+      <h2>Data drift per day</h2>
+      <div class="bars" id="drift-bars"></div>
+      <div class="legend"><span><i style="background:var(--dev)"></i>dev days</span><span><i style="background:var(--test)"></i>test days</span><span>dashed = alarm (30% of features)</span></div>
+      <p class="note" id="drift-note"></p>
     </div>
-    <div class="card"><h2>MODEL</h2><div id="modelBox" class="muted">loading…</div>
-      <p style="margin-top:12px">
-        <button class="btn primary" id="retrain">Retrain now</button>
-        <button class="btn danger" id="rollback">Roll back to previous model</button>
-      </p>
-      <div id="actionMsg" class="muted"></div>
+    <div class="card">
+      <h2>What drives the champion</h2>
+      <div id="importance"></div>
+      <h3>Remove one feature group</h3>
+      <div class="scroll"><table><thead><tr><th>Group removed</th><th class="num">Δ CV ₹/day</th></tr></thead><tbody id="ablation"></tbody></table></div>
     </div>
-    <div class="card"><h2>RUNS (newest first; tap a row for its log)</h2>
-      <div class="tablewrap"><table id="runs"><thead><tr><th>Started</th><th>Stage</th><th>Status</th><th>Seconds</th><th>Rows/s</th><th>Commit</th></tr></thead><tbody></tbody></table></div>
-      <pre id="log" hidden></pre>
+  </div>
+</section>
+
+<!-- ============================== PIPELINE ============================== -->
+<section id="tab-pipeline" hidden>
+  <div class="card">
+    <div class="row" style="justify-content:space-between"><h2 style="margin:0">Pipeline (DVC)</h2><button class="btn small" id="pipe-refresh">Refresh</button></div>
+    <p class="note" style="margin-top:4px">Each box is a stage. Colour = result of its last run. Click a box to see its runs.</p>
+    <div class="dag" id="dag"></div>
+  </div>
+  <div class="grid cols-even" style="margin-top:16px">
+    <div class="card">
+      <div class="row" style="justify-content:space-between"><h2 style="margin:0" id="runs-title">Recent runs</h2><button class="btn small" id="runs-all" hidden>Show all stages</button></div>
+      <div class="scroll tall"><table><thead><tr><th>Started</th><th>Stage</th><th>Result</th><th class="num">Time</th><th>Commit</th></tr></thead><tbody id="runs"></tbody></table></div>
     </div>
-    <div class="card links"><h2>TOOLS</h2><a id="lMlflow" target="_blank" rel="noopener">Experiment tracking (MLflow)</a><a id="lGrafana" target="_blank" rel="noopener">Live monitoring (Grafana)</a></div>
-  </section>
+    <div class="card">
+      <h2 id="log-title">Run log</h2>
+      <div id="run-summary" class="kv" style="margin-bottom:10px"></div>
+      <pre class="log" id="log">Click a run to read its log.</pre>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h2>Data quality</h2>
+    <div id="quality"></div>
+  </div>
+</section>
+
+<!-- ============================== OPERATIONS ============================== -->
+<section id="tab-ops" hidden>
+  <div class="grid cols-even">
+    <div class="card"><h2>Champion (served now)</h2><div id="champ"></div></div>
+    <div class="card"><h2>Previous (rollback target)</h2><div id="prev"></div></div>
+  </div>
+  <div class="grid cols-even" style="margin-top:16px">
+    <div class="card">
+      <h2>Actions</h2>
+      <label for="token">Admin token (kept in this tab only)</label>
+      <input type="password" id="token" autocomplete="off" placeholder="leave empty if the API has no token">
+      <label for="reason">Reason for retraining</label>
+      <input type="text" id="reason" maxlength="200" value="manual">
+      <div class="row" style="margin-top:14px">
+        <button class="btn danger" id="rollback">Roll back to previous</button>
+        <button class="btn" id="retrain">Request retraining</button>
+      </div>
+      <p class="note">Rollback swaps champion and previous; the model server follows within ~10 s. Retraining runs zoo_train → zoo_eval → smoke test; a new version is deployed only if it passes.</p>
+    </div>
+    <div class="card">
+      <h2>Online drift (served rows)</h2>
+      <div id="drift-now"></div>
+    </div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h2>Tools</h2>
+    <div class="row" id="links"></div>
+  </div>
+</section>
 </main>
+<div class="toast" id="toast" hidden role="status"></div>
 
 <script>
 "use strict";
-const $ = (id) => document.getElementById(id);
-const NAMES = {
-  mid: "price", spread: "bid–ask gap (pts)", spread_pct: "bid–ask gap (% of price)",
-  imb1: "buyers vs sellers at best price", imb5: "buyers vs sellers, 5 levels deep", tbq: "all waiting buy vs sell orders",
-  ret1: "price change, last 1 min", ret3: "price change, last 3 min", ret5: "price change, last 5 min",
-  vol1: "traded volume, last 1 min", vol5: "traded volume, last 5 min", oi_chg5: "open interest change, 5 min",
-};
-const GLOBAL = {
-  spot_ret1: "NIFTY move, last 1 min", spot_ret2: "NIFTY move, last 2 min", spot_ret3: "NIFTY move, last 3 min",
-  spot_ret5: "NIFTY move, last 5 min", spot_range5: "NIFTY high–low range, 5 min", spot_rv5: "NIFTY choppiness, 5 min",
-  atm_iv: "option implied volatility", iv_gap: "put minus call implied volatility", pcr: "put/call open interest",
-  iv_chg5: "implied volatility change, 5 min", pcr_chg5: "put/call open interest change, 5 min",
-  minute: "time of day", dte: "days to expiry", is_expiry_day: "expiry day",
-};
-const friendly = (f) => {
-  if (GLOBAL[f]) return GLOBAL[f];
-  const m = f.match(/^(ce|pe)_(.+)$/);
-  return m ? `${m[1] === "ce" ? "Call" : "Put"} ${NAMES[m[2]] || m[2]}` : f;
-};
-const rs = (x) => (x < 0 ? "−" : "+") + "Rs " + Math.abs(Math.round(x)).toLocaleString("en-IN");
-let cfg = {}, days = [], minutes = [], busy = 0;
+const $ = (s) => document.querySelector(s);
+const inr = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 });
+const rs = (v) => (v == null || !isFinite(v) ? "—" : (v < 0 ? "−₹" : "₹") + inr.format(Math.abs(v)));
+const hms = (s) => [Math.floor(s / 3600), Math.floor(s % 3600 / 60), s % 60].map((x) => String(x).padStart(2, "0")).join(":");
+const dur = (s) => (s == null ? "—" : s < 60 ? `${Math.round(s)} s` : `${Math.floor(s / 60)} m ${Math.round(s % 60)} s`);
+const esc = (x) => String(x ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const BARRIER = { 1: "take-profit", "-1": "stop-loss", 0: "time limit" };
+let CFG = { api_url: "http://127.0.0.1:8000" }, TAU = null, playing = null;
 
-function showError(msg) { const e = $("error"); e.textContent = msg; e.hidden = !msg; }
-async function api(path, opts = {}) {
-  let r;
-  try { r = await fetch(cfg.api_url + path, { headers: { "Content-Type": "application/json", ...(opts.headers || {}) }, ...opts }); }
-  catch (e) { throw new Error("Cannot reach the backend at " + cfg.api_url + ". Is it running?"); }
-  if (!r.ok) {
-    let d = ""; try { d = (await r.json()).detail || ""; } catch (_) { d = await r.text(); }
-    throw new Error(d || ("The backend answered " + r.status));
-  }
-  return r.headers.get("content-type").includes("json") ? r.json() : r.text();
+function toast(msg) {
+  const t = $("#toast"); t.textContent = msg; t.hidden = false;
+  clearTimeout(toast.h); toast.h = setTimeout(() => (t.hidden = true), 5000);
 }
-const guard = (fn) => async (...a) => { try { showError(""); await fn(...a); } catch (e) { showError(e.message); } };
+async function api(path, opt = {}) {
+  const ctl = new AbortController(); const h = setTimeout(() => ctl.abort(), 15000);
+  try {
+    const r = await fetch(CFG.api_url + path, { ...opt, signal: ctl.signal });
+    const text = await r.text();
+    let body; try { body = JSON.parse(text); } catch { body = text; }
+    if (!r.ok) throw new Error((body && body.detail) || `HTTP ${r.status}`);
+    return body;
+  } catch (e) {
+    throw new Error(e.name === "AbortError" ? "the API did not answer in 15 s" : e.message.replace("Failed to fetch", "cannot reach the API"));
+  } finally { clearTimeout(h); }
+}
 
-/* ---------- predict tab ---------- */
+/* ---------- tabs ---------- */
+const loaded = {};
+function show(tab) {
+  document.querySelectorAll("nav button").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === tab));
+  document.querySelectorAll("main > section").forEach((s) => (s.hidden = s.id !== "tab-" + tab));
+  history.replaceState(null, "", "#" + tab);
+  if (!loaded[tab]) { loaded[tab] = true; ({ results: loadResults, pipeline: loadPipeline, ops: loadOps })[tab]?.(); }
+}
+document.querySelectorAll("nav button").forEach((b) => b.addEventListener("click", () => show(b.dataset.tab)));
+
+/* ---------- status pills ---------- */
+async function status() {
+  const set = (id, cls) => ($(id).className = "dot " + cls);
+  api("/healthz").then(() => set("#st-api", "ok")).catch(() => set("#st-api", "bad"));
+  api("/model").then((m) => {
+    if (!m.champion) { set("#st-model", "warn"); $("#st-model-t").textContent = "No model"; return; }
+    set("#st-model", "ok"); $("#st-model-t").textContent = `Model v${m.champion.version} · ${m.champion.family}`;
+  }).catch(() => set("#st-model", "bad"));
+  api("/drift").then((d) => {
+    if (!d.ready) { set("#st-drift", ""); $("#st-drift-t").textContent = `Drift: ${d.rows} rows`; return; }
+    set("#st-drift", d.drift ? "bad" : d.share > 0.15 ? "warn" : "ok");
+    $("#st-drift-t").textContent = `Drift ${Math.round(d.share * 100)}%`;
+  }).catch(() => { set("#st-drift", ""); $("#st-drift-t").textContent = "Drift n/a"; });
+}
+
+/* ---------- signal ---------- */
+const sess = [];
+function setT(v) {
+  const t = $("#t"); t.value = Math.min(+t.max, Math.max(+t.min, v));
+  $("#clock").textContent = hms(+t.value);
+}
+$("#t").addEventListener("input", (e) => setT(+e.target.value));
+document.querySelectorAll("[data-step]").forEach((b) => b.addEventListener("click", () => { setT(+$("#t").value + +b.dataset.step); getSignal(); }));
+$("#go").addEventListener("click", () => getSignal());
+$("#clear").addEventListener("click", () => { sess.length = 0; renderSess(); });
+
 async function loadDays() {
-  days = await api("/days");
-  const label = { train: "training", val: "validation", test: "test", forward: "new" };
-  $("day").innerHTML = days.map((d) =>
-    `<option value="${d.day}">${d.day} · ${label[d.split] || d.split}${d.in_sample ? " (trained on)" : ""}</option>`).join("");
-  if (!days.length) { $("result").innerHTML = '<div class="banner info">No days available yet.</div>'; return; }
-  const firstOut = days.find((d) => !d.in_sample) || days[days.length - 1];
-  $("day").value = firstOut.day;
-  await loadMinutes();
-}
-async function loadMinutes() {
-  minutes = await api("/minutes?day=" + encodeURIComponent($("day").value));
-  const s = $("slider"); s.max = minutes.length - 1; s.value = Math.floor(minutes.length / 3);
-  await show();
-}
-async function show() {
-  const m = minutes[+$("slider").value]; if (!m) return;
-  $("clock").textContent = m.time;
-  const token = ++busy;
-  const p = await api("/predict", { method: "POST", body: JSON.stringify({ day: $("day").value, minute: m.minute }) });
-  if (token !== busy) return;               // a newer request has been made since
-  $("sampleWarn").hidden = !p.in_sample;
-  const o = p.outcome, go = p.action !== "STAY_OUT";
-  const bars = [["Stay out", p.probabilities.STAY_OUT], ["Buy call", p.probabilities.BUY_CE], ["Buy put", p.probabilities.BUY_PE]]
-    .map(([n, v]) => `<div class="bar"><span>${n}</span><div class="track"><div class="fill" style="width:${(v * 100).toFixed(1)}%"></div></div><span class="pct">${(v * 100).toFixed(0)}%</span></div>`).join("");
-  const why = p.drivers.map((d) => `<li><span>${friendly(d.feature)}${d.value === null ? " (missing)" : ""}</span><span class="${d.push >= 0 ? "pos" : "neg"}">${d.push >= 0 ? "▲ supports" : "▼ argues against"}</span></li>`).join("");
-  const moneyCls = (x) => (x >= 0 ? "pos" : "neg");
-  const best = { BUY_CE: "the call", BUY_PE: "the put", STAY_OUT: "neither (staying out was right)" }[o.best_in_hindsight];
-  $("result").innerHTML = `
-    <div class="verdict ${go ? "go" : "wait"}"><div class="big">${p.headline}</div><p>${p.reason}</p></div>
-    <div class="row two" style="margin-top:14px">
-      <div class="card"><h2>HOW SURE IS THE MODEL</h2>${bars}</div>
-      <div class="card"><h2>WHAT ACTUALLY HAPPENED (next ${o.horizon_min} MIN, AFTER ALL COSTS)</h2>
-        <p>Buying the call: <span class="money ${moneyCls(o.call_net_rs)}">${rs(o.call_net_rs)}</span><br>
-        Buying the put: <span class="money ${moneyCls(o.put_net_rs)}">${rs(o.put_net_rs)}</span><br>
-        Best in hindsight: <b>${best}</b><br>
-        The model's action made: <span class="money ${moneyCls(o.result_of_model_action_rs)}">${o.result_of_model_action_rs === 0 ? "Rs 0" : rs(o.result_of_model_action_rs)}</span></p>
-        <p class="muted">One lot (65). Bought at the asking price, sold at the bid ${o.horizon_min} minutes later, tax and slippage included.</p>
-      </div>
-    </div>
-    <div class="card"><h2>WHAT PUSHED THE MODEL (top 3 inputs)</h2><ul class="why">${why}</ul></div>
-    <div class="card"><h2>CONTRACTS CONSIDERED</h2>
-      <p class="muted">NIFTY ${Math.round(p.spot).toLocaleString("en-IN")} · strike ${p.call.strike} · call asks ${p.call.entry_ask.toFixed(2)} (gap ${p.call.spread_pts.toFixed(2)}) · put asks ${p.put.entry_ask.toFixed(2)} (gap ${p.put.spread_pts.toFixed(2)})</p></div>`;
+  const days = await api("/days");
+  const test = days.filter((d) => d.split === "test").map((d) => d.day).reverse();
+  const dev = days.filter((d) => d.split === "dev").map((d) => d.day).reverse();
+  $("#day").innerHTML =
+    `<optgroup label="Test days (never used for training)">${test.map((d) => `<option>${d}</option>`).join("")}</optgroup>` +
+    `<optgroup label="Dev days (used for training)">${dev.map((d) => `<option>${d}</option>`).join("")}</optgroup>`;
 }
 
-/* ---------- pipeline tab ---------- */
-function drawDag(dag, runs) {
-  const level = {}; dag.nodes.forEach((n) => (level[n.id] = 0));
-  for (let i = 0; i < dag.nodes.length; i++) dag.edges.forEach((e) => (level[e.to] = Math.max(level[e.to], level[e.from] + 1)));
-  const cols = {}; dag.nodes.forEach((n) => (cols[level[n.id]] = (cols[level[n.id]] || []).concat(n.id)));
-  const pos = {}, W = 118, H = 40, GX = 36, GY = 22;
-  Object.entries(cols).forEach(([l, ids]) => ids.forEach((id, i) => (pos[id] = { x: 10 + l * (W + GX), y: 12 + i * (H + GY) })));
-  const last = {}; runs.slice().reverse().forEach((r) => (last[r.stage] = r.status));
-  const colour = (id) => (last[id] === "ok" ? "var(--go)" : last[id] === "failed" ? "var(--stop)" : "var(--muted)");
-  const width = 20 + (Math.max(...Object.keys(cols).map(Number)) + 1) * (W + GX);
-  const edges = dag.edges.map((e) => { const a = pos[e.from], b = pos[e.to];
-    return `<path class="edge" d="M${a.x + W},${a.y + H / 2} C${a.x + W + 18},${a.y + H / 2} ${b.x - 18},${b.y + H / 2} ${b.x},${b.y + H / 2}" marker-end="url(#arr)"/>`; }).join("");
-  const boxes = dag.nodes.map((n) => { const p = pos[n.id];
-    return `<g><rect x="${p.x}" y="${p.y}" width="${W}" height="${H}" rx="8" fill="var(--card)" stroke="${colour(n.id)}" stroke-width="2.5"/><text x="${p.x + W / 2}" y="${p.y + H / 2 + 4}" text-anchor="middle">${n.id}</text></g>`; }).join("");
-  const height = 24 + Math.max(...Object.values(cols).map((c) => c.length)) * (H + GY);
-  $("dag").setAttribute("viewBox", `0 0 ${width} ${height}`);
-  $("dag").innerHTML = `<defs><marker id="arr" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/></marker></defs>${edges}${boxes}`;
+function scoreBars(r) {
+  const vals = [r.score_ce, r.score_pe].filter(isFinite);
+  if (!vals.length) { $("#scores").hidden = true; return; }
+  const lo0 = Math.min(0, ...vals, TAU ?? 0), hi0 = Math.max(1, ...vals, TAU ?? 0), pad = (hi0 - lo0) * 0.08;
+  const lo = lo0 - pad, hi = hi0 + pad, span = hi - lo || 1;  // room so the threshold mark is never on the edge
+  const pos = (v) => ((v - lo) / span) * 100;
+  for (const [s, v] of [["ce", r.score_ce], ["pe", r.score_pe]]) {
+    const z = pos(0), p = isFinite(v) ? pos(v) : z;
+    Object.assign($("#bar-" + s).style, { left: Math.min(z, p) + "%", width: Math.abs(p - z) + "%" });
+    $("#tau-" + s).style.left = TAU != null && isFinite(TAU) ? pos(TAU) + "%" : "-10px";
+    $("#sc-" + s).textContent = isFinite(v) ? rs(v) : "—";
+  }
+  $("#scores").hidden = false;
+}
+
+function renderSignal(r) {
+  const a = $("#action");
+  a.className = "action" + (r.action === "BUY_CE" ? " ce" : r.action === "BUY_PE" ? " pe" : "");
+  const label = { BUY_CE: "BUY CALL", BUY_PE: "BUY PUT", STAY_OUT: "STAY OUT" }[r.action];
+  a.innerHTML = `<div class="label">${label}</div><div class="muted">${esc(r.day)} · ${r.time} · ATM ${inr.format(r.atm)} ${r.action === "BUY_CE" ? "CE" : r.action === "BUY_PE" ? "PE" : ""}</div>`;
+  scoreBars(r);
+  const tauTxt = TAU != null && isFinite(TAU) ? `the threshold ${rs(TAU)}` : "the threshold";
+  $("#explain").textContent = r.blocked
+    ? `The model wanted ${r.blocked.replace("_", " ")}, but no entry was possible at this second (outside 09:20–15:15, premium below ₹5 or a stale quote).`
+    : r.action === "STAY_OUT"
+      ? `Bars = expected net ₹ of buying each side now. Neither is above ${tauTxt} (black mark), so the model stays out.`
+      : `Expected net ₹ of the ${r.action === "BUY_CE" ? "call" : "put"} is above ${tauTxt} (black mark) and above the other side.`;
+  const o = $("#outcome");
+  if (r.outcome) {
+    const x = r.outcome;
+    o.className = "";
+    o.innerHTML = `<dl class="kv"><dt>Bought at (ask)</dt><dd>₹${x.entry.toFixed(2)}</dd><dt>Sold at (bid)</dt><dd>₹${x.exit.toFixed(2)}</dd>
+      <dt>Exit</dt><dd>${BARRIER[x.barrier]} after ${dur(x.hold_s)}</dd>
+      <dt>Net (1 lot, after costs)</dt><dd class="${x.net_rs > 0 ? "good" : "bad"}" style="font-size:20px">${rs(x.net_rs)}</dd></dl>`;
+  } else {
+    const h = r.hindsight || {}, side = (k, n) => h[k] ? `${n}: <b class="${h[k].net_rs > 0 ? "good" : "bad"}">${rs(h[k].net_rs)}</b> <span class="muted">(${BARRIER[h[k].barrier]} after ${dur(h[k].hold_s)})</span>` : `${n}: <span class="muted">no entry possible</span>`;
+    o.className = "";
+    o.innerHTML = `<p style="margin:0 0 8px">No trade. In hindsight, buying at this second would have made:</p>
+      <p style="margin:4px 0">${side("ce", "Call")}</p><p style="margin:4px 0">${side("pe", "Put")}</p>
+      <p class="note">Hindsight is known only after the fact. The model could not see it.</p>`;
+  }
+}
+
+function renderSess() {
+  const trades = sess.filter((s) => s.net != null), net = trades.reduce((a, s) => a + s.net, 0);
+  $("#sess-sum").innerHTML = `${sess.length} signals · ${trades.length} trades · <b class="${net > 0 ? "good" : net < 0 ? "bad" : ""}">${rs(net)}</b>`;
+  $("#sess").innerHTML = sess.filter((s) => s.action !== "STAY_OUT" || sess.length < 40).slice(-60).reverse().map((s) =>
+    `<tr><td>${s.day}</td><td class="mono">${s.time}</td><td>${s.action === "STAY_OUT" ? '<span class="muted">stay out</span>' : `<span class="chip ${s.action === "BUY_CE" ? "ok" : "bad"}">${s.action === "BUY_CE" ? "CALL" : "PUT"}</span>`}</td>
+     <td class="num ${s.net > 0 ? "good" : s.net < 0 ? "bad" : ""}">${s.net == null ? "" : rs(s.net)}</td><td class="muted">${s.exit || ""}</td></tr>`).join("");
+}
+
+async function getSignal() {
+  const day = $("#day").value, sod = +$("#t").value;
+  if (!day) return;
+  $("#go").disabled = true;
+  try {
+    const r = await api(`/signal?day=${encodeURIComponent(day)}&sod=${sod}`);
+    renderSignal(r);
+    sess.push({ day, time: r.time, action: r.action, net: r.outcome?.net_rs ?? null,
+      exit: r.outcome ? `${BARRIER[r.outcome.barrier]}, ${dur(r.outcome.hold_s)}` : "" });
+    renderSess();
+    return r;
+  } catch (e) { stopPlay(); toast("Signal: " + e.message); }
+  finally { $("#go").disabled = false; }
+}
+
+function stopPlay() {
+  clearTimeout(playing); playing = null;
+  $("#play").textContent = "▶ Play"; $("#play").setAttribute("aria-pressed", "false");
+}
+$("#play").addEventListener("click", () => {
+  if (playing) return stopPlay();
+  $("#play").textContent = "❚❚ Pause"; $("#play").setAttribute("aria-pressed", "true");
+  const tick = async () => {
+    if (+$("#t").value >= +$("#t").max) return stopPlay();
+    const r = await getSignal();
+    if (!playing && playing !== 0) return;
+    // after a trade, jump to its exit: one position at a time, as in the simulator
+    setT(+$("#t").value + (r?.outcome ? Math.max(1, Math.round(r.outcome.hold_s)) : 1));
+    playing = setTimeout(tick, +$("#speed").value);
+  };
+  playing = 0; tick();
+});
+
+/* ---------- results ---------- */
+function ciSvg(lo, hi, v, min, max) {
+  const x = (u) => 6 + ((u - min) / (max - min || 1)) * 148;
+  return `<svg class="ci" viewBox="0 0 160 18" aria-label="interval ${rs(lo)} to ${rs(hi)}">
+    <line x1="${x(0)}" y1="1" x2="${x(0)}" y2="17" stroke="currentColor" opacity=".35"/>
+    <line x1="${x(lo)}" y1="9" x2="${x(hi)}" y2="9" stroke="var(--muted)" stroke-width="3" stroke-linecap="round"/>
+    <circle cx="${x(v)}" cy="9" r="4" fill="${v > 0 ? "var(--good)" : v < 0 ? "var(--bad)" : "var(--muted)"}"/></svg>`;
+}
+async function loadResults() {
+  try {
+    const r = await api("/results"), res = r.results, fams = Object.keys(res);
+    const champ = r.champion, c = res[champ];
+    TAU = c?.tau ?? TAU;
+    const edge = c && c.ci95_net_per_day[0] > 0;
+    $("#verdict").className = "banner " + (edge ? "good" : "bad");
+    $("#verdict").innerHTML = edge
+      ? `<b>Edge detected.</b> The champion (${esc(champ)}) made ${rs(c.net_per_day)} a day on the test days, and its 95% interval is above zero.`
+      : `<b>No edge detected.</b> The champion (${esc(champ)}, chosen on cross-validation) made <b>${rs(c.net_per_day)}</b> a day on the ${r.test_days.length} test days. No model beats “stay out” with confidence after costs. This is the honest result.`;
+    $("#res-meta").textContent = `Test days ${r.test_days[0]} … ${r.test_days.at(-1)}` +
+      (r.cv ? ` · dev days ${r.cv.dev_days[0]} … ${r.cv.dev_days[1]} · ${r.cv.folds} walk-forward folds · ${r.cv.trials} settings tried` : "");
+    const lo = Math.min(0, ...fams.map((f) => res[f].ci95_net_per_day[0])), hi = Math.max(0, ...fams.map((f) => res[f].ci95_net_per_day[1]));
+    const base = new Set(["stay_out", "random", "momentum"]);
+    $("#res-table").innerHTML = fams.sort((a, b) => res[b].cv_net_per_day - res[a].cv_net_per_day).map((f) => {
+      const x = res[f];
+      return `<tr><td><b>${esc(f)}</b> ${f === champ ? '<span class="chip acc">champion</span>' : base.has(f) ? '<span class="chip">baseline</span>' : ""}</td>
+        <td class="num">${rs(x.cv_net_per_day)}</td><td class="num ${x.net_per_day > 0 ? "good" : x.net_per_day < 0 ? "bad" : ""}"><b>${rs(x.net_per_day)}</b></td>
+        <td>${ciSvg(x.ci95_net_per_day[0], x.ci95_net_per_day[1], x.net_per_day, lo, hi)} <span class="muted mono" style="font-size:12px">${rs(x.ci95_net_per_day[0])} … ${rs(x.ci95_net_per_day[1])}</span></td>
+        <td class="num">${x.trades}</td><td class="num">${x.trades ? Math.round(x.hit_rate * 100) + "%" : "—"}</td></tr>`;
+    }).join("");
+    const imp = Object.entries(r.importance || {}), top = imp.length ? imp[0][1] : 1;
+    $("#importance").innerHTML = imp.map(([k, v]) => `<div class="hbar"><span class="mono" title="${esc(k)}">${esc(k)}</span><div class="t" style="width:${(v / top) * 100}%"></div><span class="num muted">${(v * 100).toFixed(1)}%</span></div>`).join("") || '<p class="muted">No importance report.</p>';
+    $("#ablation").innerHTML = Object.entries(r.ablation || {}).map(([g, d]) => `<tr><td>${esc(g)}</td><td class="num ${d.net_per_day < 0 ? "bad" : "good"}">${rs(d.net_per_day)}</td></tr>`).join("");
+  } catch (e) { $("#verdict").textContent = "Results: " + e.message; }
+  try {
+    const d = await api("/drift/daily"), max = Math.max(0.35, ...d.map((x) => x.share));
+    $("#drift-bars").innerHTML = d.map((x) => `<div title="${x.day} (${x.split}): ${Math.round(x.share * 100)}% of features drifted" style="height:${(x.share / max) * 100}%;background:var(--${x.split})"></div>`).join("") +
+      `<span class="limit" style="bottom:${(0.3 / max) * 100}%"></span>`;
+    const avg = (s) => { const v = d.filter((x) => x.split === s); return v.length ? Math.round((v.reduce((a, x) => a + x.share, 0) / v.length) * 1000) / 10 : 0; };
+    $("#drift-note").textContent = `Share of features outside their normal day-to-day range. Mean: dev ${avg("dev")}%, test ${avg("test")}%. ${d.filter((x) => x.drift).length} of ${d.length} days above the alarm.`;
+  } catch (e) { $("#drift-note").textContent = "Drift: " + e.message; }
+}
+
+/* ---------- pipeline ---------- */
+let runFilter = null;
+function layers(stages, edges) {
+  const depth = Object.fromEntries(stages.map((s) => [s.name, 0]));
+  for (let i = 0; i < stages.length; i++) for (const [a, b] of edges) depth[b] = Math.max(depth[b], depth[a] + 1);
+  const out = []; for (const s of stages) (out[depth[s.name]] ||= []).push(s); return out;
 }
 async function loadPipeline() {
-  const [dag, runs] = await Promise.all([api("/pipeline/dag"), api("/pipeline/runs?limit=40")]);
-  drawDag(dag, runs);
-  $("runs").querySelector("tbody").innerHTML = runs.map((r) => `<tr class="click" data-id="${r.run_id}">
-    <td>${r.started.replace("T", " ").slice(0, 16)}</td><td>${r.stage}</td><td><span class="pill ${r.status}">${r.status}</span></td>
-    <td>${r.duration_s}</td><td>${r.rows_per_s ? r.rows_per_s.toLocaleString("en-IN") : "–"}</td><td>${r.git_commit}${r.git_dirty ? " (edited)" : ""}</td></tr>`).join("")
-    || '<tr><td colspan="6" class="muted">No runs recorded yet.</td></tr>';
   try {
-    const m = await api("/model"), c = m.champion;
-    const v = c.val_metrics, money = (x) => (x === undefined || x === null ? "–" : rs(x));
-    const rows = [
-      ["Trades per day (validation)", v.val_trades_per_day_selected ?? "–"],
-      ["Hit rate", v.val_hit_rate_selected !== undefined ? Math.round(v.val_hit_rate_selected * 100) + "%" : "–"],
-      ["Average result per trade: this model", money(v.val_net_per_trade_rs_selected)],
-      ["… random call/put", money(v.val_random_net_per_trade_rs)],
-      ["… momentum rule", money(v.val_momentum_net_per_trade_rs)],
-      ["… perfect hindsight (cannot be traded)", money(v.val_oracle_net_per_trade_rs)],
-      ["Confidence score, lower is better (guessing = " + (v.val_logloss_prior ?? "–") + ")", v.val_logloss ?? "–"],
-    ].map(([k, x]) => `<tr><td style="white-space:normal">${k}</td><td><b>${x}</b></td></tr>`).join("");
-    $("modelBox").innerHTML = `Serving <b>version ${c.version}</b> (code ${c.git_commit || "?"}). Confidence needed to trade: <b>${Number(c.tau) >= 1.01 ? "never trades" : c.tau}</b>.` +
-      `<div class="tablewrap"><table style="margin-top:8px">${rows}</table></div>` +
-      `<p class="muted">Validation days helped pick this model, so these numbers flatter it.</p>` + (m.previous ? `Previous version: ${m.previous.version}` : "");
-  } catch (e) { $("modelBox").textContent = e.message; }
+    const p = await api("/pipeline"), dag = $("#dag");
+    dag.innerHTML = layers(p.stages, p.edges).map((col) => `<div class="layer">${col.map((s) => {
+      const l = s.last, cls = !l ? "" : l.status === "ok" ? "ok" : "bad";
+      const speed = l?.summary?.rows_per_s ? ` · ${inr.format(l.summary.rows_per_s)} rows/s` : "";
+      return `<div class="node ${cls} ${runFilter === s.name ? "sel" : ""}" data-stage="${esc(s.name)}" title="${esc(s.cmd)}">
+        <b><span class="dot ${cls}"></span>${esc(s.name)}</b>
+        <span class="muted">${l ? `${l.status} · ${dur(l.duration_s)}${speed}` : "never run"}</span></div>`;
+    }).join("")}</div>`).join("");
+    requestAnimationFrame(() => drawEdges(p.edges));
+    dag.querySelectorAll(".node").forEach((n) => n.addEventListener("click", () => { runFilter = n.dataset.stage; loadPipeline(); }));
+  } catch (e) { $("#dag").innerHTML = `<p class="bad">Pipeline: ${esc(e.message)}</p>`; }
+  loadRuns(); loadQuality();
 }
-async function showLog(id) {
-  const t = await api(`/pipeline/runs/${encodeURIComponent(id)}/log?lines=120`);
-  const pre = $("log"); pre.textContent = t; pre.hidden = false; pre.scrollIntoView({ behavior: "smooth", block: "nearest" });
+function drawEdges(edges) {
+  const dag = $("#dag"), box = dag.getBoundingClientRect(), node = (n) => dag.querySelector(`[data-stage="${CSS.escape(n)}"]`);
+  const paths = edges.map(([a, b]) => {
+    const A = node(a)?.getBoundingClientRect(), B = node(b)?.getBoundingClientRect(); if (!A || !B) return "";
+    const x1 = A.right - box.left + dag.scrollLeft, y1 = A.top + A.height / 2 - box.top, x2 = B.left - box.left + dag.scrollLeft, y2 = B.top + B.height / 2 - box.top, m = (x1 + x2) / 2;
+    return `<path d="M${x1},${y1} C${m},${y1} ${m},${y2} ${x2},${y2}" fill="none" stroke="var(--muted)" stroke-opacity=".5" stroke-width="1.5"/>`;
+  }).join("");
+  dag.insertAdjacentHTML("afterbegin", `<svg width="${dag.scrollWidth}" height="${dag.scrollHeight}">${paths}</svg>`);
 }
-async function act(path, confirmText) {
-  if (!confirm(confirmText)) return;
-  const token = sessionStorage.getItem("adminToken") || prompt("Admin token (leave empty if none is set):") || "";
-  sessionStorage.setItem("adminToken", token);
-  const r = await api(path, { method: "POST", headers: token ? { "X-Admin-Token": token } : {} });
-  $("actionMsg").textContent = JSON.stringify(r);
+async function loadRuns() {
+  $("#runs-title").textContent = runFilter ? `Runs of ${runFilter}` : "Recent runs";
+  $("#runs-all").hidden = !runFilter;
+  try {
+    const runs = await api("/pipeline/runs?limit=40" + (runFilter ? "&stage=" + encodeURIComponent(runFilter) : ""));
+    $("#runs").innerHTML = runs.map((r) => `<tr class="click" data-run="${esc(r.run_id)}">
+      <td class="mono" style="font-size:12px">${esc((r.started || "").replace("T", " ").slice(0, 16))}</td><td>${esc(r.stage)}</td>
+      <td><span class="chip ${r.status === "ok" ? "ok" : "bad"}">${esc(r.status)}</span></td><td class="num">${dur(r.duration_s)}</td>
+      <td class="mono" style="font-size:12px">${esc((r.git_commit || "").slice(0, 7))}${r.git_dirty ? ' <span class="warn" title="uncommitted code">*</span>' : ""}</td></tr>`).join("")
+      || '<tr><td colspan="5" class="muted">No runs yet.</td></tr>';
+    $("#runs").querySelectorAll("tr.click").forEach((tr) => tr.addEventListener("click", () => {
+      $("#runs").querySelectorAll("tr").forEach((x) => x.classList.remove("sel")); tr.classList.add("sel");
+      showRun(runs.find((r) => r.run_id === tr.dataset.run));
+    }));
+  } catch (e) { toast("Runs: " + e.message); }
 }
-
-/* ---------- results tab ---------- */
-let final = null;
-const RULES = [
-  ["champion", "This model (its rule: stay out)"], ["always_ce", "Always buy the call"], ["always_pe", "Always buy the put"],
-  ["momentum", "Follow the last 2 minutes"], ["random", "Pick call or put at random"], ["oracle_not_tradable", "Perfect hindsight (impossible)"],
-];
-async function loadResults() {
-  try { final = await api("/results"); }
-  catch (e) {
-    $("resultsBody").innerHTML = `<div class="banner info">The unseen test days have not been scored yet. ${e.message}</div>`;
-    return;
-  }
-  const slips = Object.keys(final.by_slippage).sort((a, b) => b - a);
-  $("resultsBody").innerHTML = `
-    <div class="verdict wait"><div class="big" id="resHeadline"></div><p id="resSub"></p></div>
-    <div class="card" style="margin-top:14px"><h2>RESULT PER DAY ON ${final.days.length} DAYS THE MODEL NEVER SAW</h2>
-      <label for="slip">Extra cost per trade leg (slippage, points)</label>
-      <select id="slip" style="max-width:340px;margin-bottom:10px">${slips.map((x) => `<option value="${x}">${x}${x === String(final.verdict.headline_slippage) ? " (measured on real trades)" : ""}</option>`).join("")}</select>
-      <div class="tablewrap"><table id="resTable"></table></div>
-      <p class="muted">One lot. Bought at the asking price, sold at the bid 2 minutes later, all taxes included.
-      The range is where the true average per day likely lies (95%).</p></div>
-    <div class="row two">
-      <div class="card"><h2>DOES THE MODEL KNOW ANYTHING?</h2><p id="resInfo"></p></div>
-      <div class="card"><h2>CAN IT PICK CALL OR PUT?</h2><p id="resSide"></p></div>
-    </div>
-    <p class="muted">Model version ${final.model.version} · scored once, by rules written down before the test
-    (${final.protocol}) · code ${String(final.evaluated_at_commit).slice(0, 10)}</p>
-    <div id="v2Body"></div>`;
-  $("slip").value = String(final.verdict.headline_slippage);
-  $("slip").onchange = drawResults;
-  drawResults();
-  try { drawV2(await api("/results/v2")); }
-  catch (e) { $("v2Body").innerHTML = `<div class="banner info">The second-level model has no results yet. ${e.message}</div>`; }
+$("#runs-all").addEventListener("click", () => { runFilter = null; loadPipeline(); });
+$("#pipe-refresh").addEventListener("click", () => loadPipeline());
+async function showRun(r) {
+  $("#log-title").textContent = `Run log · ${r.run_id}`;
+  const sum = Object.entries(r.summary || {}).filter(([, v]) => typeof v !== "object").slice(0, 8);
+  $("#run-summary").innerHTML = sum.map(([k, v]) => `<dt>${esc(k)}</dt><dd class="mono">${esc(typeof v === "number" ? inr.format(v) : v)}</dd>`).join("");
+  $("#log").textContent = "Loading…";
+  try { $("#log").textContent = await api(`/pipeline/runs/${encodeURIComponent(r.run_id)}/log?tail=300`); }
+  catch (e) { $("#log").textContent = e.message; }
 }
-
-/* v2: second-level model and the other ideas tested (statutory costs only) */
-const SPRINT = {
-  v2: "Second-level model", A: "Only when a big move is likely", C: "Trailing stop instead of a fixed target",
-  D1: "Only 09:20–09:45", D2: "Only expiry day after 13:00", D3: "Only when the market moves more than expected",
-  E: "Follow a sudden burst of buying (no model)",
-};
-function drawV2(v) {
-  const d = v.development, dc = d.chosen, h = v.held_out.by_slippage["0.0"], hm = h.model;
-  const money = (x) => (x === 0 ? "Rs 0" : rs(x));
-  const cls = (x) => (x > 0 ? "pos" : x < 0 ? "neg" : "");
-  const rng = (r) => (r ? `${rs(r[0])} to ${rs(r[1])}` : "–");
-  const sprint = Object.entries(v.sprint).map(([k, r]) => `<tr><td style="white-space:normal">${SPRINT[k] || k}</td>
-    <td class="money ${cls(r.mean_net_per_day_rs)}">${money(r.mean_net_per_day_rs)}</td><td class="opt">${rng(r.per_day_ci99_rs)}</td>
-    <td>${r.trades}</td><td>${r.passed ? "yes" : "no"}</td></tr>`).join("");
-  $("v2Body").innerHTML = `
-    <div class="card" style="margin-top:14px"><h2>SECOND-LEVEL MODEL (READS THE ORDER BOOK EVERY SECOND)</h2>
-      <p>It buys the call or the put and exits at +3.5 points, at −2.0 points, or after 3 minutes.
-      Costs: taxes only, no slippage.</p>
-      <div class="tablewrap"><table>
-        <tr><th></th><th>Days</th><th>Trades</th><th>Per day</th><th class="opt">Likely range</th></tr>
-        <tr><td style="white-space:normal">Days it did not train on (development)</td><td>${d.days}</td><td>${dc.trades}</td>
-          <td class="money ${cls(dc.mean_net_per_day_rs)}">${money(dc.mean_net_per_day_rs)}</td><td class="opt">${rng(dc.per_day_ci95_rs)}</td></tr>
-        <tr><td style="white-space:normal">The 10 held-out days (one look)</td><td>${v.held_out.days.length}</td><td>${hm.trades}</td>
-          <td class="money ${cls(hm.mean_net_per_day_rs)}">${money(hm.mean_net_per_day_rs)}</td><td class="opt">${rng(hm.per_day_ci95_rs)}</td></tr>
-      </table></div>
-      <p><b>It can pick the side:</b> it beat random picks at the same moments in ${d.random_side_control.seeds_beaten} of
-      ${d.random_side_control.seeds} tries. <b>It does not pay reliably:</b> the likely range includes losing money.</p>
-      <p class="muted">${v.held_out_note}.</p></div>
-    <div class="card"><h2>OTHER IDEAS TESTED (DEVELOPMENT DAYS, STRICT 99% RULE)</h2>
-      <div class="tablewrap"><table><tr><th>Idea</th><th>Per day</th><th class="opt">Likely range (99%)</th><th>Trades</th><th>Passed</th></tr>
-      ${sprint}</table></div>
-      <p class="muted">An idea passes only if even the low end of its range makes money. None did.
-      Rules written before the test: ${v.protocols.join(", ")}.</p></div>`;
-}
-function drawResults() {
-  const r = final.by_slippage[$("slip").value], v = final.verdict, inf = final.information;
-  const sp = r.side_picking, f = sp.forced_policy;
-  const row = (k) => (k === "champion" ? r.champion : r.baselines[k]);
-  const range = (x) => (x.per_day_ci95_rs ? `${rs(x.per_day_ci95_rs[0])} to ${rs(x.per_day_ci95_rs[1])}` : "–");
-  const cls = (x) => (x > 0 ? "pos" : x < 0 ? "neg" : "");
-  $("resHeadline").textContent = v.every_trading_baseline_lost
-    ? "No way of trading beat the costs. Staying out was right."
-    : "Some rule made money on these days. Check the table.";
-  $("resSub").textContent = `On ${final.days.length} unseen days the model never traded, so it made Rs 0. ` +
-    "Every rule below that trades lost money after the spread and taxes.";
-  $("resTable").innerHTML = "<tr><th>Rule</th><th>Per day</th><th class=\"opt\">Likely range per day</th><th class=\"opt\">Per trade</th><th>Trades won</th></tr>" +
-    RULES.map(([k, name]) => { const x = row(k);
-      return `<tr><td style="white-space:normal">${name}</td><td class="money ${cls(x.mean_net_per_day_rs)}">${x.mean_net_per_day_rs === 0 ? "Rs 0" : rs(x.mean_net_per_day_rs)}</td>
-        <td class="opt">${range(x)}</td><td class="opt">${x.mean_net_per_trade_rs == null ? "–" : rs(x.mean_net_per_trade_rs)}</td>
-        <td>${x.hit_rate == null ? "–" : Math.round(x.hit_rate * 100) + "%"}</td></tr>`; }).join("");
-  $("resInfo").innerHTML = inf.detected
-    ? `<b>A little.</b> Its odds were better than plain guessing on ${inf.days_with_gain} of ${final.days.length} days.`
-    : `<b>No.</b> Its odds were no better than plain guessing (better on ${inf.days_with_gain} of ${final.days.length} days).`;
-  $("resSide").innerHTML = (sp.detected ? "<b>Yes.</b> " : "<b>No.</b> ") +
-    `Forced to trade, it made ${rs(f.mean_net_per_day_rs)} a day. Random picks at the same moments made about ` +
-    `${rs(sp.coin_flip_same_minutes_per_day_mean)}. It beat ${sp.seeds_beaten} of ${sp.seeds} random tries (it needed ${Math.ceil(sp.seeds * 0.95)}).`;
+async function loadQuality() {
+  try {
+    const q = await api("/quality"), rej = Object.entries(q.rejected || {});
+    const tables = Object.entries(q.cleaning || {});
+    $("#quality").innerHTML = `<p><b>${(q.accepted || []).length}</b> days accepted, <b>${rej.length}</b> rejected by the <span class="mono">check</span> stage.</p>
+      ${rej.length ? `<div class="scroll"><table><thead><tr><th>Rejected day</th><th>Reasons</th></tr></thead><tbody>${rej.map(([d, why]) => `<tr><td class="mono">${d}</td><td>${why.map(esc).join("; ")}</td></tr>`).join("")}</tbody></table></div>` : ""}
+      <h3>Rows removed or emptied by the <span class="mono">clean</span> stage</h3>
+      <div class="scroll"><table><thead><tr><th>Table</th><th class="num">Rows in</th><th class="num">Rows out</th><th>Rules (rows)</th></tr></thead><tbody>
+      ${tables.map(([t, c]) => `<tr><td class="mono">${t}</td><td class="num">${inr.format(c.rows_in)}</td><td class="num">${inr.format(c.rows_out)}</td>
+        <td style="font-size:13px">${Object.entries(c).filter(([k, v]) => /^(drop|null)_/.test(k) && v > 0).map(([k, v]) => `${esc(k.replace(/^(drop|null)_/, (m) => m === "drop_" ? "drop · " : "empty · ").replace(/_/g, " "))}: ${inr.format(v)}`).join("<br>")}</td></tr>`).join("")}
+      </tbody></table></div>`;
+  } catch (e) { $("#quality").innerHTML = `<p class="bad">Quality: ${esc(e.message)}</p>`; }
 }
 
-/* ---------- wiring ---------- */
-function tab(name) {
-  for (const t of ["predict", "results", "pipeline"]) {
-    $(t).hidden = name !== t;
-    $("tab" + t[0].toUpperCase() + t.slice(1)).setAttribute("aria-selected", name === t);
-  }
-  if (location.hash !== "#" + name) history.replaceState(null, "", "#" + name);  // a tab can be linked
-  if (name === "pipeline") guard(loadPipeline)();
-  if (name === "results") guard(loadResults)();
+/* ---------- operations ---------- */
+function versionCard(v) {
+  if (!v) return '<p class="muted">None.</p>';
+  const m = v.metrics || {}, g = (k) => m[k];
+  return `<dl class="kv"><dt>Version</dt><dd>v${v.version}</dd><dt>Family</dt><dd>${esc(v.family || "—")}</dd>
+    <dt>Deploy check</dt><dd><span class="chip ${v.deploy_check === "passed" ? "ok" : "bad"}">${esc(v.deploy_check || "—")}</span></dd>
+    <dt>Git commit</dt><dd class="mono">${esc((v.git_commit || "").slice(0, 10))}</dd>
+    <dt>Test ₹/day</dt><dd class="${g("test_net_per_day") > 0 ? "good" : "bad"}">${rs(g("test_net_per_day"))}</dd>
+    <dt>Test interval</dt><dd>${rs(g("test_ci95_lo"))} … ${rs(g("test_ci95_hi"))}</dd>
+    <dt>Test trades</dt><dd>${g("test_trades") ?? "—"}</dd></dl>`;
 }
-async function health() {
-  try { await api("/healthz"); $("dot").className = "dot ok"; $("statusText").textContent = "connected, model ready"; }
-  catch (e) { $("dot").className = "dot bad"; $("statusText").textContent = "model service not ready"; }
+async function loadOps() {
+  try { const m = await api("/model"); $("#champ").innerHTML = versionCard(m.champion); $("#prev").innerHTML = versionCard(m.previous); $("#rollback").disabled = !m.previous; }
+  catch (e) { $("#champ").innerHTML = `<p class="bad">${esc(e.message)}</p>`; }
+  try {
+    const d = await api("/drift"), top = Object.entries(d.psi || {}).sort((a, b) => b[1] - a[1]).slice(0, 8);
+    $("#drift-now").innerHTML = !d.ready
+      ? `<p class="muted">Needs more served rows (${d.rows} so far). Use <b>Play</b> on the Signal tab.</p>`
+      : `<p>${d.drift ? '<span class="chip bad">drift</span>' : '<span class="chip ok">normal</span>'} ${Math.round(d.share * 100)}% of features are outside their normal range (last ${d.rows} served rows).</p>
+         <div class="scroll"><table><thead><tr><th>Feature</th><th class="num">PSI</th></tr></thead><tbody>${top.map(([k, v]) => `<tr><td class="mono">${esc(k)}</td><td class="num">${v.toFixed(2)}</td></tr>`).join("")}</tbody></table></div>`;
+  } catch (e) { $("#drift-now").innerHTML = `<p class="muted">${esc(e.message)}</p>`; }
 }
-async function init() {
-  cfg = await (await fetch("config.json")).json();
-  $("lMlflow").href = cfg.mlflow_url; $("lGrafana").href = cfg.grafana_url;
-  $("tabPredict").onclick = () => tab("predict"); $("tabPipeline").onclick = () => tab("pipeline");
-  $("tabResults").onclick = () => tab("results");
-  $("day").onchange = guard(loadMinutes);
-  $("slider").oninput = guard(show);
-  $("prev").onclick = () => { $("slider").value = Math.max(0, +$("slider").value - 1); guard(show)(); };
-  $("next").onclick = () => { $("slider").value = Math.min(+$("slider").max, +$("slider").value + 1); guard(show)(); };
-  $("runs").onclick = (ev) => { const tr = ev.target.closest("tr[data-id]"); if (tr) guard(showLog)(tr.dataset.id); };
-  $("retrain").onclick = guard(() => act("/retrain?reason=manual%20from%20web%20page", "Ask the pipeline to retrain the model?"));
-  $("rollback").onclick = guard(() => act("/rollback", "Switch the served model back to the previous version?"));
-  await health(); setInterval(health, 15000);
-  await guard(loadDays)();
-  const start = location.hash.slice(1);
-  if (["results", "pipeline"].includes(start)) tab(start);
-}
-init().catch((e) => showError("Could not start: " + e.message));
+const adminHeaders = () => ({ "X-Admin-Token": $("#token").value });
+try { $("#token").value = sessionStorage.getItem("token") || ""; } catch {}
+$("#token").addEventListener("change", () => { try { sessionStorage.setItem("token", $("#token").value); } catch {} });
+$("#rollback").addEventListener("click", async () => {
+  if (!confirm("Roll back: serve the previous model version instead of the current champion?")) return;
+  $("#rollback").disabled = true;
+  try { const r = await api("/rollback", { method: "POST", headers: adminHeaders() }); toast(`Rolled back: champion is now v${r.champion}. The model server follows in about 10 s.`); }
+  catch (e) { toast("Rollback: " + e.message); }
+  loadOps(); status();
+});
+$("#retrain").addEventListener("click", async () => {
+  $("#retrain").disabled = true;
+  try { await api("/retrain?reason=" + encodeURIComponent($("#reason").value || "manual"), { method: "POST", headers: adminHeaders() }); toast("Retraining requested. Watch the Pipeline tab for zoo_train and zoo_eval."); }
+  catch (e) { toast("Retrain: " + e.message); }
+  finally { setTimeout(() => ($("#retrain").disabled = false), 3000); }
+});
+
+/* ---------- start ---------- */
+(async () => {
+  try { CFG = { ...CFG, ...(await (await fetch("config.json", { cache: "no-store" })).json()) }; } catch {}
+  $("#links").innerHTML = [["MLflow (experiments, registry)", CFG.mlflow_url], ["Grafana (monitoring)", CFG.grafana_url], ["API reference (OpenAPI)", CFG.api_url + "/docs"]]
+    .filter(([, u]) => u).map(([n, u]) => `<a class="btn" href="${esc(u)}" target="_blank" rel="noopener">${esc(n)} ↗</a>`).join("");
+  setT(+$("#t").value);
+  status(); setInterval(status, 15000);
+  try { await loadDays(); } catch (e) { toast("Days: " + e.message); }
+  api("/results").then((r) => (TAU = r.results?.[r.champion]?.tau ?? null)).catch(() => {});
+  const tab = location.hash.slice(1);
+  show(["signal", "results", "pipeline", "ops"].includes(tab) ? tab : "signal");
+  if ($("#day").value) getSignal();  // open on a real example, not an empty card
+})();
 </script>
 </body>
 </html>

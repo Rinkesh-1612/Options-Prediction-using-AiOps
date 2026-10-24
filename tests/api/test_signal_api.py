@@ -191,3 +191,56 @@ def test_missing_day_file_is_503_not_500(env):
     (env.feat_dir / f"{DAY}.parquet").unlink()
     c = TestClient(create_app(env, FakeModel(), FakeRegistry()))
     assert c.get("/signal", params={"day": DAY, "sod": 33500}).status_code == 503
+
+
+def test_signal_shows_hindsight_for_both_sides(env):
+    c = TestClient(create_app(env, FakeModel("STAY_OUT"), FakeRegistry()))
+    body = c.get("/signal", params={"day": DAY, "sod": 33500}).json()
+    assert body["outcome"] is None and body["hindsight"]["ce"]["net_rs"] == 240.0
+
+
+@pytest.fixture
+def pipe_env(env, tmp_path):
+    from dataclasses import replace
+
+    (tmp_path / "dvc.yaml").write_text(
+        "stages:\n"
+        "  grid: {cmd: python -m g, deps: [data/clean], outs: [data/grid]}\n"
+        "  feat: {cmd: python -m f, deps: [data/grid, src/x], outs: [data/feat],"
+        " metrics: [{reports/feat.json: {cache: false}}]}\n"
+    )
+    runs = [
+        {"run_id": "20261024T010000-grid", "stage": "grid", "status": "ok", "duration_s": 5},
+        {"run_id": "20261024T010100-feat", "stage": "feat", "status": "failed", "duration_s": 1},
+        {"run_id": "20261020T010000-bars", "stage": "bars", "status": "failed"},  # removed stage
+    ]
+    (tmp_path / "runs.jsonl").write_text("\n".join(json.dumps(r) for r in runs) + "\n")
+    (tmp_path / "logs" / "grid").mkdir(parents=True)
+    (tmp_path / "logs" / "grid" / "20261024T010000-grid.log").write_text("line1\nline2\n")
+    return replace(
+        env, dvc_path=tmp_path / "dvc.yaml", runs_path=tmp_path / "runs.jsonl", logs_root=tmp_path / "logs"
+    )
+
+
+def test_pipeline_graph_runs_and_logs(pipe_env):
+    c = TestClient(create_app(pipe_env, FakeModel(), FakeRegistry()))
+    p = c.get("/pipeline").json()
+    assert p["edges"] == [["grid", "feat"]]
+    assert {s["name"]: s["last"]["status"] for s in p["stages"]} == {"grid": "ok", "feat": "failed"}
+    runs = c.get("/pipeline/runs").json()
+    assert [r["stage"] for r in runs] == ["feat", "grid"]  # newest first, removed stage hidden
+    assert c.get("/pipeline/runs/20261024T010000-grid/log").text.endswith("line2")
+    assert c.get("/pipeline/runs/..%2F..%2Fetc%2Fpasswd/log").status_code in (400, 404)
+    assert c.get("/pipeline/runs/20991231T000000-grid/log").status_code == 404
+    text = c.get("/metrics").text
+    assert 'pipeline_last_run_ok{stage="feat"} 0.0' in text and 'stage="bars"' not in text
+
+
+def test_results_with_infinite_tau_is_valid_json(env):
+    env.zoo_dir.mkdir()
+    (env.zoo_dir / "test.json").write_text(
+        '{"test_days": ["d"], "champion": "a", "results": {"a": {"tau": Infinity, "x": NaN, "y": [1.0]}}}'
+    )
+    c = TestClient(create_app(env, FakeModel(), FakeRegistry()))
+    r = c.get("/results")
+    assert r.status_code == 200 and r.json()["results"]["a"] == {"tau": None, "x": None, "y": [1.0]}

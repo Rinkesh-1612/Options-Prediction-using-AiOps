@@ -60,6 +60,9 @@ services:
       ZOO_DIR: /app/reports/zoo
       DRIFT_REF: /app/reports/drift/reference.json
       RUNS_PATH: /app/runs/runs.jsonl
+      REPORTS_DIR: /app/reports
+      DVC_PATH: /app/dvc.yaml
+      LOGS_ROOT: /app/logs
       RETRAIN_REQUEST: /app/state/retrain_request.json
       RETRAIN_COOLDOWN_S: ${RETRAIN_COOLDOWN_S:-3600}
       ADMIN_TOKEN: ${ADMIN_TOKEN:-}
@@ -67,6 +70,8 @@ services:
       - ./data:/app/data:ro          # the parent folder: DVC recreates data/feat and data/labels on each run
       - ./reports:/app/reports:ro
       - ./runs:/app/runs:ro
+      - ./logs:/app/logs:ro
+      - ./dvc.yaml:/app/dvc.yaml:ro
       - ./state:/app/state
       - ./mlflow:/app/mlflow
     healthcheck:
