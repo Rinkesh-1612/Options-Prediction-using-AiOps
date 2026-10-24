@@ -164,3 +164,27 @@ stages:
     metrics:
     - reports/drift/daily.json:
         cache: false
+
+  vol:
+    # volatility forecaster vs the option market's implied move (docs/steps/vol_model.md)
+    cmd: python -m optpred.vol.stage
+    params:
+    - vol
+    - zoo.n_test_days
+    - zoo.min_train_days
+    - zoo.val_days
+    deps:
+    - src/optpred/vol
+    - data/grid
+    - data/feat
+    - data/days.json
+    outs:
+    - reports/vol/test_scatter.png:
+        cache: false
+    metrics:
+    - reports/vol/cv.json:
+        cache: false
+    - reports/vol/test.json:
+        cache: false
+    - reports/vol/comparison.md:
+        cache: false

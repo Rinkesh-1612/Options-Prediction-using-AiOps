@@ -1326,3 +1326,68 @@ stages:
       hash: md5
       md5: d824c49bbd9858a00732c9508304c9d0
       size: 22313
+  vol:
+    cmd: python -m optpred.vol.stage
+    deps:
+    - path: data/days.json
+      hash: md5
+      md5: 96ba327842a4cc8892310a4dcf8a9365
+      size: 1678
+    - path: data/feat
+      hash: md5
+      md5: c370ee04e83d6eea4e3691e71c03c968.dir
+      size: 265269408
+      nfiles: 49
+    - path: data/grid
+      hash: md5
+      md5: e3421995d54abc9e07dfdb182f8364aa.dir
+      size: 338988523
+      nfiles: 49
+    - path: src/optpred/vol
+      hash: md5
+      md5: 32db59b56f7e16b6b4d8955e2547fa13.dir
+      size: 17709
+      nfiles: 5
+    params:
+      params.yaml:
+        vol:
+          stride_s: 30
+          first_s: 33600
+          main_horizon_s: 900
+          bootstrap: 5000
+          seed: 20261024
+          models:
+            implied: {}
+            har: {}
+            har_iv: {}
+            lgbm:
+              n_estimators: 400
+              learning_rate: 0.03
+              num_leaves: 15
+              min_child_samples: 200
+              n_jobs: 4
+          mlflow:
+            tracking_uri: sqlite:///mlflow/mlflow.db
+            artifact_root: mlflow/artifacts
+            experiment: nifty-vol
+            registered_model: nifty-vol
+        zoo.min_train_days: 19
+        zoo.n_test_days: 10
+        zoo.val_days: 5
+    outs:
+    - path: reports/vol/comparison.md
+      hash: md5
+      md5: 0ff9af548291f311691c05d68734d02b
+      size: 395
+    - path: reports/vol/cv.json
+      hash: md5
+      md5: d58fc12add06c1de604a192c20081c9c
+      size: 1732
+    - path: reports/vol/test.json
+      hash: md5
+      md5: 47caa0bea6440e4ed87ffb89b7369fb3
+      size: 5101
+    - path: reports/vol/test_scatter.png
+      hash: md5
+      md5: 3c0093d64eaaf5735a5ddf2671649fa2
+      size: 71186
