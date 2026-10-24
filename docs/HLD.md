@@ -10,7 +10,7 @@ model was trained or tuned on**, with a 95% bootstrap interval over days, agains
 Results: **direction — no edge detected** (`reports/zoo/comparison.md`). **Volatility — predictable:** a second
 model forecasts the NIFTY move over the next 5 / 15 min and beats the option market's implied forecast on 10 of 10
 test days (`reports/vol/comparison.md`). A good volatility forecast did not make straddles profitable after the spread
-(research branch `vol-track`); for Ravion it is a filter and sizing input.
+(research branch `forward-data`: volatility, expiry-day and execution studies, with the forward days); for Ravion it is a filter and sizing input.
 
 ## 2. Design rules
 
