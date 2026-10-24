@@ -111,6 +111,8 @@ pre.log { background: var(--soft); border-radius: 8px; padding: 12px; max-height
 .toast[hidden] { display: none; }
 .ci { width: 160px; height: 18px; }
 .skeleton { color: var(--muted); font-size: 14px; }
+.volgrid { display: grid; grid-template-columns: 70px repeat(3, 1fr); gap: 6px 12px; font-size: 14px; align-items: baseline; }
+.volgrid b { font-size: 18px; }
 </style>
 </head>
 <body>
@@ -170,6 +172,10 @@ pre.log { background: var(--soft); border-radius: 8px; padding: 12px; max-height
         <h2>What happened next</h2>
         <div id="outcome" class="skeleton">The result appears here after a signal.</div>
       </div>
+      <div class="card">
+        <h2>Volatility forecast (next 5 / 15 min)</h2>
+        <div id="vol" class="skeleton">The forecast appears here after a signal.</div>
+      </div>
     </div>
   </div>
 
@@ -185,8 +191,17 @@ pre.log { background: var(--soft); border-radius: 8px; padding: 12px; max-height
 <!-- ============================== RESULTS ============================== -->
 <section id="tab-results" hidden>
   <div id="verdict" class="banner">Loading results…</div>
+  <div class="card" style="margin-bottom:16px">
+    <h2>Volatility forecast vs the option market</h2>
+    <div id="vol-verdict" class="banner" style="margin-bottom:12px">Loading…</div>
+    <div class="scroll"><table>
+      <thead><tr><th>Forecaster</th><th class="num">CV QLIKE 15m</th><th class="num">Test QLIKE 15m</th><th class="num">Test corr 15m</th><th class="num">Test QLIKE 5m</th><th class="num">Test corr 5m</th></tr></thead>
+      <tbody id="vol-table"></tbody>
+    </table></div>
+    <p class="note">QLIKE = standard loss of a volatility forecast (lower is better). Corr = correlation of log forecast and log realized move. "implied" = the move priced by the ATM option IV.</p>
+  </div>
   <div class="card">
-    <h2>Every model on the test days</h2>
+    <h2>Direction models on the test days (buy call / buy put / stay out)</h2>
     <p class="note" id="res-meta" style="margin-top:-6px"></p>
     <div class="scroll"><table>
       <thead><tr><th>Model</th><th class="num">CV ₹/day</th><th class="num">Test ₹/day</th><th>95% interval (test)</th><th class="num">Trades</th><th class="num">Hit rate</th></tr></thead>
@@ -382,6 +397,18 @@ function renderSignal(r) {
   }
 }
 
+async function getVol(day, sod) {
+  try {
+    const v = await api(`/vol?day=${encodeURIComponent(day)}&sod=${sod}`);
+    const cell = (x) => `<b>${x.forecast_bp.toFixed(1)}</b> bp`, ratio = (x) => x.ratio == null ? "—" : `${x.ratio.toFixed(2)}×`;
+    $("#vol").className = "";
+    $("#vol").innerHTML = `<div class="volgrid"><span></span><span class="muted">Model forecast</span><span class="muted">Option market (IV)</span><span class="muted">Realized (hindsight)</span>
+      ${["5min", "15min"].map((k) => `<span class="muted">${k.replace("min", " min")}</span><span>${cell(v[k])} <span class="muted">(${ratio(v[k])} implied)</span></span>
+        <span>${v[k].implied_bp == null ? "—" : v[k].implied_bp.toFixed(1) + " bp"}</span><span>${v[k].realized_bp == null ? "—" : v[k].realized_bp.toFixed(1) + " bp"}</span>`).join("")}</div>
+      <p class="note">Expected size of the NIFTY move, not its direction (1 bp ≈ ${((window.lastAtm || 25000) / 1e4).toFixed(1)} index points). How it compares with the option market on the test days: Results tab.</p>`;
+  } catch (e) { $("#vol").innerHTML = `<span class="muted">Volatility: ${esc(e.message)}</span>`; }
+}
+
 function renderSess() {
   const trades = sess.filter((s) => s.net != null), net = trades.reduce((a, s) => a + s.net, 0);
   $("#sess-sum").innerHTML = `${sess.length} signals · ${trades.length} trades · <b class="${net > 0 ? "good" : net < 0 ? "bad" : ""}">${rs(net)}</b>`;
@@ -397,6 +424,7 @@ async function getSignal() {
   try {
     const r = await api(`/signal?day=${encodeURIComponent(day)}&sod=${sod}`);
     renderSignal(r);
+    window.lastAtm = r.atm; getVol(day, sod);
     history.replaceState(null, "", `#signal&day=${day}&t=${sod}`);
     sess.push({ day, time: r.time, action: r.action, net: r.outcome?.net_rs ?? null,
       exit: r.outcome ? `${BARRIER[r.outcome.barrier]}, ${dur(r.outcome.hold_s)}` : "" });
@@ -440,8 +468,8 @@ async function loadResults() {
     const edge = c && c.ci95_net_per_day[0] > 0;
     $("#verdict").className = "banner " + (edge ? "good" : "bad");
     $("#verdict").innerHTML = edge
-      ? `<b>Edge detected.</b> The champion (${esc(champ)}) made ${rs(c.net_per_day)} a day on the test days, and its 95% interval is above zero.`
-      : `<b>No edge detected.</b> The champion (${esc(champ)}, chosen on cross-validation) made <b>${rs(c.net_per_day)}</b> a day on the ${r.test_days.length} test days. No model beats “stay out” with confidence after costs. This is the honest result.`;
+      ? `<b>Direction: edge detected.</b> The champion (${esc(champ)}) made ${rs(c.net_per_day)} a day on the test days, and its 95% interval is above zero.`
+      : `<b>Direction: no edge detected.</b> The champion (${esc(champ)}, chosen on cross-validation) made <b>${rs(c.net_per_day)}</b> a day on the ${r.test_days.length} test days. No model beats “stay out” with confidence after costs. This is the honest result.`;
     $("#res-meta").textContent = `Test days ${r.test_days[0]} … ${r.test_days.at(-1)}` +
       (r.cv ? ` · dev days ${r.cv.dev_days[0]} … ${r.cv.dev_days[1]} · ${r.cv.folds} walk-forward folds · ${r.cv.trials} settings tried` : "");
     const lo = Math.min(0, ...fams.map((f) => res[f].ci95_net_per_day[0])), hi = Math.max(0, ...fams.map((f) => res[f].ci95_net_per_day[1]));
@@ -457,6 +485,19 @@ async function loadResults() {
     $("#importance").innerHTML = imp.map(([k, v]) => `<div class="hbar"><span class="mono" title="${esc(k)}">${esc(k)}</span><div class="t" style="width:${(v / top) * 100}%"></div><span class="num muted">${(v * 100).toFixed(1)}%</span></div>`).join("") || '<p class="muted">No importance report.</p>';
     $("#ablation").innerHTML = Object.entries(r.ablation || {}).map(([g, d]) => `<tr><td>${esc(g)}</td><td class="num ${d.net_per_day < 0 ? "bad" : "good"}">${rs(d.net_per_day)}</td></tr>`).join("");
   } catch (e) { $("#verdict").textContent = "Results: " + e.message; }
+  try {
+    const v = await api("/vol/results"), ok = v.verdict["900"].beats_implied && v.verdict["300"].beats_implied;
+    const vd = (h) => v.verdict[h];
+    $("#vol-verdict").className = "banner " + (ok ? "good" : "bad");
+    $("#vol-verdict").innerHTML = ok
+      ? `<b>Volatility is predictable.</b> The champion (${esc(v.champion)}) beat the option market's forecast on ${vd("900").days_better} of ${v.test_days.length} test days at 15 min and ${vd("300").days_better} of ${v.test_days.length} at 5 min. Daily QLIKE difference 15 min: ${vd("900").mean_daily_qlike_diff.toFixed(3)} (95% interval ${vd("900").ci95[0].toFixed(3)} … ${vd("900").ci95[1].toFixed(3)}).`
+      : `<b>No better than the option market.</b> The champion (${esc(v.champion)}) did not beat the implied forecast with confidence on the test days.`;
+    const names = Object.keys(v.results).sort((a, b) => v.cv[a]["900"].qlike - v.cv[b]["900"].qlike);
+    $("#vol-table").innerHTML = names.map((n) => { const t = v.results[n], c = v.cv[n];
+      return `<tr><td><b>${esc(n)}</b> ${n === v.champion ? '<span class="chip acc">champion</span>' : n === "implied" ? '<span class="chip">option market</span>' : ""}</td>
+        <td class="num">${c["900"].qlike.toFixed(4)}</td><td class="num">${t["900"].qlike.toFixed(4)}</td><td class="num">${t["900"].corr_log.toFixed(2)}</td>
+        <td class="num">${t["300"].qlike.toFixed(4)}</td><td class="num">${t["300"].corr_log.toFixed(2)}</td></tr>`; }).join("");
+  } catch (e) { $("#vol-verdict").textContent = "Volatility: " + e.message; }
   try {
     const d = await api("/drift/daily"), max = Math.max(0.35, ...d.map((x) => x.share));
     $("#drift-bars").innerHTML = d.map((x) => `<div title="${x.day} (${x.split}): ${Math.round(x.share * 100)}% of features drifted" style="height:${(x.share / max) * 100}%;background:var(--${x.split})"></div>`).join("") +

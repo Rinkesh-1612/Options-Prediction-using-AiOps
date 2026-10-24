@@ -4,8 +4,11 @@ DA3408 course project. Every second of the NIFTY session: buy the ATM call, buy 
 judged **after costs**, with a holding time set by the market (triple barrier). Built as a controlled AIOps
 pipeline, and as a signal library for the author's trading system (Ravion V2).
 
-**Result: no edge detected.** Nine model families were trained on 39 days and scored on 10 later test days.
-None beats "stay out" with confidence after costs ([Results](reports/zoo/comparison.md)).
+**Results.**
+- **Direction: no edge.** Nine model families were trained on 39 days and scored on 10 later test days. None beats
+  "stay out" with confidence after costs ([results](reports/zoo/comparison.md)).
+- **Volatility: predictable.** A HAR forecaster of the NIFTY move over the next 5 / 15 min beat the option market's
+  implied forecast on 10 of 10 test days ([results](reports/vol/comparison.md)).
 
 ![Signal tab](docs/img/signal.png)
 
@@ -29,6 +32,7 @@ None beats "stay out" with confidence after costs ([Results](reports/zoo/compari
 | `src/optpred/featurelib/` | feature library (registry + CI) |
 | `src/optpred/labels/` | costs, triple-barrier labels |
 | `src/optpred/zoo/` | model families, simulator, training (Ray Tune, MLflow), evaluation, deploy gate |
+| `src/optpred/vol/` | volatility forecaster (second model, `nifty-vol`) |
 | `src/optpred/drift/` | PSI drift (per day and online) |
 | `src/optpred/serving/` | FastAPI signal API |
 | `frontend/`, `monitoring/`, `docker/` | web page; Prometheus, Alertmanager, Grafana; images |

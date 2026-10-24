@@ -3,6 +3,8 @@
   GET  /healthz            200 when the model server answers
   GET  /days               accepted days and their split (dev / test)
   GET  /signal?day&sod     the champion's action at that second, and what happened after it (the label)
+  GET  /vol?day&sod        forecast NIFTY move over the next 5 / 15 min (nifty-vol), implied and realized move
+  GET  /vol/results        the volatility forecasters on the test days (reports/vol)
   GET  /model              champion and previous versions, family, CV and test metrics
   GET  /results            the zoo comparison: test days, cross-validation, feature importance (reports/zoo)
   GET  /drift/daily        drift per day against the training days (reports/drift)
@@ -58,6 +60,8 @@ KEYS = ["day", "sod", "atm"]
 @dataclass(frozen=True)
 class Settings:
     feat_dir: Path = Path("data/feat")
+    grid_dir: Path = Path("data/grid")
+    vol_model_name: str = "nifty-vol"
     label_dir: Path = Path("data/labels")
     days_path: Path = Path("data/days.json")
     zoo_dir: Path = Path("reports/zoo")
@@ -79,6 +83,8 @@ class Settings:
         e = os.environ
         return cls(
             feat_dir=Path(e.get("FEAT_DIR", cls.feat_dir)),
+            grid_dir=Path(e.get("GRID_DIR", cls.grid_dir)),
+            vol_model_name=e.get("VOL_MODEL_NAME", cls.vol_model_name),
             label_dir=Path(e.get("LABEL_DIR", cls.label_dir)),
             days_path=Path(e.get("DAYS_PATH", cls.days_path)),
             zoo_dir=Path(e.get("ZOO_DIR", cls.zoo_dir)),
@@ -166,6 +172,7 @@ class Metrics:
         self.stage_ok = Gauge(
             "pipeline_last_run_ok", "1 if the last run of a stage succeeded", ["stage"], registry=r
         )
+        self.vol_requests = Counter("vol_requests_total", "Volatility forecasts served", registry=r)
         self.retrains = Counter("retrain_requests_total", "Retrain requests", ["source"], registry=r)
         self.days = Gauge("data_days", "Trading days by check verdict", ["verdict"], registry=r)
         self.dropped = Gauge(
@@ -179,7 +186,9 @@ class Metrics:
         )
 
 
-def create_app(settings: Settings | None = None, model: ModelServer | None = None, client=None) -> FastAPI:
+def create_app(
+    settings: Settings | None = None, model: ModelServer | None = None, client=None, vol_loader=None
+) -> FastAPI:
     st = settings or Settings.from_env()
     srv = model or ModelServer(st.model_url)
     m = Metrics()
@@ -321,6 +330,70 @@ def create_app(settings: Settings | None = None, model: ModelServer | None = Non
             "outcome": outcome,
             "hindsight": hindsight,  # what each side would have made: known only AFTER the fact
         }
+
+    vol_state = {"version": None, "model": None, "checked": 0.0}
+
+    def vol_model():
+        """The nifty-vol champion, reloaded when the alias moves (checked at most once a minute)."""
+        if vol_loader is not None:
+            return vol_loader()
+        if time.time() - vol_state["checked"] > 60 or vol_state["model"] is None:
+            import mlflow
+
+            vol_state["checked"] = time.time()
+            v = registry().get_model_version_by_alias(st.vol_model_name, "champion").version
+            if v != vol_state["version"]:
+                mlflow.set_tracking_uri(st.tracking_uri)
+                vol_state["model"] = mlflow.pyfunc.load_model(f"models:/{st.vol_model_name}/{v}")
+                vol_state["version"] = v
+        return vol_state["model"]
+
+    @lru_cache(maxsize=4)
+    def vol_day(day: str) -> pd.DataFrame:
+        """Inputs (causal: each row uses data up to its second) + features + realized targets of one day."""
+        from optpred.vol.inputs import inputs, targets
+
+        g = pd.read_parquet(st.grid_dir / f"{day}.parquet").sort_values("sod").reset_index(drop=True)
+        f = pd.read_parquet(st.feat_dir / f"{day}.parquet").sort_values("sod").reset_index(drop=True)
+        return pd.concat([g[["sod"]], inputs(g), f.drop(columns=KEYS), targets(g)], axis=1).set_index("sod")
+
+    @app.get("/vol")
+    def vol(day: str, sod: int = Query(..., ge=SESSION_FIRST_MIN * 60, le=(SESSION_LAST_MIN + 1) * 60 - 1)):
+        if day not in accepted():
+            raise HTTPException(404, f"no data for {day}")
+        try:
+            d = vol_day(day)
+            mdl = vol_model()
+        except FileNotFoundError as e:
+            raise HTTPException(503, f"data for {day} is not available now") from e
+        except Exception as e:  # noqa: BLE001 -- no registered vol model yet, or it cannot load
+            raise HTTPException(503, f"the volatility model is not available: {e}") from e
+        row = d.loc[[sod]]
+        fc = mdl.predict(row.drop(columns=["rv_fwd_300", "rv_fwd_900"]))
+        out = {"day": day, "sod": sod}
+        for h in (300, 900):
+            f, iv = float(fc[f"fc_{h}"].iloc[0]), float(row[f"iv_move_{h}"].iloc[0])
+            real = row[f"rv_fwd_{h}"].iloc[0]
+            out[f"{h // 60}min"] = {
+                "forecast_bp": round(f, 2),
+                "implied_bp": round(iv, 2) if math.isfinite(iv) else None,
+                "ratio": round(f / iv, 3) if math.isfinite(iv) and iv > 0 else None,
+                "realized_bp": round(float(real), 2) if pd.notna(real) else None,  # known only after the fact
+            }
+        m.vol_requests.inc()
+        return out
+
+    @app.get("/vol/results")
+    def vol_results():
+        p = st.reports_dir / "vol" / "test.json"
+        if not p.exists():
+            raise HTTPException(404, "the vol stage has not run yet")
+        r = json.loads(p.read_text())
+        cv = st.reports_dir / "vol" / "cv.json"
+        if cv.exists():
+            r["cv"] = json.loads(cv.read_text())["results"]
+        r.pop("qlike_by_day", None)
+        return finite(r)
 
     @app.get("/model")
     def model_info():

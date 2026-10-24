@@ -7,7 +7,10 @@ out, after all costs? The system must answer this with a controlled AIOps pipeli
 reusable signal library for Ravion V2. Success metric: **net ₹ per day after costs on test days that no
 model was trained or tuned on**, with a 95% bootstrap interval over days, against baselines.
 
-Result: **no edge detected** (`reports/zoo/comparison.md`). The pipeline reports this honestly.
+Results: **direction — no edge detected** (`reports/zoo/comparison.md`). **Volatility — predictable:** a second
+model forecasts the NIFTY move over the next 5 / 15 min and beats the option market's implied forecast on 10 of 10
+test days (`reports/vol/comparison.md`). A good volatility forecast did not make straddles profitable after the spread
+(research branch `vol-track`); for Ravion it is a filter and sizing input.
 
 ## 2. Design rules
 
@@ -31,6 +34,7 @@ Result: **no edge detected** (`reports/zoo/comparison.md`). The pipeline reports
 | Feature library with a registry | Add a feature = one function; CI tests it automatically | Hand-written feature table |
 | Deploy gate + alias-following server | Promotion = deployment; a bad version never serves; automatic rollback | Manual restarts |
 | Drift limits from normal dev-day variation | Fixed PSI limits flagged 45 of 49 normal days | One global PSI limit |
+| Second target: volatility (HAR vs implied IV, QLIKE) | Direction has no signal (corr ≈ 0.01); volatility clusters (corr ≈ 0.68) | More direction models |
 | pandas + Ray per day; Spark for the day check | Per-day data fits in memory; Ray gives parallel days; Spark scans all 114 M raw rows | Spark for every stage |
 
 ## 4. Technology (course guideline → this project)

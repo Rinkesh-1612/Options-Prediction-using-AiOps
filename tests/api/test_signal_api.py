@@ -244,3 +244,29 @@ def test_results_with_infinite_tau_is_valid_json(env):
     c = TestClient(create_app(env, FakeModel(), FakeRegistry()))
     r = c.get("/results")
     assert r.status_code == 200 and r.json()["results"]["a"] == {"tau": None, "x": None, "y": [1.0]}
+
+
+def test_vol_forecast_uses_only_rows_up_to_sod(env, tmp_path):
+    from dataclasses import replace
+
+    from tests.helpers.grid_synth import synth_grid
+
+    g = synth_grid(n=1200).assign(day=DAY)
+    g["sod"] = np.arange(33300, 33300 + 1200)
+    (tmp_path / "grid").mkdir()
+    g.to_parquet(tmp_path / "grid" / f"{DAY}.parquet")
+    f = pd.DataFrame({"day": DAY, "sod": g["sod"], "atm": 25000.0, "f1": 0.0})
+    f.to_parquet(env.feat_dir / f"{DAY}.parquet")
+    seen = {}
+
+    class Fake:
+        def predict(self, X):
+            seen["X"] = X
+            return pd.DataFrame({"fc_300": [12.0], "fc_900": [20.0]})
+
+    st = replace(env, grid_dir=tmp_path / "grid")
+    c = TestClient(create_app(st, FakeModel(), FakeRegistry(), vol_loader=Fake))
+    r = c.get("/vol", params={"day": DAY, "sod": 34000}).json()
+    assert r["15min"]["forecast_bp"] == 20.0 and r["15min"]["implied_bp"] > 0
+    assert len(seen["X"]) == 1 and not any(col.startswith("rv_fwd") for col in seen["X"].columns)
+    assert c.get("/vol", params={"day": "2020-01-01", "sod": 34000}).status_code == 404

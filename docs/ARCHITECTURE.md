@@ -13,9 +13,10 @@ flowchart LR
     CL --> EDA[eda] & G[grid<br/>Ray] --> F[feat<br/>Ray] & L[labels<br/>Ray]
     F & L --> ZT[zoo_train<br/>Ray Tune] --> ZE[zoo_eval<br/>deploy gate]
     F & L --> D[drift]
+    G & F --> V[vol<br/>HAR vs IV]
   end
   CH --> E
-  ZT & ZE & D -->|runs, metrics, models| MF[(MLflow<br/>tracking + registry)]
+  ZT & ZE & D & V -->|runs, metrics, models| MF[(MLflow<br/>tracking + registry)]
   subgraph STACK[Serving and monitoring — Docker Compose]
     MS[model<br/>mlflow models serve] --> API[api<br/>FastAPI]
     API --> WEB[frontend<br/>nginx]
@@ -37,9 +38,10 @@ flowchart LR
 | labels | Triple-barrier outcome of buying the ATM call / put each second | `src/optpred/labels/` |
 | zoo_train | Walk-forward CV of 9 model families, Ray Tune, MLflow | `src/optpred/zoo/train.py` |
 | zoo_eval | Test-day scores, champion chosen on CV, smoke test, deployment | `src/optpred/zoo/evaluate.py`, `promote.py` |
+| vol | Second model: forecast of the NIFTY move over the next 5 / 15 min vs the implied move; registered `nifty-vol` | `src/optpred/vol/` |
 | drift | PSI per day against the training days; reference for online drift | `src/optpred/drift/` |
 | model | Serves the registry alias `nifty-signal@champion`; rolls back if a version does not start | `scripts/serve_model.sh` |
-| api | The only public entry: signals, results, pipeline, rollback, retrain, metrics | `src/optpred/serving/signal_api.py` |
+| api | The only public entry: signals, volatility forecasts (loads `nifty-vol`), results, pipeline, rollback, retrain, metrics | `src/optpred/serving/signal_api.py` |
 | frontend | Static web page (4 tabs); knows only the API address | `frontend/` |
 | Prometheus, Alertmanager, Grafana | Metrics every 5 s, 8 alert rules, one dashboard | `monitoring/` |
 | runner | Runs `zoo_train` → `zoo_eval` when a retrain is requested (alert, button, schedule) | `scripts/runner.sh` |

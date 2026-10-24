@@ -20,6 +20,16 @@ The API sends the last 120 feature rows up to `sod` to the model server; nothing
 `blocked` = the model wanted a side, but no entry was possible at `sod`. Errors: 404 unknown day, 422 bad `sod`,
 503 model server down or data being rebuilt.
 
+### GET /vol
+In (query): `day`, `sod` (as `/signal`). Out: `{"day", "sod", "5min": V, "15min": V}`,
+V = `{forecast_bp, implied_bp, ratio, realized_bp}`: the `nifty-vol` champion's forecast of the NIFTY move,
+the move implied by the ATM IV, their ratio, and the realized move (known only after the fact).
+Inputs use only rows up to `sod`. 503 when no `nifty-vol` champion is registered.
+
+### GET /vol/results
+Out: `reports/vol/test.json` (`champion, verdict{300, 900: mean_daily_qlike_diff, ci95, days_better,`
+`beats_implied}, results{forecaster: {300, 900: qlike, r2_log, corr_log}}`) + `cv`.
+
 ### GET /model
 Out: `{"champion": V, "previous": V}`, V = `{version, family, git_commit, deploy_check, metrics}`.
 
@@ -80,6 +90,7 @@ Prometheus text. Main series: `signals_total{action}`, `signal_outcomes_total{re
 | labels | `data/grid` | `data/labels/<day>.parquet` (per side: `valid, entry, sigma, hit, hold_s, exit, net_rs`), `reports/labels.json` |
 | zoo_train | `data/feat`, `data/labels` (dev days) | `reports/zoo/cv.json`, `reports/zoo/importance.json`, MLflow runs |
 | zoo_eval | + test days, `cv.json` | `reports/zoo/test.json`, `comparison.md`, registered + deployed model |
+| vol | `data/grid`, `data/feat` | `reports/vol/cv.json`, `test.json`, `comparison.md`, `test_scatter.png`, model `nifty-vol` |
 | drift | `data/feat` | `reports/drift/reference.json`, `daily.json`, `daily.png` |
 
 ## 3. Model interface (`src/optpred/zoo/models.py`)

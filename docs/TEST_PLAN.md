@@ -6,13 +6,13 @@
 |---|---|---|---|
 | Unit | `tests/unit/` | Each rule and function alone: cleaning rules, fill policy, grid, every feature, labels and costs, simulator, every model family, deploy gate, PSI, Ray map | every push |
 | Integration | `tests/integration/` | Real stage `main`s on synthetic raw data: check (Spark) → clean → grid → feat → labels | every push |
-| API | `tests/api/` | Every endpoint with a fake model server and registry; LLD = real routes; page calls only documented paths | every push |
+| API | `tests/api/` | Every endpoint with a fake model server and registry (and a fake volatility model); LLD = real routes; page calls only documented paths | every push |
 | End-to-end | `tests/e2e/` | The running stack: API → model server → registry, web page, Prometheus | `make e2e` with the stack up |
 
 Synthetic data: `tests/helpers/synth.py` (raw tables in the export schema), `tests/helpers/grid_synth.py`
 (one grid day). No test needs the real data.
 
-## 2. Test cases (90)
+## 2. Test cases (99)
 
 | ID | Area | Cases | File |
 |---|---|---|---|
@@ -26,8 +26,9 @@ Synthetic data: `tests/helpers/synth.py` (raw tables in the export schema), `tes
 | T8 | Drift | same distribution low PSI, shift high; NaN share change; monitor waits for rows, then flags | `unit/test_psi.py` (3) |
 | T9 | Ray | day results keep their order | `unit/test_parallel.py` (1) |
 | T10 | Data pipeline | holiday rejected, duplicates counted; session rows only; 22,500 grid rows with legs, ask > bid; float features; labels aligned | `integration/test_data_pipeline.py` (5) |
-| T11 | API | signal without future rows; hindsight; blocked entry; losing trade metric; 404 / 503; rollback token and swap; alert → one retrain then cooldown; drift and gauges; data-quality gauges; pipeline graph, runs, log (path attack refused); inf → null | `api/test_signal_api.py` (12) |
+| T11 | API | signal without future rows; volatility forecast uses only rows up to the second; hindsight; blocked entry; losing trade metric; 404 / 503; rollback token and swap; alert → one retrain then cooldown; drift and gauges; data-quality gauges; pipeline graph, runs, log (path attack refused); inf → null | `api/test_signal_api.py` (13) |
 | T12 | Contract | LLD = routes; page uses documented paths only | `api/test_lld.py` (2) |
+| T14 | Volatility model | inputs have no look-ahead; targets look only forward; QLIKE zero for a perfect forecast; each of 4 forecasters fits and predicts positive; HAR beats a noise IV on clustered volatility | `unit/test_vol.py` (8) |
 | T13 | End-to-end | served model passed the gate; test-day signal round trip; reports, pipeline, metrics; web page and config; Prometheus scrapes the API | `e2e/test_stack.py` (5) |
 
 ## 3. How to run
@@ -51,4 +52,4 @@ The pre-push hook (`.githooks/pre-push`) runs ruff, all tests and `dvc dag` befo
 ## 5. Report
 
 `reports/test_report.md` (written by `scripts/test_report.py`), with the commit and the result of each case.
-Last report: 90 of 90 passed, including the 5 end-to-end tests against the running stack.
+Last report: see `reports/test_report.md`; including the 5 end-to-end tests against the running stack.

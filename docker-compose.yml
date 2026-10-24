@@ -55,6 +55,8 @@ services:
       MODEL_NAME: nifty-signal
       MLFLOW_TRACKING_URI: sqlite:////app/mlflow/mlflow.db
       FEAT_DIR: /app/data/feat
+      GRID_DIR: /app/data/grid
+      VOL_MODEL_NAME: nifty-vol
       LABEL_DIR: /app/data/labels
       DAYS_PATH: /app/data/days.json
       ZOO_DIR: /app/reports/zoo

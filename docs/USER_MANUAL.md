@@ -19,7 +19,10 @@ Open the page: **http://&lt;server&gt;:8080**. The dots at the top show the stat
 4. **What happened next** shows the real result of that trade: bought at the ask, sold at the bid when the
    price touched the take-profit, the stop-loss or the time limit, and the net ₹ for one lot after costs.
    If the model stayed out, it shows what each side would have made (hindsight).
-5. **Play** steps through the day one second at a time, like a live feed. After a trade it jumps to the exit
+5. **Volatility forecast** shows the expected size of the NIFTY move over the next 5 and 15 minutes (not its
+   direction), next to the move priced by the options (IV) and, in hindsight, the move that happened. A ratio
+   below 1× means the options price in more movement than the model expects.
+6. **Play** steps through the day one second at a time, like a live feed. After a trade it jumps to the exit
    (one position at a time). **This session** adds up the result.
 
 Tip: the address bar keeps the day and time (`#signal&day=2026-10-13&t=35331`). Send it to share a moment.
@@ -32,7 +35,9 @@ The page also works on a phone:
 
 ![Results tab](img/results.png)
 
-- The banner gives the verdict. Now: **no edge detected** on the test days.
+- **Volatility forecast vs the option market:** the second model. Now: better than the option market on 10 of 10
+  test days.
+- The banner gives the direction verdict. Now: **no edge detected** on the test days.
 - The table lists every model: cross-validation ₹/day (used to choose), test ₹/day, the 95% interval
   (the line; the dot is the result), trades and hit rate. If the interval includes ₹0, the result can be luck.
 - **Data drift per day:** how far each day is from the training days (blue = dev, orange = test).
