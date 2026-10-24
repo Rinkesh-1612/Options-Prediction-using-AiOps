@@ -1037,9 +1037,9 @@ stages:
       size: 5392
     - path: src/optpred/zoo
       hash: md5
-      md5: 2380b415ef8d6dbcc641dfdbf85c6388.dir
-      size: 38700
-      nfiles: 9
+      md5: 00eaf1881aa60e8e015a00b248c9c7a8.dir
+      size: 40803
+      nfiles: 10
     params:
       params.yaml:
         zoo:
@@ -1170,9 +1170,9 @@ stages:
       size: 17186
     - path: src/optpred/zoo
       hash: md5
-      md5: 2380b415ef8d6dbcc641dfdbf85c6388.dir
-      size: 38700
-      nfiles: 9
+      md5: 00eaf1881aa60e8e015a00b248c9c7a8.dir
+      size: 40803
+      nfiles: 10
     params:
       params.yaml:
         zoo:
@@ -1282,7 +1282,7 @@ stages:
       size: 711
     - path: reports/zoo/test.json
       hash: md5
-      md5: f39a8ff81db43acc70246ef092d4d313
+      md5: 71b5d7681fb6de057a84de9c5af27b22
       size: 5783
   drift:
     cmd: python -m optpred.drift.track
