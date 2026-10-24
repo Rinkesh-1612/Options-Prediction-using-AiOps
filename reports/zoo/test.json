@@ -174,10 +174,10 @@
    "champion": true,
    "deployment": {
     "deployed": true,
-    "version": 7,
-    "previous": 5
+    "version": 8,
+    "previous": 7
    },
-   "registered_version": 7
+   "registered_version": 8
   },
   "lgbm_clf": {
    "days": 10,

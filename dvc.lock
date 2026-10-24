@@ -1282,7 +1282,7 @@ stages:
       size: 711
     - path: reports/zoo/test.json
       hash: md5
-      md5: 9dc7aad62effbf249c9b308ab9f73053
+      md5: f39a8ff81db43acc70246ef092d4d313
       size: 5783
   drift:
     cmd: python -m optpred.drift.track
