@@ -2,7 +2,8 @@
 
   GET  /healthz            200 when the model server answers
   GET  /days               accepted days and their split (dev / test)
-  GET  /signal?day&sod     the champion's action at that second, and what happened after it (the label)
+  GET  /signal?day&sod     the champion's action at that second, the inputs behind its score (SHAP), and
+                           what happened after it (the label)
   GET  /vol?day&sod        forecast NIFTY move over the next 5 / 15 min (nifty-vol), implied and realized move
   GET  /vol/results        the volatility forecasters on the test days (reports/vol)
   GET  /model              champion and previous versions, family, CV and test metrics
@@ -283,6 +284,11 @@ def create_app(
         except ModelUnavailable as e:
             raise HTTPException(503, str(e)) from e
         m.model_seconds.observe(time.perf_counter() - t0)
+        why = pred.get("drivers") if hasattr(pred, "get") else None
+        try:
+            why = json.loads(why) if why else None  # the inputs behind the best side's score (SHAP), or None
+        except ValueError:
+            why = None
         action, blocked = str(pred["action"]), None
         row = lab.loc[sod]
         if action != "STAY_OUT" and not bool(row[f"{'ce' if action == 'BUY_CE' else 'pe'}_valid"]):
@@ -329,6 +335,7 @@ def create_app(
             "blocked": blocked,
             "outcome": outcome,
             "hindsight": hindsight,  # what each side would have made: known only AFTER the fact
+            "drivers": why,  # why the model scored the best side as it did: base + contributions = score
         }
 
     vol_state = {"version": None, "model": None, "checked": 0.0}

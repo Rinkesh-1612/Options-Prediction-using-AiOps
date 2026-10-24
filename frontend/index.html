@@ -111,6 +111,11 @@ pre.log { background: var(--soft); border-radius: 8px; padding: 12px; max-height
 .toast[hidden] { display: none; }
 .ci { width: 160px; height: 18px; }
 .skeleton { color: var(--muted); font-size: 14px; }
+.why { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 12px; }
+.why-row { display: grid; grid-template-columns: minmax(130px, 200px) 1fr 70px; gap: 8px; align-items: center; font-size: 13px; margin: 4px 0; }
+.why-track { position: relative; height: 10px; background: var(--soft); border-radius: 5px; }
+.why-track i { position: absolute; top: 0; bottom: 0; border-radius: 5px; }
+.why-track b { position: absolute; top: -2px; bottom: -2px; width: 1px; left: 50%; background: var(--muted); }
 .volgrid { display: grid; grid-template-columns: 70px repeat(3, 1fr); gap: 6px 12px; font-size: 14px; align-items: baseline; }
 .volgrid b { font-size: 18px; }
 </style>
@@ -167,6 +172,7 @@ pre.log { background: var(--soft); border-radius: 8px; padding: 12px; max-height
           <span>Put</span><div class="track"><div class="fill" id="bar-pe" style="background:var(--pe)"></div><div class="tau" id="tau-pe"></div></div><span class="num mono" id="sc-pe"></span>
         </div>
         <p class="note" id="explain"></p>
+        <div id="why" hidden></div>
       </div>
       <div class="card">
         <h2>What happened next</h2>
@@ -381,6 +387,7 @@ function renderSignal(r) {
     : r.action === "STAY_OUT"
       ? `Bars = expected net ₹ of buying each side now. Neither is above ${tauTxt} (black mark), so the model stays out.`
       : `Expected net ₹ of the ${r.action === "BUY_CE" ? "call" : "put"} is above ${tauTxt} (black mark) and above the other side.`;
+  renderWhy(r.drivers);
   const o = $("#outcome");
   if (r.outcome) {
     const x = r.outcome;
@@ -407,6 +414,21 @@ async function getVol(day, sod) {
         <span>${v[k].implied_bp == null ? "—" : v[k].implied_bp.toFixed(1) + " bp"}</span><span>${v[k].realized_bp == null ? "—" : v[k].realized_bp.toFixed(1) + " bp"}</span>`).join("")}</div>
       <p class="note">Expected size of the NIFTY move, not its direction (1 bp ≈ ${((window.lastAtm || 25000) / 1e4).toFixed(1)} index points). How it compares with the option market on the test days: Results tab.</p>`;
   } catch (e) { $("#vol").innerHTML = `<span class="muted">Volatility: ${esc(e.message)}</span>`; }
+}
+
+function renderWhy(d) {
+  const el = $("#why");
+  if (!d || !d.top?.length) { el.hidden = true; return; }
+  const unit = d.unit === "net_rs" ? (v) => rs(v) : (v) => v.toFixed(2);
+  const max = Math.max(...d.top.map((t) => Math.abs(t.contribution)), Math.abs(d.other), 1e-9);
+  const row = (name, tip, c, val) => `<div class="why-row"><span class="mono" title="${esc(tip)}">${esc(name)}${val == null ? "" : ` <span class="muted">= ${(+val).toPrecision(3)}</span>`}</span>
+    <div class="why-track"><b></b><i style="background:var(--${c >= 0 ? "good" : "bad"});${c >= 0 ? "left:50%" : "right:50%"};width:${(Math.abs(c) / max) * 50}%"></i></div>
+    <span class="num mono ${c >= 0 ? "good" : "bad"}">${c >= 0 ? "+" : ""}${unit(c)}</span></div>`;
+  el.className = "why"; el.hidden = false;
+  el.innerHTML = `<h3 style="margin-top:0">Why the ${d.side === "ce" ? "call" : "put"} scored ${unit(d.score)}</h3>
+    <p class="note" style="margin:0 0 8px">Starts from the average ${unit(d.base)}; each input adds or subtracts. These add up exactly to the score (SHAP).</p>
+    ${d.top.map((t) => row(t.feature, "value of this input right now", t.contribution, t.value)).join("")}
+    ${row("all other inputs", "sum of the remaining inputs", d.other, null)}`;
 }
 
 function renderSess() {

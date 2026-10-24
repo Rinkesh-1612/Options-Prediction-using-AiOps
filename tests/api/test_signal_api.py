@@ -270,3 +270,26 @@ def test_vol_forecast_uses_only_rows_up_to_sod(env, tmp_path):
     assert r["15min"]["forecast_bp"] == 20.0 and r["15min"]["implied_bp"] > 0
     assert len(seen["X"]) == 1 and not any(col.startswith("rv_fwd") for col in seen["X"].columns)
     assert c.get("/vol", params={"day": "2020-01-01", "sod": 34000}).status_code == 404
+
+
+def test_signal_passes_the_drivers_through(env):
+    why = {
+        "side": "pe",
+        "unit": "net_rs",
+        "base": 1.0,
+        "score": 3.0,
+        "other": 0.5,
+        "top": [{"feature": "atm_iv", "value": 14.2, "contribution": 1.5}],
+    }
+
+    class Explaining(FakeModel):
+        def invoke(self, X):
+            out = super().invoke(X)
+            out["drivers"] = ["" for _ in range(len(out) - 1)] + [json.dumps(why)]
+            return out
+
+    c = TestClient(create_app(env, Explaining("STAY_OUT"), FakeRegistry()))
+    assert c.get("/signal", params={"day": DAY, "sod": 33500}).json()["drivers"] == why
+    # a model that cannot explain: drivers is null
+    c = TestClient(create_app(env, FakeModel("STAY_OUT"), FakeRegistry()))
+    assert c.get("/signal", params={"day": DAY, "sod": 33500}).json()["drivers"] is None

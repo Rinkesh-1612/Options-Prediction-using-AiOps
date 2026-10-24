@@ -16,6 +16,9 @@ Open the page: **http://&lt;server&gt;:8080**. The dots at the top show the stat
    - **BUY CALL** (green), **BUY PUT** (red) or **STAY OUT** (grey).
    - The bars show the expected net ₹ of buying each side now. The black mark is the threshold.
      The model buys only when one side is above it.
+   Under the bars, **Why the put scored ₹73** lists the five inputs that moved that score most. The score starts
+   from the average and each input adds (green) or subtracts (red) expected rupees; with "all other inputs" they add
+   up exactly to the score (SHAP). The number after `=` is the value of that input right now.
 4. **What happened next** shows the real result of that trade: bought at the ask, sold at the bid when the
    price touched the take-profit, the stop-loss or the time limit, and the net ₹ for one lot after costs.
    If the model stayed out, it shows what each side would have made (hindsight).

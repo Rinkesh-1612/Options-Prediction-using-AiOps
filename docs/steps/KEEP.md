@@ -23,7 +23,7 @@ Updated at each step.
 | `frontend/` (index.html, nginx.conf, Dockerfile, config.json, 40-config.sh) | the web page |
 | `docker-compose.yml`, `stack`, `scripts/serve_model.sh`, `scripts/runner.sh` | serving stack, CD, rollback, retraining |
 | `scripts/encrypt_snapshot.sh` | AES-256 encryption of data + models (`--verify` checks a backup) |
-| `tests/unit/test_export.py`, `test_eda_rules.py`, `test_grid.py`, `test_featurelib.py`, `test_barrier.py`, `test_zoo.py`, `test_promote.py`, `test_psi.py`, `test_parallel.py`, `tests/api/test_signal_api.py`, `tests/integration/test_data_pipeline.py`, `tests/api/test_lld.py`, `tests/e2e/`, `tests/unit/test_vol.py` | tests |
+| `tests/unit/test_export.py`, `test_eda_rules.py`, `test_grid.py`, `test_featurelib.py`, `test_barrier.py`, `test_zoo.py`, `test_promote.py`, `test_psi.py`, `test_parallel.py`, `tests/api/test_signal_api.py`, `tests/integration/test_data_pipeline.py`, `tests/api/test_lld.py`, `tests/e2e/`, `tests/unit/test_vol.py`, `tests/unit/test_explain.py` | tests |
 | `scripts/test_report.py`, `reports/test_report.md` | test report |
 | `tests/helpers/grid_synth.py`, `tests/helpers/synth.py` | synthetic data for the tests |
 | `dvc.yaml` stages `export`, `check`, `clean`, `eda`, `grid`, `feat`, `labels`, `zoo_train`, `zoo_eval`, `drift`, `vol` | pipeline |

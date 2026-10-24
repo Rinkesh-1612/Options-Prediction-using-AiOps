@@ -16,6 +16,9 @@ In (query): `day` (an accepted day), `sod` (seconds since IST midnight, 33300–
 Out: `day, sod, time, atm, action (BUY_CE | BUY_PE | STAY_OUT), score_ce, score_pe, blocked,`
 `outcome {net_rs, hold_s, barrier (1 take-profit, -1 stop-loss, 0 time limit), entry, exit} | null,`
 `hindsight {ce, pe: {net_rs, hold_s, barrier} | null}`.
+`drivers {side, unit, base, score, top[{feature, value, contribution}], other} | null`: exact SHAP values of the
+champion's score for the better side (LightGBM `pred_contrib`). `base + sum(contribution) + other = score`; unit
+`net_rs` = expected net rupees. `null` when the champion is not a LightGBM model.
 The API sends the last 120 feature rows up to `sod` to the model server; nothing after `sod`.
 `blocked` = the model wanted a side, but no entry was possible at `sod`. Errors: 404 unknown day, 422 bad `sod`,
 503 model server down or data being rebuilt.

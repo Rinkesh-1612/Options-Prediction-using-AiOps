@@ -18,11 +18,12 @@
 ## Open items
 
 - From the development guideline (sections I, III, IV, V), still to do:
-  Docker Hub push (needs account), optional Swarm test, per-signal explainability (SHAP).
+  Docker Hub push (needs account), optional Swarm test.
 - Done from the guideline: Ray runs every per-day data stage (`optpred.common.parallel.map_days`);
   reproducibility: final zoo_train / zoo_eval / drift runs on clean commit 08f847c (MLflow tags
   git_commit=08f847c, git_dirty=False; same results; champion v7); integration test of
   check -> clean -> grid -> feat -> labels; encryption of data + models (AES-256, verified);
   Git LFS sample = one test day of feat + labels; automatic rollback tested (broken v6 -> back to v5);
+  per-signal explainability (SHAP: /signal drivers + Signal tab);
   end-to-end tests (tests/e2e, `make e2e`); scalability and collaboration notes (HLD section 5);
   old caches removed (DVC cache 12 -> 9.5 GB, old MLflow experiments and models purged).

@@ -58,5 +58,6 @@ test days (`reports/vol/comparison.md`). A good volatility forecast did not make
   services bound to localhost by default; ClickHouse read-only.
 - **Scalability:** the work grows with the number of days; days run in parallel on Ray (CPU limit in
   `params.yaml`, so live trading keeps its CPUs). New days = `dvc repro`.
-- **Explainability:** gain importance and group ablation for the champion (Results tab, MLflow).
+- **Explainability:** global: gain importance and group ablation for the champion (Results tab, MLflow). Per signal:
+  exact SHAP values of the score (`/signal` → `drivers`; Signal tab, "Why the put scored …"). They add up to the score.
 - **Collaboration:** shared MLflow UI, Grafana, Git history, `docs/steps/` (one reviewed note per rubric item).
