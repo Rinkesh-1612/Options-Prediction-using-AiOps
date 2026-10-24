@@ -1,39 +1,49 @@
 {
+ "title": "NIFTY signal \u2014 production",
  "uid": "optpred",
- "title": "NIFTY option model \u2014 live",
  "schemaVersion": 39,
- "version": 1,
+ "version": 2,
  "refresh": "5s",
  "time": {
-  "from": "now-15m",
+  "from": "now-1h",
   "to": "now"
  },
+ "timezone": "browser",
  "tags": [
   "optpred"
  ],
  "panels": [
   {
+   "type": "row",
+   "title": "Model performance in production",
    "id": 1,
-   "title": "Predictions per minute, by action",
+   "gridPos": {
+    "x": 0,
+    "y": 0,
+    "w": 24,
+    "h": 1
+   },
+   "collapsed": false
+  },
+  {
    "type": "timeseries",
+   "title": "Signals per minute, by action",
+   "id": 2,
+   "description": "",
    "datasource": {
     "type": "prometheus",
     "uid": "prom"
    },
    "gridPos": {
     "x": 0,
-    "y": 0,
+    "y": 1,
     "w": 8,
-    "h": 8
+    "h": 7
    },
    "targets": [
     {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "sum by (action) (rate(predictions_total[1m])) * 60",
      "refId": "A",
+     "expr": "sum by (action) (rate(signals_total[1m])) * 60",
      "legendFormat": "{{action}}"
     }
    ],
@@ -41,209 +51,58 @@
     "defaults": {},
     "overrides": []
    },
-   "options": {},
-   "description": "What the model chose, as it is served."
+   "options": {}
   },
   {
-   "id": 2,
-   "title": "What happened (rows) vs what the model said (columns)",
-   "type": "table",
+   "type": "timeseries",
+   "title": "Served trades: cumulative net \u20b9 after costs",
+   "id": 3,
+   "description": "",
    "datasource": {
     "type": "prometheus",
     "uid": "prom"
    },
    "gridPos": {
     "x": 8,
-    "y": 0,
+    "y": 1,
     "w": 8,
-    "h": 8
+    "h": 7
    },
    "targets": [
     {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "sum by (predicted, actual) (predictions_vs_actual_total)",
      "refId": "A",
-     "format": "table",
-     "instant": true
-    }
-   ],
-   "fieldConfig": {
-    "defaults": {},
-    "overrides": []
-   },
-   "options": {
-    "showHeader": true
-   },
-   "description": "Counts of served minutes. Rows: the best action in hindsight after costs. Columns: the model's action.",
-   "transformations": [
-    {
-     "id": "groupingToMatrix",
-     "options": {
-      "columnField": "predicted",
-      "rowField": "actual",
-      "valueField": "Value"
-     }
-    }
-   ]
-  },
-  {
-   "id": 3,
-   "title": "Hit rate of trades",
-   "type": "stat",
-   "datasource": {
-    "type": "prometheus",
-    "uid": "prom"
-   },
-   "gridPos": {
-    "x": 16,
-    "y": 0,
-    "w": 4,
-    "h": 4
-   },
-   "targets": [
-    {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "(sum(predictions_vs_actual_total{predicted=\"BUY_CE\",actual=\"BUY_CE\"}) + sum(predictions_vs_actual_total{predicted=\"BUY_PE\",actual=\"BUY_PE\"})) / (sum(predictions_vs_actual_total{predicted=~\"BUY_CE|BUY_PE\"}) > 0)",
-     "refId": "A"
+     "expr": "signal_net_rupees_cum",
+     "legendFormat": "net \u20b9"
     }
    ],
    "fieldConfig": {
     "defaults": {
-     "unit": "percentunit",
-     "noValue": "no trades",
-     "color": {
-      "mode": "fixed",
-      "fixedColor": "text"
-     }
+     "unit": "currencyINR"
     },
     "overrides": []
    },
-   "options": {},
-   "description": "Share of trades where the model's side was also the best side in hindsight."
+   "options": {}
   },
   {
+   "type": "timeseries",
+   "title": "Hit rate of served trades (1 h)",
    "id": 4,
-   "title": "Result of model actions (Rs, after costs)",
-   "type": "stat",
-   "datasource": {
-    "type": "prometheus",
-    "uid": "prom"
-   },
-   "gridPos": {
-    "x": 20,
-    "y": 0,
-    "w": 4,
-    "h": 4
-   },
-   "targets": [
-    {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "(sum(model_result_rs_total{sign=\"gain\"}) or vector(0)) - (sum(model_result_rs_total{sign=\"loss\"}) or vector(0))",
-     "refId": "A"
-    }
-   ],
-   "fieldConfig": {
-    "defaults": {
-     "unit": "currencyINR",
-     "thresholds": {
-      "mode": "absolute",
-      "steps": [
-       {
-        "color": "red",
-        "value": null
-       },
-       {
-        "color": "text",
-        "value": 0
-       },
-       {
-        "color": "green",
-        "value": 0.01
-       }
-      ]
-     }
-    },
-    "overrides": []
-   },
-   "options": {},
-   "description": "Gain minus loss over everything served. A model that stays out shows 0."
-  },
-  {
-   "id": 5,
-   "title": "Predictions served",
-   "type": "stat",
+   "description": "Alert LowHitRate below 35%",
    "datasource": {
     "type": "prometheus",
     "uid": "prom"
    },
    "gridPos": {
     "x": 16,
-    "y": 4,
-    "w": 4,
-    "h": 4
+    "y": 1,
+    "w": 8,
+    "h": 7
    },
    "targets": [
     {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "sum(predictions_total)",
-     "refId": "A"
-    }
-   ],
-   "fieldConfig": {
-    "defaults": {
-     "color": {
-      "mode": "fixed",
-      "fixedColor": "blue"
-     },
-     "thresholds": {
-      "mode": "absolute",
-      "steps": [
-       {
-        "color": "blue",
-        "value": null
-       }
-      ]
-     }
-    },
-    "overrides": []
-   },
-   "options": {},
-   "description": "Total since the API started."
-  },
-  {
-   "id": 6,
-   "title": "Stay-out share",
-   "type": "stat",
-   "datasource": {
-    "type": "prometheus",
-    "uid": "prom"
-   },
-   "gridPos": {
-    "x": 20,
-    "y": 4,
-    "w": 4,
-    "h": 4
-   },
-   "targets": [
-    {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "sum(predictions_total{action=\"STAY_OUT\"}) / (sum(predictions_total) > 0)",
-     "refId": "A"
+     "refId": "A",
+     "expr": "sum(increase(signal_outcomes_total{result=\"win\"}[1h])) / sum(increase(signal_outcomes_total[1h]))",
+     "legendFormat": "hit rate"
     }
    ],
    "fieldConfig": {
@@ -255,9 +114,10 @@
    "options": {}
   },
   {
-   "id": 7,
-   "title": "API",
-   "type": "stat",
+   "type": "bargauge",
+   "title": "Net \u20b9 per served trade (distribution)",
+   "id": 5,
+   "description": "",
    "datasource": {
     "type": "prometheus",
     "uid": "prom"
@@ -265,201 +125,55 @@
    "gridPos": {
     "x": 0,
     "y": 8,
-    "w": 3,
-    "h": 4
+    "w": 8,
+    "h": 7
    },
    "targets": [
     {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "up{job=\"api\"}",
-     "refId": "A"
-    }
-   ],
-   "fieldConfig": {
-    "defaults": {
-     "thresholds": {
-      "mode": "absolute",
-      "steps": [
-       {
-        "color": "red",
-        "value": null
-       },
-       {
-        "color": "green",
-        "value": 1
-       }
-      ]
-     },
-     "mappings": [
-      {
-       "type": "value",
-       "options": {
-        "0": {
-         "text": "DOWN"
-        },
-        "1": {
-         "text": "UP"
-        }
-       }
-      }
-     ]
-    },
-    "overrides": []
-   },
-   "options": {}
-  },
-  {
-   "id": 8,
-   "title": "Model server",
-   "type": "stat",
-   "datasource": {
-    "type": "prometheus",
-    "uid": "prom"
-   },
-   "gridPos": {
-    "x": 3,
-    "y": 8,
-    "w": 3,
-    "h": 4
-   },
-   "targets": [
-    {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "model_service_up",
-     "refId": "A"
-    }
-   ],
-   "fieldConfig": {
-    "defaults": {
-     "thresholds": {
-      "mode": "absolute",
-      "steps": [
-       {
-        "color": "red",
-        "value": null
-       },
-       {
-        "color": "green",
-        "value": 1
-       }
-      ]
-     },
-     "mappings": [
-      {
-       "type": "value",
-       "options": {
-        "0": {
-         "text": "DOWN"
-        },
-        "1": {
-         "text": "UP"
-        }
-       }
-      }
-     ]
-    },
-    "overrides": []
-   },
-   "options": {}
-  },
-  {
-   "id": 9,
-   "title": "MLflow",
-   "type": "stat",
-   "datasource": {
-    "type": "prometheus",
-    "uid": "prom"
-   },
-   "gridPos": {
-    "x": 6,
-    "y": 8,
-    "w": 3,
-    "h": 4
-   },
-   "targets": [
-    {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "up{job=\"mlflow\"}",
-     "refId": "A"
-    }
-   ],
-   "fieldConfig": {
-    "defaults": {
-     "thresholds": {
-      "mode": "absolute",
-      "steps": [
-       {
-        "color": "red",
-        "value": null
-       },
-       {
-        "color": "green",
-        "value": 1
-       }
-      ]
-     },
-     "mappings": [
-      {
-       "type": "value",
-       "options": {
-        "0": {
-         "text": "DOWN"
-        },
-        "1": {
-         "text": "UP"
-        }
-       }
-      }
-     ]
-    },
-    "overrides": []
-   },
-   "options": {}
-  },
-  {
-   "id": 10,
-   "title": "Champion version",
-   "type": "stat",
-   "datasource": {
-    "type": "prometheus",
-    "uid": "prom"
-   },
-   "gridPos": {
-    "x": 9,
-    "y": 8,
-    "w": 3,
-    "h": 4
-   },
-   "targets": [
-    {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "champion_model_version",
-     "refId": "A"
+     "refId": "A",
+     "expr": "sum by (le) (signal_trade_net_rupees_bucket)",
+     "legendFormat": "{{le}}"
     }
    ],
    "fieldConfig": {
     "defaults": {},
     "overrides": []
    },
-   "options": {},
-   "description": "Registry version served now. It changes on a rollback or a promoted retrain."
+   "options": {}
   },
   {
-   "id": 11,
-   "title": "API requests per second",
-   "type": "timeseries",
+   "type": "stat",
+   "title": "Champion version",
+   "id": 6,
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 8,
+    "y": 8,
+    "w": 4,
+    "h": 7
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "model_version",
+     "legendFormat": ""
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {},
+    "overrides": []
+   },
+   "options": {}
+  },
+  {
+   "type": "stat",
+   "title": "Model server up",
+   "id": 7,
+   "description": "",
    "datasource": {
     "type": "prometheus",
     "uid": "prom"
@@ -467,17 +181,207 @@
    "gridPos": {
     "x": 12,
     "y": 8,
-    "w": 6,
+    "w": 4,
+    "h": 7
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "model_service_up",
+     "legendFormat": ""
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {},
+    "overrides": []
+   },
+   "options": {}
+  },
+  {
+   "type": "stat",
+   "title": "Retrain requests",
+   "id": 8,
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 16,
+    "y": 8,
+    "w": 8,
+    "h": 7
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "sum by (source) (retrain_requests_total)",
+     "legendFormat": "{{source}}"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {},
+    "overrides": []
+   },
+   "options": {}
+  },
+  {
+   "type": "row",
+   "title": "Data drift (served rows vs training days)",
+   "id": 9,
+   "gridPos": {
+    "x": 0,
+    "y": 15,
+    "w": 24,
+    "h": 1
+   },
+   "collapsed": false
+  },
+  {
+   "type": "stat",
+   "title": "Drift detected",
+   "id": 10,
+   "description": "1 = more than 30% of features have PSI > 0.25",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 16,
+    "w": 4,
+    "h": 7
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "drift_detected",
+     "legendFormat": ""
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {},
+    "overrides": []
+   },
+   "options": {}
+  },
+  {
+   "type": "timeseries",
+   "title": "Share of features drifting",
+   "id": 11,
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 4,
+    "y": 16,
+    "w": 8,
+    "h": 7
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "drift_share",
+     "legendFormat": "share"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {
+     "unit": "percentunit"
+    },
+    "overrides": []
+   },
+   "options": {}
+  },
+  {
+   "type": "timeseries",
+   "title": "PSI, 10 most drifted features (0.10 watch, 0.25 drift)",
+   "id": 12,
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 12,
+    "y": 16,
+    "w": 12,
+    "h": 7
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "topk(10, feature_psi)",
+     "legendFormat": "{{feature}}"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {},
+    "overrides": []
+   },
+   "options": {}
+  },
+  {
+   "type": "stat",
+   "title": "Drift window (rows)",
+   "id": 13,
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 23,
+    "w": 4,
     "h": 4
    },
    "targets": [
     {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "sum by (path) (rate(api_requests_total[1m]))",
      "refId": "A",
+     "expr": "drift_window_rows",
+     "legendFormat": ""
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {},
+    "overrides": []
+   },
+   "options": {}
+  },
+  {
+   "type": "row",
+   "title": "System and pipeline",
+   "id": 14,
+   "gridPos": {
+    "x": 0,
+    "y": 27,
+    "w": 24,
+    "h": 1
+   },
+   "collapsed": false
+  },
+  {
+   "type": "timeseries",
+   "title": "API requests per second",
+   "id": 15,
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 28,
+    "w": 8,
+    "h": 7
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "sum by (path) (rate(api_requests_total[1m]))",
      "legendFormat": "{{path}}"
     }
    ],
@@ -488,37 +392,30 @@
    "options": {}
   },
   {
-   "id": 12,
-   "title": "API time, 95th percentile",
    "type": "timeseries",
+   "title": "API and model time, 95th percentile",
+   "id": 16,
+   "description": "",
    "datasource": {
     "type": "prometheus",
     "uid": "prom"
    },
    "gridPos": {
-    "x": 18,
-    "y": 8,
-    "w": 6,
-    "h": 4
+    "x": 8,
+    "y": 28,
+    "w": 8,
+    "h": 7
    },
    "targets": [
     {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "histogram_quantile(0.95, sum by (le) (rate(api_request_seconds_bucket[1m])))",
      "refId": "A",
-     "legendFormat": "whole request"
+     "expr": "histogram_quantile(0.95, sum by (le) (rate(api_request_seconds_bucket[5m])))",
+     "legendFormat": "API"
     },
     {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "histogram_quantile(0.95, sum by (le) (rate(model_call_seconds_bucket[1m])))",
      "refId": "B",
-     "legendFormat": "model call"
+     "expr": "histogram_quantile(0.95, sum by (le) (rate(model_call_seconds_bucket[5m])))",
+     "legendFormat": "model server"
     }
    ],
    "fieldConfig": {
@@ -530,360 +427,163 @@
    "options": {}
   },
   {
-   "id": 13,
-   "title": "Drift detected",
    "type": "stat",
-   "datasource": {
-    "type": "prometheus",
-    "uid": "prom"
-   },
-   "gridPos": {
-    "x": 0,
-    "y": 12,
-    "w": 4,
-    "h": 6
-   },
-   "targets": [
-    {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "drift_detected",
-     "refId": "A"
-    }
-   ],
-   "fieldConfig": {
-    "defaults": {
-     "thresholds": {
-      "mode": "absolute",
-      "steps": [
-       {
-        "color": "green",
-        "value": null
-       },
-       {
-        "color": "red",
-        "value": 1
-       }
-      ]
-     },
-     "mappings": [
-      {
-       "type": "value",
-       "options": {
-        "0": {
-         "text": "STABLE"
-        },
-        "1": {
-         "text": "DRIFT"
-        }
-       }
-      }
-     ]
-    },
-    "overrides": []
-   },
-   "options": {},
-   "description": "1 when more than 30% of features have PSI above 0.25. Prometheus then fires DriftDetected and the API asks for a retrain."
-  },
-  {
-   "id": 14,
-   "title": "Drift window (rows)",
-   "type": "stat",
-   "datasource": {
-    "type": "prometheus",
-    "uid": "prom"
-   },
-   "gridPos": {
-    "x": 4,
-    "y": 12,
-    "w": 4,
-    "h": 6
-   },
-   "targets": [
-    {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "drift_window_rows",
-     "refId": "A"
-    }
-   ],
-   "fieldConfig": {
-    "defaults": {
-     "color": {
-      "mode": "fixed",
-      "fixedColor": "blue"
-     },
-     "thresholds": {
-      "mode": "absolute",
-      "steps": [
-       {
-        "color": "blue",
-        "value": null
-       }
-      ]
-     }
-    },
-    "overrides": []
-   },
-   "options": {},
-   "description": "Served rows compared with training rows. Needs 1000 before PSI shows."
-  },
-  {
-   "id": 15,
-   "title": "Feature drift (PSI) \u2014 0.10 watch, 0.25 drift",
-   "type": "bargauge",
-   "datasource": {
-    "type": "prometheus",
-    "uid": "prom"
-   },
-   "gridPos": {
-    "x": 8,
-    "y": 12,
-    "w": 16,
-    "h": 6
-   },
-   "targets": [
-    {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "topk(12, feature_psi)",
-     "refId": "A",
-     "legendFormat": "{{feature}}"
-    }
-   ],
-   "fieldConfig": {
-    "defaults": {
-     "thresholds": {
-      "mode": "absolute",
-      "steps": [
-       {
-        "color": "green",
-        "value": null
-       },
-       {
-        "color": "yellow",
-        "value": 0.1
-       },
-       {
-        "color": "red",
-        "value": 0.25
-       }
-      ]
-     },
-     "noValue": "waiting for enough served rows (see Drift window)"
-    },
-    "overrides": []
-   },
-   "options": {
-    "orientation": "horizontal",
-    "displayMode": "gradient"
-   }
-  },
-  {
-   "id": 16,
-   "title": "Pipeline: last run of each stage",
-   "type": "table",
-   "datasource": {
-    "type": "prometheus",
-    "uid": "prom"
-   },
-   "gridPos": {
-    "x": 0,
-    "y": 18,
-    "w": 10,
-    "h": 6
-   },
-   "targets": [
-    {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "max by (stage) (pipeline_last_run_ok)",
-     "refId": "A",
-     "format": "table",
-     "instant": true
-    },
-    {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "max by (stage) (pipeline_last_duration_seconds)",
-     "refId": "B",
-     "format": "table",
-     "instant": true
-    },
-    {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "max by (stage) (pipeline_last_rows_per_second)",
-     "refId": "C",
-     "format": "table",
-     "instant": true
-    }
-   ],
-   "fieldConfig": {
-    "defaults": {},
-    "overrides": [
-     {
-      "matcher": {
-       "id": "byName",
-       "options": "last run"
-      },
-      "properties": [
-       {
-        "id": "mappings",
-        "value": [
-         {
-          "type": "value",
-          "options": {
-           "1": {
-            "text": "ok",
-            "color": "green"
-           },
-           "0": {
-            "text": "failed",
-            "color": "red"
-           }
-          }
-         }
-        ]
-       },
-       {
-        "id": "custom.cellOptions",
-        "value": {
-         "type": "color-text"
-        }
-       }
-      ]
-     }
-    ]
-   },
-   "options": {
-    "showHeader": true,
-    "sortBy": [
-     {
-      "displayName": "stage"
-     }
-    ]
-   },
-   "description": "OK = 1. Duration in seconds. Rows per second for the Spark stages.",
-   "transformations": [
-    {
-     "id": "merge",
-     "options": {}
-    },
-    {
-     "id": "organize",
-     "options": {
-      "excludeByName": {
-       "Time": true,
-       "__name__": true,
-       "instance": true,
-       "job": true
-      },
-      "indexByName": {
-       "stage": 0,
-       "Value #A": 1,
-       "Value #B": 2,
-       "Value #C": 3
-      },
-      "renameByName": {
-       "Value #A": "last run",
-       "Value #B": "seconds",
-       "Value #C": "rows per second"
-      }
-     }
-    }
-   ]
-  },
-  {
+   "title": "Pipeline: last run of each stage (1 = ok)",
    "id": 17,
-   "title": "Pipeline runs by stage and status",
-   "type": "bargauge",
-   "datasource": {
-    "type": "prometheus",
-    "uid": "prom"
-   },
-   "gridPos": {
-    "x": 10,
-    "y": 18,
-    "w": 6,
-    "h": 6
-   },
-   "targets": [
-    {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "pipeline_runs",
-     "refId": "A",
-     "legendFormat": "{{stage}} {{status}}"
-    }
-   ],
-   "fieldConfig": {
-    "defaults": {},
-    "overrides": []
-   },
-   "options": {
-    "orientation": "horizontal"
-   }
-  },
-  {
-   "id": 18,
-   "title": "Host CPU and memory",
-   "type": "timeseries",
+   "description": "",
    "datasource": {
     "type": "prometheus",
     "uid": "prom"
    },
    "gridPos": {
     "x": 16,
-    "y": 18,
+    "y": 28,
+    "w": 8,
+    "h": 7
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "pipeline_last_run_ok",
+     "legendFormat": "{{stage}}"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {},
+    "overrides": []
+   },
+   "options": {}
+  },
+  {
+   "type": "timeseries",
+   "title": "Host CPU and memory",
+   "id": 18,
+   "description": "",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 35,
+    "w": 24,
+    "h": 7
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "1 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[1m]))",
+     "legendFormat": "CPU"
+    },
+    {
+     "refId": "B",
+     "expr": "1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes",
+     "legendFormat": "memory"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {
+     "unit": "percentunit"
+    },
+    "overrides": []
+   },
+   "options": {}
+  },
+  {
+   "type": "row",
+   "title": "Data quality (check + clean stages)",
+   "id": 19,
+   "gridPos": {
+    "x": 0,
+    "y": 42,
+    "w": 24,
+    "h": 1
+   },
+   "collapsed": false
+  },
+  {
+   "type": "stat",
+   "title": "Trading days by verdict",
+   "id": 20,
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 43,
+    "w": 6,
+    "h": 6
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "data_days",
+     "legendFormat": "{{verdict}}"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {},
+    "overrides": []
+   },
+   "options": {}
+  },
+  {
+   "type": "bargauge",
+   "title": "Bad rows dropped (share of in-session rows; alert above 1%)",
+   "id": 21,
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 6,
+    "y": 43,
     "w": 8,
     "h": 6
    },
    "targets": [
     {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "100 - avg(rate(node_cpu_seconds_total{mode=\"idle\"}[1m])) * 100",
      "refId": "A",
-     "legendFormat": "CPU %"
-    },
-    {
-     "datasource": {
-      "type": "prometheus",
-      "uid": "prom"
-     },
-     "expr": "100 * (1 - node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)",
-     "refId": "B",
-     "legendFormat": "Memory %"
+     "expr": "data_rows_dropped_share",
+     "legendFormat": "{{table}}"
     }
    ],
    "fieldConfig": {
     "defaults": {
-     "unit": "percent"
+     "unit": "percentunit"
     },
     "overrides": []
    },
    "options": {}
+  },
+  {
+   "type": "table",
+   "title": "Rows per clean rule",
+   "id": 22,
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 14,
+    "y": 43,
+    "w": 10,
+    "h": 6
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "data_rule_rows",
+     "format": "table",
+     "instant": true
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {},
+    "overrides": []
+   },
+   "options": {}
   }
- ],
- "templating": {
-  "list": []
- },
- "timezone": "browser"
+ ]
 }

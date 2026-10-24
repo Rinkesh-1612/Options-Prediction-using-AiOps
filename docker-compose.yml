@@ -34,7 +34,8 @@ services:
     command: ["bash", "/app/scripts/serve_model.sh"]
     environment:
       MLFLOW_TRACKING_URI: sqlite:////app/mlflow/mlflow.db
-      MODEL_NAME: nifty-option-direction
+      MODEL_NAME: nifty-signal
+      START_TIMEOUT: ${START_TIMEOUT:-180}   # a new champion that is not healthy by then is rolled back
     volumes: ["./mlflow:/app/mlflow", "./scripts:/app/scripts:ro"]
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:5001/ping')"]
@@ -44,41 +45,37 @@ services:
     depends_on: [mlflow]
     restart: unless-stopped
 
-  api:                         # FastAPI backend: the only thing the web page talks to
+  api:                         # signal API: the only thing the web page and Ravion talk to
     build: *serve_build
     image: optpred-serve:latest
     user: *user
-    command: ["python", "-m", "uvicorn", "--factory", "optpred.serving.api:create_app", "--host", "0.0.0.0", "--port", "8000"]
+    command: ["python", "-m", "uvicorn", "--factory", "optpred.serving.signal_api:create_app", "--host", "0.0.0.0", "--port", "8000"]
     environment:
       MODEL_URL: http://model:5001
+      MODEL_NAME: nifty-signal
       MLFLOW_TRACKING_URI: sqlite:////app/mlflow/mlflow.db
-      FEATURES_PATH: /app/data/features/features.parquet
+      FEAT_DIR: /app/data/feat
+      LABEL_DIR: /app/data/labels
+      DAYS_PATH: /app/data/days.json
+      ZOO_DIR: /app/reports/zoo
+      DRIFT_REF: /app/reports/drift/reference.json
       RUNS_PATH: /app/runs/runs.jsonl
-      LOGS_ROOT: /app/logs
-      DVC_PATH: /app/dvc.yaml
-      PARAMS_PATH: /app/params.yaml
-      FINAL_MARKER: /app/reports/final.json
       RETRAIN_REQUEST: /app/state/retrain_request.json
-      ADMIN_TOKEN: ${ADMIN_TOKEN:-}
       RETRAIN_COOLDOWN_S: ${RETRAIN_COOLDOWN_S:-3600}
-      DRIFT_MIN_ROWS: ${DRIFT_MIN_ROWS:-1000}
-      DRIFT_PSI_LIMIT: ${DRIFT_PSI_LIMIT:-0.25}
-      CORS_ORIGINS: "*"
+      ADMIN_TOKEN: ${ADMIN_TOKEN:-}
     volumes:
-      - ./data/features:/app/data/features:ro
-      - ./runs:/app/runs:ro
-      - ./logs:/app/logs:ro
+      - ./data:/app/data:ro          # the parent folder: DVC recreates data/feat and data/labels on each run
       - ./reports:/app/reports:ro
-      - ./dvc.yaml:/app/dvc.yaml:ro
-      - ./params.yaml:/app/params.yaml:ro
-      - ./mlflow:/app/mlflow
+      - ./runs:/app/runs:ro
       - ./state:/app/state
-    ports: ["${BIND:-127.0.0.1}:8000:8000"]
+      - ./mlflow:/app/mlflow
     healthcheck:
-      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/days')"]
+      test: ["CMD", "python", "-c", "import urllib.request as u; u.urlopen('http://localhost:8000/healthz')"]
       interval: 15s
-      retries: 5
+      retries: 6
+      start_period: 20s
     depends_on: [model]
+    ports: ["${BIND:-127.0.0.1}:8000:8000"]
     restart: unless-stopped
 
   frontend:                    # static page; reaches the backend through API_URL (a browser address)
@@ -96,7 +93,7 @@ services:
     user: *user
     working_dir: /app
     command: ["bash", "scripts/runner.sh"]
-    environment: { HOME: /tmp }
+    environment: { HOME: /tmp, RETRAIN_EVERY_S: "${RETRAIN_EVERY_S:-0}" }
     volumes:
       - ./:/app
       - /etc/passwd:/etc/passwd:ro

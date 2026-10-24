@@ -1,0 +1,4 @@
+2026-10-23 13:24:08,895 INFO optpred.labels: run 20261023T185408-labels  commit ca3513127f (DIRTY)
+2026-10-23 13:24:27,149 INFO optpred.labels.barrier: ce: {'valid': 1043531, 'tp': 0.423, 'sl': 0.5258, 'cap': 0.0513, 'mean_net_rs': -47.25, 'median_hold_s': 206.0}
+2026-10-23 13:24:27,150 INFO optpred.labels.barrier: pe: {'valid': 1043531, 'tp': 0.4451, 'sl': 0.5008, 'cap': 0.0541, 'mean_net_rs': -26.3, 'median_hold_s': 214.0}
+2026-10-23 13:24:27,152 INFO optpred.labels: run 20261023T185408-labels finished: ok in 18.3s

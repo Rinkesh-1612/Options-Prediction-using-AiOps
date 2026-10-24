@@ -42,3 +42,9 @@ def test_feature_is_full_after_its_lookback(f):
 def test_all_columns_unique():
     df = compute(GRID, FEATURES)
     assert not df.columns.duplicated().any()
+
+
+def test_every_feature_column_is_float64():
+    """The served model's schema is all double; an int column would be rejected at inference."""
+    df = compute(GRID, FEATURES)
+    assert (df.dtypes == "float64").all(), df.dtypes[df.dtypes != "float64"].to_dict()

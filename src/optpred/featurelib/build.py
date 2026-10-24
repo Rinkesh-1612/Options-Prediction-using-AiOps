@@ -14,7 +14,6 @@ import argparse
 import json
 import logging
 import sys
-from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
 
@@ -22,6 +21,7 @@ import pandas as pd
 import yaml
 
 from optpred.common import runlog
+from optpred.common.parallel import map_days
 from optpred.featurelib.registry import KEYS, compute, select
 
 log = logging.getLogger("optpred.featurelib.build")
@@ -72,8 +72,7 @@ def main(argv: list[str], summary: dict) -> int:
     work = partial(
         build_day, grid_dir=Path(params["grid"]["out_dir"]), out_dir=Path(p["out_dir"]), groups=p["groups"]
     )
-    with ProcessPoolExecutor(params["eda"]["workers"]) as ex:
-        res = list(ex.map(work, days))
+    res = list(map_days(work, days, params["eda"]["workers"]))
 
     rows = sum(r["rows"] for r in res)
     tot = {k: pd.DataFrame([r[k] for r in res]).sum() for k in ("nan", "sum", "sumsq", "n")}

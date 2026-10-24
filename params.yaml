@@ -41,115 +41,65 @@ feat:                      # feature library (optpred.featurelib); add features 
   out_dir: data/feat
   groups: all              # or a list, e.g. [time, spot, book]
 
-bars:
-  out_dir: data/bars
+labels:                    # triple-barrier targets (optpred.labels.barrier). Set before any model result
+  out_dir: data/labels
+  qty: 65                  # one NIFTY lot
+  slippage_pts_per_leg: 0.0  # entry at ask / exit at bid already pays the spread; 1 lot fits in L1
+  min_entry_premium: 5.0   # below Rs5 the 0.05 tick makes the spread too large (EDA)
+  max_entry_age_s: 5       # the entry quote must be fresh
+  first_entry_s: 33600     # 09:20: features have 300 s of history
+  last_entry_s: 54900      # 15:15
+  force_exit_s: 55680      # 15:28: before the closing print
+  sigma_window_s: 300
+  sigma_horizon_s: 60      # sigma = 1-minute move of the option, in points
+  k_tp: 2.0
+  k_sl: 2.0
+  max_hold_s: 900          # safety cap, not a fixed horizon
 
-ticks:                     # v2: one row per contract per second (docs/V2_PROTOCOL.md)
-  out_dir: data/ticks
-  strike_margin: 150       # keep nearest-expiry strikes within this many points of the day's NIFTY range
+zoo:                       # model zoo: training + evaluation (optpred.zoo). Grid fixed before any zoo result
+  n_test_days: 10          # last 10 accepted days: test (only zoo_eval reads them)
+  min_train_days: 19       # walk-forward: first fold trains on 19 days
+  val_days: 5              # each fold validates on the next 5 days -> 4 folds on 39 dev days
+  tau_quantiles: [0.9, 0.95, 0.98, 0.99, 0.995, 0.999]   # trade only the top share of seconds
+  min_trades: 20           # a tau needs at least this many validation trades
+  cpus: 4                  # the other 4 stay with live trading
+  bootstrap: 5000
+  seed: 20261023
+  mlflow:
+    tracking_uri: "sqlite:///mlflow/mlflow.db"   # env MLFLOW_TRACKING_URI overrides
+    artifact_root: mlflow/artifacts
+    experiment: nifty-zoo
+    registered_model: nifty-signal
+  grid:                    # one Ray Tune trial per entry
+    stay_out: [{}]
+    random: [{seed: 1}]
+    momentum: [{window: 15}, {window: 60}, {window: 300}]
+    linear: [{alpha: 1.0}, {alpha: 100.0}, {alpha: 10000.0}]
+    lgbm_reg:
+      - {n_estimators: 300, learning_rate: 0.03, num_leaves: 15, min_child_samples: 200}
+      - {n_estimators: 300, learning_rate: 0.03, num_leaves: 15, min_child_samples: 2000}
+      - {n_estimators: 300, learning_rate: 0.03, num_leaves: 63, min_child_samples: 200}
+      - {n_estimators: 300, learning_rate: 0.03, num_leaves: 63, min_child_samples: 2000}
+    lgbm_clf:
+      - {n_estimators: 300, learning_rate: 0.03, num_leaves: 15, min_child_samples: 200}
+      - {n_estimators: 300, learning_rate: 0.03, num_leaves: 15, min_child_samples: 2000}
+      - {n_estimators: 300, learning_rate: 0.03, num_leaves: 63, min_child_samples: 200}
+      - {n_estimators: 300, learning_rate: 0.03, num_leaves: 63, min_child_samples: 2000}
+    meta:
+      - {window: 60, n_estimators: 300, learning_rate: 0.03, num_leaves: 15, min_child_samples: 500}
+      - {window: 60, n_estimators: 300, learning_rate: 0.03, num_leaves: 31, min_child_samples: 500}
+    gru:
+      - {hidden: 32, seq_len: 60, epochs: 3, lr: 0.001}
+      - {hidden: 64, seq_len: 60, epochs: 3, lr: 0.001}
+    transformer:
+      - {hidden: 32, heads: 4, layers: 1, seq_len: 60, epochs: 3, lr: 0.001}
+      - {hidden: 32, heads: 4, layers: 2, seq_len: 60, epochs: 3, lr: 0.001}
 
-features:
-  out_dir: data/features
-  horizon_min: 2           # hold time; fixed BEFORE looking at any result (docs/HLD.md section 1.2)
-  first_minute: 560        # 09:20 -- five minutes of history exist
-  qty: 65                  # one lot
-  strike_step: 50
-  entry_max_age_s: 20      # the quote used to enter must be at most this old
-  min_entry_premium: 5.0   # skip near-worthless contracts (known at entry, so applied to everything)
-  n_val_days: 6
-  n_test_days: 10
-  forward_from: "2026-10-17"   # days from here on were recorded after v1 was frozen: split "forward"
-
-micro:                     # v2 decision rows and barrier trades. FIXED in docs/V2_PROTOCOL.md: never tune these
-  out_dir: data/micro
-  qty: 65
-  strike_step: 50
-  first_sec: 33600         # 09:20:00
-  last_sec: 55500          # 15:25:00: a 180 s time stop still exits by 15:28
-  entry_max_age_s: 5
-  min_entry_premium: 5.0
-  take_profit_pts: 3.5
-  stop_loss_pts: 2.0
-  max_hold_s: 180
-  # alpha sprint (docs/ALPHA_SPRINT.md), fixed before any sprint result
-  trail_start_pts: 2.0     # trial C: the stop starts trailing once the bid is this far above entry
-  trail_pts: 2.0           # trial C: distance of the trailing stop below the best bid since entry
-  trail_max_hold_s: 300    # trial C: time stop
-  sweep_min_ask_jump: 0.10 # trial E: best ask rises at least this much in one second
-  sweep_min_lots: 2        # trial E: aggressive buy volume in that second, in lots
-  big_move_horizon_s: 120  # trial A: horizon of the spot excursion label
-  slippage_pts_per_leg: 0.0  # v2 headline cost: statutory only (docs/V2_PROTOCOL.md amendment 1). v1 keeps costs.*
-
-micro_train:               # v2 model (docs/V2_PROTOCOL.md section 6). Settings fixed before any v2 result
-  n_folds: 3
-  min_train_days: 14
-  train_stride: 5          # train on every 5th second: neighbours share almost all their inputs
-  tau_grid: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 1.01]   # 1.01 = never trade
-  min_oof_trades: 20
-  seed: 20261022
-  registered_model: nifty-option-micro
-  lgbm:
-    n_estimators: 300
-    learning_rate: 0.03
-    num_leaves: 31
-    min_child_samples: 1000
-    subsample: 0.8
-    subsample_freq: 1
-    colsample_bytree: 0.8
-    reg_lambda: 5.0
-    n_jobs: 4
-
-costs:
-  # Charged ON TOP of crossing the spread (entry at ask, exit at bid). Ravion measured 0.31
-  # on 10 live legs; its code charges 0.31 * 2 legs * qty = Rs40.3 per round trip while its
-  # comments say Rs25. Reported at several values, never silently one.
-  slippage_pts_per_leg: 0.31
-  sensitivity_pts_per_leg: [0.0, 0.15, 0.31]
-
-baselines:
-  random_seeds: 100
-  bootstrap_resamples: 5000
-  seed: 20261018
-
-train:
-  seed: 20261018
-  n_jobs: 4
-  early_stopping_rounds: 50
-  threshold_grid: [0.0, 0.4, 0.45, 0.5, 0.55, 0.6, 0.7, 1.01]   # 1.01 = never trade
-  use_tuned: false         # true = train with the settings in reports/tune.json (from `tune`)
-  min_val_trades: 30       # a threshold with fewer validation trades is not trusted
-  lgbm:
-    n_estimators: 600
-    learning_rate: 0.03
-    num_leaves: 15
-    min_child_samples: 100
-    subsample: 0.8
-    subsample_freq: 1
-    colsample_bytree: 0.8
-    reg_lambda: 5.0
-
-tune:                      # Ray Tune: search LightGBM settings on train days only
-  n_folds: 3               # walk-forward folds (expanding window, by day)
-  min_train_days: 14       # the first fold trains on at least this many days
-  num_samples: 16          # settings tried
-  cpus: 4
-  cpus_per_trial: 2
-  concurrent: 2
-  space:
-    num_leaves: [7, 15, 31]
-    min_child_samples: [50, 100, 200]
-    learning_rate: [0.01, 0.1]       # log-uniform range
-    colsample_bytree: [0.5, 1.0]
-    reg_lambda: [1.0, 20.0]          # log-uniform range
-
-drift:
-  window: 2000            # served rows kept: about 5 sessions. One day is too short (docs/HLD.md section 5)
-  min_rows: 1000          # no drift verdict before this many rows. Env DRIFT_MIN_ROWS overrides (demo)
-  psi_limit: 0.25         # env DRIFT_PSI_LIMIT overrides (demo)
-  max_feature_share: 0.3  # drift is declared when more than this share of features pass the limit
-
-mlflow:
-  tracking_uri: "sqlite:///mlflow/mlflow.db"   # env MLFLOW_TRACKING_URI overrides (e.g. the compose server)
-  artifact_root: mlflow/artifacts
-  experiment: nifty-option-direction
-  registered_model: nifty-option-direction
+drift:                     # data drift by PSI (optpred.drift). Online (API) and per day (stage drift)
+  n_bins: 10
+  psi_limit: 0.25          # PSI above this = the feature drifted
+  share_limit: 0.3         # drift = more than 30% of features drifted
+  window: 1000             # online: served rows in the window
+  min_rows: 300            # online: no verdict before this many rows
+  n_windows: 300           # online limits: PSI of this many random dev windows (window rows each)
+  seed: 20261023

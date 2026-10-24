@@ -1,0 +1,29 @@
+2026-10-24 03:00:25,539 INFO optpred.zoo_train: run 20261024T083025-zoo_train  commit ca3513127f (DIRTY)
+2026-10-24 03:00:25,553 INFO optpred.zoo.train: dev 39 days (4 folds), test 10 days (not read here)
+2026-10-24 03:00:44,233 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-24 03:00:44,713 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-24 03:00:44,781 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-24 03:02:07,206 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-24 03:03:24,145 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-24 03:04:04,877 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-24 03:05:10,044 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-24 03:05:22,961 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-24 03:05:46,730 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-24 03:13:38,720 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-24 03:19:05,925 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-24 03:20:27,703 INFO optpred.zoo.train: ablation without time   : {'net_per_day': -18.7713, 'ic_ce': -0.0049, 'ic_pe': -0.0017}
+2026-10-24 03:20:53,986 INFO optpred.zoo.train: ablation without spot   : {'net_per_day': -246.0309, 'ic_ce': -0.0112, 'ic_pe': -0.004}
+2026-10-24 03:21:24,086 INFO optpred.zoo.train: ablation without future : {'net_per_day': -246.0309, 'ic_ce': -0.0229, 'ic_pe': 0.0042}
+2026-10-24 03:21:48,797 INFO optpred.zoo.train: ablation without book   : {'net_per_day': -157.0544, 'ic_ce': 0.0008, 'ic_pe': 0.0008}
+2026-10-24 03:22:17,333 INFO optpred.zoo.train: ablation without flow   : {'net_per_day': -228.4643, 'ic_ce': -0.0109, 'ic_pe': -0.003}
+2026-10-24 03:22:48,147 INFO optpred.zoo.train: ablation without chain  : {'net_per_day': -246.0309, 'ic_ce': 0.0103, 'ic_pe': 0.0067}
+2026-10-24 03:22:54,727 INFO optpred.zoo.train: lgbm_reg    net/day    246.0  trades   223  hit 0.54  ic 0.009/-0.009  {'n_estimators': 300, 'learning_rate': 0.03, 'num_leaves': 15, 'min_child_samples': 2000, 'n_jobs': 1}
+2026-10-24 03:22:54,727 INFO optpred.zoo.train: momentum    net/day    148.4  trades   149  hit 0.52  ic -0.002/0.007  {'window': 300, 'n_jobs': 1}
+2026-10-24 03:22:54,727 INFO optpred.zoo.train: gru         net/day    142.8  trades    22  hit 0.64  ic 0.017/0.040  {'hidden': 64, 'seq_len': 60, 'epochs': 3, 'lr': 0.001, 'n_jobs': 1}
+2026-10-24 03:22:54,727 INFO optpred.zoo.train: linear      net/day     98.5  trades    23  hit 0.65  ic -0.014/0.037  {'alpha': 1.0, 'n_jobs': 1}
+2026-10-24 03:22:54,727 INFO optpred.zoo.train: meta        net/day     55.7  trades   165  hit 0.50  ic 0.024/-0.004  {'window': 60, 'n_estimators': 300, 'learning_rate': 0.03, 'num_leaves': 15, 'min_child_samples': 500, 'n_jobs': 1}
+2026-10-24 03:22:54,727 INFO optpred.zoo.train: lgbm_clf    net/day     21.8  trades    62  hit 0.48  ic 0.012/0.020  {'n_estimators': 300, 'learning_rate': 0.03, 'num_leaves': 15, 'min_child_samples': 200, 'n_jobs': 1}
+2026-10-24 03:22:54,727 INFO optpred.zoo.train: stay_out    net/day      0.0  trades     0  hit 0.00  ic 0.000/0.000  {'n_jobs': 1}
+2026-10-24 03:22:54,727 INFO optpred.zoo.train: random      net/day      0.0  trades     0  hit 0.00  ic -0.002/-0.001  {'seed': 1, 'n_jobs': 1}
+2026-10-24 03:22:54,728 INFO optpred.zoo.train: transformer net/day      0.0  trades     0  hit 0.00  ic -0.013/0.012  {'hidden': 32, 'heads': 4, 'layers': 1, 'seq_len': 60, 'epochs': 3, 'lr': 0.001, 'n_jobs': 1}
+2026-10-24 03:22:54,746 INFO optpred.zoo_train: run 20261024T083025-zoo_train finished: ok in 1349.2s

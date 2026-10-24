@@ -5,8 +5,8 @@
 # ---- stage 1: build ----
 FROM python:3.11-bookworm AS builder
 WORKDIR /build
-COPY requirements-serve.txt .
-RUN pip install --no-cache-dir --target=/build/deps -r requirements-serve.txt
+COPY requirements.txt .
+RUN pip install --no-cache-dir --target=/build/deps -r requirements.txt
 
 # ---- stage 2: runtime ----
 FROM python:3.11-slim-bookworm

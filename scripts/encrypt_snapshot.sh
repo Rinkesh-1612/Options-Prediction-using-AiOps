@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-# Encrypts the frozen data snapshot (data/raw + manifest) with GnuPG, AES-256, passphrase mode.
+# Encrypts the data snapshot and the models with GnuPG, AES-256, passphrase mode:
+#   data/raw (+ manifest), data/days.json, and mlflow/ (tracking DB, artifacts, registered models).
 #   scripts/encrypt_snapshot.sh              encrypt  -> $BACKUP_DIR/snapshot-<date>.tar.gpg
 #   scripts/encrypt_snapshot.sh --verify F   decrypt F to /dev/null and compare with the checksum
 # The passphrase lives in $KEY_FILE (default ~/.optpred_snapshot.key, mode 600), NEVER in the repo.
@@ -24,7 +25,7 @@ if [[ ! -f "$KEY_FILE" ]]; then
 fi
 out="$BACKUP_DIR/snapshot-$(date +%Y%m%d).tar.gpg"
 # the checksum is of the decrypted tar stream, so --verify can prove the backup opens and is whole
-tar -C . -cf - data/raw data/days.json data/splits.json | tee >(sha256sum > "$out.sha256") \
+tar -C . -cf - data/raw data/days.json mlflow | tee >(sha256sum > "$out.sha256") \
   | gpg --batch --quiet --pinentry-mode loopback --passphrase-file "$KEY_FILE" \
         --symmetric --cipher-algo AES256 --compress-algo none -o "$out"
 sleep 1

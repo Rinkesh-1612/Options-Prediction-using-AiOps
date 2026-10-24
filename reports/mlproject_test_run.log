@@ -1,6 +1,0 @@
-# mlflow run . -e test -A user=$(id -u):$(id -g)   (2026-10-22, MLflow 3.17.1 client)
-2026/10/22 13:23:05 INFO mlflow.projects.docker: optpred-pipeline:latest already exists
-2026/10/22 13:23:05 INFO mlflow.projects.utils: === Created directory /tmp/tmpm8g_efum for downloading remote URIs passed to arguments of type 'path' ===
-2026/10/22 13:23:05 INFO mlflow.projects.backend.local: === Running command 'docker run --rm --user 1000:1000 -v <scratch>/mlrun:/mlflow/tmp/mlruns -v <scratch>/mlrun/759612905626649918/1a0a7a8b822e447f8d00b86578619b0b/artifacts:<scratch>/mlrun/759612905626649918/1a0a7a8b822e447f8d00b86578619b0b/artifacts -v ${PWD}:/app -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -e MLFLOW_RUN_ID=1a0a7a8b822e447f8d00b86578619b0b -e MLFLOW_TRACKING_URI=file:///mlflow/tmp/mlruns -e MLFLOW_EXPERIMENT_ID=759612905626649918 -e HOME=/tmp -e SPARK_LOCAL_IP=127.0.0.1 optpred-pipeline:latest bash -c 'cd /app && pytest -q -p no:cacheprovider'' in run with ID '1a0a7a8b822e447f8d00b86578619b0b' === 
-73 passed, 21 warnings in 111.11s (0:01:51)
-2026/10/22 13:25:04 INFO mlflow.projects: === Run (ID '1a0a7a8b822e447f8d00b86578619b0b') succeeded ===

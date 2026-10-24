@@ -1,0 +1,68 @@
+2026-10-23 13:30:22,551 INFO optpred.zoo_train: run 20261023T190022-zoo_train  commit ca3513127f (DIRTY)
+2026-10-23 13:30:22,569 INFO optpred.zoo.train: dev 39 days (4 folds), test 10 days (not read here)
+2026-10-23 13:30:34,705 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-23 13:30:34,766 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-23 13:31:49,382 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-23 13:32:48,179 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-23 13:33:15,911 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-23 13:33:57,882 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-23 13:34:08,100 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-23 13:34:30,082 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-23 13:41:50,271 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-23 13:47:05,772 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-10-23 13:47:07,555 ERROR optpred.zoo.train: trial failed: [36mray::ImplicitFunc.train()[39m (pid=453, ip=<server-ip>, actor_id=d22542ab1bb9fbe53414b04a01000000, repr=trial)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/ray/tune/trainable/trainable.py", line 331, in train
+    raise skipped from exception_cause(skipped)
+  File "/usr/local/lib/python3.11/site-packages/ray/air/_internal/util.py", line 104, in run
+    self._ret = self._target(*self._args, **self._kwargs)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/ray/tune/trainable/function_trainable.py", line 45, in <lambda>
+    training_func=lambda: self._trainable_func(self.config),
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/ray/tune/trainable/function_trainable.py", line 250, in _trainable_func
+    output = fn()
+             ^^^^
+  File "/usr/local/lib/python3.11/site-packages/ray/tune/trainable/util.py", line 130, in inner
+    return trainable(config, **fn_kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/src/optpred/zoo/train.py", line 61, in trial
+    return {"family": t["family"], "params": t["params"], **run_cv(ds, t["family"], t["params"], folds, z)}
+                                                            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/src/optpred/zoo/train.py", line 47, in run_cv
+    tau, q, m = choose_tau(score, ds, val_slices, z["tau_quantiles"], z["min_trades"])
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/src/optpred/zoo/sim.py", line 79, in choose_tau
+    tau = float(np.quantile(pool, q))
+                ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/numpy/lib/function_base.py", line 4543, in quantile
+    return _quantile_unchecked(
+           ^^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/numpy/lib/function_base.py", line 4555, in _quantile_unchecked
+    return _ureduce(a,
+           ^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/numpy/lib/function_base.py", line 3823, in _ureduce
+    r = func(a, **kwargs)
+        ^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/numpy/lib/function_base.py", line 4722, in _quantile_ureduce_func
+    result = _quantile(arr,
+             ^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/site-packages/numpy/lib/function_base.py", line 4831, in _quantile
+    slices_having_nans = np.isnan(arr[-1, ...])
+                                  ~~~^^^^^^^^^
+IndexError: index -1 is out of bounds for axis 0 with size 0
+2026-10-23 13:47:07,557 ERROR optpred.zoo_train: crashed:
+Traceback (most recent call last):
+  File "/app/src/optpred/common/runlog.py", line 90, in run
+    code = main(argv, summary)
+           ^^^^^^^^^^^^^^^^^^^
+  File "/app/src/optpred/zoo/train.py", line 141, in main
+    results = run_grid(ds, folds, z)
+              ^^^^^^^^^^^^^^^^^^^^^^
+  File "/app/src/optpred/zoo/train.py", line 105, in run_grid
+    raise RuntimeError(f"{len(trials) - len(out)} of {len(trials)} trials failed")
+RuntimeError: 1 of 22 trials failed
+
+2026-10-23 13:47:07,558 INFO optpred.zoo_train: run 20261023T190022-zoo_train finished: failed in 1005.0s

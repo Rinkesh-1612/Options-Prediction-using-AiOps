@@ -1,4 +1,0 @@
-2026-10-19 04:11:14,619 INFO optpred.tune: run 20261019T094114-tune  commit 38f07b36e3 (DIRTY)
-2026-10-19 04:11:14,751 INFO optpred.tune: 12112 train rows, 33 days, 3 walk-forward folds
-2026-10-19 04:19:50,051 INFO optpred.tune: default cv logloss 1.0894, best 1.0890 (16 trials)
-2026-10-19 04:19:50,054 INFO optpred.tune: run 20261019T094114-tune finished: ok in 515.4s

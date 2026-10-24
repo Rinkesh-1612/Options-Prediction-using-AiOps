@@ -17,7 +17,6 @@ import argparse
 import json
 import logging
 import sys
-from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
 
@@ -36,6 +35,7 @@ from optpred.common.clock import (  # noqa: E402
     SESSION_LAST_MIN,
     SESSION_MINUTES,
 )
+from optpred.common.parallel import map_days  # noqa: E402
 from optpred.eda.fill import asof  # noqa: E402
 
 log = logging.getLogger("optpred.eda.profile")
@@ -206,10 +206,13 @@ def main(argv: list[str], summary: dict) -> int:
     clean = Path(p["clean_dir"])
     days = json.loads(Path("data/days.json").read_text())["accepted"]
 
-    with ProcessPoolExecutor(p["workers"]) as ex:
-        res = dict(
-            zip(days, ex.map(partial(profile_day, clean=clean, max_age=p["max_age_s"]), days), strict=True)
+    res = dict(
+        zip(
+            days,
+            map_days(partial(profile_day, clean=clean, max_age=p["max_age_s"]), days, p["workers"]),
+            strict=True,
         )
+    )
 
     OUT.mkdir(parents=True, exist_ok=True)
     plots(days, res)

@@ -1,3 +1,0 @@
-2026-10-22 11:28:11,273 INFO optpred.register: run 20261022T165811-register  commit 9411233fc6
-2026-10-22 11:28:13,546 INFO optpred.register: version 5 registered as candidate; promoted to champion: False (champion is now v1)
-2026-10-22 11:28:13,549 INFO optpred.register: run 20261022T165811-register finished: ok in 2.3s

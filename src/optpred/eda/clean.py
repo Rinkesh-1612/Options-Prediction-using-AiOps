@@ -14,7 +14,6 @@ import argparse
 import json
 import logging
 import sys
-from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
 
@@ -22,6 +21,7 @@ import pandas as pd
 import yaml
 
 from optpred.common import runlog
+from optpred.common.parallel import map_days
 from optpred.eda import rules
 
 log = logging.getLogger("optpred.eda.clean")
@@ -52,8 +52,9 @@ def main(argv: list[str], summary: dict) -> int:
     raw, out = Path(params["export"]["out_dir"]), Path(p["clean_dir"])
     days = json.loads(Path("data/days.json").read_text())["accepted"]
 
-    with ProcessPoolExecutor(p["workers"]) as ex:
-        results = dict(zip(days, ex.map(partial(clean_day, raw=raw, out=out, p=p), days), strict=True))
+    results = dict(
+        zip(days, map_days(partial(clean_day, raw=raw, out=out, p=p), days, p["workers"]), strict=True)
+    )
 
     totals = {t: {} for t in TABLES}
     for day, per_table in results.items():

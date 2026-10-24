@@ -1,7 +1,0 @@
-2026-10-17 11:18:58,873 INFO optpred.bars: run 20261017T164858-bars  commit a95dfc2c0d (DIRTY)
-2026-10-17 11:26:58,407 INFO optpred.bars: wrote opt   bars: 1176405 rows
-2026-10-17 11:27:13,358 INFO optpred.bars: wrote spot  bars: 18374 rows
-2026-10-17 11:27:28,120 INFO optpred.bars: wrote chain bars: 913300 rows
-2026-10-17 11:27:37,546 INFO optpred.bars: 84731099 tape rows in 485s = 174713 rows/s
-2026-10-17 11:27:37,557 INFO optpred.bars: run 20261017T164858-bars finished: ok in 518.7s
-2026-10-17 11:27:37,557 INFO py4j.clientserver: Closing down clientserver connection

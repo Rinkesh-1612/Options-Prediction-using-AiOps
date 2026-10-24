@@ -67,7 +67,7 @@ def compute(day_grid: pd.DataFrame, feats: list[Feature]) -> pd.DataFrame:
         if len(out) != len(day_grid):
             raise ValueError(f"{f.name}: {len(out)} rows, expected {len(day_grid)}")
         parts.append(out)
-    df = pd.concat(parts, axis=1)
+    df = pd.concat(parts, axis=1).astype("float64")  # contract: every feature is a float (serving schema)
     dup = df.columns[df.columns.duplicated() | df.columns.isin(KEYS)].tolist()
     if dup:
         raise ValueError(f"duplicate or reserved feature columns: {dup}")

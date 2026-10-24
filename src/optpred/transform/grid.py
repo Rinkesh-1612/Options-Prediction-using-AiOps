@@ -25,7 +25,6 @@ import argparse
 import json
 import logging
 import sys
-from concurrent.futures import ProcessPoolExecutor
 from functools import partial
 from pathlib import Path
 
@@ -35,6 +34,7 @@ import yaml
 
 from optpred.common import runlog
 from optpred.common.clock import IST_OFFSET_S, SESSION_FIRST_MIN, SESSION_LAST_MIN
+from optpred.common.parallel import map_days
 from optpred.eda.fill import asof
 
 log = logging.getLogger("optpred.transform.grid")
@@ -133,8 +133,7 @@ def main(argv: list[str], summary: dict) -> int:
     work = partial(
         build_day, clean=Path(eda["clean_dir"]), out_dir=Path(p["out_dir"]), p=p, max_age=eda["max_age_s"]
     )
-    with ProcessPoolExecutor(eda["workers"]) as ex:
-        res = dict(zip(days, ex.map(work, days), strict=True))
+    res = dict(zip(days, map_days(work, days, eda["workers"]), strict=True))
 
     nan = pd.DataFrame([r["nan_share"] for r in res.values()]).fillna(0).mean().round(4).sort_values()
     report = {

@@ -97,200 +97,70 @@ stages:
     - reports/feature_catalog.md:
         cache: false
 
-  bars:
-    cmd: python -m optpred.data.bars
+  labels:
+    # triple-barrier targets (docs/steps/model_selection.md)
+    cmd: python -m optpred.labels.barrier
     params:
-    - bars
-    - spark
+    - labels
+    - grid
     deps:
-    - src/optpred/data/bars.py
-    - src/optpred/common/spark.py
-    - data/raw
+    - src/optpred/labels
+    - data/grid
     - data/days.json
     outs:
-    - data/bars
+    - data/labels
+    metrics:
+    - reports/labels.json:
+        cache: false
 
-  ticks:
-    # v2 (docs/V2_PROTOCOL.md): Spark, raw ticks -> one row per contract per second with order-flow measures
-    cmd: python -m optpred.data.ticks
+  zoo_train:
+    # walk-forward CV of every model family on dev days; Ray Tune + MLflow (docs/steps/model_training.md)
+    cmd: python -m optpred.zoo.train
     params:
-    - ticks
-    - spark
+    - zoo
     deps:
-    - src/optpred/data/ticks.py
-    - src/optpred/common/spark.py
-    - data/raw
+    - src/optpred/zoo
+    - data/feat
+    - data/labels
     - data/days.json
+    - reports/feat.json
+    metrics:
+    - reports/zoo/cv.json:
+        cache: false
+    - reports/zoo/importance.json:
+        cache: false
+
+  zoo_eval:
+    # best setting per family on test days; champion chosen on CV, registered in MLflow
+    cmd: python -m optpred.zoo.evaluate
+    params:
+    - zoo
+    deps:
+    - src/optpred/zoo
+    - data/feat
+    - data/labels
+    - reports/zoo/cv.json
+    metrics:
+    - reports/zoo/test.json:
+        cache: false
+    - reports/zoo/comparison.md:
+        cache: false
+
+  drift:
+    # drift over time: PSI of every day vs the dev days; writes the reference the API uses online
+    cmd: python -m optpred.drift.track
+    params:
+    - drift
+    - zoo.n_test_days
+    deps:
+    - src/optpred/drift
+    - data/feat
+    - data/labels
     outs:
-    - data/ticks
-
-  features:
-    cmd: python -m optpred.features.minute
-    params:
-    - features
-    - costs
-    - bars
-    deps:
-    - src/optpred/features/minute.py
-    - src/optpred/features/labels.py
-    - data/bars
-    - data/days.json
-    outs:
-    - data/features
-    metrics:
-    - reports/features.json:
+    - reports/drift/reference.json:
         cache: false
-
-  baselines:
-    cmd: python -m optpred.models.baselines
-    params:
-    - features
-    - costs
-    - baselines
-    deps:
-    - src/optpred/models/baselines.py
-    - src/optpred/models/sim.py
-    - src/optpred/features/labels.py
-    - data/features
-    metrics:
-    - reports/baselines.json:
+    - reports/drift/daily.png:
         cache: false
-
-  tune:
-    # Ray Tune: walk-forward search of LightGBM settings on TRAIN days only. Logs a run to MLflow.
-    cmd: python -m optpred.models.tune
-    params:
-    - features
-    - costs
-    - train
-    - tune
-    - mlflow
-    deps:
-    - src/optpred/models/tune.py
-    - src/optpred/features/labels.py
-    - data/features
     metrics:
-    - reports/tune.json:
-        cache: false
-
-  train:
-    # Tracking goes to MLflow (mlflow/ is its own versioned store: runs, params, metrics, models).
-    # The DVC output is a small summary that the register stage reads.
-    # It only reads train/val days; the test days are filtered out at the Parquet reader.
-    cmd: python -m optpred.models.train
-    params:
-    - features
-    - costs
-    - baselines
-    - train
-    - mlflow
-    deps:
-    - src/optpred/models/train.py
-    - src/optpred/models/baselines.py
-    - src/optpred/models/sim.py
-    - src/optpred/features/labels.py
-    - data/features
-    metrics:
-    - reports/train.json:
-        cache: false
-
-  register:
-    # Moves the registry aliases: candidate = newest version; champion only if strictly better on validation.
-    cmd: python -m optpred.models.register
-    params:
-    - mlflow
-    deps:
-    - src/optpred/models/register.py
-    - reports/train.json
-    outs:
-    - reports/register.json:
-        cache: false
-
-  evaluate:
-    # The ONE look at the locked test days (docs/FINAL_TEST_PROTOCOL.md). Scores the registry's champion.
-    # Frozen after its single run, so `dvc repro` never opens the test days again.
-    cmd: python -m optpred.models.evaluate --final
-    params:
-    - baselines
-    - costs
-    - features
-    - mlflow
-    deps:
-    - data/features
-    - reports/register.json
-    - src/optpred/models/evaluate.py
-    metrics:
-    - reports/final.json:
-        cache: false
-    frozen: true
-
-  micro:
-    # v2: one row per decision second, microstructure inputs, triple-barrier trades for the ATM call and put
-    cmd: python -m optpred.features.micro
-    params:
-    - micro
-    - costs
-    deps:
-    - src/optpred/features/micro.py
-    - src/optpred/features/labels.py
-    - data/ticks
-    - data/features
-    - data/splits.json
-    outs:
-    - data/micro
-    metrics:
-    - reports/micro.json:
-        cache: false
-
-  micro_train:
-    # v2 model: walk-forward on the 39 development days, tau from out-of-fold results, registered model
-    cmd: python -m optpred.models.micro_train
-    params:
-    - micro
-    - micro_train
-    - costs
-    - baselines
-    - mlflow
-    deps:
-    - src/optpred/models/micro_train.py
-    - src/optpred/models/register.py
-    - src/optpred/models/sim.py
-    - data/micro
-    metrics:
-    - reports/micro_train.json:
-        cache: false
-
-  micro_evaluate:
-    # The ONE v2 look at the held-out v1 test days (second look, disclosed; protocol amendment 2). Frozen after.
-    cmd: python -m optpred.models.micro_evaluate --final
-    params:
-    - baselines
-    - costs
-    - micro
-    - micro_train
-    - mlflow
-    deps:
-    - data/micro
-    - reports/micro_train.json
-    - src/optpred/models/micro_evaluate.py
-    metrics:
-    - reports/micro_final.json:
-        cache: false
-
-
-    frozen: true
-  sprint:
-    # The six pre-registered alpha-sprint trials (docs/ALPHA_SPRINT.md), out of fold, 99% pass bar
-    cmd: python -m optpred.models.sprint
-    params:
-    - micro
-    - micro_train
-    - baselines
-    - mlflow
-    deps:
-    - src/optpred/models/sprint.py
-    - src/optpred/models/micro_train.py
-    - data/micro
-    metrics:
-    - reports/sprint.json:
+    - reports/drift/daily.json:
         cache: false

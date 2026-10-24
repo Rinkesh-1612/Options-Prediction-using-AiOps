@@ -7,12 +7,18 @@
 | [Data Exploration & Analysis (EDA)](eda.md) | DONE |
 | [Data Cleaning & Transformation](cleaning_transformation.md) | DONE |
 | [Feature Engineering](feature_engineering.md) | DONE (open for more features) |
+| [Model Selection](model_selection.md) | DONE |
+| [Model Training & Evaluation](model_training.md) | DONE (result: no edge on test days) |
+| [Model Deployment](deployment.md) | DONE |
+| [Model Monitoring & Maintenance](monitoring.md) | DONE |
 
 ## Open items
 
-- Old `bars` / `ticks` stages (and the models built on them) still read `data/raw`. New work uses
-  `data/grid`. Retire the old stages when the new model replaces them.
-- Feature importance: in the model training item, log gain/SHAP importance and a per-group ablation
-  (train without one `feat` group at a time) to MLflow.
-- Data quality monitoring: export `check` / `clean` counts to Prometheus, add a Grafana panel and an
-  alert (day rejected, drop rate too high). Do this in the monitoring item.
+- From the development guideline (sections I, III, IV, V), still to do:
+  Docker Hub push (needs account), optional Swarm test, end-to-end test against the running stack,
+  per-signal explainability (SHAP), scalability note, documentation (architecture, HLD/LLD, test plan,
+  user manual), collaboration / continuous-improvement note, new web page (old one calls removed endpoints).
+- Done from the guideline: Ray runs every per-day data stage (`optpred.common.parallel.map_days`);
+  final pipeline rerun on the committed code (same results, dvc.lock up to date); integration test of
+  check -> clean -> grid -> feat -> labels; encryption of data + models (AES-256, verified);
+  Git LFS sample = one test day of feat + labels; automatic rollback tested (broken v6 -> back to v5).

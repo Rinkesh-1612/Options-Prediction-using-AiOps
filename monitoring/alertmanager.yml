@@ -1,4 +1,4 @@
-# One receiver: the API. It acts on DriftDetected only and ignores the rest.
+# One receiver: the API. It retrains on DriftDetected and ModelLosing (with a cooldown) and logs the rest.
 route:
   receiver: api
   group_by: [alertname]
