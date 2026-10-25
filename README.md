@@ -12,7 +12,7 @@ library for the author's trading system (Ravion V2).
   ([results](reports/zoo/comparison.md)). Option structures, expiries and strikes chosen by ML found nothing either
   (research branches).
 
-![Signal tab](docs/img/signal.png)
+![Forecast tab](docs/img/forecast.png)
 
 ## Documents
 
@@ -21,8 +21,9 @@ library for the author's trading system (Ravion V2).
 | [Architecture](docs/ARCHITECTURE.md) | diagram, blocks, ports, versioning |
 | [High-level design](docs/HLD.md) | problem, design rules, decisions, technology map |
 | [Low-level design](docs/LLD.md) | every API endpoint and pipeline stage with its input and output |
-| [Test plan](docs/TEST_PLAN.md) | levels, 104 test cases, acceptance criteria; report in `reports/test_report.md` |
-| [User manual](docs/USER_MANUAL.md) | the web page, tab by tab; operator commands |
+| [Test plan](docs/TEST_PLAN.md) | levels, 105 test cases, acceptance criteria; report in `reports/test_report.md` |
+| [User manual](docs/USER_MANUAL.md) | the web page for a non-technical user, with screenshots; operator commands |
+| [UI / UX design](docs/UI_DESIGN.md) | how the page was designed and measured (7 UX questions, browser audit) |
 | [Viva notes](docs/VIVA_NOTES.md) | short answers to likely questions |
 | [Rubric steps](docs/steps/PROGRESS.md) | one short note per course item |
 
@@ -38,9 +39,9 @@ library for the author's trading system (Ravion V2).
 | `src/optpred/vol/` | volatility forecaster (second model, `nifty-vol`) |
 | `src/optpred/drift/` | PSI drift (per day and online) |
 | `src/optpred/serving/` | FastAPI signal API |
-| `frontend/`, `monitoring/`, `docker/` | web page; Prometheus, Alertmanager, Grafana; images |
+| `frontend/`, `monitoring/`, `docker/` | web page (plain-language, responsive, light + dark); Prometheus, Alertmanager, Grafana; images |
 | `dvc.yaml`, `params.yaml`, `MLproject` | the pipeline, every setting, the same commands as MLflow entry points |
-| `tests/` | unit, integration, API, end-to-end |
+| `tests/` | unit, integration, API, end-to-end; `tests/ui/` browser audit of the page |
 
 ## Run it
 

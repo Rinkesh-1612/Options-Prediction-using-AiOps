@@ -21,7 +21,7 @@ Docker Compose (`./stack`). Ravion V2 (the author's live trading system) records
 | drift | PSI per day against the training days; reference for online drift | `src/optpred/drift/` |
 | model | Serves the registry alias `nifty-signal@champion`; rolls back if a version does not start | `scripts/serve_model.sh` |
 | api | The only public entry: signals, volatility forecasts (loads `nifty-vol`), results, pipeline, rollback, retrain, metrics | `src/optpred/serving/signal_api.py` |
-| frontend | Static web page (4 tabs); knows only the API address | `frontend/` |
+| frontend | Static web page (4 tabs: Forecast, Does it work?, How it's built, Controls); knows only the API address | `frontend/` |
 | Prometheus, Alertmanager, Grafana | Metrics every 5 s, 8 alert rules, one dashboard | `monitoring/` |
 | runner | Runs `zoo_train` → `zoo_eval` when a retrain is requested (alert, button, schedule) | `scripts/runner.sh` |
 
@@ -34,7 +34,7 @@ models: `scripts/encrypt_snapshot.sh`.
 
 ## The pipeline as a DVC DAG (this is the CI pipeline)
 
-`./pipe dvc dag` draws it from `dvc.yaml`. The Pipeline tab of the web page draws the same graph from the live file.
+`./pipe dvc dag` draws it from `dvc.yaml`. The "How it's built" tab of the web page draws the same graph from the live file.
 
 ```
                                                      +--------+*****                                                             

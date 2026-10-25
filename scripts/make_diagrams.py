@@ -232,7 +232,10 @@ def hld() -> None:
         s.arrow([(a + 190, 478), (b, 478)])
     row(
         572,
-        ["web page\nsignal, results, pipeline, ops", "Prometheus + Grafana\nmetrics, alerts, drift"],
+        [
+            "web page\nforecast, does it work, how built, controls",
+            "Prometheus + Grafana\nmetrics, alerts, drift",
+        ],
         "ops",
         250,
     )

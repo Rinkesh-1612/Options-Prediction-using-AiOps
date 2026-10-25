@@ -1,18 +1,9 @@
-# Web Page (UI) — DONE
+# Web Page (UI): DONE (rebuilt 2026-10-25)
 
-**Code.** [frontend/index.html](../../frontend/index.html): one static page, no libraries, served by nginx
-(`frontend/Dockerfile`). It talks only to the signal API; the API address comes from `config.json`
-(set by environment variables at container start). Light / dark mode, works at phone width.
+**Code.** [frontend/index.html](../../frontend/index.html): one static page, no libraries. Design, the seven UX questions and the
+measured result: [UI_DESIGN.md](../UI_DESIGN.md). Manual: [USER_MANUAL.md](../USER_MANUAL.md).
 
-| Tab | Shows |
-|---|---|
-| Signal | Pick a day (test or dev) and a second (09:20–15:15), or **Play** it like a live feed. Action, expected ₹ per side against the threshold, what happened next (entry, exit, barrier, hold, net ₹), hindsight for both sides, session total. |
-| Results | Verdict, every model: CV vs test ₹/day with 95% interval, trades, hit rate; drift per day; feature importance; group ablation. |
-| Pipeline | DVC stage graph coloured by the last run, run history (duration, commit, dirty flag), log of each run, data quality (rejected days with reasons, rows removed per rule). |
-| Operations | Champion and previous version (deploy check, commit, test metrics), rollback and retrain (admin token), online drift, links to MLflow, Grafana, OpenAPI. |
-
-**Foolproof.** Only accepted days and valid seconds can be picked; buttons are disabled during a call;
-every API error shows as a readable message; rollback asks for confirmation.
-
-**API added for the page:** `/pipeline`, `/pipeline/runs`, `/pipeline/runs/{id}/log`, `/quality`, `/drift/daily`,
-`/signal` → `hindsight`, `/results` → CV summary, importance, ablation. Tests: `tests/api/test_signal_api.py`.
+- Built around the trader's question (how much will NIFTY move, and does it work?), with plain words and tap-to-explain terms.
+- Designed with the UI/UX Pro Max skill (rules adopted and rejected are listed in UI_DESIGN.md).
+- Browser audit `tests/ui/ui_audit.py`: first page 5 of 11 checks failed, this page passes 12 of 12.
+- New API endpoint for the chart: `GET /vol/day`.

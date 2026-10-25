@@ -21,6 +21,7 @@ Updated at each step.
 | `src/optpred/serving/signal_api.py` | the API (signal, model, rollback, retrain, drift, webhook, metrics) |
 | `monitoring/` (prometheus, alerts, alertmanager, grafana dashboard) | monitoring and alerting |
 | `frontend/` (index.html, nginx.conf, Dockerfile, config.json, 40-config.sh) | the web page |
+| `tests/ui/`, `scripts/ui_screenshots.py`, `reports/ui_audit.md`, `reports/ui_audit_before_redesign.md`, `docs/UI_DESIGN.md` | UI audit, screenshots, design note |
 | `docker-compose.yml`, `stack`, `scripts/serve_model.sh`, `scripts/runner.sh` | serving stack, CD, rollback, retraining |
 | `scripts/encrypt_snapshot.sh` | AES-256 encryption of data + models (`--verify` checks a backup) |
 | `tests/unit/test_export.py`, `test_eda_rules.py`, `test_grid.py`, `test_featurelib.py`, `test_barrier.py`, `test_zoo.py`, `test_promote.py`, `test_psi.py`, `test_parallel.py`, `tests/api/test_signal_api.py`, `tests/integration/test_data_pipeline.py`, `tests/api/test_lld.py`, `tests/e2e/`, `tests/unit/test_vol.py`, `tests/unit/test_explain.py` | tests |

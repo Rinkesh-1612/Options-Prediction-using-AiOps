@@ -1,99 +1,131 @@
 # User manual
 
-For a trader. No programming is needed to use the web page. The operator section at the end is for the
-person who runs the server.
+For a trader. No programming is needed to use the page. The last two sections are for the person who runs the server.
 
-Open the page: **http://&lt;server&gt;:8080**. The dots at the top show the state: **API**, **Model** (the direction
-model), **Vol model** (the volatility forecaster) and **Drift** (green = normal, orange = watch, red = drift).
+Open **http://&lt;server&gt;:8080** (on this server: http://<server-ip>:8080).
 
-**What this application does.** It answers two questions about NIFTY options at any second of the session:
-1. **How much will NIFTY move in the next 5 and 15 minutes?** (volatility forecast: this model works)
-2. **Should I buy the call, buy the put, or stay out?** (direction model: no proven edge, shown for transparency)
+## What this page does, in one minute
 
-## 1. Signal — the forecast, and what the direction model would do
+It replays real NIFTY market days and answers two questions at any moment of the trading day:
 
-![Signal tab](img/signal.png)
+1. **How much will NIFTY move in the next 5 or 15 minutes?** Our forecast beat the options market's own guess on every
+   one of 10 days that the model had never seen. This part works.
+2. **Should I buy a call or a put?** The model that tries to answer this lost money after costs on days it had never
+   seen. The page shows it so that you can see how it decides, and it says clearly that it is **not proven**.
 
-1. **Trading day.** Test days are at the top. No model was trained or tuned on them.
-2. **Time.** Move the slider, or use −1 min / −1 s / +1 s / +1 min. Entries are possible from 09:20 to 15:15.
-3. Press **Get signal**. The page shows, from top to bottom:
-   - **Volatility forecast.** The size of the NIFTY move that the model expects in the next 15 minutes, in basis
-     points (bp; 1 bp = 0.01%) and index points. Next to it: the move that the options price in (from the option
-     IV) and, in hindsight, the move that happened. A sentence tells you if the options price in more or less
-     movement than the model expects. On the test days this forecast beat the option market's on every day.
-   - **Direction model.** **BUY CALL** (green), **BUY PUT** (red) or **STAY OUT** (grey). This model lost money
-     after costs on unseen days, so treat it as an explanation of how the model decides, not as advice.
-     The bars show the expected net ₹ of each side; the black mark is the threshold. **Why the put scored ₹73**
-     lists the five inputs that moved the score most (SHAP): the score starts from the average, and each input adds
-     (green) or subtracts (red) expected rupees. With "all other inputs" they add up exactly to the score.
-   - **What happened next.** The real result of that direction trade: bought at the ask, sold at the bid when the
-     price touched the take-profit, the stop-loss or the time limit, and the net ₹ for one lot after costs.
-     If the model stayed out, it shows what each side would have made (hindsight).
-4. **Play** steps through the day one second at a time, like a live feed. After a trade it jumps to the exit
-   (one position at a time). **This session** adds up the result.
+The page is **not** investment advice. It is a research system built on recorded market data.
 
-Tip: the address bar keeps the day and time (`#signal&day=2026-10-13&t=35331`). Send it to share a moment.
+## The screen
 
-The page also works on a phone:
+![Forecast tab](img/forecast.png)
 
-<img src="img/phone.png" alt="Phone view" width="260">
+At the top: the name, a **status light** (green = everything normal; press it for details), a **Help** button
+(always in the same place) and four tabs: **Forecast**, **Does it work?**, **How it's built**, **Controls**.
+On a phone the tabs are at the bottom of the screen, where your thumb is.
 
-## 2. Results — how good are the models?
+### Forecast: three steps, top to bottom
 
-![Results tab](img/results.png)
+**1. Pick a moment**
+- **Trading day.** Days marked *unseen* were never used to build the model, so they are the fair test.
+- **Time of day.** Drag the slider, use the arrow keys, or click on the chart.
+- **Look ahead.** 5 or 15 minutes.
+- **Quick jumps.** *Busiest moment* and *Quietest moment* jump to the biggest and smallest movement of the day.
+  *Options priciest vs. forecast* jumps to where the options market expected much more movement than we did.
+  *−5 min / +5 min* step through time. *Play the day* runs the day like a live feed; press it again to pause.
 
-- **Volatility forecast vs the option market** (top): the volatility model. Now: better than the option market on
-  10 of 10 test days. QLIKE is the standard loss of a volatility forecast (lower is better).
-- **Direction models:** the banner gives the verdict. Now: **no edge detected** on the test days.
-  The table lists every model: cross-validation ₹/day (used to choose), test ₹/day, the 95% interval
-  (the line; the dot is the result), trades and hit rate. If the interval includes ₹0, the result can be luck.
-- **Data drift per day:** how far each day is from the training days (blue = dev, orange = test).
-- **What drives the champion:** the most important inputs, and the loss when one input group is removed.
+**2. What to expect.** One sentence in plain words, for example:
+*"NIFTY is expected to move about 30 points over the next 15 minutes. The options market is pricing in about 74
+points. Options look expensive right now."* Under it, three boxes: **our forecast**, **what the options market
+expects**, and **what happened** (known only afterwards, so it is shown as hindsight). A line tells you who was closer.
+The **chart** shows the three over the whole day:
 
-## 3. Pipeline — how the data and models are made
+| Line | Meaning |
+|---|---|
+| solid blue | our forecast |
+| dashed grey | the options market's expectation |
+| dotted orange | what actually happened afterwards |
 
-![Pipeline tab](img/pipeline.png)
+The black vertical line is the selected time. Click or drag on the chart to move it.
 
-- Each box is a stage; green = its last run succeeded, red = it failed. Click a box to see its runs.
-- Click a run to read its log and summary. A `*` after the commit means the code was not committed.
-- **Speed and throughput:** for each stage, the input rows, the seconds of its last successful run and the rows
-  per second.
-- **Data quality:** the rejected days and why, and the rows that the cleaning rules removed.
+**3. Should I buy a call or a put?** A yellow notice reminds you that this model is not proven, with its real result on
+unseen days. Below it the model's answer for the selected moment: **Buy a call**, **Buy a put** or **Stay out**. Open
+**"Why did it say that, and what happened next?"** to see the expected result of each side, the five inputs that
+pushed the answer most (they add up exactly to the score), and what the trade would really have made.
 
-## 4. Operations — for the operator
+![The page on a phone](img/phone.png)
 
-![Operations tab](img/operations.png)
+The dark version follows your device setting:
 
-- **Champion** = the model served now. **Previous** = the rollback target. Each shows its deploy check.
-- **Roll back to previous:** enter the admin token, press the button, confirm. The server follows in ~10 s.
-- **Request retraining:** runs training and evaluation again. A new version is served only if it passes
-  the smoke test.
-- Links: **MLflow** (experiments and registry), **Grafana** (monitoring), **API reference**.
+<img src="img/phone-dark.png" alt="Dark mode on a phone" width="260">
+
+### Words you may not know
+
+Any word with a dotted underline is a button: press it and a short explanation appears. The **Help** button shows
+all of them in one list, with the 3-step guide.
+
+![Help](img/help.png)
+
+### Does it work?
+
+![Does it work tab](img/works.png)
+
+Two verdict cards in words: **"Yes, it works"** for the forecast of movement, **"No, it does not"** for call/put
+prediction, each with its numbers. Below are the three rules of the test, and folded sections with all the numbers (open
+what you need): the forecasters, the call/put models with their 95% intervals, whether the market has changed, and what the
+call/put model looks at.
+
+### How it's built
+
+![How it's built tab](img/pipeline.png)
+
+The factory behind the forecast. Each box is a step that turns raw data into a model. A green border means its last run
+succeeded; red means it failed. Press a box to filter the runs; press a run to read its log. Below: the speed of each
+step in rows per second, and the data quality (days that were rejected and why, rows that cleaning removed).
+
+### Controls (for the operator)
+
+![Controls tab](img/controls.png)
+
+- **Is everything healthy?** A list with a green tick, an amber warning or a red cross for each part.
+- **Models in use.** The current call/put model and the previous one (the way back), each with its safety check.
+- **Actions.** *Go back to the previous model* and *Retrain the models*. Both ask you to confirm. They need the admin
+  token (field above the buttons).
+- **Other tools.** Links to MLflow (experiments and models) and Grafana (live monitoring).
 
 ![Grafana dashboard](img/grafana.png)
 
 ![MLflow runs](img/mlflow-runs.png)
 
-![MLflow registry: deploy checks and aliases](img/mlflow-registry.png)
+![MLflow registry: safety checks and aliases](img/mlflow-registry.png)
 
-## 5. Operator: start, stop, update
+## Using the keyboard
 
-```bash
-./stack up -d --build          # start everything (web 8080, API 8000, MLflow 5050, Grafana 3001)
-./stack ps                     # state of each service
-./stack down                   # stop (data stays)
-./pipe dvc repro               # run the pipeline; zoo_eval deploys a new champion only if it passes
-make e2e                       # check the running stack
-bash scripts/encrypt_snapshot.sh            # encrypted backup of data + models
-```
-Settings: `params.yaml`. Admin token: environment variable `ADMIN_TOKEN` (empty = no token).
+`Tab` moves between controls and shows a blue outline on the current one. The arrow keys change the time slider and move
+between the four tabs. `Esc` closes the Help window and any explanation. A link at the very top ("Skip to content")
+appears on the first `Tab`.
 
-## 6. Messages
+## When something goes wrong
+
+The page never shows a raw error. A red box says what happened in plain words and has a **Try again** button.
 
 | Message | Meaning | What to do |
 |---|---|---|
-| cannot reach the API | API container stopped | `./stack up -d api` |
-| the model service did not answer | model server starting or down | wait 1 minute; check `./stack logs model` |
+| We can't reach the forecast service | the server or the API container is stopped | `./stack up -d api` on the server |
+| The model is starting up or not available yet | the model server is starting or down | wait one minute; `./stack logs model` |
 | data for … is not available now | the pipeline is rebuilding the data | wait for `dvc repro` to finish |
-| admin token missing or wrong | rollback / retrain need the token | enter the token on the Operations tab |
-| there is no previous model | nothing to roll back to | — |
+| admin token missing or wrong | going back or retraining needs the token | enter the token on the Controls tab |
+| there is no previous model to roll back to | nothing to go back to | nothing to do |
+
+## For the operator: start, stop, update
+
+```bash
+./stack up -d --build          # start everything (page 8080, API 8000, MLflow 5050, Grafana 3001)
+./stack ps                     # state of each service
+./stack down                   # stop (data stays)
+./pipe dvc repro               # run the pipeline; a new model is served only if it passes the safety check
+make e2e                       # check the running stack
+make ui                        # browser audit of this page (errors, phone width, contrast, keyboard)
+bash scripts/encrypt_snapshot.sh            # encrypted backup of data and models
+```
+Settings are in `params.yaml`. The admin token is the environment variable `ADMIN_TOKEN` (empty = no token). The design
+of the page and how it was tested are in [UI_DESIGN.md](UI_DESIGN.md).

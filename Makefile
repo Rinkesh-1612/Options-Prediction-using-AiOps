@@ -1,7 +1,7 @@
 # One entry point for every routine task. Everything runs in the pipeline image (./pipe), so results do not
 # depend on the host Python. `make help` lists the targets.
 .DEFAULT_GOAL := help
-.PHONY: help build lint format test test-unit e2e report pipeline dag status stack-up stack-down demo
+.PHONY: help build lint format test test-unit e2e ui report pipeline dag status stack-up stack-down demo
 
 help:            ## list the targets
 	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -24,6 +24,9 @@ test-unit:       ## fast tests only
 
 e2e:             ## end-to-end tests against the running stack (./stack up -d first)
 	./pipe bash -c "E2E_API_URL=http://127.0.0.1:8000 pytest -q -p no:cacheprovider tests/e2e"
+
+ui:              ## browser audit of the running page: errors, responsive, contrast, focus, jargon (needs Playwright on the host)
+	UI_URL=$${UI_URL:-http://127.0.0.1:8080} /usr/bin/python3 tests/ui/ui_audit.py --md reports/ui_audit.md
 
 report:          ## run every test and write reports/test_report.md
 	./pipe python scripts/test_report.py

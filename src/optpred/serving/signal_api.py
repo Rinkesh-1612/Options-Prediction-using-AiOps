@@ -5,6 +5,7 @@
   GET  /signal?day&sod     the champion's action at that second, the inputs behind its score (SHAP), and
                            what happened after it (the label)
   GET  /vol?day&sod        forecast NIFTY move over the next 5 / 15 min (nifty-vol), implied and realized move
+  GET  /vol/day?day        the whole day, one point per minute: forecast, implied, realized move (chart)
   GET  /vol/results        the volatility forecasters on the test days (reports/vol)
   GET  /model              champion and previous versions, family, CV and test metrics
   GET  /results            the zoo comparison: test days, cross-validation, feature importance (reports/zoo)
@@ -362,7 +363,10 @@ def create_app(
 
         g = pd.read_parquet(st.grid_dir / f"{day}.parquet").sort_values("sod").reset_index(drop=True)
         f = pd.read_parquet(st.feat_dir / f"{day}.parquet").sort_values("sod").reset_index(drop=True)
-        return pd.concat([g[["sod"]], inputs(g), f.drop(columns=KEYS), targets(g)], axis=1).set_index("sod")
+        spot = g["spot"].ffill().rename("spot")
+        return pd.concat([g[["sod"]], inputs(g), f.drop(columns=KEYS), targets(g), spot], axis=1).set_index(
+            "sod"
+        )
 
     @app.get("/vol")
     def vol(day: str, sod: int = Query(..., ge=SESSION_FIRST_MIN * 60, le=(SESSION_LAST_MIN + 1) * 60 - 1)):
@@ -376,7 +380,7 @@ def create_app(
         except Exception as e:  # noqa: BLE001 -- no registered vol model yet, or it cannot load
             raise HTTPException(503, f"the volatility model is not available: {e}") from e
         row = d.loc[[sod]]
-        fc = mdl.predict(row.drop(columns=["rv_fwd_300", "rv_fwd_900"]))
+        fc = mdl.predict(row.drop(columns=["rv_fwd_300", "rv_fwd_900", "spot"]))
         out = {"day": day, "sod": sod}
         for h in (300, 900):
             f, iv = float(fc[f"fc_{h}"].iloc[0]), float(row[f"iv_move_{h}"].iloc[0])
@@ -387,6 +391,32 @@ def create_app(
                 "ratio": round(f / iv, 3) if math.isfinite(iv) and iv > 0 else None,
                 "realized_bp": round(float(real), 2) if pd.notna(real) else None,  # known only after the fact
             }
+        m.vol_requests.inc()
+        return out
+
+    @app.get("/vol/day")
+    def vol_day_series(day: str):
+        """The whole day at one point per minute (09:30-15:00): forecast, implied and realized move, in bp."""
+        if day not in accepted():
+            raise HTTPException(404, f"no data for {day}")
+        try:
+            d = vol_day(day)
+            mdl = vol_model()
+        except FileNotFoundError as e:
+            raise HTTPException(503, f"data for {day} is not available now") from e
+        except Exception as e:  # noqa: BLE001 -- no registered vol model yet, or it cannot load
+            raise HTTPException(503, f"the volatility model is not available: {e}") from e
+        rows = d[(d.index >= 34200) & (d.index <= 54000) & (d.index % 60 == 0)]
+        fc = mdl.predict(rows.drop(columns=["rv_fwd_300", "rv_fwd_900", "spot"]))
+
+        def col(values) -> list[float | None]:
+            return [round(float(x), 2) if math.isfinite(x) else None for x in values]
+
+        out: dict = {"day": day, "sod": [int(i) for i in rows.index], "spot": col(rows["spot"])}
+        for h in (300, 900):
+            out[f"forecast_{h}"] = col(fc[f"fc_{h}"])
+            out[f"implied_{h}"] = col(rows[f"iv_move_{h}"])
+            out[f"realized_{h}"] = col(rows[f"rv_fwd_{h}"])  # known only after the fact
         m.vol_requests.inc()
         return out
 

@@ -16,7 +16,7 @@
 Correlation with the realized move 0.68 (implied: −0.18).
 
 **Serving.** Registered as `nifty-vol` after a smoke test; the API loads `nifty-vol@champion` (`GET /vol`);
-Signal tab card, Results tab section.
+Forecast tab (headline answer and chart, `GET /vol/day`), "Does it work?" tab (verdict and table).
 
 **Limit.** A good forecast is not a trade: buying straddles on it lost money after the spread (research note on
 `vol-track`). For Ravion it is a filter and position-size input.

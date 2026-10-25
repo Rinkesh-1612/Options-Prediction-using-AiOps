@@ -29,6 +29,12 @@ V = `{forecast_bp, implied_bp, ratio, realized_bp}`: the `nifty-vol` champion's 
 the move implied by the ATM IV, their ratio, and the realized move (known only after the fact).
 Inputs use only rows up to `sod`. 503 when no `nifty-vol` champion is registered.
 
+### GET /vol/day
+In (query): `day`. Out: one value per minute from 09:30 to 15:00 (331 points):
+`{day, sod[], spot[], forecast_300[], implied_300[], realized_300[], forecast_900[], implied_900[], realized_900[]}`.
+Moves are in basis points (1 bp = 0.01% of NIFTY); `spot` converts them to index points. `realized_*` is the move
+that happened after each minute (`null` where the data ends before the window does); it is hindsight. 404 unknown day, 503 as `/vol`.
+
 ### GET /vol/results
 Out: `reports/vol/test.json` (`champion, verdict{300, 900: mean_daily_qlike_diff, ci95, days_better,`
 `beats_implied}, results{forecaster: {300, 900: qlike, r2_log, corr_log}}`) + `cv`.

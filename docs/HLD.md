@@ -70,8 +70,8 @@ test days (`reports/vol/comparison.md`). A good volatility forecast did not make
   services bound to localhost by default; ClickHouse read-only.
 - **Scalability:** the work grows with the number of days; days run in parallel on Ray (CPU limit in
   `params.yaml`, so live trading keeps its CPUs). New days = `dvc repro`.
-- **Explainability:** global: gain importance and group ablation for the champion (Results tab, MLflow). Per signal:
-  exact SHAP values of the score (`/signal` → `drivers`; Signal tab, "Why the put scored …"). They add up to the score.
+- **Explainability:** global: gain importance and group ablation for the champion ("Does it work?" tab, MLflow). Per signal:
+  exact SHAP values of the score (`/signal` → `drivers`; Forecast tab, "Why did it say that?"). They add up to the score.
 - **Collaboration:** shared MLflow UI, Grafana, Git history, `docs/steps/` (one reviewed note per rubric item).
 
 ## 6. Experiment tracking: what MLflow records
@@ -103,7 +103,7 @@ PipelineStageFailed, SlowApi, BadDataRate. Grafana refreshes every 5 s.
 
 ## 8. Speed and throughput
 
-Measured from the run journal and shown live in the Pipeline tab (table "Speed and throughput").
+Measured from the run journal and shown live in the "How it's built" tab (table "Speed").
 Data engineering: `check` (Spark) reads 86 M raw option ticks at about 350,000 rows/s; `clean` (Ray, 2 CPUs) cleans
 111 M ticks in about 4 minutes; `grid` builds 1.1 M one-second rows from 106 M clean ticks in about 90 s. Whole
 pipeline from clean data to a registered, deployed model: about 40 minutes (training dominates). One signal:

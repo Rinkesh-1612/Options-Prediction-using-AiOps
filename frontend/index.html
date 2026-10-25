@@ -3,544 +3,779 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>NIFTY Signal</title>
+<meta name="color-scheme" content="light dark">
+<title>NIFTY Signal: how much will the market move?</title>
 <style>
+/* Design tokens (Swiss minimalism; semantic colours; light and dark). See docs/UI_DESIGN.md */
 :root {
-  --bg: #f5f6f8; --panel: #ffffff; --ink: #14171c; --muted: #5d6673; --line: #e2e5ea; --soft: #eef1f5;
-  --accent: #2f5bea; --accent-ink: #ffffff; --good: #138a4f; --bad: #c8372d; --warn: #b7791f;
-  --ce: #138a4f; --pe: #c8372d; --dev: #4c72b0; --test: #dd8452;
-  --shadow: 0 1px 2px rgba(16,24,40,.06), 0 1px 3px rgba(16,24,40,.08);
-  --radius: 12px; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --bg: #f8fafc; --surface: #ffffff; --soft: #f1f5f9; --ink: #0f172a; --muted: #475569; --line: #cbd5e1;
+  --primary: #1d4ed8; --on-primary: #ffffff; --focus: #1d4ed8;
+  --good: #15803d; --good-bg: #dcfce7; --bad: #b91c1c; --bad-bg: #fee2e2; --warn: #92400e; --warn-bg: #fef3c7;
+  --info-bg: #dbeafe;
+  --c-forecast: #1d4ed8; --c-implied: #475569; --c-real: #c2410c;
+  --r: 10px; --gap: 16px; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0f1216; --panel: #171b21; --ink: #e8ebef; --muted: #98a2b0; --line: #2a3039; --soft: #1e232b;
-    --accent: #6d8eff; --accent-ink: #0f1216; --good: #3cc47c; --bad: #ff6b5e; --warn: #e3a948;
-    --ce: #3cc47c; --pe: #ff6b5e; --dev: #7ea2e0; --test: #f0a070;
-    --shadow: 0 1px 2px rgba(0,0,0,.4);
+    --bg: #020617; --surface: #0f172a; --soft: #1e293b; --ink: #f1f5f9; --muted: #a8b3c5; --line: #334155;
+    --primary: #60a5fa; --on-primary: #0b1220; --focus: #93c5fd;
+    --good: #4ade80; --good-bg: #052e16; --bad: #f87171; --bad-bg: #450a0a; --warn: #fbbf24; --warn-bg: #422006;
+    --info-bg: #172554;
+    --c-forecast: #60a5fa; --c-implied: #a8b3c5; --c-real: #fb923c;
   }
 }
 * { box-sizing: border-box; }
-html, body { margin: 0; background: var(--bg); color: var(--ink);
-  font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-a { color: var(--accent); }
-header { position: sticky; top: 0; z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line); }
-.bar { max-width: 1180px; margin: 0 auto; padding: 10px 16px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
-.brand { font-weight: 700; font-size: 17px; letter-spacing: .2px; margin-right: auto; }
-.brand small { color: var(--muted); font-weight: 500; margin-left: 6px; }
-.pill { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px; border-radius: 999px;
-  background: var(--soft); color: var(--muted); font-size: 13px; white-space: nowrap; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
-.dot.ok { background: var(--good); } .dot.bad { background: var(--bad); } .dot.warn { background: var(--warn); }
-nav { max-width: 1180px; margin: 0 auto; padding: 0 16px; display: flex; gap: 4px; overflow-x: auto; }
-nav button { border: 0; background: none; color: var(--muted); padding: 10px 14px; font: inherit; cursor: pointer;
-  border-bottom: 2px solid transparent; white-space: nowrap; }
-nav button[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); font-weight: 600; }
-main { max-width: 1180px; margin: 0 auto; padding: 18px 16px 48px; }
-section[hidden] { display: none; }
-.grid { display: grid; gap: 16px; }
-.cols-2 { grid-template-columns: 340px 1fr; }
-.cols-even { grid-template-columns: 1fr 1fr; }
-@media (max-width: 860px) { .cols-2, .cols-even { grid-template-columns: 1fr; } }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px; min-width: 0; }
-.card h2 { font-size: 13px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); margin: 0 0 12px; font-weight: 600; }
-.card h3 { font-size: 15px; margin: 18px 0 8px; }
-label { display: block; font-size: 13px; color: var(--muted); margin: 12px 0 6px; }
-select, input[type="text"], input[type="password"] { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px;
-  background: var(--panel); color: var(--ink); font: inherit; }
-input[type="range"] { width: 100%; accent-color: var(--accent); }
-.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-.btn { border: 1px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 8px; padding: 8px 12px;
-  font: inherit; cursor: pointer; }
-.btn:hover:not(:disabled) { background: var(--soft); }
-.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); font-weight: 600; }
-.btn.danger { color: var(--bad); border-color: var(--bad); }
-.btn:disabled { opacity: .5; cursor: not-allowed; }
-.btn.small { padding: 4px 9px; font-size: 13px; }
-.clock { font: 600 28px/1 var(--mono); letter-spacing: .5px; }
-.muted { color: var(--muted); } .good { color: var(--good); } .bad { color: var(--bad); } .warn { color: var(--warn); }
+[hidden] { display: none !important; }
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+h1, h2, h3, p { margin: 0; }
+.wrap { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
 .mono { font-family: var(--mono); }
-.action { border-radius: var(--radius); padding: 18px; text-align: center; border: 1px solid var(--line); background: var(--soft); }
-.action .label { font-size: 30px; font-weight: 800; letter-spacing: .5px; }
-.action.ce { background: color-mix(in srgb, var(--ce) 14%, var(--panel)); border-color: var(--ce); }
-.action.ce .label { color: var(--ce); }
-.action.pe { background: color-mix(in srgb, var(--pe) 14%, var(--panel)); border-color: var(--pe); }
-.action.pe .label { color: var(--pe); }
-.scores[hidden] { display: none; }
-.scores { display: grid; grid-template-columns: 60px 1fr 90px; gap: 6px 10px; align-items: center; margin-top: 14px; font-size: 14px; }
-.track { position: relative; height: 10px; background: var(--soft); border-radius: 5px; overflow: hidden; }
+.num { font-variant-numeric: tabular-nums; }
+.muted { color: var(--muted); }
+.good { color: var(--good); } .bad { color: var(--bad); } .warn { color: var(--warn); }
+.i { width: 20px; height: 20px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+.skip { position: absolute; left: 8px; top: -64px; z-index: 50; background: var(--primary); color: var(--on-primary); padding: 12px 16px; border-radius: 8px; min-height: 44px; }
+.skip:focus { top: 8px; }
+
+/* page */
+main { padding-top: 24px; padding-bottom: 32px; }
+main:focus { outline: none; }
+
+/* header + navigation (bottom bar on phones) */
+.top { position: sticky; top: 0; z-index: 10; background: var(--surface); border-bottom: 1px solid var(--line); }
+.bar { display: flex; align-items: center; gap: 8px; min-height: 60px; }
+.brand { display: flex; align-items: center; gap: 10px; margin-right: auto; min-width: 0; }
+.brand b { font-size: 18px; white-space: nowrap; }
+.brand small { display: none; color: var(--muted); font-size: 14px; }
+.logo { width: 28px; height: 28px; color: var(--primary); }
+.status, .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; text-decoration: none; }
+.btn:hover:not(:disabled), .status:hover { background: var(--soft); }
+.btn.primary { background: var(--primary); border-color: var(--primary); color: var(--on-primary); font-weight: 600; }
+.btn.primary:hover:not(:disabled) { filter: brightness(1.08); background: var(--primary); }
+.btn.danger { color: var(--bad); border-color: var(--bad); }
+.btn:disabled { cursor: not-allowed; background: var(--soft); color: var(--muted); }
+.btn.sm { min-height: 44px; padding: 0 12px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex: none; }
+.dot.ok { background: var(--good); } .dot.warn { background: var(--warn); } .dot.bad { background: var(--bad); }
+.short { display: inline; } .long { display: none; }
+.tabs { display: flex; gap: 4px; padding: 0 16px; max-width: 1100px; margin: 0 auto; }
+.tab { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; min-height: 56px; padding: 6px 2px; border: 0; border-top: 3px solid transparent; background: none; color: var(--muted); font: inherit; font-size: 12px; cursor: pointer; }
+.tab[aria-selected="true"] { color: var(--ink); border-top-color: var(--primary); font-weight: 600; }
+.tab:hover { color: var(--ink); }
+@media (max-width: 719px) {
+  .tabs { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--surface); border-top: 1px solid var(--line); padding: 0 0 env(safe-area-inset-bottom); max-width: none; gap: 0; }
+  footer { padding-bottom: 88px; }
+}
+@media (min-width: 720px) {
+  .tab { flex: none; flex-direction: row; gap: 8px; min-height: 48px; padding: 0 18px; font-size: 15px; border-top: 0; border-bottom: 3px solid transparent; }
+  .tab[aria-selected="true"] { border-bottom-color: var(--primary); }
+  .brand small { display: block; } .short { display: none; } .long { display: inline; }
+}
+
+.page-title { font-size: clamp(24px, 4.5vw, 32px); line-height: 1.2; font-weight: 700; }
+.lead { color: var(--muted); max-width: 70ch; margin-top: 8px; }
+section[hidden] { display: none; }
+.stack > * + * { margin-top: var(--gap); }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 20px; min-width: 0; }
+.step { display: flex; align-items: center; gap: 10px; font-size: 18px; font-weight: 700; margin-bottom: 14px; }
+.step .n { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--primary); color: var(--on-primary); font-size: 14px; flex: none; }
+h2.sec { font-size: 18px; margin: 28px 0 12px; }
+.notice { display: flex; gap: 12px; padding: 12px 14px; border-radius: 8px; background: var(--warn-bg); color: var(--ink); border: 1px solid var(--warn); }
+.notice .i { color: var(--warn); margin-top: 2px; }
+.notice.info { background: var(--info-bg); border-color: var(--primary); } .notice.info .i { color: var(--primary); }
+.notice.bad { background: var(--bad-bg); border-color: var(--bad); } .notice.bad .i { color: var(--bad); }
+.banner { margin-bottom: 16px; }
+.banner .row { display: flex; gap: 12px; align-items: center; flex-wrap: wrap; margin-top: 8px; }
+.tag { display: inline-flex; align-items: center; gap: 6px; padding: 2px 10px; border-radius: 999px; font-size: 14px; font-weight: 600; background: var(--soft); color: var(--ink); }
+.tag.good { background: var(--good-bg); color: var(--good); } .tag.bad { background: var(--bad-bg); color: var(--bad); } .tag.warn { background: var(--warn-bg); color: var(--warn); }
+
+/* picker */
+.picker-grid { display: grid; gap: 16px; }
+.field label, .field .lab { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+.clock { font: 700 22px/1 var(--mono); margin-left: 8px; }
+select, input[type="text"], input[type="password"] { width: 100%; min-height: 44px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit; }
+input[type="range"] { width: 100%; height: 44px; margin: 0; accent-color: var(--primary); cursor: pointer; }
+.hint { font-size: 14px; color: var(--muted); margin-top: 6px; }
+.seg { display: flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg label { position: relative; flex: 1; min-height: 44px; display: grid; place-items: center; cursor: pointer; margin: 0; font-weight: 500; }
+.seg input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; }
+.seg span { pointer-events: none; padding: 0 14px; }
+.seg label:has(input:checked) { background: var(--primary); color: var(--on-primary); font-weight: 700; }
+.seg label:has(input:focus-visible) { outline: 3px solid var(--focus); outline-offset: -3px; }
+.quick { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; align-items: center; }
+.quick .lab { font-size: 14px; color: var(--muted); margin-right: 4px; }
+@media (min-width: 720px) { .picker-grid { grid-template-columns: 240px 1fr 220px; align-items: start; } }
+
+/* answer */
+.headline { font-size: clamp(22px, 4vw, 30px); line-height: 1.25; font-weight: 700; max-width: 28em; }
+.headline b { color: var(--primary); }
+.subline { margin-top: 10px; font-size: 17px; max-width: 46em; }
+.stats { display: grid; gap: 12px; margin-top: 18px; }
+.stat { border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; background: var(--bg); }
+.stat .lab { font-size: 14px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+.stat .val { font-size: 26px; font-weight: 700; line-height: 1.2; margin-top: 2px; }
+.stat .cap { font-size: 14px; color: var(--muted); }
+.sw { width: 28px; height: 10px; flex: none; }
+.judge { margin-top: 14px; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+@media (min-width: 560px) { .stats { grid-template-columns: repeat(3, 1fr); } }
+figure.chart { margin: 20px 0 0; }
+figure.chart #chart { display: block; width: 100%; height: auto; color: var(--muted); touch-action: pan-y; cursor: crosshair; }
+figure.chart figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 14px; color: var(--ink); }
+.legend span { display: inline-flex; align-items: center; gap: 8px; }
+.ax { font-size: 12px; fill: currentColor; }
+.grid-l { stroke: var(--line); stroke-width: 1; }
+
+/* skeleton loading (stable layout) */
+.skel { background: var(--soft); border-radius: 6px; min-height: 1em; color: transparent; user-select: none; animation: pulse 1.4s ease-in-out infinite; }
+@keyframes pulse { 50% { opacity: .55; } }
+@media (prefers-reduced-motion: reduce) { .skel { animation: none; } * { scroll-behavior: auto !important; transition: none !important; } }
+
+/* direction card */
+.action { display: inline-flex; align-items: center; gap: 8px; font-weight: 800; font-size: 20px; padding: 6px 14px; border-radius: 8px; background: var(--soft); }
+.action.ce { background: var(--good-bg); color: var(--good); } .action.pe { background: var(--bad-bg); color: var(--bad); }
+details { border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+details + details { margin-top: 10px; }
+summary { min-height: 44px; display: flex; align-items: center; gap: 10px; padding: 0 14px; cursor: pointer; font-weight: 600; list-style: none; }
+summary::-webkit-details-marker { display: none; }
+summary::before { content: ""; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .15s; flex: none; }
+details[open] > summary::before { transform: rotate(45deg); }
+.dbody { padding: 4px 16px 16px; }
+.scores { display: grid; grid-template-columns: 52px 1fr 80px; gap: 6px 10px; align-items: center; margin: 8px 0; font-size: 14px; }
+.track { position: relative; height: 10px; background: var(--soft); border-radius: 5px; }
 .track .fill { position: absolute; top: 0; bottom: 0; border-radius: 5px; }
-.track { overflow: visible; }
 .track .tau { position: absolute; top: -4px; bottom: -4px; width: 3px; margin-left: -1px; border-radius: 2px; background: var(--ink); }
-.kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 14px; font-size: 14px; }
-.kv dt { color: var(--muted); } .kv dd { margin: 0; font-weight: 600; }
-.note { font-size: 13px; color: var(--muted); margin-top: 10px; }
-.banner { border-radius: 10px; padding: 12px 14px; margin-bottom: 16px; border: 1px solid var(--line); background: var(--soft); }
-.banner.bad { border-color: var(--bad); background: color-mix(in srgb, var(--bad) 10%, var(--panel)); }
-.banner.good { border-color: var(--good); background: color-mix(in srgb, var(--good) 10%, var(--panel)); }
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
-th { text-align: left; color: var(--muted); font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .4px; }
-th, td { padding: 8px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
-td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
-tr.click { cursor: pointer; } tr.click:hover { background: var(--soft); } tr.sel { background: var(--soft); }
-.scroll { overflow-x: auto; }
-.scroll.tall { max-height: 460px; overflow-y: auto; }
-.scroll.tall thead th { position: sticky; top: 0; background: var(--panel); }
-.chip { display: inline-block; padding: 1px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; background: var(--soft); color: var(--muted); }
-.chip.ok { color: var(--good); background: color-mix(in srgb, var(--good) 14%, var(--panel)); }
-.chip.bad { color: var(--bad); background: color-mix(in srgb, var(--bad) 14%, var(--panel)); }
-.chip.acc { color: var(--accent); background: color-mix(in srgb, var(--accent) 14%, var(--panel)); }
-.bars { display: flex; align-items: flex-end; gap: 2px; height: 140px; position: relative; padding-top: 6px; }
-.bars div { flex: 1; min-width: 3px; border-radius: 2px 2px 0 0; }
-.bars .limit { position: absolute; left: 0; right: 0; border-top: 1px dashed var(--muted); }
-.legend { display: flex; gap: 14px; font-size: 13px; color: var(--muted); margin-top: 8px; flex-wrap: wrap; }
-.legend i { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 5px; vertical-align: -1px; }
-.hbar { display: grid; grid-template-columns: minmax(120px, 210px) 1fr 52px; gap: 8px; align-items: center; font-size: 13px; margin: 4px 0; }
-.hbar .t { height: 8px; background: var(--accent); border-radius: 4px; }
-.dag { position: relative; display: flex; gap: 18px; overflow-x: auto; padding: 6px 2px 10px; }
-.dag svg { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
-.layer { display: flex; flex-direction: column; gap: 12px; justify-content: center; position: relative; z-index: 1; }
-.node { width: 132px; padding: 8px 9px; border-radius: 10px; border: 1px solid var(--line); background: var(--panel); cursor: pointer; font-size: 13px; }
-.node b { display: flex; gap: 6px; align-items: center; font-size: 14px; }
-.node.ok { border-color: color-mix(in srgb, var(--good) 60%, var(--line)); }
-.node.bad { border-color: var(--bad); }
-.node.sel { outline: 2px solid var(--accent); }
-pre.log { background: var(--soft); border-radius: 8px; padding: 12px; max-height: 360px; overflow: auto; font: 12px/1.5 var(--mono); white-space: pre-wrap; word-break: break-word; margin: 0; }
-.toast { position: fixed; left: 50%; bottom: 18px; transform: translateX(-50%); max-width: min(560px, calc(100% - 32px));
-  background: var(--ink); color: var(--panel); padding: 10px 14px; border-radius: 10px; font-size: 14px; z-index: 20; box-shadow: var(--shadow); }
-.toast[hidden] { display: none; }
-.ci { width: 160px; height: 18px; }
-.skeleton { color: var(--muted); font-size: 14px; }
-.why { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 12px; }
-.why-row { display: grid; grid-template-columns: minmax(130px, 200px) 1fr 70px; gap: 8px; align-items: center; font-size: 13px; margin: 4px 0; }
+.why-row { display: grid; grid-template-columns: minmax(110px, 190px) 1fr 64px; gap: 8px; align-items: center; font-size: 14px; margin: 4px 0; }
 .why-track { position: relative; height: 10px; background: var(--soft); border-radius: 5px; }
 .why-track i { position: absolute; top: 0; bottom: 0; border-radius: 5px; }
 .why-track b { position: absolute; top: -2px; bottom: -2px; width: 1px; left: 50%; background: var(--muted); }
-.volgrid { display: grid; grid-template-columns: 70px repeat(3, 1fr); gap: 6px 12px; font-size: 14px; align-items: baseline; }
-.volgrid b { font-size: 18px; }
+dl.kv { display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; margin: 0; font-size: 15px; }
+dl.kv dt { color: var(--muted); } dl.kv dd { margin: 0; font-weight: 600; }
+
+/* verdict cards (Does it work?) */
+.verdicts { display: grid; gap: 16px; margin-top: 20px; }
+.verdict { border: 1px solid var(--line); border-left-width: 6px; border-radius: var(--r); padding: 18px 20px; background: var(--surface); }
+.verdict.good { border-left-color: var(--good); } .verdict.bad { border-left-color: var(--bad); } .verdict.warn { border-left-color: var(--warn); }
+.verdict h2 { font-size: 16px; color: var(--muted); font-weight: 600; display: flex; align-items: center; gap: 8px; }
+.verdict .big { font-size: 34px; font-weight: 800; line-height: 1.2; margin-top: 4px; }
+.verdict p { margin-top: 6px; }
+@media (min-width: 720px) { .verdicts { grid-template-columns: 1fr 1fr; } }
+ol.plain { padding-left: 22px; max-width: 60ch; } ol.plain li { margin: 6px 0; }
+
+/* tables */
+.scroll { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 15px; }
+th { text-align: left; color: var(--muted); font-weight: 600; font-size: 14px; }
+th, td { padding: 10px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+td.n, th.n { text-align: right; font-variant-numeric: tabular-nums; }
+tr.click { cursor: pointer; } tr.click:hover, tr.sel { background: var(--soft); }
+.ci { width: 150px; height: 18px; color: var(--muted); }
+.bars { display: flex; align-items: flex-end; gap: 2px; height: 130px; position: relative; padding-top: 6px; }
+.bars div { flex: 1; min-width: 3px; border-radius: 2px 2px 0 0; background: var(--primary); }
+.bars div.test { background: var(--c-real); }
+.bars .limit { position: absolute; left: 0; right: 0; border-top: 2px dashed var(--muted); }
+.hbar { display: grid; grid-template-columns: minmax(110px, 200px) 1fr 52px; gap: 8px; align-items: center; font-size: 14px; margin: 4px 0; }
+.hbar .t { height: 8px; background: var(--primary); border-radius: 4px; }
+
+/* pipeline */
+.dag { position: relative; display: flex; gap: 12px; overflow-x: auto; padding: 6px 2px 10px; }
+.dag svg { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
+.layer { display: flex; flex-direction: column; gap: 12px; justify-content: center; position: relative; z-index: 1; }
+.node { width: 132px; min-height: 44px; padding: 8px; border-radius: 8px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.node b { display: flex; gap: 6px; align-items: center; font-size: 15px; }
+.node.ok { border-color: var(--good); } .node.bad { border-color: var(--bad); } .node.sel { box-shadow: 0 0 0 3px var(--focus); }
+pre.log { background: var(--soft); border-radius: 8px; padding: 12px; max-height: 360px; overflow: auto; font: 13px/1.5 var(--mono); white-space: pre-wrap; word-break: break-word; margin: 0; }
+.scroll.tall { max-height: 440px; overflow-y: auto; }
+.cols { display: grid; gap: 16px; }
+@media (min-width: 900px) { .cols { grid-template-columns: 1fr 1fr; } }
+.health { list-style: none; margin: 0; padding: 0; }
+.health li { display: flex; gap: 12px; align-items: flex-start; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.health li:last-child { border-bottom: 0; }
+.health .i { margin-top: 2px; }
+.health b { display: block; }
+
+/* terms, tip, dialogs, toast */
+.term { all: unset; box-sizing: border-box; color: var(--primary); border-bottom: 1px dotted currentColor; cursor: help; font: inherit; }
+.term:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+#tip { position: absolute; z-index: 40; max-width: 300px; padding: 12px 14px; border-radius: 8px; background: var(--ink); color: var(--bg); font-size: 14px; line-height: 1.45; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
+#tip b { display: block; margin-bottom: 4px; }
+dialog { border: 1px solid var(--line); border-radius: 12px; padding: 0; background: var(--surface); color: var(--ink); max-width: min(680px, calc(100% - 24px)); width: 100%; max-height: calc(100% - 24px); }
+dialog::backdrop { background: rgba(2, 6, 23, .6); }
+.dlg-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--surface); }
+.dlg-head h2 { font-size: 20px; }
+.dlg-body { padding: 16px 20px 24px; }
+.dlg-body dt { font-weight: 700; margin-top: 14px; } .dlg-body dd { margin: 2px 0 0; color: var(--muted); }
+.dlg-foot { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px; border-top: 1px solid var(--line); }
+.toast { position: fixed; left: 50%; bottom: 84px; transform: translateX(-50%); max-width: min(560px, calc(100% - 32px)); background: var(--ink); color: var(--bg); padding: 12px 16px; border-radius: 8px; z-index: 60; }
+.toast[hidden] { display: none; }
+footer { color: var(--muted); font-size: 14px; padding: 0 0 24px; }
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+label.lbl { display: block; font-size: 14px; font-weight: 600; margin: 12px 0 6px; }
 </style>
 </head>
 <body>
-<header>
-  <div class="bar">
-    <div class="brand">NIFTY Signal <small>intraday options · AIOps</small></div>
-    <span class="pill" title="Signal API"><span class="dot" id="st-api"></span>API</span>
-    <span class="pill" title="Champion model in the registry"><span class="dot" id="st-model"></span><span id="st-model-t">Model</span></span>
-    <span class="pill" title="Volatility forecaster in the registry (nifty-vol)"><span class="dot" id="st-vol"></span><span id="st-vol-t">Vol model</span></span>
-    <span class="pill" title="Online data drift of the served rows"><span class="dot" id="st-drift"></span><span id="st-drift-t">Drift</span></span>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="M7 15l4-5 3 3 5-7"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.5l3 3 5-6"/></symbol>
+  <symbol id="i-flow" viewBox="0 0 24 24"><rect x="3" y="4" width="6" height="5" rx="1"/><rect x="15" y="4" width="6" height="5" rx="1"/><rect x="9" y="15" width="6" height="5" rx="1"/><path d="M6 9v3h12V9M12 12v3"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 114 2c-.8.6-1.5 1-1.5 2M12 17h.01"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M7 17L17 7M9 7h8v8"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M7 7l10 10M17 9v8H9"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12h8"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 3l10 18H2z"/><path d="M12 10v5M12 18h.01"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 9l6 6M15 9l-6 6"/></symbol>
+  <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 5l12 7-12 7z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M8 5v14M16 5v14"/></symbol>
+  <symbol id="i-logo" viewBox="0 0 28 28"><rect x="1" y="1" width="26" height="26" rx="6" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 19l5-6 4 3 5-8 4 5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <div class="wrap bar">
+    <div class="brand">
+      <svg class="logo" aria-hidden="true"><use href="#i-logo"/></svg>
+      <div><b>NIFTY Signal</b><small>How much will the market move?</small></div>
+    </div>
+    <button class="status" id="status" type="button" title="System status. Press to see details.">
+      <span class="dot" id="st-dot"></span><span class="long" id="st-long">Checking…</span><span class="short" id="st-short">…</span>
+    </button>
+    <button class="btn" id="help-btn" type="button"><svg class="i" aria-hidden="true"><use href="#i-help"/></svg>Help</button>
   </div>
-  <nav role="tablist">
-    <button role="tab" data-tab="signal" aria-selected="true">Signal</button>
-    <button role="tab" data-tab="results" aria-selected="false">Results</button>
-    <button role="tab" data-tab="pipeline" aria-selected="false">Pipeline</button>
-    <button role="tab" data-tab="ops" aria-selected="false">Operations</button>
+  <nav class="tabs" role="tablist" aria-label="Sections">
+    <button class="tab" role="tab" id="t-forecast" data-tab="forecast" aria-controls="tab-forecast" aria-selected="true"><svg class="i" aria-hidden="true"><use href="#i-chart"/></svg>Forecast</button>
+    <button class="tab" role="tab" id="t-works" data-tab="works" aria-controls="tab-works" aria-selected="false" tabindex="-1"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Does it work?</button>
+    <button class="tab" role="tab" id="t-pipeline" data-tab="pipeline" aria-controls="tab-pipeline" aria-selected="false" tabindex="-1"><svg class="i" aria-hidden="true"><use href="#i-flow"/></svg>How it's built</button>
+    <button class="tab" role="tab" id="t-controls" data-tab="controls" aria-controls="tab-controls" aria-selected="false" tabindex="-1"><svg class="i" aria-hidden="true"><use href="#i-sliders"/></svg>Controls</button>
   </nav>
 </header>
 
-<main>
-<!-- ============================== SIGNAL ============================== -->
-<section id="tab-signal">
-  <div class="grid cols-2">
-    <div class="card">
-      <h2>Pick a moment</h2>
-      <label for="day">Trading day</label>
-      <select id="day"></select>
-      <label for="t">Time (entries 09:20 – 15:15)</label>
-      <div class="clock" id="clock">10:00:00</div>
-      <input type="range" id="t" min="33600" max="54900" step="1" value="36000" aria-label="time of day">
-      <div class="row" style="margin-top:8px">
-        <button class="btn small" data-step="-60">−1 min</button>
-        <button class="btn small" data-step="-1">−1 s</button>
-        <button class="btn small" data-step="1">+1 s</button>
-        <button class="btn small" data-step="60">+1 min</button>
-      </div>
-      <div class="row" style="margin-top:14px">
-        <button class="btn primary" id="go">Get signal</button>
-        <button class="btn" id="play" aria-pressed="false">▶ Play</button>
-        <select id="speed" style="width:auto" aria-label="play speed">
-          <option value="1000">1× (live)</option><option value="250" selected>4×</option><option value="80">fast</option>
-        </select>
-      </div>
-      <p class="note">Play steps one market second per tick, like a live feed. The model only sees data up to the chosen second.</p>
-    </div>
+<main id="main" class="wrap" tabindex="-1">
+  <div id="tour" class="notice info banner" hidden>
+    <svg class="i" aria-hidden="true"><use href="#i-info"/></svg>
+    <div><b>First time here?</b> A 30-second guide explains what you see and what the words mean.
+      <div class="row" style="margin-top:8px"><button class="btn sm primary" id="tour-open" type="button">Open the guide</button><button class="btn sm" id="tour-skip" type="button">No thanks</button></div></div>
+  </div>
+  <div id="alert" class="notice bad banner" role="alert" hidden>
+    <svg class="i" aria-hidden="true"><use href="#i-alert"/></svg>
+    <div><b id="alert-t">Something went wrong</b><p id="alert-m"></p>
+      <div class="row"><button class="btn sm primary" id="alert-retry" type="button">Try again</button><button class="btn sm" id="alert-close" type="button">Dismiss</button></div></div>
+  </div>
 
-    <div class="grid">
-      <div class="card">
-        <h2>Volatility forecast: how much will NIFTY move? (next 5 / 15 min)</h2>
-        <div id="vol" class="skeleton">The forecast appears here after you press <b>Get signal</b>.</div>
-      </div>
-      <div class="card" aria-live="polite">
-        <h2>Direction model: buy call / buy put / stay out</h2>
-        <p class="note" style="margin:-4px 0 12px"><b class="warn">No proven edge.</b> On 10 unseen days this model lost money after costs (Results tab). It is shown to explain how it decides, not as advice.</p>
-        <div class="action" id="action"><div class="label">—</div><div class="muted" id="action-sub">Pick a day and a time, then press <b>Get signal</b>.</div></div>
-        <div class="scores" id="scores" hidden>
-          <span>Call</span><div class="track"><div class="fill" id="bar-ce" style="background:var(--ce)"></div><div class="tau" id="tau-ce"></div></div><span class="num mono" id="sc-ce"></span>
-          <span>Put</span><div class="track"><div class="fill" id="bar-pe" style="background:var(--pe)"></div><div class="tau" id="tau-pe"></div></div><span class="num mono" id="sc-pe"></span>
+  <!-- ======================= FORECAST ======================= -->
+  <section id="tab-forecast" role="tabpanel" aria-labelledby="t-forecast">
+    <h1 class="page-title">How much will NIFTY move next?</h1>
+    <p class="lead">This page replays real market days. Pick a moment and see what our model expects, what the <button class="term" type="button" data-term="options">options market</button> expects, and what really happened.</p>
+
+    <div class="stack" style="margin-top:20px">
+      <div class="card" aria-labelledby="pick-h">
+        <h2 class="step" id="pick-h"><span class="n" aria-hidden="true">1</span>Pick a moment</h2>
+        <div class="picker-grid">
+          <div class="field">
+            <label for="day">Trading day</label>
+            <select id="day"><option>Loading days…</option></select>
+            <p class="hint" id="day-hint"></p>
+          </div>
+          <div class="field">
+            <label for="t">Time of day <span class="clock num" id="clock">09:48</span></label>
+            <input type="range" id="t" min="34200" max="54000" step="60" value="35340" aria-valuetext="09:49">
+            <p class="hint">Drag, use the arrow keys, or click the chart below.</p>
+          </div>
+          <fieldset class="field" style="border:0;padding:0;margin:0">
+            <legend class="lab" style="padding:0;font-size:14px;font-weight:600;margin-bottom:6px">Look ahead</legend>
+            <div class="seg"><label><input type="radio" name="h" value="300"><span>5 min</span></label><label><input type="radio" name="h" value="900" checked><span>15 min</span></label></div>
+          </fieldset>
         </div>
-        <p class="note" id="explain"></p>
-        <div id="why" hidden></div>
+        <div class="quick" role="group" aria-label="Quick jumps">
+          <span class="lab">Quick jumps:</span>
+          <button class="btn sm" type="button" id="p-busy">Busiest moment</button>
+          <button class="btn sm" type="button" id="p-quiet">Quietest moment</button>
+          <button class="btn sm" type="button" id="p-pricey">Options priciest vs. forecast</button>
+          <button class="btn sm" type="button" id="step-b">−5 min</button>
+          <button class="btn sm" type="button" id="step-f">+5 min</button>
+          <button class="btn sm" type="button" id="play" aria-pressed="false"><svg class="i" aria-hidden="true"><use href="#i-play"/></svg><span id="play-t">Play the day</span></button>
+        </div>
       </div>
-      <div class="card">
-        <h2>What happened next (direction trade)</h2>
-        <div id="outcome" class="skeleton">The result appears here after a signal.</div>
+
+      <div class="card" data-testid="answer" id="answer" aria-labelledby="ans-h" aria-live="polite" aria-busy="true">
+        <h2 class="step" id="ans-h"><span class="n" aria-hidden="true">2</span>What to expect</h2>
+        <p class="headline skel" id="headline">NIFTY is expected to move about 30 points over the next 15 minutes.</p>
+        <p class="subline skel" id="subline">The options market is pricing in about 76 points, more than we expect.</p>
+        <div class="stats" id="stats"></div>
+        <p class="judge" id="judge"></p>
+        <figure class="chart">
+          <svg id="chart" role="img" aria-label="Chart of the expected move through the day" height="260"></svg>
+          <div class="legend" id="legend" aria-hidden="false"></div>
+          <figcaption>Click or drag on the chart to move to another time. The line shows the move expected over the following <span id="cap-h">15</span> minutes.</figcaption>
+        </figure>
+      </div>
+
+      <div class="card" aria-labelledby="dir-h">
+        <h2 class="step" id="dir-h"><span class="n" aria-hidden="true">3</span>Should I buy a call or a put?</h2>
+        <div class="notice" role="note">
+          <svg class="i" aria-hidden="true"><use href="#i-alert"/></svg>
+          <div><b>Not proven.</b> <span id="dir-warn">On days it had never seen, this model lost money after costs.</span> It is shown only to demonstrate how it works. It is not advice.</div>
+        </div>
+        <div id="dir-main" style="margin-top:14px" aria-busy="true"><p class="skel">The model says: Stay out</p></div>
+        <details id="dir-details" style="margin-top:14px">
+          <summary>Why did it say that, and what happened next?</summary>
+          <div class="dbody" id="dir-body"></div>
+        </details>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="card" style="margin-top:16px">
-    <div class="row" style="justify-content:space-between">
-      <h2 style="margin:0">This session</h2>
-      <div class="row"><span class="muted" id="sess-sum">0 signals · 0 trades · ₹0</span><button class="btn small" id="clear">Clear</button></div>
-    </div>
-    <div class="scroll"><table><thead><tr><th>Day</th><th>Time</th><th>Action</th><th class="num">Net ₹</th><th>Exit</th></tr></thead><tbody id="sess"></tbody></table></div>
-  </div>
-</section>
-
-<!-- ============================== RESULTS ============================== -->
-<section id="tab-results" hidden>
-  <div class="card" style="margin-bottom:16px">
-    <h2>Volatility forecast vs the option market</h2>
-    <div id="vol-verdict" class="banner" style="margin-bottom:12px">Loading…</div>
-    <div class="scroll"><table>
-      <thead><tr><th>Forecaster</th><th class="num">CV QLIKE 15m</th><th class="num">Test QLIKE 15m</th><th class="num">Test corr 15m</th><th class="num">Test QLIKE 5m</th><th class="num">Test corr 5m</th></tr></thead>
-      <tbody id="vol-table"></tbody>
-    </table></div>
-    <p class="note">QLIKE = standard loss of a volatility forecast (lower is better). Corr = correlation of log forecast and log realized move. "implied" = the move priced by the ATM option IV.</p>
-  </div>
-  <h2 style="font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:22px 0 8px">Direction models (buy call / buy put / stay out)</h2>
-  <div id="verdict" class="banner">Loading results…</div>
-  <div class="card">
-    <h2>Direction models on the test days (buy call / buy put / stay out)</h2>
-    <p class="note" id="res-meta" style="margin-top:-6px"></p>
-    <div class="scroll"><table>
-      <thead><tr><th>Model</th><th class="num">CV ₹/day</th><th class="num">Test ₹/day</th><th>95% interval (test)</th><th class="num">Trades</th><th class="num">Hit rate</th></tr></thead>
-      <tbody id="res-table"></tbody>
-    </table></div>
-    <p class="note">CV = walk-forward cross-validation on the dev days (used to choose the champion and its threshold). Test = the last 10 days, never used for training or tuning. Net ₹ after the spread and all statutory costs, one lot.</p>
-  </div>
-  <div class="grid cols-even" style="margin-top:16px">
-    <div class="card">
-      <h2>Data drift per day</h2>
-      <div class="bars" id="drift-bars"></div>
-      <div class="legend"><span><i style="background:var(--dev)"></i>dev days</span><span><i style="background:var(--test)"></i>test days</span><span>dashed = alarm (30% of features)</span></div>
-      <p class="note" id="drift-note"></p>
-    </div>
-    <div class="card">
-      <h2>What drives the champion</h2>
+  <!-- ======================= DOES IT WORK ======================= -->
+  <section id="tab-works" role="tabpanel" aria-labelledby="t-works" hidden>
+    <h1 class="page-title">Does it work?</h1>
+    <p class="lead">We tested every model on <button class="term" type="button" data-term="unseen">unseen days</button> and counted every cost of trading.</p>
+    <div class="verdicts" id="verdicts" aria-busy="true"><div class="verdict"><p class="skel">Loading…</p></div><div class="verdict"><p class="skel">Loading…</p></div></div>
+    <h2 class="sec">How we tested</h2>
+    <ol class="plain">
+      <li>The last 10 days were kept completely unseen while the models were built and chosen.</li>
+      <li>Every trade pays the real cost: the gap between the buy and sell price (the <button class="term" type="button" data-term="spread">spread</button>) plus taxes and fees.</li>
+      <li>Results come with their uncertainty (a <button class="term" type="button" data-term="interval">95% interval</button>), not just the best case.</li>
+    </ol>
+    <h2 class="sec">All the numbers</h2>
+    <details><summary>Forecasting how much NIFTY moves</summary><div class="dbody">
+      <div class="scroll"><table><thead><tr><th scope="col">Forecaster</th><th scope="col" class="n">Training score</th><th scope="col" class="n">Unseen-days score</th><th scope="col" class="n">Match with reality</th></tr></thead><tbody id="vol-table"></tbody></table></div>
+      <p class="hint">Score = <button class="term" type="button" data-term="qlike">QLIKE</button> for the next 15 minutes (lower is better). "Match with reality" is the correlation between forecast and what happened (1 = perfect).</p>
+    </div></details>
+    <details><summary>Predicting call or put</summary><div class="dbody">
+      <div class="scroll"><table><thead><tr><th scope="col">Model</th><th scope="col" class="n">Training ₹/day</th><th scope="col" class="n">Unseen ₹/day</th><th scope="col">95% interval</th><th scope="col" class="n">Trades</th><th scope="col" class="n">Win rate</th></tr></thead><tbody id="res-table"></tbody></table></div>
+      <p class="hint" id="res-meta"></p>
+    </div></details>
+    <details><summary>Has the market changed? (data drift)</summary><div class="dbody">
+      <div class="bars" id="drift-bars" role="img" aria-label="Share of inputs outside their normal range, per day"></div>
+      <div class="legend"><span><i class="sw" style="background:var(--primary)"></i>training days</span><span><i class="sw" style="background:var(--c-real)"></i>unseen days</span><span><i class="sw" style="border-top:2px dashed var(--muted)"></i>alarm level</span></div>
+      <p class="hint" id="drift-note"></p>
+    </div></details>
+    <details><summary>What the call/put model looks at</summary><div class="dbody">
       <div id="importance"></div>
-      <h3>Remove one feature group</h3>
-      <div class="scroll"><table><thead><tr><th>Group removed</th><th class="num">Δ CV ₹/day</th></tr></thead><tbody id="ablation"></tbody></table></div>
-    </div>
-  </div>
-</section>
+      <h3 style="font-size:16px;margin:14px 0 6px">What is lost when one group of inputs is removed</h3>
+      <div class="scroll"><table><thead><tr><th scope="col">Group removed</th><th scope="col" class="n">Change in ₹/day</th></tr></thead><tbody id="ablation"></tbody></table></div>
+    </div></details>
+  </section>
 
-<!-- ============================== PIPELINE ============================== -->
-<section id="tab-pipeline" hidden>
-  <div class="card">
-    <div class="row" style="justify-content:space-between"><h2 style="margin:0">Pipeline (DVC)</h2><button class="btn small" id="pipe-refresh">Refresh</button></div>
-    <p class="note" style="margin-top:4px">Each box is a stage. Colour = result of its last run. Click a box to see its runs.</p>
-    <div class="dag" id="dag"></div>
-  </div>
-  <div class="card" style="margin-top:16px">
-    <h2>Speed and throughput (last successful run of each stage)</h2>
-    <div class="scroll"><table><thead><tr><th>Stage</th><th>Input</th><th class="num">Rows</th><th class="num">Seconds</th><th class="num">Rows per second</th></tr></thead><tbody id="thr"></tbody></table></div>
-    <p class="note">Measured from the run journal. The model stages (zoo_train, zoo_eval) fit models, so rows per second does not apply.</p>
-  </div>
-  <div class="grid cols-even" style="margin-top:16px">
-    <div class="card">
-      <div class="row" style="justify-content:space-between"><h2 style="margin:0" id="runs-title">Recent runs</h2><button class="btn small" id="runs-all" hidden>Show all stages</button></div>
-      <div class="scroll tall"><table><thead><tr><th>Started</th><th>Stage</th><th>Result</th><th class="num">Time</th><th>Commit</th></tr></thead><tbody id="runs"></tbody></table></div>
-    </div>
-    <div class="card">
-      <h2 id="log-title">Run log</h2>
-      <div id="run-summary" class="kv" style="margin-bottom:10px"></div>
-      <pre class="log" id="log">Click a run to read its log.</pre>
-    </div>
-  </div>
-  <div class="card" style="margin-top:16px">
-    <h2>Data quality</h2>
-    <div id="quality"></div>
-  </div>
-</section>
-
-<!-- ============================== OPERATIONS ============================== -->
-<section id="tab-ops" hidden>
-  <div class="grid cols-even">
-    <div class="card"><h2>Champion (served now)</h2><div id="champ"></div></div>
-    <div class="card"><h2>Previous (rollback target)</h2><div id="prev"></div></div>
-  </div>
-  <div class="grid cols-even" style="margin-top:16px">
-    <div class="card">
-      <h2>Actions</h2>
-      <label for="token">Admin token (kept in this tab only)</label>
-      <input type="password" id="token" autocomplete="off" placeholder="leave empty if the API has no token">
-      <label for="reason">Reason for retraining</label>
-      <input type="text" id="reason" maxlength="200" value="manual">
-      <div class="row" style="margin-top:14px">
-        <button class="btn danger" id="rollback">Roll back to previous</button>
-        <button class="btn" id="retrain">Request retraining</button>
+  <!-- ======================= HOW IT'S BUILT ======================= -->
+  <section id="tab-pipeline" role="tabpanel" aria-labelledby="t-pipeline" hidden>
+    <h1 class="page-title">How it's built</h1>
+    <p class="lead">The factory behind the forecast. Each box is one step that turns raw market data into a model that answers questions. Green means its last run succeeded; red means it failed. Press a box to see its runs.</p>
+    <div class="stack" style="margin-top:20px">
+      <div class="card"><div class="row" style="justify-content:space-between"><h2 style="font-size:18px">The pipeline</h2><button class="btn sm" id="pipe-refresh" type="button">Refresh</button></div>
+        <div class="dag" id="dag" aria-busy="true"></div></div>
+      <div class="card"><h2 style="font-size:18px;margin-bottom:8px">Speed (last successful run of each step)</h2>
+        <div class="scroll"><table><thead><tr><th scope="col">Step</th><th scope="col">Input</th><th scope="col" class="n">Rows</th><th scope="col" class="n">Seconds</th><th scope="col" class="n">Rows per second</th></tr></thead><tbody id="thr"></tbody></table></div></div>
+      <div class="cols">
+        <div class="card"><div class="row" style="justify-content:space-between"><h2 style="font-size:18px" id="runs-title">Recent runs</h2><button class="btn sm" id="runs-all" type="button" hidden>Show all steps</button></div>
+          <div class="scroll tall"><table><thead><tr><th scope="col">Started</th><th scope="col">Step</th><th scope="col">Result</th><th scope="col" class="n">Time</th><th scope="col">Commit</th></tr></thead><tbody id="runs"></tbody></table></div></div>
+        <div class="card"><h2 style="font-size:18px;margin-bottom:8px" id="log-title">Run log</h2>
+          <dl class="kv" id="run-summary" style="margin-bottom:10px"></dl>
+          <pre class="log" id="log" tabindex="0">Press a run to read its log.</pre></div>
       </div>
-      <p class="note">Rollback swaps champion and previous; the model server follows within ~10 s. Retraining runs zoo_train → zoo_eval → smoke test; a new version is deployed only if it passes.</p>
+      <div class="card"><h2 style="font-size:18px;margin-bottom:8px">Data quality</h2><div id="quality" aria-busy="true"></div></div>
     </div>
-    <div class="card">
-      <h2>Online drift (served rows)</h2>
-      <div id="drift-now"></div>
+  </section>
+
+  <!-- ======================= CONTROLS ======================= -->
+  <section id="tab-controls" role="tabpanel" aria-labelledby="t-controls" hidden>
+    <h1 class="page-title">Controls</h1>
+    <p class="lead">For the person who runs the system. Looking is always safe. Buttons that change something ask you to confirm first.</p>
+    <div class="stack" style="margin-top:20px">
+      <div class="card"><h2 style="font-size:18px">Is everything healthy?</h2><ul class="health" id="health" aria-busy="true"></ul></div>
+      <div class="cols">
+        <div class="card"><h2 style="font-size:18px;margin-bottom:10px">Call/put model in use</h2><div id="champ"></div></div>
+        <div class="card"><h2 style="font-size:18px;margin-bottom:10px">Previous version (the way back)</h2><div id="prev"></div></div>
+      </div>
+      <div class="card"><h2 style="font-size:18px">Actions</h2>
+        <label class="lbl" for="token">Admin token (kept in this tab only)</label>
+        <input type="password" id="token" autocomplete="off" placeholder="Leave empty if no token is set">
+        <label class="lbl" for="reason">Reason for retraining</label>
+        <input type="text" id="reason" maxlength="200" value="manual">
+        <div class="row" style="margin-top:16px"><button class="btn danger" id="rollback" type="button">Go back to the previous model</button><button class="btn" id="retrain" type="button">Retrain the models</button></div>
+        <p class="hint">Going back swaps in the previous model; the server follows within about 10 seconds. Retraining builds a new model and puts it in service only if it passes a safety check.</p></div>
+      <div class="card"><h2 style="font-size:18px;margin-bottom:10px">Other tools</h2><div class="row" id="links"></div></div>
     </div>
-  </div>
-  <div class="card" style="margin-top:16px">
-    <h2>Tools</h2>
-    <div class="row" id="links"></div>
-  </div>
-</section>
+  </section>
 </main>
-<div class="toast" id="toast" hidden role="status"></div>
+<footer class="wrap"><p>Research project on recorded market data. Not investment advice.</p></footer>
+
+<dialog id="help" aria-labelledby="help-h">
+  <div class="dlg-head"><h2 id="help-h">Help</h2><button class="btn sm" id="help-close" type="button">Close</button></div>
+  <div class="dlg-body">
+    <h3>How to use this page in 3 steps</h3>
+    <ol class="plain">
+      <li><b>Pick a moment.</b> Choose a day and a time, or use a quick jump. The page replays real history.</li>
+      <li><b>Read the forecast.</b> It says how many points NIFTY is expected to move, and compares that with what the options market expects and with what happened.</li>
+      <li><b>Check whether it works.</b> The "Does it work?" tab shows the test results in plain words.</li>
+    </ol>
+    <h3 style="margin-top:20px">Words explained</h3>
+    <dl id="glossary"></dl>
+  </div>
+</dialog>
+<dialog id="confirm" aria-labelledby="confirm-h">
+  <div class="dlg-head"><h2 id="confirm-h">Are you sure?</h2></div>
+  <div class="dlg-body"><p id="confirm-m"></p></div>
+  <div class="dlg-foot"><button class="btn" id="confirm-no" type="button">Cancel</button><button class="btn primary" id="confirm-yes" type="button">Yes, do it</button></div>
+</dialog>
+<div id="tip" role="tooltip" hidden></div>
+<div class="toast" id="toast" role="status" hidden></div>
 
 <script>
 "use strict";
-const $ = (s) => document.querySelector(s);
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const inr = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 });
-const rs = (v) => (v == null || !isFinite(v) ? "—" : (v < 0 ? "−₹" : "₹") + inr.format(Math.abs(v)));
-const hms = (s) => [Math.floor(s / 3600), Math.floor(s % 3600 / 60), s % 60].map((x) => String(x).padStart(2, "0")).join(":");
-const dur = (s) => (s == null ? "—" : s < 60 ? `${Math.round(s)} s` : `${Math.floor(s / 60)} m ${Math.round(s % 60)} s`);
 const esc = (x) => String(x ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const BARRIER = { 1: "take-profit", "-1": "stop-loss", 0: "time limit" };
-let CFG = { api_url: "http://127.0.0.1:8000" }, TAU = null, playing = null;
+const rs = (v) => (v == null || !isFinite(v) ? "—" : (v < 0 ? "−₹" : "₹") + inr.format(Math.abs(v)));
+const pad = (n) => String(n).padStart(2, "0");
+const hm = (s) => `${pad(Math.floor(s / 3600))}:${pad(Math.floor((s % 3600) / 60))}`;
+const hms = (s) => `${hm(s)}:${pad(s % 60)}`;
+const dur = (s) => (s == null ? "—" : s < 60 ? `${Math.round(s)} s` : `${Math.floor(s / 60)} min ${Math.round(s % 60)} s`);
+const ico = (id, cls = "") => `<svg class="i ${cls}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
+const T = (key, label) => `<button class="term" type="button" data-term="${key}">${label ?? GLOSSARY[key][0].toLowerCase()}</button>`;
+const lastDay = (d) => new Date(d + "T00:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+const X0 = 34200, X1 = 54000;
 
-function toast(msg) {
-  const t = $("#toast"); t.textContent = msg; t.hidden = false;
-  clearTimeout(toast.h); toast.h = setTimeout(() => (t.hidden = true), 5000);
+const GLOSSARY = {
+  volatility: ["Volatility", "How much a price moves around, up or down. It says nothing about the direction. A calm market has low volatility."],
+  points: ["Index points", "NIFTY is quoted in points, like 22,500. A move of 30 points is about 0.13% of the index."],
+  options: ["Options market", "Traders buy and sell options all day. The prices they accept contain a guess of how much NIFTY will move. We read that guess from the option prices and turn it into index points."],
+  forecast: ["Our forecast", "A simple model that looks at how much NIFTY moved in the last minutes and hours. Busy markets tend to stay busy for a while, and calm ones stay calm."],
+  hindsight: ["Hindsight", "What really happened afterwards. The model cannot see it when it forecasts. It is shown so that you can judge the forecast."],
+  callput: ["Call and put", "A call gains when NIFTY goes up. A put gains when it goes down. Buying one is a bet on the direction."],
+  spread: ["Spread and costs", "You buy at the higher price (the ask) and sell at the lower price (the bid). That gap, plus taxes and fees, is paid on every trade. 'After costs' means these are already subtracted."],
+  unseen: ["Unseen days", "Days the models never saw while they were built or chosen. The only fair test."],
+  interval: ["95% interval", "The range in which the true average most likely lies. If it includes zero, the result may be just luck."],
+  edge: ["Edge", "A real, repeatable advantage after costs. 'No edge' means we could not tell the result from luck."],
+  qlike: ["QLIKE", "A standard score for volatility forecasts. Lower is better. It punishes a forecast that is far too low more than one that is too high."],
+  shap: ["SHAP", "A method that splits one prediction into the contribution of each input. The pieces add up exactly to the prediction."],
+  drift: ["Data drift", "When today's market data no longer looks like the data the model learned from. A warning that the model may be out of date."],
+  champion: ["Model in use", "The model that is answering now. The previous one is kept, so that we can go back."],
+};
+
+/* ---------- small helpers ---------- */
+let CFG = { api_url: "http://127.0.0.1:8000" };
+const S = { day: null, t: 35340, h: 900, series: null, results: null, volResults: null, timer: null, play: null, loadedTabs: {} };
+let retryFn = null;
+
+function toast(msg) { const t = $("#toast"); t.textContent = msg; t.hidden = false; clearTimeout(toast.h); toast.h = setTimeout(() => (t.hidden = true), 5000); }
+function friendly(e) {
+  const m = String(e.message || e);
+  if (/abort|timed out|did not answer in/i.test(m)) return "The service took too long to answer.";
+  if (/failed to fetch|networkerror|cannot reach|load failed/i.test(m)) return "We can't reach the forecast service. Check that the server is running.";
+  if (/model service|not available|not ready/i.test(m)) return "The model is starting up or not available yet. Try again in a minute.";
+  return m.charAt(0).toUpperCase() + m.slice(1) + (m.endsWith(".") ? "" : ".");
 }
+function showError(e, retry) {
+  retryFn = retry || null;
+  $("#alert-t").textContent = "We could not load this";
+  $("#alert-m").textContent = friendly(e);
+  $("#alert-retry").hidden = !retry;
+  $("#alert").hidden = false;
+}
+function clearError() { $("#alert").hidden = true; retryFn = null; }
+$("#alert-close").addEventListener("click", clearError);
+$("#alert-retry").addEventListener("click", () => { const f = retryFn; clearError(); if (f) f(); });
+
 async function api(path, opt = {}) {
-  const ctl = new AbortController(); const h = setTimeout(() => ctl.abort(), 15000);
+  const ctl = new AbortController(), h = setTimeout(() => ctl.abort(), 20000);
   try {
     const r = await fetch(CFG.api_url + path, { ...opt, signal: ctl.signal });
     const text = await r.text();
     let body; try { body = JSON.parse(text); } catch { body = text; }
     if (!r.ok) throw new Error((body && body.detail) || `HTTP ${r.status}`);
     return body;
-  } catch (e) {
-    throw new Error(e.name === "AbortError" ? "the API did not answer in 15 s" : e.message.replace("Failed to fetch", "cannot reach the API"));
-  } finally { clearTimeout(h); }
+  } catch (e) { throw new Error(e.name === "AbortError" ? "the API did not answer in time" : e.message); }
+  finally { clearTimeout(h); }
+}
+const skel = (el, on) => { el.classList.toggle("skel", on); el.setAttribute("aria-busy", on ? "true" : "false"); };
+
+/* ---------- glossary, tips, dialogs ---------- */
+$("#glossary").innerHTML = Object.values(GLOSSARY).map(([n, d]) => `<dt>${esc(n)}</dt><dd>${esc(d)}</dd>`).join("");
+let tipFor = null;
+function closeTip() { const tip = $("#tip"); tip.hidden = true; if (tipFor) tipFor.removeAttribute("aria-describedby"); tipFor = null; }
+document.addEventListener("click", (e) => {
+  const b = e.target.closest(".term");
+  if (!b) { if (!e.target.closest("#tip")) closeTip(); return; }
+  if (tipFor === b) return closeTip();
+  closeTip();
+  const [name, text] = GLOSSARY[b.dataset.term] || ["", ""];
+  const tip = $("#tip"); tip.innerHTML = `<b>${esc(name)}</b>${esc(text)}`; tip.hidden = false; tipFor = b; b.setAttribute("aria-describedby", "tip");
+  const r = b.getBoundingClientRect(), w = Math.min(300, innerWidth - 24);
+  tip.style.maxWidth = w + "px";
+  tip.style.left = Math.max(12, Math.min(scrollX + r.left, scrollX + innerWidth - w - 12)) + "px";
+  tip.style.top = scrollY + r.bottom + 8 + "px";
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeTip(); });
+addEventListener("scroll", closeTip, { passive: true });
+$("#help-btn").addEventListener("click", () => $("#help").showModal());
+$("#help-close").addEventListener("click", () => $("#help").close());
+$("#tour-open").addEventListener("click", () => { $("#help").showModal(); dismissTour(); });
+$("#tour-skip").addEventListener("click", dismissTour);
+function dismissTour() { $("#tour").hidden = true; try { localStorage.setItem("tour_seen", "1"); } catch {} }
+function askConfirm(title, text, yes) {
+  $("#confirm-h").textContent = title; $("#confirm-m").textContent = text; $("#confirm-yes").textContent = yes;
+  const d = $("#confirm"); d.showModal();
+  return new Promise((res) => {
+    const done = (v) => { d.close(); $("#confirm-yes").onclick = $("#confirm-no").onclick = null; res(v); };
+    $("#confirm-yes").onclick = () => done(true); $("#confirm-no").onclick = () => done(false);
+  });
 }
 
 /* ---------- tabs ---------- */
-const loaded = {};
-function show(tab) {
-  document.querySelectorAll("nav button").forEach((b) => b.setAttribute("aria-selected", b.dataset.tab === tab));
-  document.querySelectorAll("main > section").forEach((s) => (s.hidden = s.id !== "tab-" + tab));
-  history.replaceState(null, "", "#" + tab + (tab === "signal" && $("#day").value ? `&day=${$("#day").value}&t=${$("#t").value}` : ""));
-  if (!loaded[tab]) { loaded[tab] = true; ({ results: loadResults, pipeline: loadPipeline, ops: loadOps })[tab]?.(); }
+const TABS = ["forecast", "works", "pipeline", "controls"], OLD = { signal: "forecast", results: "works", ops: "controls" };
+function show(tab, push = true) {
+  tab = OLD[tab] || tab;
+  if (!TABS.includes(tab)) tab = "forecast";
+  $$("[role=tab]").forEach((b) => { const on = b.dataset.tab === tab; b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1; });
+  $$("[role=tabpanel]").forEach((p) => (p.hidden = p.id !== "tab-" + tab));
+  if (push) writeHash(tab);
+  if (!S.loadedTabs[tab]) { S.loadedTabs[tab] = true; ({ works: loadWorks, pipeline: loadPipeline, controls: loadControls })[tab]?.(); }
+  if (tab === "forecast") requestAnimationFrame(drawChart);
 }
-document.querySelectorAll("nav button").forEach((b) => b.addEventListener("click", () => show(b.dataset.tab)));
-
-/* ---------- status pills ---------- */
-async function status() {
-  const set = (id, cls) => ($(id).className = "dot " + cls);
-  api("/healthz").then(() => set("#st-api", "ok")).catch(() => set("#st-api", "bad"));
-  api("/model").then((m) => {
-    if (!m.champion) { set("#st-model", "warn"); $("#st-model-t").textContent = "No model"; return; }
-    set("#st-model", "ok"); $("#st-model-t").textContent = `Model v${m.champion.version} · ${m.champion.family}`;
-    if (m.vol) { set("#st-vol", "ok"); $("#st-vol-t").textContent = `Vol model v${m.vol.version} · ${m.vol.family}`; }
-    else { set("#st-vol", "warn"); $("#st-vol-t").textContent = "No vol model"; }
-  }).catch(() => set("#st-model", "bad"));
-  api("/drift").then((d) => {
-    if (!d.ready) { set("#st-drift", ""); $("#st-drift-t").textContent = `Drift: ${d.rows} rows`; return; }
-    set("#st-drift", d.drift ? "bad" : d.share > 0.15 ? "warn" : "ok");
-    $("#st-drift-t").textContent = `Drift ${Math.round(d.share * 100)}%`;
-  }).catch(() => { set("#st-drift", ""); $("#st-drift-t").textContent = "Drift n/a"; });
+function writeHash(tab) {
+  const cur = $$("[role=tab]").find((b) => b.getAttribute("aria-selected") === "true")?.dataset.tab;
+  tab = tab || cur;
+  history.replaceState(null, "", "#" + tab + (tab === "forecast" && S.day ? `&day=${S.day}&t=${S.t}` : ""));
 }
+$$("[role=tab]").forEach((b, i, all) => {
+  b.addEventListener("click", () => show(b.dataset.tab));
+  b.addEventListener("keydown", (e) => {
+    const k = { ArrowRight: 1, ArrowLeft: -1 }[e.key]; if (!k) return;
+    const n = all[(i + k + all.length) % all.length]; n.focus(); show(n.dataset.tab);
+  });
+});
+$("#status").addEventListener("click", () => show("controls"));
 
-/* ---------- signal ---------- */
-const sess = [];
-function setT(v) {
-  const t = $("#t"); t.value = Math.min(+t.max, Math.max(+t.min, v));
-  $("#clock").textContent = hms(+t.value);
-}
-$("#t").addEventListener("input", (e) => setT(+e.target.value));
-document.querySelectorAll("[data-step]").forEach((b) => b.addEventListener("click", () => { setT(+$("#t").value + +b.dataset.step); getSignal(); }));
-$("#go").addEventListener("click", () => getSignal());
-$("#clear").addEventListener("click", () => { sess.length = 0; renderSess(); });
-
-async function loadDays() {
-  const days = await api("/days");
-  const test = days.filter((d) => d.split === "test").map((d) => d.day).reverse();
-  const dev = days.filter((d) => d.split === "dev").map((d) => d.day).reverse();
-  $("#day").innerHTML =
-    `<optgroup label="Test days (never used for training)">${test.map((d) => `<option>${d}</option>`).join("")}</optgroup>` +
-    `<optgroup label="Dev days (used for training)">${dev.map((d) => `<option>${d}</option>`).join("")}</optgroup>`;
-}
-
-function scoreBars(r) {
-  const vals = [r.score_ce, r.score_pe].filter(isFinite);
-  if (!vals.length) { $("#scores").hidden = true; return; }
-  const lo0 = Math.min(0, ...vals, TAU ?? 0), hi0 = Math.max(1, ...vals, TAU ?? 0), pad = (hi0 - lo0) * 0.08;
-  const lo = lo0 - pad, hi = hi0 + pad, span = hi - lo || 1;  // room so the threshold mark is never on the edge
-  const pos = (v) => ((v - lo) / span) * 100;
-  for (const [s, v] of [["ce", r.score_ce], ["pe", r.score_pe]]) {
-    const z = pos(0), p = isFinite(v) ? pos(v) : z;
-    Object.assign($("#bar-" + s).style, { left: Math.min(z, p) + "%", width: Math.abs(p - z) + "%" });
-    $("#tau-" + s).style.left = TAU != null && isFinite(TAU) ? pos(TAU) + "%" : "-10px";
-    $("#sc-" + s).textContent = isFinite(v) ? rs(v) : "—";
-  }
-  $("#scores").hidden = false;
-}
-
-function renderSignal(r) {
-  const a = $("#action");
-  a.className = "action" + (r.action === "BUY_CE" ? " ce" : r.action === "BUY_PE" ? " pe" : "");
-  const label = { BUY_CE: "BUY CALL", BUY_PE: "BUY PUT", STAY_OUT: "STAY OUT" }[r.action];
-  a.innerHTML = `<div class="label">${label}</div><div class="muted">${esc(r.day)} · ${r.time} · ATM ${inr.format(r.atm)} ${r.action === "BUY_CE" ? "CE" : r.action === "BUY_PE" ? "PE" : ""}</div>`;
-  scoreBars(r);
-  const tauTxt = TAU != null && isFinite(TAU) ? `the threshold ${rs(TAU)}` : "the threshold";
-  $("#explain").textContent = r.blocked
-    ? `The model wanted ${r.blocked.replace("_", " ")}, but no entry was possible at this second (outside 09:20–15:15, premium below ₹5 or a stale quote).`
-    : r.action === "STAY_OUT"
-      ? `Bars = expected net ₹ of buying each side now. Neither is above ${tauTxt} (black mark), so the model stays out.`
-      : `Expected net ₹ of the ${r.action === "BUY_CE" ? "call" : "put"} is above ${tauTxt} (black mark) and above the other side.`;
-  renderWhy(r.drivers);
-  const o = $("#outcome");
-  if (r.outcome) {
-    const x = r.outcome;
-    o.className = "";
-    o.innerHTML = `<dl class="kv"><dt>Bought at (ask)</dt><dd>₹${x.entry.toFixed(2)}</dd><dt>Sold at (bid)</dt><dd>₹${x.exit.toFixed(2)}</dd>
-      <dt>Exit</dt><dd>${BARRIER[x.barrier]} after ${dur(x.hold_s)}</dd>
-      <dt>Net (1 lot, after costs)</dt><dd class="${x.net_rs > 0 ? "good" : "bad"}" style="font-size:20px">${rs(x.net_rs)}</dd></dl>`;
-  } else {
-    const h = r.hindsight || {}, side = (k, n) => h[k] ? `${n}: <b class="${h[k].net_rs > 0 ? "good" : "bad"}">${rs(h[k].net_rs)}</b> <span class="muted">(${BARRIER[h[k].barrier]} after ${dur(h[k].hold_s)})</span>` : `${n}: <span class="muted">no entry possible</span>`;
-    o.className = "";
-    o.innerHTML = `<p style="margin:0 0 8px">No trade. In hindsight, buying at this second would have made:</p>
-      <p style="margin:4px 0">${side("ce", "Call")}</p><p style="margin:4px 0">${side("pe", "Put")}</p>
-      <p class="note">Hindsight is known only after the fact. The model could not see it.</p>`;
-  }
-}
-
-async function getVol(day, sod) {
+/* ---------- status ---------- */
+async function refreshStatus() {
+  let level = "ok", text = "All systems normal", short = "OK";
+  const set = () => { $("#st-dot").className = "dot " + level; $("#st-long").textContent = text; $("#st-short").textContent = short; };
+  try { await api("/healthz"); } catch { level = "bad"; text = "Problem: service not reachable"; short = "Problem"; set(); return; }
   try {
-    const v = await api(`/vol?day=${encodeURIComponent(day)}&sod=${sod}`);
-    const cell = (x) => `<b>${x.forecast_bp.toFixed(1)}</b> bp`, ratio = (x) => x.ratio == null ? "—" : `${x.ratio.toFixed(2)}×`;
-    const q = v["15min"].ratio, said = q == null ? "" : q < 0.8 ? "The options price in <b>more</b> movement than the model expects." : q > 1.25 ? "The options price in <b>less</b> movement than the model expects." : "The options and the model roughly agree.";
-    $("#vol").className = "";
-    $("#vol").innerHTML = `<p style="margin:0 0 10px;font-size:16px">Model expects <b>${v["15min"].forecast_bp.toFixed(1)} bp</b> (≈ ${(v["15min"].forecast_bp * (window.lastAtm || 25000) / 1e4).toFixed(0)} index points) in the next 15 min. ${said}</p><div class="volgrid"><span></span><span class="muted">Model forecast</span><span class="muted">Option market (IV)</span><span class="muted">Realized (hindsight)</span>
-      ${["5min", "15min"].map((k) => `<span class="muted">${k.replace("min", " min")}</span><span>${cell(v[k])} <span class="muted">(${ratio(v[k])} implied)</span></span>
-        <span>${v[k].implied_bp == null ? "—" : v[k].implied_bp.toFixed(1) + " bp"}</span><span>${v[k].realized_bp == null ? "—" : v[k].realized_bp.toFixed(1) + " bp"}</span>`).join("")}</div>
-      <p class="note">Expected size of the NIFTY move, not its direction (1 bp ≈ ${((window.lastAtm || 25000) / 1e4).toFixed(1)} index points). How it compares with the option market on the test days: Results tab.</p>`;
-  } catch (e) { $("#vol").innerHTML = `<span class="muted">Volatility: ${esc(e.message)}</span>`; }
+    const m = await api("/model");
+    if (!m.champion || !m.vol) { level = "warn"; text = "Needs attention: a model is missing"; short = "Check"; }
+  } catch { level = "warn"; text = "Needs attention"; short = "Check"; }
+  try { const d = await api("/drift"); if (d.drift) { level = "warn"; text = "Needs attention: the market has changed"; short = "Check"; } } catch {}
+  set();
 }
 
-function renderWhy(d) {
-  const el = $("#why");
-  if (!d || !d.top?.length) { el.hidden = true; return; }
-  const unit = d.unit === "net_rs" ? (v) => rs(v) : (v) => v.toFixed(2);
-  const max = Math.max(...d.top.map((t) => Math.abs(t.contribution)), Math.abs(d.other), 1e-9);
-  const row = (name, tip, c, val) => `<div class="why-row"><span class="mono" title="${esc(tip)}">${esc(name)}${val == null ? "" : ` <span class="muted">= ${(+val).toPrecision(3)}</span>`}</span>
-    <div class="why-track"><b></b><i style="background:var(--${c >= 0 ? "good" : "bad"});${c >= 0 ? "left:50%" : "right:50%"};width:${(Math.abs(c) / max) * 50}%"></i></div>
-    <span class="num mono ${c >= 0 ? "good" : "bad"}">${c >= 0 ? "+" : ""}${unit(c)}</span></div>`;
-  el.className = "why"; el.hidden = false;
-  el.innerHTML = `<h3 style="margin-top:0">Why the ${d.side === "ce" ? "call" : "put"} scored ${unit(d.score)}</h3>
-    <p class="note" style="margin:0 0 8px">Starts from the average ${unit(d.base)}; each input adds or subtracts. These add up exactly to the score (SHAP).</p>
-    ${d.top.map((t) => row(t.feature, "value of this input right now", t.contribution, t.value)).join("")}
-    ${row("all other inputs", "sum of the remaining inputs", d.other, null)}`;
+/* ---------- forecast: the series, the chart, the answer ---------- */
+const idx = (t) => Math.round((t - X0) / 60);
+const val = (key, i) => (S.series && S.series[key] ? S.series[key][i] : null);
+const points = (bp, i) => (bp == null || S.series.spot[i] == null ? null : (bp * S.series.spot[i]) / 1e4);
+const fmtPts = (x) => (x == null ? "—" : (x >= 10 ? inr.format(Math.round(x)) : x.toFixed(1)) + " points");
+
+function momentValues() {
+  const i = idx(S.t), h = S.h;
+  return { i, f: points(val("forecast_" + h, i), i), im: points(val("implied_" + h, i), i), re: points(val("realized_" + h, i), i) };
+}
+function renderAnswer() {
+  if (!S.series) return;
+  const { f, im, re } = momentValues(), mins = S.h / 60;
+  skel($("#headline"), false); skel($("#subline"), false); $("#answer").setAttribute("aria-busy", "false");
+  if (f == null) { $("#headline").textContent = "Not enough data at this time of day yet. Try a later time."; $("#subline").textContent = ""; $("#stats").innerHTML = ""; $("#judge").innerHTML = ""; return; }
+  $("#headline").innerHTML = `NIFTY is expected to move about <b>${fmtPts(f)}</b> over the next ${mins} minutes.`;
+  const q = im ? f / im : null;
+  const view = q == null ? "" : q < 0.8 ? `Options look <span class="tag warn">expensive</span> right now: the market expects more movement than we do.`
+    : q > 1.25 ? `Options look <span class="tag good">cheap</span> right now: the market expects less movement than we do.`
+    : `Options look <span class="tag">fairly priced</span>: the market and our forecast roughly agree.`;
+  $("#subline").innerHTML = `The ${T("options", "options market")} is pricing in about <b>${fmtPts(im)}</b>. ${view}`;
+  const sw = (cls, dash) => `<svg class="sw" viewBox="0 0 28 10" aria-hidden="true"><line x1="0" y1="5" x2="28" y2="5" stroke="var(${cls})" stroke-width="${dash ? 2 : 3}" ${dash ? `stroke-dasharray="${dash}"` : ""}/></svg>`;
+  $("#stats").innerHTML = `
+    <div class="stat"><div class="lab">${sw("--c-forecast")}${T("forecast", "Our forecast")}</div><div class="val num">${fmtPts(f)}</div><div class="cap">from the last minutes and hours</div></div>
+    <div class="stat"><div class="lab">${sw("--c-implied", "6 4")}${T("options", "Options market")}</div><div class="val num">${fmtPts(im)}</div><div class="cap">what option prices imply</div></div>
+    <div class="stat"><div class="lab">${sw("--c-real", "2 3")}${T("hindsight", "What happened")}</div><div class="val num">${fmtPts(re)}</div><div class="cap">${re == null ? "not known yet at this time" : "known only afterwards"}</div></div>`;
+  if (re != null && f != null && im != null) {
+    const ours = Math.abs(f - re) <= Math.abs(im - re);
+    $("#judge").innerHTML = ours ? `${ico("check", "good")}<span class="good">Our forecast was closer to what happened.</span>` : `${ico("info")}<span>The options market was closer this time.</span>`;
+  } else $("#judge").innerHTML = "";
+  $("#cap-h").textContent = mins;
 }
 
-function renderSess() {
-  const trades = sess.filter((s) => s.net != null), net = trades.reduce((a, s) => a + s.net, 0);
-  $("#sess-sum").innerHTML = `${sess.length} signals · ${trades.length} trades · <b class="${net > 0 ? "good" : net < 0 ? "bad" : ""}">${rs(net)}</b>`;
-  $("#sess").innerHTML = sess.filter((s) => s.action !== "STAY_OUT" || sess.length < 40).slice(-60).reverse().map((s) =>
-    `<tr><td>${s.day}</td><td class="mono">${s.time}</td><td>${s.action === "STAY_OUT" ? '<span class="muted">stay out</span>' : `<span class="chip ${s.action === "BUY_CE" ? "ok" : "bad"}">${s.action === "BUY_CE" ? "CALL" : "PUT"}</span>`}</td>
-     <td class="num ${s.net > 0 ? "good" : s.net < 0 ? "bad" : ""}">${s.net == null ? "" : rs(s.net)}</td><td class="muted">${s.exit || ""}</td></tr>`).join("");
+function niceStep(raw) { const p = 10 ** Math.floor(Math.log10(raw)), n = raw / p; return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p; }
+function drawChart() {
+  const el = $("#chart"); if (!el || !S.series || !el.parentElement.clientWidth) return;
+  const W = Math.max(300, Math.floor(el.parentElement.clientWidth)), H = Math.round(Math.min(340, Math.max(230, W * 0.44)));
+  const m = { l: 56, r: 26, t: 12, b: 30 }, h = S.h, sd = S.series;
+  const conv = (arr) => arr.map((v, i) => (v == null || sd.spot[i] == null ? null : (v * sd.spot[i]) / 1e4));
+  const F = conv(sd["forecast_" + h]), I = conv(sd["implied_" + h]), R = conv(sd["realized_" + h]);
+  const ymax = (Math.max(...[...F, ...I, ...R].filter((v) => v != null)) || 1) * 1.1;
+  const x = (s) => m.l + ((s - X0) / (X1 - X0)) * (W - m.l - m.r), y = (v) => H - m.b - (v / ymax) * (H - m.t - m.b);
+  const path = (a) => { let d = "", pen = false; a.forEach((v, i) => { if (v == null) { pen = false; return; } d += (pen ? "L" : "M") + x(sd.sod[i]).toFixed(1) + "," + y(v).toFixed(1); pen = true; }); return d; };
+  const step = niceStep(ymax / 4); let g = "";
+  for (let v = 0; v <= ymax; v += step) g += `<line class="grid-l" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text class="ax" x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end">${inr.format(v)}</text>`;
+  for (let hr = 10; hr <= 15; hr++) g += `<text class="ax" x="${x(hr * 3600)}" y="${H - 8}" text-anchor="middle">${hr}:00</text>`;
+  const i = idx(S.t), mx = x(S.t);
+  const dots = [[F, "--c-forecast"], [I, "--c-implied"], [R, "--c-real"]].map(([a, c]) => (a[i] == null ? "" : `<circle cx="${mx}" cy="${y(a[i])}" r="5" fill="var(${c})" stroke="var(--surface)" stroke-width="2"/>`)).join("");
+  el.setAttribute("viewBox", `0 0 ${W} ${H}`); el.setAttribute("height", H);
+  el.setAttribute("aria-label", `Chart of the expected move over the next ${h / 60} minutes through the trading day, in index points. Selected time ${hm(S.t)}.`);
+  el.innerHTML = `${g}
+    <text class="ax" transform="translate(13 ${(m.t + H - m.b) / 2}) rotate(-90)" text-anchor="middle">index points</text>
+    <path d="${path(I)}" fill="none" stroke="var(--c-implied)" stroke-width="2" stroke-dasharray="6 4"/>
+    <path d="${path(R)}" fill="none" stroke="var(--c-real)" stroke-width="2.5" stroke-dasharray="2 3" stroke-linecap="round"/>
+    <path d="${path(F)}" fill="none" stroke="var(--c-forecast)" stroke-width="3"/>
+    <line x1="${mx}" x2="${mx}" y1="${m.t}" y2="${H - m.b}" stroke="var(--ink)" stroke-width="2"/>${dots}
+    <rect x="${m.l}" y="0" width="${W - m.l - m.r}" height="${H - m.b}" fill="transparent" id="hit"/>`;
+  const pick = (e) => { const r = el.getBoundingClientRect(), px = ((e.clientX - r.left) / r.width) * W; setMoment(X0 + Math.round(((px - m.l) / (W - m.l - m.r)) * (X1 - X0) / 60) * 60, true); };
+  el.onpointerdown = (e) => { el.setPointerCapture(e.pointerId); pick(e); el.onpointermove = (ev) => ev.buttons && pick(ev); };
+  el.onpointerup = () => (el.onpointermove = null);
+  $("#legend").innerHTML = [["--c-forecast", "", "Our forecast"], ["--c-implied", "6 4", "Options market"], ["--c-real", "2 3", "What actually happened (hindsight)"]]
+    .map(([c, d, n]) => `<span><svg class="sw" viewBox="0 0 28 10" aria-hidden="true"><line x1="0" y1="5" x2="28" y2="5" stroke="var(${c})" stroke-width="${d ? 2.5 : 3}" ${d ? `stroke-dasharray="${d}"` : ""}/></svg>${n}</span>`).join("");
 }
+new ResizeObserver(() => drawChart()).observe($("#answer"));
 
-async function getSignal() {
-  const day = $("#day").value, sod = +$("#t").value;
-  if (!day) return;
-  $("#go").disabled = true;
-  try {
-    const r = await api(`/signal?day=${encodeURIComponent(day)}&sod=${sod}`);
-    renderSignal(r);
-    window.lastAtm = r.atm; getVol(day, sod);
-    history.replaceState(null, "", `#signal&day=${day}&t=${sod}`);
-    sess.push({ day, time: r.time, action: r.action, net: r.outcome?.net_rs ?? null,
-      exit: r.outcome ? `${BARRIER[r.outcome.barrier]}, ${dur(r.outcome.hold_s)}` : "" });
-    renderSess();
-    return r;
-  } catch (e) { stopPlay(); toast("Signal: " + e.message); }
-  finally { $("#go").disabled = false; }
+function setMoment(t, user = false) {
+  t = Math.min(X1, Math.max(X0, Math.round(t / 60) * 60));
+  S.t = t; $("#t").value = t; $("#t").setAttribute("aria-valuetext", hm(t)); $("#clock").textContent = hm(t);
+  renderAnswer(); drawChart(); writeHash();
+  clearTimeout(S.timer); S.timer = setTimeout(loadSignal, user ? 250 : 0);
 }
-
-function stopPlay() {
-  clearTimeout(playing); playing = null;
-  $("#play").textContent = "▶ Play"; $("#play").setAttribute("aria-pressed", "false");
+$("#t").addEventListener("input", (e) => setMoment(+e.target.value, true));
+$$("input[name=h]").forEach((r) => r.addEventListener("change", () => { S.h = +r.value; presetsEnable(); renderAnswer(); drawChart(); }));
+$("#step-b").addEventListener("click", () => setMoment(S.t - 300, true));
+$("#step-f").addEventListener("click", () => setMoment(S.t + 300, true));
+function argbest(fn, better) {
+  let bi = -1, bv = null;
+  for (let i = 0; i < S.series.sod.length; i++) { const v = fn(i); if (v == null) continue; if (bv == null || better(v, bv)) { bi = i; bv = v; } }
+  return bi < 0 ? null : S.series.sod[bi];
 }
-$("#play").addEventListener("click", () => {
-  if (playing) return stopPlay();
-  $("#play").textContent = "❚❚ Pause"; $("#play").setAttribute("aria-pressed", "true");
-  const tick = async () => {
-    if (+$("#t").value >= +$("#t").max) return stopPlay();
-    const r = await getSignal();
-    if (!playing && playing !== 0) return;
-    // after a trade, jump to its exit: one position at a time, as in the simulator
-    setT(+$("#t").value + (r?.outcome ? Math.max(1, Math.round(r.outcome.hold_s)) : 1));
-    playing = setTimeout(tick, +$("#speed").value);
+function presetTimes() {
+  const h = S.h, ok = (i) => val("forecast_" + h, i) != null && val("implied_" + h, i) != null && val("realized_" + h, i) != null;
+  return {
+    busy: argbest((i) => (ok(i) ? val("realized_" + h, i) : null), (a, b) => a > b),
+    quiet: argbest((i) => (ok(i) ? val("realized_" + h, i) : null), (a, b) => a < b),
+    pricey: argbest((i) => (ok(i) ? val("implied_" + h, i) / val("forecast_" + h, i) : null), (a, b) => a > b),
   };
-  playing = 0; tick();
+}
+function presetsEnable() { const p = S.series ? presetTimes() : {}; for (const k of ["busy", "quiet", "pricey"]) $("#p-" + k).disabled = !p[k]; }
+for (const k of ["busy", "quiet", "pricey"]) $("#p-" + k).addEventListener("click", () => { const t = presetTimes()[k]; if (t) setMoment(t, true); });
+function stopPlay() { clearInterval(S.play); S.play = null; $("#play").setAttribute("aria-pressed", "false"); $("#play-t").textContent = "Play the day"; $("#play use").setAttribute("href", "#i-play"); }
+$("#play").addEventListener("click", () => {
+  if (S.play) return stopPlay();
+  if (S.t >= X1 - 60) setMoment(X0);
+  $("#play").setAttribute("aria-pressed", "true"); $("#play-t").textContent = "Pause"; $("#play use").setAttribute("href", "#i-pause");
+  S.play = setInterval(() => { if (S.t >= X1) return stopPlay(); setMoment(S.t + 60); }, 450);
 });
 
-/* ---------- results ---------- */
-function ciSvg(lo, hi, v, min, max) {
-  const x = (u) => 6 + ((u - min) / (max - min || 1)) * 148;
-  return `<svg class="ci" viewBox="0 0 160 18" aria-label="interval ${rs(lo)} to ${rs(hi)}">
-    <line x1="${x(0)}" y1="1" x2="${x(0)}" y2="17" stroke="currentColor" opacity=".35"/>
-    <line x1="${x(lo)}" y1="9" x2="${x(hi)}" y2="9" stroke="var(--muted)" stroke-width="3" stroke-linecap="round"/>
-    <circle cx="${x(v)}" cy="9" r="4" fill="${v > 0 ? "var(--good)" : v < 0 ? "var(--bad)" : "var(--muted)"}"/></svg>`;
+async function loadSeries(first = false) {
+  S.series = null; $("#answer").setAttribute("aria-busy", "true"); skel($("#headline"), true); skel($("#subline"), true);
+  $("#stats").innerHTML = ""; $("#judge").innerHTML = ""; $("#chart").innerHTML = "";
+  try {
+    S.series = await api(`/vol/day?day=${encodeURIComponent(S.day)}`);
+    clearError(); presetsEnable();
+    if (first && !S.fromHash) { const p = presetTimes(); if (p.busy) S.t = p.busy; }
+    setMoment(S.t);
+  } catch (e) { showError(e, () => loadSeries(first)); }
 }
-async function loadResults() {
+async function loadDays() {
   try {
-    const r = await api("/results"), res = r.results, fams = Object.keys(res);
-    const champ = r.champion, c = res[champ];
-    TAU = c?.tau ?? TAU;
-    const edge = c && c.ci95_net_per_day[0] > 0;
-    $("#verdict").className = "banner " + (edge ? "good" : "bad");
-    $("#verdict").innerHTML = edge
-      ? `<b>Direction: edge detected.</b> The champion (${esc(champ)}) made ${rs(c.net_per_day)} a day on the test days, and its 95% interval is above zero.`
-      : `<b>Direction: no edge detected.</b> The champion (${esc(champ)}, chosen on cross-validation) made <b>${rs(c.net_per_day)}</b> a day on the ${r.test_days.length} test days. No model beats “stay out” with confidence after costs. This is the honest result.`;
-    $("#res-meta").textContent = `Test days ${r.test_days[0]} … ${r.test_days.at(-1)}` +
-      (r.cv ? ` · dev days ${r.cv.dev_days[0]} … ${r.cv.dev_days[1]} · ${r.cv.folds} walk-forward folds · ${r.cv.trials} settings tried` : "");
-    const lo = Math.min(0, ...fams.map((f) => res[f].ci95_net_per_day[0])), hi = Math.max(0, ...fams.map((f) => res[f].ci95_net_per_day[1]));
-    const base = new Set(["stay_out", "random", "momentum"]);
-    $("#res-table").innerHTML = fams.sort((a, b) => res[b].cv_net_per_day - res[a].cv_net_per_day).map((f) => {
-      const x = res[f];
-      return `<tr><td><b>${esc(f)}</b> ${f === champ ? '<span class="chip acc">champion</span>' : base.has(f) ? '<span class="chip">baseline</span>' : ""}</td>
-        <td class="num">${rs(x.cv_net_per_day)}</td><td class="num ${x.net_per_day > 0 ? "good" : x.net_per_day < 0 ? "bad" : ""}"><b>${rs(x.net_per_day)}</b></td>
-        <td>${ciSvg(x.ci95_net_per_day[0], x.ci95_net_per_day[1], x.net_per_day, lo, hi)} <span class="muted mono" style="font-size:12px">${rs(x.ci95_net_per_day[0])} … ${rs(x.ci95_net_per_day[1])}</span></td>
-        <td class="num">${x.trades}</td><td class="num">${x.trades ? Math.round(x.hit_rate * 100) + "%" : "—"}</td></tr>`;
-    }).join("");
-    const imp = Object.entries(r.importance || {}), top = imp.length ? imp[0][1] : 1;
-    $("#importance").innerHTML = imp.map(([k, v]) => `<div class="hbar"><span class="mono" title="${esc(k)}">${esc(k)}</span><div class="t" style="width:${(v / top) * 100}%"></div><span class="num muted">${(v * 100).toFixed(1)}%</span></div>`).join("") || '<p class="muted">No importance report.</p>';
-    $("#ablation").innerHTML = Object.entries(r.ablation || {}).map(([g, d]) => `<tr><td>${esc(g)}</td><td class="num ${d.net_per_day < 0 ? "bad" : "good"}">${rs(d.net_per_day)}</td></tr>`).join("");
-  } catch (e) { $("#verdict").textContent = "Results: " + e.message; }
+    const days = await api("/days");
+    const test = days.filter((d) => d.split === "test").map((d) => d.day).reverse(), dev = days.filter((d) => d.split === "dev").map((d) => d.day).reverse();
+    S.testDays = new Set(test);
+    $("#day").innerHTML = `<optgroup label="Unseen days (never used to build the model)">${test.map((d) => `<option value="${d}">${lastDay(d)}</option>`).join("")}</optgroup>` +
+      `<optgroup label="Training days (the model learned from these)">${dev.map((d) => `<option value="${d}">${lastDay(d)}</option>`).join("")}</optgroup>`;
+    if (!S.day || !days.some((d) => d.day === S.day)) S.day = test[0] || dev[0];
+    $("#day").value = S.day; dayHint();
+    return true;
+  } catch (e) { showError(e, start); return false; }
+}
+function dayHint() { $("#day-hint").textContent = S.testDays.has(S.day) ? "The model never saw this day while it was built." : "The model learned from this day, so its forecast looks better than it should."; }
+$("#day").addEventListener("change", (e) => { S.day = e.target.value; dayHint(); stopPlay(); loadSeries(); });
+
+/* ---------- forecast: the call / put card ---------- */
+function scoreBars(r) {
+  const tau = S.results?.results?.[S.results.champion]?.tau, vals = [r.score_ce, r.score_pe].filter(isFinite);
+  if (!vals.length) return "";
+  const lo0 = Math.min(0, ...vals, tau ?? 0), hi0 = Math.max(1, ...vals, tau ?? 0), pad_ = (hi0 - lo0) * 0.08, lo = lo0 - pad_, span = hi0 + pad_ - lo || 1;
+  const pos = (v) => ((v - lo) / span) * 100, bar = (v, c) => { const z = pos(0), p = isFinite(v) ? pos(v) : z; return `<div class="fill" style="background:var(--${c});left:${Math.min(z, p)}%;width:${Math.abs(p - z)}%"></div>`; };
+  const mark = tau != null && isFinite(tau) ? `<div class="tau" style="left:${pos(tau)}%"></div>` : "";
+  return `<div class="scores" role="group" aria-label="Expected result of each side">
+    <span>Call</span><div class="track">${bar(r.score_ce, "good")}${mark}</div><span class="num mono">${rs(r.score_ce)}</span>
+    <span>Put</span><div class="track">${bar(r.score_pe, "bad")}${mark}</div><span class="num mono">${rs(r.score_pe)}</span></div>
+    <p class="hint">Expected result of buying each side now, after costs. The black mark is the level the model needs to reach before it buys.</p>`;
+}
+function whyBox(d) {
+  if (!d || !d.top?.length) return "";
+  const unit = d.unit === "net_rs" ? rs : (v) => v.toFixed(2), max = Math.max(...d.top.map((t) => Math.abs(t.contribution)), Math.abs(d.other), 1e-9);
+  const row = (name, c, v) => `<div class="why-row"><span class="mono">${esc(name)}${v == null ? "" : ` <span class="muted">= ${(+v).toPrecision(3)}</span>`}</span>
+    <div class="why-track"><b></b><i style="background:var(--${c >= 0 ? "good" : "bad"});${c >= 0 ? "left:50%" : "right:50%"};width:${(Math.abs(c) / max) * 50}%"></i></div>
+    <span class="num mono ${c >= 0 ? "good" : "bad"}">${c >= 0 ? "+" : ""}${unit(c)}</span></div>`;
+  return `<h3 style="font-size:16px;margin:16px 0 4px">Why the ${d.side === "ce" ? "call" : "put"} scored ${unit(d.score)}</h3>
+    <p class="hint" style="margin:0 0 8px">Starts from the average ${unit(d.base)}. Each input adds (green) or subtracts (red). The pieces add up exactly to the score (${T("shap", "SHAP")}).</p>
+    ${d.top.map((t) => row(t.feature, t.contribution, t.value)).join("")}${row("all other inputs", d.other, null)}`;
+}
+const BARRIER = { 1: "take-profit", "-1": "stop-loss", 0: "time limit" };
+function outcomeBox(r) {
+  if (r.outcome) {
+    const x = r.outcome;
+    return `<h3 style="font-size:16px;margin:16px 0 8px">What happened next</h3><dl class="kv"><dt>Bought at (ask)</dt><dd>₹${x.entry.toFixed(2)}</dd><dt>Sold at (bid)</dt><dd>₹${x.exit.toFixed(2)}</dd>
+      <dt>Closed by</dt><dd>${BARRIER[x.barrier]} after ${dur(x.hold_s)}</dd><dt>Result, one lot, after costs</dt><dd class="${x.net_rs > 0 ? "good" : "bad"}">${rs(x.net_rs)}</dd></dl>`;
+  }
+  const h = r.hindsight || {}, side = (k, n) => (h[k] ? `${n}: <b class="${h[k].net_rs > 0 ? "good" : "bad"}">${rs(h[k].net_rs)}</b> <span class="muted">(${BARRIER[h[k].barrier]} after ${dur(h[k].hold_s)})</span>` : `${n}: <span class="muted">no entry possible</span>`);
+  return `<h3 style="font-size:16px;margin:16px 0 8px">What would have happened (${T("hindsight", "hindsight")})</h3><p>${side("ce", "Buying a call")}</p><p>${side("pe", "Buying a put")}</p>`;
+}
+async function loadSignal() {
+  const day = S.day, t = S.t, main = $("#dir-main");
+  skel(main, true);
   try {
-    const v = await api("/vol/results"), ok = v.verdict["900"].beats_implied && v.verdict["300"].beats_implied;
-    const vd = (h) => v.verdict[h];
-    $("#vol-verdict").className = "banner " + (ok ? "good" : "bad");
-    $("#vol-verdict").innerHTML = ok
-      ? `<b>Volatility is predictable.</b> The champion (${esc(v.champion)}) beat the option market's forecast on ${vd("900").days_better} of ${v.test_days.length} test days at 15 min and ${vd("300").days_better} of ${v.test_days.length} at 5 min. Daily QLIKE difference 15 min: ${vd("900").mean_daily_qlike_diff.toFixed(3)} (95% interval ${vd("900").ci95[0].toFixed(3)} … ${vd("900").ci95[1].toFixed(3)}).`
-      : `<b>No better than the option market.</b> The champion (${esc(v.champion)}) did not beat the implied forecast with confidence on the test days.`;
-    const names = Object.keys(v.results).sort((a, b) => v.cv[a]["900"].qlike - v.cv[b]["900"].qlike);
-    $("#vol-table").innerHTML = names.map((n) => { const t = v.results[n], c = v.cv[n];
-      return `<tr><td><b>${esc(n)}</b> ${n === v.champion ? '<span class="chip acc">champion</span>' : n === "implied" ? '<span class="chip">option market</span>' : ""}</td>
-        <td class="num">${c["900"].qlike.toFixed(4)}</td><td class="num">${t["900"].qlike.toFixed(4)}</td><td class="num">${t["900"].corr_log.toFixed(2)}</td>
-        <td class="num">${t["300"].qlike.toFixed(4)}</td><td class="num">${t["300"].corr_log.toFixed(2)}</td></tr>`; }).join("");
-  } catch (e) { $("#vol-verdict").textContent = "Volatility: " + e.message; }
-  try {
-    const d = await api("/drift/daily"), max = Math.max(0.35, ...d.map((x) => x.share));
-    $("#drift-bars").innerHTML = d.map((x) => `<div title="${x.day} (${x.split}): ${Math.round(x.share * 100)}% of features drifted" style="height:${(x.share / max) * 100}%;background:var(--${x.split})"></div>`).join("") +
-      `<span class="limit" style="bottom:${(0.3 / max) * 100}%"></span>`;
-    const avg = (s) => { const v = d.filter((x) => x.split === s); return v.length ? Math.round((v.reduce((a, x) => a + x.share, 0) / v.length) * 1000) / 10 : 0; };
-    $("#drift-note").textContent = `Share of features outside their normal day-to-day range. Mean: dev ${avg("dev")}%, test ${avg("test")}%. ${d.filter((x) => x.drift).length} of ${d.length} days above the alarm.`;
-  } catch (e) { $("#drift-note").textContent = "Drift: " + e.message; }
+    const r = await api(`/signal?day=${encodeURIComponent(day)}&sod=${t}`);
+    if (day !== S.day || t !== S.t) return;
+    const label = { BUY_CE: "Buy a call", BUY_PE: "Buy a put", STAY_OUT: "Stay out" }[r.action];
+    const cls = r.action === "BUY_CE" ? "ce" : r.action === "BUY_PE" ? "pe" : "", icon = r.action === "BUY_CE" ? "up" : r.action === "BUY_PE" ? "down" : "minus";
+    skel(main, false);
+    main.innerHTML = `<p>At ${hm(t)} the model says: <span class="action ${cls}">${ico(icon)}${label}</span></p>
+      ${r.blocked ? `<p class="hint">It wanted to ${esc(r.blocked === "BUY_CE" ? "buy a call" : "buy a put")}, but no trade was possible at this second (outside trading hours for entries, premium too low, or a stale quote).</p>` : ""}`;
+    $("#dir-body").innerHTML = scoreBars(r) + whyBox(r.drivers) + outcomeBox(r);
+  } catch (e) { skel(main, false); main.innerHTML = `<p class="muted">The call/put model is not available right now.</p><button class="btn sm" type="button" id="dir-retry">Try again</button>`; $("#dir-retry").onclick = loadSignal; $("#dir-body").innerHTML = ""; }
 }
 
-/* ---------- pipeline ---------- */
+/* ---------- does it work ---------- */
+function ciSvg(lo, hi, v, min, max) {
+  const x = (u) => 6 + ((u - min) / (max - min || 1)) * 138;
+  return `<svg class="ci" viewBox="0 0 150 18" role="img" aria-label="from ${rs(lo)} to ${rs(hi)}"><line x1="${x(0)}" y1="1" x2="${x(0)}" y2="17" stroke="currentColor" opacity=".5"/>
+    <line x1="${x(lo)}" y1="9" x2="${x(hi)}" y2="9" stroke="currentColor" stroke-width="3" stroke-linecap="round"/><circle cx="${x(v)}" cy="9" r="4.5" fill="${v > 0 ? "var(--good)" : v < 0 ? "var(--bad)" : "var(--muted)"}"/></svg>`;
+}
+async function loadWorks() {
+  const v = $("#verdicts"); v.setAttribute("aria-busy", "true");
+  let res, vol;
+  try { [res, vol] = await Promise.all([api("/results"), api("/vol/results")]); S.results = res; S.volResults = vol; clearError(); }
+  catch (e) { v.innerHTML = ""; showError(e, () => { S.loadedTabs.works = false; show("works", false); }); v.setAttribute("aria-busy", "false"); return; }
+  const n = vol.test_days.length, d9 = vol.verdict["900"], d3 = vol.verdict["300"], volOk = d9.beats_implied && d3.beats_implied;
+  const champ = res.results[res.champion], edge = champ.ci95_net_per_day[0] > 0;
+  v.innerHTML = `
+    <article class="verdict ${volOk ? "good" : "warn"}"><h2>${ico(volOk ? "check" : "alert")}Forecasting how much NIFTY moves</h2>
+      <div class="big ${volOk ? "good" : "warn"}">${volOk ? "Yes, it works" : "Not proven"}</div>
+      <p>${volOk ? `Our forecast beat the ${T("options", "options market")} on <b>${d9.days_better} of ${n}</b> ${T("unseen", "unseen days")} (15-minute forecasts) and on ${d3.days_better} of ${n} (5-minute).` : "It did not beat the options market with confidence."}</p></article>
+    <article class="verdict ${edge ? "good" : "bad"}"><h2>${ico(edge ? "check" : "x")}Predicting call or put</h2>
+      <div class="big ${edge ? "good" : "bad"}">${edge ? "Yes, it works" : "No, it does not"}</div>
+      <p>${edge ? `Made ${rs(champ.net_per_day)} a day on unseen days.` : `The best model lost <b>${rs(champ.net_per_day)} a day</b> on average on ${res.test_days.length} unseen days, after costs. No model beat simply staying out (no ${T("edge", "edge")}).`}</p></article>`;
+  v.setAttribute("aria-busy", "false");
+  $("#dir-warn").textContent = edge ? "Shown for transparency." : `On ${res.test_days.length} days it had never seen, this model lost ${rs(-champ.net_per_day)} a day after costs.`;
+  const names = Object.keys(vol.results).sort((a, b) => vol.cv[a]["900"].qlike - vol.cv[b]["900"].qlike), nice = { implied: "Options market", har: "Our forecast (past moves)", har_iv: "Our forecast (past moves + options)", lgbm: "Machine-learning forecast" };
+  $("#vol-table").innerHTML = names.map((k) => { const t = vol.results[k], c = vol.cv[k];
+    return `<tr><th scope="row" style="font-weight:600">${esc(nice[k] || k)} ${k === vol.champion ? '<span class="tag good">in use</span>' : ""}</th><td class="n">${c["900"].qlike.toFixed(3)}</td><td class="n">${t["900"].qlike.toFixed(3)}</td><td class="n">${t["900"].corr_log.toFixed(2)}</td></tr>`; }).join("");
+  const fams = Object.keys(res.results), lo = Math.min(0, ...fams.map((f) => res.results[f].ci95_net_per_day[0])), hi = Math.max(0, ...fams.map((f) => res.results[f].ci95_net_per_day[1])), base = new Set(["stay_out", "random", "momentum"]);
+  $("#res-table").innerHTML = fams.sort((a, b) => res.results[b].cv_net_per_day - res.results[a].cv_net_per_day).map((f) => { const x = res.results[f];
+    return `<tr><th scope="row" style="font-weight:600">${esc(f)} ${f === res.champion ? '<span class="tag">best in training</span>' : base.has(f) ? '<span class="tag">simple baseline</span>' : ""}</th><td class="n">${rs(x.cv_net_per_day)}</td><td class="n ${x.net_per_day > 0 ? "good" : x.net_per_day < 0 ? "bad" : ""}"><b>${rs(x.net_per_day)}</b></td>
+      <td>${ciSvg(x.ci95_net_per_day[0], x.ci95_net_per_day[1], x.net_per_day, lo, hi)} <span class="num muted" style="font-size:13px">${rs(x.ci95_net_per_day[0])} to ${rs(x.ci95_net_per_day[1])}</span></td><td class="n">${x.trades}</td><td class="n">${x.trades ? Math.round(x.hit_rate * 100) + "%" : "—"}</td></tr>`; }).join("");
+  $("#res-meta").textContent = `Unseen days: ${res.test_days[0]} to ${res.test_days.at(-1)}. ` + (res.cv ? `Training days: ${res.cv.dev_days[0]} to ${res.cv.dev_days[1]}. ${res.cv.trials} settings were tried.` : "");
+  const imp = Object.entries(res.importance || {}), top = imp.length ? imp[0][1] : 1;
+  $("#importance").innerHTML = imp.map(([k, x]) => `<div class="hbar"><span class="mono">${esc(k)}</span><div class="t" style="width:${(x / top) * 100}%"></div><span class="num muted">${(x * 100).toFixed(1)}%</span></div>`).join("") || '<p class="muted">No report.</p>';
+  $("#ablation").innerHTML = Object.entries(res.ablation || {}).map(([g, d]) => `<tr><th scope="row" style="font-weight:600">${esc(g)}</th><td class="n ${d.net_per_day < 0 ? "bad" : "good"}">${rs(d.net_per_day)}</td></tr>`).join("");
+  try {
+    const dd = await api("/drift/daily"), max = Math.max(0.35, ...dd.map((x) => x.share));
+    $("#drift-bars").innerHTML = dd.map((x) => `<div class="${x.split === "test" ? "test" : ""}" title="${x.day}: ${Math.round(x.share * 100)}%" style="height:${Math.max(2, (x.share / max) * 100)}%"></div>`).join("") + `<span class="limit" style="bottom:${(0.3 / max) * 100}%"></span>`;
+    const avg = (s) => { const q = dd.filter((x) => x.split === s); return q.length ? Math.round((q.reduce((a, x) => a + x.share, 0) / q.length) * 1000) / 10 : 0; };
+    $("#drift-note").innerHTML = `Share of inputs outside their normal day-to-day range (${T("drift", "data drift")}). Average: ${avg("dev")}% on training days, ${avg("test")}% on unseen days. ${dd.filter((x) => x.drift).length} of ${dd.length} days crossed the alarm level.`;
+  } catch { $("#drift-note").textContent = "Drift information is not available."; }
+}
+
+/* ---------- how it's built ---------- */
 let runFilter = null;
 function layers(stages, edges) {
   const depth = Object.fromEntries(stages.map((s) => [s.name, 0]));
@@ -548,126 +783,119 @@ function layers(stages, edges) {
   const out = []; for (const s of stages) (out[depth[s.name]] ||= []).push(s); return out;
 }
 async function loadPipeline() {
+  const dag = $("#dag"); dag.setAttribute("aria-busy", "true");
   try {
-    const p = await api("/pipeline"), dag = $("#dag");
+    const p = await api("/pipeline");
     dag.innerHTML = layers(p.stages, p.edges).map((col) => `<div class="layer">${col.map((s) => {
-      const l = s.last, cls = !l ? "" : l.status === "ok" ? "ok" : "bad";
-      const speed = s.throughput ? ` · ${inr.format(s.throughput.rows_per_s)} rows/s` : "";
-      return `<div class="node ${cls} ${runFilter === s.name ? "sel" : ""}" data-stage="${esc(s.name)}" title="${esc(s.cmd)}">
-        <b><span class="dot ${cls}"></span>${esc(s.name)}</b>
-        <span class="muted">${l ? `${l.status} · ${dur(l.duration_s)}${speed}` : "never run"}</span></div>`;
+      const l = s.last, cls = !l ? "" : l.status === "ok" ? "ok" : "bad", speed = s.throughput ? ` · ${inr.format(s.throughput.rows_per_s)} rows/s` : "";
+      return `<button type="button" class="node ${cls} ${runFilter === s.name ? "sel" : ""}" data-stage="${esc(s.name)}" title="${esc(s.cmd)}" aria-pressed="${runFilter === s.name}">
+        <b><span class="dot ${cls === "ok" ? "ok" : cls === "bad" ? "bad" : ""}"></span>${esc(s.name)}</b><span class="muted">${l ? `${l.status === "ok" ? "succeeded" : "FAILED"} · ${dur(l.duration_s)}${speed}` : "never run"}</span></button>`;
     }).join("")}</div>`).join("");
-    $("#thr").innerHTML = p.stages.filter((x) => x.throughput).map((x) => `<tr><td>${esc(x.name)}</td><td class="muted">${esc(x.throughput.unit)}</td>
-      <td class="num">${inr.format(x.throughput.rows)}</td><td class="num">${x.throughput.seconds.toFixed(1)}</td><td class="num"><b>${inr.format(x.throughput.rows_per_s)}</b></td></tr>`).join("")
-      || '<tr><td colspan="5" class="muted">No runs yet.</td></tr>';
+    $("#thr").innerHTML = p.stages.filter((x) => x.throughput).map((x) => `<tr><th scope="row" style="font-weight:600">${esc(x.name)}</th><td class="muted">${esc(x.throughput.unit)}</td><td class="n">${inr.format(x.throughput.rows)}</td><td class="n">${x.throughput.seconds.toFixed(1)}</td><td class="n"><b>${inr.format(x.throughput.rows_per_s)}</b></td></tr>`).join("") || '<tr><td colspan="5" class="muted">No runs yet.</td></tr>';
     requestAnimationFrame(() => drawEdges(p.edges));
-    dag.querySelectorAll(".node").forEach((n) => n.addEventListener("click", () => { runFilter = n.dataset.stage; loadPipeline(); }));
-  } catch (e) { $("#dag").innerHTML = `<p class="bad">Pipeline: ${esc(e.message)}</p>`; }
-  loadRuns(); loadQuality();
+    $$(".node", dag).forEach((n) => n.addEventListener("click", () => { runFilter = runFilter === n.dataset.stage ? null : n.dataset.stage; loadPipeline(); }));
+    clearError();
+  } catch (e) { dag.innerHTML = ""; showError(e, loadPipeline); }
+  dag.setAttribute("aria-busy", "false"); loadRuns(); loadQuality();
 }
 function drawEdges(edges) {
   const dag = $("#dag"), box = dag.getBoundingClientRect(), node = (n) => dag.querySelector(`[data-stage="${CSS.escape(n)}"]`);
-  const paths = edges.map(([a, b]) => {
-    const A = node(a)?.getBoundingClientRect(), B = node(b)?.getBoundingClientRect(); if (!A || !B) return "";
+  const paths = edges.map(([a, b]) => { const A = node(a)?.getBoundingClientRect(), B = node(b)?.getBoundingClientRect(); if (!A || !B) return "";
     const x1 = A.right - box.left + dag.scrollLeft, y1 = A.top + A.height / 2 - box.top, x2 = B.left - box.left + dag.scrollLeft, y2 = B.top + B.height / 2 - box.top, m = (x1 + x2) / 2;
-    return `<path d="M${x1},${y1} C${m},${y1} ${m},${y2} ${x2},${y2}" fill="none" stroke="var(--muted)" stroke-opacity=".5" stroke-width="1.5"/>`;
-  }).join("");
-  dag.insertAdjacentHTML("afterbegin", `<svg width="${dag.scrollWidth}" height="${dag.scrollHeight}">${paths}</svg>`);
+    return `<path d="M${x1},${y1} C${m},${y1} ${m},${y2} ${x2},${y2}" fill="none" stroke="var(--muted)" stroke-opacity=".55" stroke-width="1.5"/>`; }).join("");
+  $("svg", dag)?.remove(); dag.insertAdjacentHTML("afterbegin", `<svg width="${dag.scrollWidth}" height="${dag.scrollHeight}" aria-hidden="true">${paths}</svg>`);
 }
 async function loadRuns() {
-  $("#runs-title").textContent = runFilter ? `Runs of ${runFilter}` : "Recent runs";
-  $("#runs-all").hidden = !runFilter;
+  $("#runs-title").textContent = runFilter ? `Runs of ${runFilter}` : "Recent runs"; $("#runs-all").hidden = !runFilter;
   try {
     const runs = await api("/pipeline/runs?limit=40" + (runFilter ? "&stage=" + encodeURIComponent(runFilter) : ""));
-    $("#runs").innerHTML = runs.map((r) => `<tr class="click" data-run="${esc(r.run_id)}">
-      <td class="mono" style="font-size:12px">${esc((r.started || "").replace("T", " ").slice(0, 16))}</td><td>${esc(r.stage)}</td>
-      <td><span class="chip ${r.status === "ok" ? "ok" : "bad"}">${esc(r.status)}</span></td><td class="num">${dur(r.duration_s)}</td>
-      <td class="mono" style="font-size:12px">${esc((r.git_commit || "").slice(0, 7))}${r.git_dirty ? ' <span class="warn" title="uncommitted code">*</span>' : ""}</td></tr>`).join("")
-      || '<tr><td colspan="5" class="muted">No runs yet.</td></tr>';
-    $("#runs").querySelectorAll("tr.click").forEach((tr) => tr.addEventListener("click", () => {
-      $("#runs").querySelectorAll("tr").forEach((x) => x.classList.remove("sel")); tr.classList.add("sel");
-      showRun(runs.find((r) => r.run_id === tr.dataset.run));
-    }));
-  } catch (e) { toast("Runs: " + e.message); }
+    $("#runs").innerHTML = runs.map((r) => `<tr class="click" tabindex="0" data-run="${esc(r.run_id)}"><td class="mono" style="font-size:13px">${esc((r.started || "").replace("T", " ").slice(0, 16))}</td><td>${esc(r.stage)}</td>
+      <td><span class="tag ${r.status === "ok" ? "good" : "bad"}">${r.status === "ok" ? "succeeded" : "failed"}</span></td><td class="n">${dur(r.duration_s)}</td><td class="mono" style="font-size:13px">${esc((r.git_commit || "").slice(0, 7))}${r.git_dirty ? ' <span class="warn" title="uncommitted code">*</span>' : ""}</td></tr>`).join("") || '<tr><td colspan="5" class="muted">No runs yet.</td></tr>';
+    $$("tr.click", $("#runs")).forEach((tr) => { const go = () => { $$("tr", $("#runs")).forEach((x) => x.classList.remove("sel")); tr.classList.add("sel"); showRun(runs.find((r) => r.run_id === tr.dataset.run)); };
+      tr.addEventListener("click", go); tr.addEventListener("keydown", (e) => (e.key === "Enter" || e.key === " ") && (e.preventDefault(), go())); });
+  } catch (e) { $("#runs").innerHTML = `<tr><td colspan="5" class="muted">${esc(friendly(e))}</td></tr>`; }
 }
 $("#runs-all").addEventListener("click", () => { runFilter = null; loadPipeline(); });
-$("#pipe-refresh").addEventListener("click", () => loadPipeline());
+$("#pipe-refresh").addEventListener("click", loadPipeline);
 async function showRun(r) {
-  $("#log-title").textContent = `Run log · ${r.run_id}`;
-  const sum = Object.entries(r.summary || {}).filter(([, v]) => typeof v !== "object").slice(0, 8);
-  $("#run-summary").innerHTML = sum.map(([k, v]) => `<dt>${esc(k)}</dt><dd class="mono">${esc(typeof v === "number" ? inr.format(v) : v)}</dd>`).join("");
+  $("#log-title").textContent = `Run log: ${r.stage}`;
+  $("#run-summary").innerHTML = Object.entries(r.summary || {}).filter(([, v]) => typeof v !== "object").slice(0, 8).map(([k, v]) => `<dt>${esc(k)}</dt><dd class="mono">${esc(typeof v === "number" ? inr.format(v) : v)}</dd>`).join("");
   $("#log").textContent = "Loading…";
-  try { $("#log").textContent = await api(`/pipeline/runs/${encodeURIComponent(r.run_id)}/log?tail=300`); }
-  catch (e) { $("#log").textContent = e.message; }
+  try { $("#log").textContent = await api(`/pipeline/runs/${encodeURIComponent(r.run_id)}/log?tail=300`); } catch (e) { $("#log").textContent = friendly(e); }
 }
 async function loadQuality() {
+  const q = $("#quality");
   try {
-    const q = await api("/quality"), rej = Object.entries(q.rejected || {});
-    const tables = Object.entries(q.cleaning || {});
-    $("#quality").innerHTML = `<p><b>${(q.accepted || []).length}</b> days accepted, <b>${rej.length}</b> rejected by the <span class="mono">check</span> stage.</p>
-      ${rej.length ? `<div class="scroll"><table><thead><tr><th>Rejected day</th><th>Reasons</th></tr></thead><tbody>${rej.map(([d, why]) => `<tr><td class="mono">${d}</td><td>${why.map(esc).join("; ")}</td></tr>`).join("")}</tbody></table></div>` : ""}
-      <h3>Rows removed or emptied by the <span class="mono">clean</span> stage</h3>
-      <div class="scroll"><table><thead><tr><th>Table</th><th class="num">Rows in</th><th class="num">Rows out</th><th>Rules (rows)</th></tr></thead><tbody>
-      ${tables.map(([t, c]) => `<tr><td class="mono">${t}</td><td class="num">${inr.format(c.rows_in)}</td><td class="num">${inr.format(c.rows_out)}</td>
-        <td style="font-size:13px">${Object.entries(c).filter(([k, v]) => /^(drop|null)_/.test(k) && v > 0).map(([k, v]) => `${esc(k.replace(/^(drop|null)_/, (m) => m === "drop_" ? "drop · " : "empty · ").replace(/_/g, " "))}: ${inr.format(v)}`).join("<br>")}</td></tr>`).join("")}
-      </tbody></table></div>`;
-  } catch (e) { $("#quality").innerHTML = `<p class="bad">Quality: ${esc(e.message)}</p>`; }
+    const d = await api("/quality"), rej = Object.entries(d.rejected || {}), tables = Object.entries(d.cleaning || {});
+    q.innerHTML = `<p><b>${(d.accepted || []).length}</b> trading days were accepted, <b>${rej.length}</b> were rejected because the recording was incomplete or frozen.</p>
+      ${rej.length ? `<div class="scroll"><table><thead><tr><th scope="col">Rejected day</th><th scope="col">Why</th></tr></thead><tbody>${rej.map(([k, why]) => `<tr><td class="mono">${k}</td><td>${why.map(esc).join("; ")}</td></tr>`).join("")}</tbody></table></div>` : ""}
+      <h3 style="font-size:16px;margin:16px 0 6px">What the cleaning step removed or blanked</h3>
+      <div class="scroll"><table><thead><tr><th scope="col">Table</th><th scope="col" class="n">Rows in</th><th scope="col" class="n">Rows out</th><th scope="col">Rules (rows affected)</th></tr></thead><tbody>${tables.map(([t, c]) => `<tr><td class="mono">${t}</td><td class="n">${inr.format(c.rows_in)}</td><td class="n">${inr.format(c.rows_out)}</td>
+        <td style="font-size:14px">${Object.entries(c).filter(([k, x]) => /^(drop|null)_/.test(k) && x > 0).map(([k, x]) => `${esc(k.replace(/^(drop|null)_/, (m) => (m === "drop_" ? "removed: " : "blanked: ")).replace(/_/g, " "))}: ${inr.format(x)}`).join("<br>")}</td></tr>`).join("")}</tbody></table></div>`;
+  } catch (e) { q.innerHTML = `<p class="muted">${esc(friendly(e))}</p>`; }
+  q.setAttribute("aria-busy", "false");
 }
 
-/* ---------- operations ---------- */
+/* ---------- controls ---------- */
 function versionCard(v) {
-  if (!v) return '<p class="muted">None.</p>';
+  if (!v) return '<p class="muted">None yet.</p>';
   const m = v.metrics || {}, g = (k) => m[k];
-  return `<dl class="kv"><dt>Version</dt><dd>v${v.version}</dd><dt>Family</dt><dd>${esc(v.family || "—")}</dd>
-    <dt>Deploy check</dt><dd><span class="chip ${v.deploy_check === "passed" ? "ok" : "bad"}">${esc(v.deploy_check || "—")}</span></dd>
-    <dt>Git commit</dt><dd class="mono">${esc((v.git_commit || "").slice(0, 10))}</dd>
-    <dt>Test ₹/day</dt><dd class="${g("test_net_per_day") > 0 ? "good" : "bad"}">${rs(g("test_net_per_day"))}</dd>
-    <dt>Test interval</dt><dd>${rs(g("test_ci95_lo"))} … ${rs(g("test_ci95_hi"))}</dd>
-    <dt>Test trades</dt><dd>${g("test_trades") ?? "—"}</dd></dl>`;
+  return `<dl class="kv"><dt>Version</dt><dd>${v.version}</dd><dt>Type</dt><dd>${esc(v.family || "—")}</dd>
+    <dt>Safety check</dt><dd><span class="tag ${v.deploy_check === "passed" ? "good" : "bad"}">${v.deploy_check === "passed" ? "passed" : esc(v.deploy_check || "not run")}</span></dd>
+    <dt>Built from code</dt><dd class="mono">${esc((v.git_commit || "").slice(0, 10)) || "—"}</dd>
+    <dt>Result on unseen days</dt><dd class="${g("test_net_per_day") > 0 ? "good" : "bad"}">${rs(g("test_net_per_day"))} a day</dd></dl>`;
 }
-async function loadOps() {
-  try { const m = await api("/model"); $("#champ").innerHTML = versionCard(m.champion); $("#prev").innerHTML = versionCard(m.previous); $("#rollback").disabled = !m.previous; }
-  catch (e) { $("#champ").innerHTML = `<p class="bad">${esc(e.message)}</p>`; }
+async function loadControls() {
+  const list = $("#health"); list.setAttribute("aria-busy", "true");
+  const row = (level, name, text) => `<li>${ico(level === "ok" ? "check" : level === "warn" ? "alert" : "x", level === "ok" ? "good" : level === "warn" ? "warn" : "bad")}<div><b>${name}</b><span class="${level === "ok" ? "muted" : level}">${text}</span></div></li>`;
+  const rows = [];
+  try { await api("/healthz"); rows.push(row("ok", "Forecast service", "Running.")); } catch { rows.push(row("bad", "Forecast service", "Not reachable. Check that the server is running.")); }
   try {
-    const d = await api("/drift"), top = Object.entries(d.psi || {}).sort((a, b) => b[1] - a[1]).slice(0, 8);
-    $("#drift-now").innerHTML = !d.ready
-      ? `<p class="muted">Needs more served rows (${d.rows} so far). Use <b>Play</b> on the Signal tab.</p>`
-      : `<p>${d.drift ? '<span class="chip bad">drift</span>' : '<span class="chip ok">normal</span>'} ${Math.round(d.share * 100)}% of features are outside their normal range (last ${d.rows} served rows).</p>
-         <div class="scroll"><table><thead><tr><th>Feature</th><th class="num">PSI</th></tr></thead><tbody>${top.map(([k, v]) => `<tr><td class="mono">${esc(k)}</td><td class="num">${v.toFixed(2)}</td></tr>`).join("")}</tbody></table></div>`;
-  } catch (e) { $("#drift-now").innerHTML = `<p class="muted">${esc(e.message)}</p>`; }
+    const m = await api("/model");
+    rows.push(m.vol ? row(m.vol.deploy_check === "passed" ? "ok" : "warn", "Volatility forecaster", `In use: version ${m.vol.version}, safety check ${m.vol.deploy_check || "not run"}.`) : row("warn", "Volatility forecaster", "No model is registered yet."));
+    rows.push(m.champion ? row(m.champion.deploy_check === "passed" ? "ok" : "warn", "Call/put model", `In use: version ${m.champion.version}, safety check ${m.champion.deploy_check || "not run"}.`) : row("warn", "Call/put model", "No model is registered yet."));
+    $("#champ").innerHTML = versionCard(m.champion); $("#prev").innerHTML = versionCard(m.previous); $("#rollback").disabled = !m.previous;
+  } catch { rows.push(row("bad", "Models", "Could not read the model registry.")); $("#champ").innerHTML = '<p class="muted">Not available.</p>'; $("#prev").innerHTML = ""; }
+  try {
+    const d = await api("/drift");
+    rows.push(!d.ready ? row("ok", "Data drift", `Not enough served forecasts yet (${d.rows} so far). Use the Forecast tab to create some.`) : d.drift ? row("warn", "Data drift", `${Math.round(d.share * 100)}% of inputs are outside their normal range: the market may have changed.`) : row("ok", "Data drift", `Normal: ${Math.round(d.share * 100)}% of inputs outside their normal range.`));
+  } catch { rows.push(row("warn", "Data drift", "Not available.")); }
+  list.innerHTML = rows.join(""); list.setAttribute("aria-busy", "false");
 }
 const adminHeaders = () => ({ "X-Admin-Token": $("#token").value });
 try { $("#token").value = sessionStorage.getItem("token") || ""; } catch {}
 $("#token").addEventListener("change", () => { try { sessionStorage.setItem("token", $("#token").value); } catch {} });
 $("#rollback").addEventListener("click", async () => {
-  if (!confirm("Roll back: serve the previous model version instead of the current champion?")) return;
+  if (!(await askConfirm("Go back to the previous model?", "The previous model version will answer instead of the current one. The server follows within about 10 seconds.", "Yes, go back"))) return;
   $("#rollback").disabled = true;
-  try { const r = await api("/rollback", { method: "POST", headers: adminHeaders() }); toast(`Rolled back: champion is now v${r.champion}. The model server follows in about 10 s.`); }
-  catch (e) { toast("Rollback: " + e.message); }
-  loadOps(); status();
+  try { const r = await api("/rollback", { method: "POST", headers: adminHeaders() }); toast(`Done: version ${r.champion} is now in use.`); } catch (e) { showError(e, null); }
+  loadControls(); refreshStatus();
 });
 $("#retrain").addEventListener("click", async () => {
+  if (!(await askConfirm("Retrain the models?", "This builds new models in the background (about 30 minutes). A new model goes into service only if it passes the safety check.", "Yes, retrain"))) return;
   $("#retrain").disabled = true;
-  try { await api("/retrain?reason=" + encodeURIComponent($("#reason").value || "manual"), { method: "POST", headers: adminHeaders() }); toast("Retraining requested. Watch the Pipeline tab for zoo_train and zoo_eval."); }
-  catch (e) { toast("Retrain: " + e.message); }
+  try { await api("/retrain?reason=" + encodeURIComponent($("#reason").value || "manual"), { method: "POST", headers: adminHeaders() }); toast("Retraining was requested. Follow it in the “How it's built” tab."); } catch (e) { showError(e, null); }
   finally { setTimeout(() => ($("#retrain").disabled = false), 3000); }
 });
 
 /* ---------- start ---------- */
-(async () => {
+async function start() {
+  clearError();
   try { CFG = { ...CFG, ...(await (await fetch("config.json", { cache: "no-store" })).json()) }; } catch {}
-  $("#links").innerHTML = [["MLflow (experiments, registry)", CFG.mlflow_url], ["Grafana (monitoring)", CFG.grafana_url], ["API reference (OpenAPI)", CFG.api_url + "/docs"]]
-    .filter(([, u]) => u).map(([n, u]) => `<a class="btn" href="${esc(u)}" target="_blank" rel="noopener">${esc(n)} ↗</a>`).join("");
-  setT(+$("#t").value);
-  status(); setInterval(status, 15000);
-  try { await loadDays(); } catch (e) { toast("Days: " + e.message); }
-  api("/results").then((r) => (TAU = r.results?.[r.champion]?.tau ?? null)).catch(() => {});
-  // shareable link: #signal&day=2026-10-15&t=36000 opens that day and second
+  $("#links").innerHTML = [["Experiments and models (MLflow)", CFG.mlflow_url], ["Live monitoring (Grafana)", CFG.grafana_url], ["API reference", CFG.api_url + "/docs"]]
+    .filter(([, u]) => u).map(([n, u]) => `<a class="btn" href="${esc(u)}" target="_blank" rel="noopener">${esc(n)}<span class="muted"> (opens in a new tab)</span></a>`).join("");
+  refreshStatus(); if (!S.statusTimer) S.statusTimer = setInterval(refreshStatus, 15000);
+  api("/results").then((r) => { S.results = r; const c = r.results[r.champion]; if (c) $("#dir-warn").textContent = c.ci95_net_per_day[0] > 0 ? "Shown for transparency." : `On ${r.test_days.length} days it had never seen, this model lost ${rs(-c.net_per_day)} a day after costs.`; }).catch(() => {});
+  if (!(await loadDays())) return;
+  await loadSeries(true);
+}
+(function boot() {
   const [tab, ...kv] = location.hash.slice(1).split("&"), q = Object.fromEntries(kv.map((x) => x.split("=")));
-  if (q.day && [...$("#day").options].some((o) => o.value === q.day)) $("#day").value = q.day;
-  if (q.t && /^[0-9]+$/.test(q.t)) setT(+q.t);
-  show(["signal", "results", "pipeline", "ops"].includes(tab) ? tab : "signal");
-  if ($("#day").value) getSignal();  // open on a real example, not an empty card
+  if (q.day) S.day = q.day;
+  if (q.t && /^[0-9]+$/.test(q.t)) { S.t = +q.t; S.fromHash = true; }
+  try { if (!localStorage.getItem("tour_seen")) $("#tour").hidden = false; } catch {}
+  show(tab || "forecast", false);
+  start();
 })();
 </script>
 </body>
