@@ -2,7 +2,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from optpred.labels.costs import statutory_rs, statutory_value_rs
+from optpred.labels.costs import statutory_rs
+from optpred.strategy.costs import statutory_value_rs
 from optpred.strategy.legs import parse_legs
 from optpred.strategy.sim import LOT, Unavailable, evaluate, load_quotes
 from tests.helpers.grid_synth import LEGS

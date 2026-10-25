@@ -21,7 +21,7 @@ import numpy as np
 import pandas as pd
 
 from optpred.labels.barrier import contract_matrix
-from optpred.labels.costs import statutory_value_rs
+from optpred.strategy.costs import statutory_value_rs
 from optpred.strategy.legs import N_STRIKES, STEP, Leg
 
 LOT = 65
