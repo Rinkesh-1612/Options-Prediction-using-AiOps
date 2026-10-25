@@ -12,7 +12,7 @@
 | [Model Deployment](deployment.md) | DONE |
 | [Model Monitoring & Maintenance](monitoring.md) | DONE |
 | [Web page (UI)](ui.md) | DONE (rebuilt for non-technical users; browser audit 13 of 13) |
-| [Web page v2: Explore (calendar, IV views, one day by the minute)](ui.md) | IN PROGRESS: phases 1 and 3 built; phases 2, 4, 5 next |
+| [Web page v2: Explore (calendar, IV views, one day by the minute)](ui.md) | IN PROGRESS: calendar, IV views, one day by the minute, strategies and model outputs built; models side by side, alpha test and verdict next |
 | [Second model: volatility forecaster](vol_model.md) | DONE (beats the option market on 10/10 test days) |
 | Documents: [architecture](../ARCHITECTURE.md), [HLD](../HLD.md), [LLD](../LLD.md), [test plan](../TEST_PLAN.md), [user manual](../USER_MANUAL.md) | DONE |
 

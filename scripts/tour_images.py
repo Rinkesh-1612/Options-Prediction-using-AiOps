@@ -14,7 +14,13 @@ from playwright.sync_api import sync_playwright
 URL = os.environ.get("UI_URL", "http://127.0.0.1:8080")
 OUT = Path("frontend/img")
 DAY = "2026-10-13"
-SHOTS = [("tour-1.png", None), ("tour-2.png", "#s-day"), ("tour-3.png", "#s-iv"), ("tour-4.png", "#s-intra")]
+SHOTS = [
+    ("tour-1.png", None),
+    ("tour-2.png", "#s-day"),
+    ("tour-3.png", "#s-iv"),
+    ("tour-4.png", "#s-intra"),
+    ("tour-5.png", "#s-strat"),
+]
 
 
 def main() -> None:

@@ -59,6 +59,19 @@ In (query): `day`, `t` (seconds of day). Out: the chain snapshot nearest to `t`:
 In (query): `day`, `t`. Out: `{day, sod, at[{expiry, dte, iv}], series{sod[], near[], next[]}}`: ATM IV of each expiry at `t`
 and of the first two expiries through the day. 404 unknown day, 503 when the file is missing.
 
+### GET /explore/strategies
+In (query): `day`, `t` (second of day). Out: `{day, sod, lot, atm, strategies[]}`: every ready-made strategy (18: long and short
+volatility, spreads, ratio spreads, backspreads, broken wing, jade lizard) entered at `t`: `{id, name, kind, legs_text, legs[{side,
+action, lots, strike, price, k}], cost (₹; > 0 pay, < 0 receive), curve[] (net ₹ if closed after 1, 2, 3 ... minutes), at{m5, m15, m30,
+m60}, best_exit{minute, net} (hindsight), barrier{hit (+1 take profit, -1 stop loss, 0 time cap), hold_s, net, sigma}|null,
+max_profit, max_loss (at expiry, before charges; `null` = unlimited or very large: net long or short calls, or puts), breakevens[]}`. A strategy that cannot be priced has `error`.
+Buy legs fill at the ask and exit at the bid, sell legs the other way; statutory charges, no brokerage; margin is not modelled.
+
+### GET /explore/strategy
+In (query): `day`, `t`, `legs` = `action:side:offset:lots,...` (1-4 legs, offset -2..2 strikes from ATM at entry, lots 1-10).
+Out: the same fields for that strategy plus `payoff{spot[], pnl[], breakevens[], max_profit, max_loss}`. 422 bad legs, 409 cannot be priced
+at that time (no quote, too close to the close), 404 unknown day.
+
 ### GET /model
 Out: `{"champion": V, "previous": V}`, V = `{version, family, git_commit, deploy_check, metrics}`.
 Also `"vol": {version, family, deploy_check}`: the champion of the volatility forecaster `nifty-vol`.

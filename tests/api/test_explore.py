@@ -106,3 +106,21 @@ def test_unknown_day_and_missing_files(ex, tmp_path):
     assert c.get("/explore/iv/smile", params={"day": "2020-01-01", "t": 40000}).status_code == 404
     (tmp_path / "chain" / f"{DAY}.parquet").unlink()
     assert c.get("/explore/iv/smile", params={"day": DAY, "t": 40000}).status_code == 503
+
+
+def test_strategies_list_prices_every_template_and_the_detail_route_validates(ex):
+    c = client(ex)
+    r = c.get("/explore/strategies", params={"day": DAY, "t": 36000}).json()
+    assert r["lot"] == 65 and len(r["strategies"]) >= 15
+    by = {s["id"]: s for s in r["strategies"]}
+    assert by["long_call"]["cost"] > 0 > by["short_straddle"]["cost"]
+    assert by["long_call"]["at"]["m5"] is not None and by["iron_condor"]["max_loss"] is not None
+    d = c.get("/explore/strategy", params={"day": DAY, "t": 36000, "legs": "buy:ce:0:1,sell:ce:2:2"}).json()
+    assert d["legs_text"] == "buy:ce:0:1,sell:ce:2:2" and d["payoff"]["max_loss"] is None
+    assert (
+        c.get("/explore/strategy", params={"day": DAY, "t": 36000, "legs": "buy:ce:9:1"}).status_code == 422
+    )
+    assert (
+        c.get("/explore/strategy", params={"day": DAY, "t": 55650, "legs": "buy:ce:0:1"}).status_code == 409
+    )
+    assert c.get("/explore/strategies", params={"day": "2020-01-01", "t": 36000}).status_code == 404

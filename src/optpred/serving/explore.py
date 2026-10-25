@@ -13,6 +13,8 @@ import numpy as np
 import pandas as pd
 from fastapi import APIRouter, HTTPException
 
+from optpred.strategy.legs import TEMPLATES, legs_text, parse_legs
+from optpred.strategy.sim import LOT, Unavailable, evaluate, grid_columns, load_quotes
 from optpred.vol.inputs import YEAR_S, inputs, targets
 
 BIG_MOVE_PCT = 1.0  # |close / open - 1| at or above this is a "big move" day
@@ -53,6 +55,11 @@ def _day_frame(path: str, mtime: int) -> pd.DataFrame:
 @functools.lru_cache(maxsize=256)
 def _chain(path: str, mtime: int) -> pd.DataFrame:
     return pd.read_parquet(path).sort_values(["sod", "expiry_rank", "strike"]).reset_index(drop=True)
+
+
+@functools.lru_cache(maxsize=6)
+def _quotes(path: str, mtime: int):
+    return load_quotes(pd.read_parquet(path, columns=grid_columns()))
 
 
 @functools.lru_cache(maxsize=512)
@@ -253,5 +260,55 @@ def explore_router(st, accepted, vol_champion) -> APIRouter:
             name: col(g[k]) if k in g else [None] * len(minutes) for name, k in (("near", 0), ("next", 1))
         }
         return {"day": day, "sod": int(t), "at": at, "series": series}
+
+    def quotes(day: str):
+        p = need(day)
+        return _quotes(str(p), _mt(p))
+
+    def priced(day: str, t: int, legs):
+        try:
+            return evaluate(quotes(day), t, legs)
+        except Unavailable as e:
+            raise HTTPException(409, str(e)) from e
+
+    @r.get("/strategies")
+    def strategies(day: str, t: int):
+        """Every ready-made strategy entered at second t: cost, result after 5 / 15 / 30 / 60 min, best exit
+        in hindsight, the barrier-rule result, maximum profit and loss. Unpriceable ones carry `error`."""
+        q, out = quotes(day), []
+        for key, (name, kind, text) in TEMPLATES.items():
+            row = {"id": key, "name": name, "kind": kind, "legs_text": text}
+            try:
+                e = evaluate(q, t, parse_legs(text))
+            except Unavailable as err:
+                out.append(row | {"error": str(err)})
+                continue
+            at = {f"m{m}": (e["curve"][m - 1] if m <= len(e["curve"]) else None) for m in (5, 15, 30, 60)}
+            out.append(
+                row
+                | {
+                    "legs": e["legs"],
+                    "cost": e["cost"],
+                    "curve": e["curve"],
+                    "at": at,
+                    "best_exit": e["best_exit"],
+                    "barrier": e["barrier"],
+                    "max_profit": e["payoff"]["max_profit"],
+                    "max_loss": e["payoff"]["max_loss"],
+                    "breakevens": e["payoff"]["breakevens"],
+                }
+            )
+        i = int(np.searchsorted(q.sod, t))
+        atm = num(q.atm[i]) if i < len(q.sod) and q.sod[i] == t else None
+        return {"day": day, "sod": t, "lot": LOT, "atm": atm, "strategies": out}
+
+    @r.get("/strategy")
+    def strategy(day: str, t: int, legs: str):
+        """One strategy of 1-4 legs (`buy:ce:0:1,sell:ce:2:2`): quotes, exit curve, barrier result, payoff."""
+        try:
+            parsed = parse_legs(legs)
+        except ValueError as e:
+            raise HTTPException(422, str(e)) from e
+        return {"day": day, "sod": t, "legs_text": legs_text(parsed)} | priced(day, t, parsed)
 
     return r

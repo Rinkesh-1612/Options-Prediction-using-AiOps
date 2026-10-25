@@ -18,7 +18,8 @@ Updated at each step.
 | `src/optpred/zoo/` | stages zoo_train, zoo_eval (data, simulator, models, seqnets, MLflow tracking, pyfunc, promote/deploy gate) |
 | `src/optpred/vol/` | stage vol, second model `nifty-vol` (inputs, forecasters, pyfunc) |
 | `src/optpred/modelout/`, `data/modelout/`, `reports/modelout.json`, `tests/unit/test_modelout.py` | stage modelout: every model's answer at every minute of every day (read by the page) |
-| `src/optpred/serving/explore.py`, `tests/api/test_explore.py` | API of the Explore page (calendar, IV views) |
+| `src/optpred/serving/explore.py`, `tests/api/test_explore.py` | API of the Explore page (calendar, IV views, strategies) |
+| `src/optpred/strategy/`, `tests/unit/test_strategy.py` | strategy legs and simulator on recorded quotes |
 | `frontend/img/`, `scripts/tour_images.py` | pictures of the guided tour |
 | `src/optpred/drift/` | stage drift + online drift (PSI) |
 | `src/optpred/serving/signal_api.py` | the API (signal, model, rollback, retrain, drift, webhook, metrics) |

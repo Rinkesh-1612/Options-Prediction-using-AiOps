@@ -190,6 +190,27 @@ def run(url: str) -> dict:
             page.wait_for_timeout(600)
             if page.inner_text("#clock-intra") == before:
                 fail("charts", "clicking the intraday chart did not move the selected time")
+        page.wait_for_timeout(800)
+        if page.locator("#strat-body tr").count() < 10:
+            fail("charts", "the strategies table has fewer than 10 rows")
+        else:
+            page.locator("#strat-body [data-pick]").first.click()
+            page.wait_for_timeout(1200)
+            if not (
+                page.locator("#ch-exit .main-svg").count() and page.locator("#ch-payoff .main-svg").count()
+            ):
+                fail("charts", "exit-time and payoff charts were not drawn for a chosen strategy")
+            page.click("[data-exit=barrier]")
+            page.wait_for_timeout(300)
+            if "Result" not in page.inner_text("#strat-head"):
+                fail("charts", "the barrier-rule view did not change the table")
+            page.click("#builder summary")
+            page.select_option("#la0", "sell")
+            page.click("#leg-add")
+            page.click("#leg-run")
+            page.wait_for_timeout(1200)
+            if "Your strategy" not in page.inner_text("#sd-title"):
+                fail("charts", "a strategy built from legs was not priced")
         if not page.locator("#ch-intra-t table").count() or not page.locator("#ch-iv-t table").count():
             fail("charts", "no table twin for a chart")
         page.click("#tour-again")

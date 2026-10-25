@@ -253,6 +253,18 @@ label.lbl { display: block; font-size: 14px; font-weight: 600; margin: 12px 0 6p
 .soon-card ul { margin: 8px 0 0; padding-left: 20px; color: var(--muted); }
 .slider-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 4px 0 10px; }
 .slider-row input[type=range] { flex: 1; min-width: 160px; }
+.cols2 { display: grid; gap: 16px; }
+@media (min-width: 900px) { .cols2 { grid-template-columns: 1fr 1fr; } }
+#strat-table tbody tr { cursor: pointer; }
+#strat-table tbody tr:hover { background: var(--soft); }
+#strat-table tbody tr[aria-current="true"] { background: var(--info-bg); }
+#strat-table th[scope="row"] button { all: unset; cursor: pointer; font-weight: 600; min-height: 44px; display: inline-flex; align-items: center; gap: 6px; }
+#strat-table th[scope="row"] button:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+.legrow { display: grid; gap: 8px; grid-template-columns: repeat(2, 1fr) auto; align-items: end; border: 1px solid var(--line); border-radius: 8px; padding: 10px; }
+.legrow .field { min-width: 0; }
+.legrow .field.wide { grid-column: span 2; }
+@media (min-width: 720px) { .legrow { grid-template-columns: repeat(4, 1fr) auto; } .legrow .field.wide { grid-column: auto; } }
+.star { color: var(--ink); font-weight: 700; }
 </style>
 </head>
 <body>
@@ -316,8 +328,8 @@ label.lbl { display: block; font-size: 14px; font-weight: 600; margin: 12px 0 6p
     </div>
 
     <nav class="story" id="story" aria-label="Steps on this page">
-      <a href="#s-day">1 Pick a day</a><a href="#s-iv">2 Implied volatility</a><a href="#s-intra">3 Inside one day</a>
-      <a class="soon" href="#s-next">4–7 Strategies, models, verdict (next)</a>
+      <a href="#s-day">1 Pick a day</a><a href="#s-iv">2 Implied volatility</a><a href="#s-intra">3 Inside one day</a><a href="#s-strat">4 Strategies</a>
+      <a class="soon" href="#s-next">5–7 Models, alpha, verdict (next)</a>
     </nav>
 
     <div class="stack" style="margin-top:8px">
@@ -354,10 +366,37 @@ label.lbl { display: block; font-size: 14px; font-weight: 600; margin: 12px 0 6p
           <figcaption>Point at the chart to read the values. Click or tap to choose a time. Drag to zoom, double-click to zoom out. Volatility is a yearly percentage.</figcaption></figure>
       </div>
 
+      <div class="card" id="s-strat" aria-labelledby="strat-h">
+        <h2 class="step" id="strat-h"><span class="n" aria-hidden="true">4</span>Strategies at that moment</h2>
+        <p class="muted" id="strat-lead" style="margin-bottom:10px">What each strategy would have made if you had entered at the chosen time. Buys fill at the ask, sells at the bid, with all statutory charges. Margin is not included.</p>
+        <div class="slider-row"><span class="lbl" style="margin:0">Entry time <b class="clock mono" id="clock-strat">11:00</b></span><span class="muted">(change it in step 3)</span></div>
+        <div class="seg" role="group" aria-label="How the position is closed">
+          <button class="btn sm" type="button" data-exit="curve" aria-pressed="true">Close after a set time</button>
+          <button class="btn sm" type="button" data-exit="barrier" aria-pressed="false">Close by the barrier rule</button>
+        </div>
+        <p class="muted" id="exit-help" style="margin-bottom:10px"></p>
+        <div class="stats" id="strat-best" style="grid-template-columns:repeat(auto-fit,minmax(240px,1fr))"></div>
+        <div class="scroll" style="margin-top:14px"><table id="strat-table"><caption class="sr">Strategies entered at the chosen time</caption><thead id="strat-head"></thead><tbody id="strat-body"></tbody></table></div>
+        <p class="hint" id="strat-note"></p>
+        <div id="strat-detail" style="margin-top:16px" hidden>
+          <h3 id="sd-title" style="font-size:18px"></h3>
+          <p id="sd-sum" style="margin-top:6px"></p>
+          <div class="cols2" style="margin-top:12px">
+            <figure class="chart" style="margin:0"><h4 class="ct">Result by closing time</h4><div id="ch-exit" class="plot" role="img" aria-label="Net result by closing time"></div><div id="ch-exit-t"></div></figure>
+            <figure class="chart" style="margin:0"><h4 class="ct">Profit at expiry, by NIFTY level</h4><div id="ch-payoff" class="plot" role="img" aria-label="Profit at expiry by NIFTY level"></div><div id="ch-payoff-t"></div></figure>
+          </div>
+        </div>
+        <details id="builder" style="margin-top:16px"><summary>Build your own (up to 4 legs)</summary><div class="dbody">
+          <p class="muted">Each leg: buy or sell, call or put, a strike (ATM is the strike nearest NIFTY at the entry time) and lots (1 lot = 65). Unequal lots make an unbalanced strategy, such as a 1×2 ratio spread.</p>
+          <div id="legs" class="stack" style="margin-top:10px"></div>
+          <div class="row" style="margin-top:12px"><button class="btn sm" id="leg-add" type="button">Add a leg</button><button class="btn sm primary" id="leg-run" type="button">Price my strategy</button></div>
+          <p class="hint" id="leg-msg" role="status"></p>
+        </div></details>
+      </div>
+
       <div class="card soon-card" id="s-next" aria-labelledby="next-h">
-        <h2 id="next-h">4–7 Coming next</h2>
+        <h2 id="next-h">5–7 Coming next</h2>
         <ul>
-          <li><b>4 Strategies at that moment:</b> long call or put, straddle, strangle, short straddle, spreads, your own legs. Profit after costs, best one in hindsight, payoff diagram.</li>
           <li><b>5 What each model said:</b> volatility forecasters, direction models, deep models and baselines, side by side, with the real result.</li>
           <li><b>6 The alpha test:</b> on unseen days only: the IV rich or cheap rule, a model that picks the structure, the direction signal and the equity curve.</li>
           <li><b>7 Verdict:</b> what works and what does not, in plain words.</li>
@@ -567,6 +606,7 @@ const GLOSSARY = {
   iv: ["Implied volatility (IV)", "How much movement the option prices say to expect, as a yearly percentage. A value of 16 means a typical one-day move of about 1%. High IV = expensive options."],
   smile: ["Smile", "Implied volatility at each strike on the same day. Far-away strikes usually cost more per unit of risk, so the curve bends up like a smile."],
   term: ["Term structure", "Implied volatility of each expiry date. Near expiries are often higher on expiry day because the market expects big moves right away."],
+  barrier: ["Barrier rule", "A rule that closes a trade by itself: take profit after a gain of twice the recent one-minute swing, stop the loss after the same loss, or close after 15 minutes."],
   unseen: ["Unseen days", "Days the models never saw while they were built or chosen. The only fair test."],
   interval: ["95% interval", "The range in which the true average most likely lies. If it includes zero, the result may be just luck."],
   edge: ["Edge", "A real, repeatable advantage after costs. 'No edge' means we could not tell the result from luck."],
@@ -1154,7 +1194,8 @@ const TOUR = [
   ["Step 1: pick a day", "Days with a ★ are unseen days: no model saw them while it was built, so they are the fair test. The other days were used for training, so results on them are shown with a warning. Letters mark expiry days (E), big moves (!) and market-change alarms (~).", "tour-2.png"],
   ["Step 2: implied volatility", "Implied volatility (IV) is the market's guess of how much NIFTY will swing, read from option prices. Four views: IV over the days, IV against our own forecast and what happened, the smile (IV by strike) and the term structure (IV by expiry).", "tour-3.png"],
   ["Step 3: inside one day", "The same day by the minute. Click the chart to choose a time. You see the market's IV, our forecast and what happened after that time. The index is drawn underneath.", "tour-4.png"],
-  ["Next: strategies and models", "At the chosen moment you will see what a call, a put, a straddle or a spread would have made after costs, which one was best in hindsight, and what each model said. (Coming in the next version of this page.)", ""],
+  ["Step 4: strategies at that moment", "What 18 ready-made strategies (calls, puts, straddles, spreads, ratio spreads and more) would have made if you had entered at the chosen time, after all charges. Close them after a set time or by a barrier rule. Click a row to see the result by closing time and the profit at expiry. You can also build your own with up to 4 legs.", "tour-5.png"],
+  ["Coming next: models and the verdict", "Next versions add what each model said at that moment (volatility, direction, deep models, baselines) and the alpha test on unseen days.", ""],
   ["Be honest about the result", "Our volatility forecast beat the options market on every unseen day. Models that pick a direction (call or put) found no edge. The page shows both plainly.", ""],
 ];
 const swatch = (cls, dash) => `<svg class="sw" viewBox="0 0 28 10" aria-hidden="true"><line x1="0" y1="5" x2="28" y2="5" stroke="var(${cls})" stroke-width="${dash ? 2 : 3}" ${dash ? `stroke-dasharray="${dash}"` : ""}/></svg>`;
@@ -1313,7 +1354,7 @@ async function loadIntra() {
     if (day !== E.day) return;
     E.intra = d; skel($("#intra-lead"), false); clearError();
     $("#intra-lead").textContent = `${longDay(day)}. Options market volatility, our forecast and what happened, one point per minute.`;
-    plotIntra(); intraMoment();
+    plotIntra(); intraMoment(); loadStrat();
   } catch (e) { skel($("#intra-lead"), false); showError(e, loadIntra); }
 }
 const iIdx = () => Math.round((E.t - 34200) / 60);
@@ -1371,12 +1412,119 @@ function plotIntraMoment() {
 }
 function setT(t, user = false) {
   E.t = Math.min(54000, Math.max(34200, Math.round(t / 60) * 60));
-  intraMoment(); writeHash();
+  intraMoment(); writeHash(); $("#clock-strat").textContent = hm(E.t);
+  clearTimeout(E.stimer); E.stimer = setTimeout(loadStrat, user ? 300 : 0);
   if (E.mode === "smile" || E.mode === "term") { clearTimeout(E.timer); E.timer = setTimeout(drawIv, user ? 200 : 0); }
 }
 for (const id of ["#t-intra", "#t-iv"]) $(id).addEventListener("input", (e) => setT(+e.target.value, true));
 $("#e-back").addEventListener("click", () => setT(E.t - 300, true));
 $("#e-fwd").addEventListener("click", () => setT(E.t + 300, true));
+
+/* ---------- strategies at the chosen moment ---------- */
+Object.assign(E, { strat: null, sel: null, exit: "curve", legs: [{ action: "buy", side: "ce", k: 0, lots: 1 }], stimer: null });
+const sgn = (v) => (v > 0 ? "good" : v < 0 ? "bad" : "");
+const money = (v) => (v == null ? "—" : `<span class="num ${sgn(v)}">${rs(v)}</span>`);
+const limit = (v) => (v == null ? "unlimited" : rs(v));
+const costText = (c) => (c >= 0 ? `pay ${rs(c)}` : `receive ${rs(-c)}`);
+const HOW = { 1: "take profit", [-1]: "stop loss", 0: "time limit (15 min)" };
+const EXIT_HELP = {
+  curve: "The position is closed after a set time: 5, 15, 30 or 60 minutes. 'Best exit' is the best closing time in hindsight. Nobody knows it in advance.",
+  barrier: `The position closes by itself under a ${T("barrier", "barrier rule")}: take profit at a gain of twice the recent one-minute swing, stop the loss at the same amount, or close after 15 minutes. It is the rule the call/put models were trained on.`,
+};
+$$("[data-exit]").forEach((b) => b.addEventListener("click", () => { E.exit = b.dataset.exit; $$("[data-exit]").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); drawStrat(); }));
+
+async function loadStrat() {
+  const day = E.day, t = E.t;
+  if (!day) return;
+  try {
+    const d = await api(`/explore/strategies?day=${encodeURIComponent(day)}&t=${t}`);
+    if (day !== E.day || t !== E.t) return;
+    E.strat = d; clearError(); drawStrat(); drawLegs();
+    if (E.sel) pickStrat(E.sel.legs_text, E.sel.title, true);
+  } catch (e) { E.strat = null; $("#strat-body").innerHTML = ""; $("#strat-best").innerHTML = ""; $("#strat-note").textContent = friendly(e); }
+}
+function drawStrat() {
+  const d = E.strat; $("#clock-strat").textContent = hm(E.t); $("#exit-help").innerHTML = EXIT_HELP[E.exit];
+  if (!d) return;
+  const ok = d.strategies.filter((s) => !s.error), bad = d.strategies.length - ok.length, barrier = E.exit === "barrier";
+  const key = barrier ? (s) => s.barrier?.net ?? -Infinity : (s) => s.best_exit.net;
+  const rows = [...ok].sort((a, b) => key(b) - key(a));
+  const top = (f, label, text) => { const s = [...ok].filter((x) => f(x) != null).sort((a, b) => f(b) - f(a))[0]; return s ? `<div class="stat"><div class="lab">${label}</div><div class="val" style="font-size:20px">${esc(s.name)}</div><div class="cap">${text(s)}</div></div>` : ""; };
+  $("#strat-best").innerHTML =
+    top((s) => s.best_exit.net, "Best in hindsight", (s) => `${rs(s.best_exit.net)} if closed after ${s.best_exit.minute} min. Nobody could know this in advance.`) +
+    top((s) => s.barrier?.net, "Best with the barrier rule", (s) => `${rs(s.barrier.net)}, ended by ${HOW[s.barrier.hit]} after ${Math.round(s.barrier.hold_s / 60)} min`) +
+    top((s) => s.at.m15, "Best after exactly 15 minutes", (s) => `${rs(s.at.m15)}`);
+  $("#strat-head").innerHTML = barrier
+    ? "<tr><th scope='col'>Strategy</th><th scope='col' class='n'>To open</th><th scope='col' class='n'>Result</th><th scope='col'>How it ended</th><th scope='col' class='n'>Held</th><th scope='col' class='n'>Best profit</th><th scope='col' class='n'>Worst loss</th></tr>"
+    : "<tr><th scope='col'>Strategy</th><th scope='col' class='n'>To open</th><th scope='col' class='n'>After 5 min</th><th scope='col' class='n'>After 15 min</th><th scope='col' class='n'>After 30 min</th><th scope='col' class='n'>After 60 min</th><th scope='col' class='n'>Best exit (hindsight)</th><th scope='col' class='n'>Best profit</th><th scope='col' class='n'>Worst loss</th></tr>";
+  $("#strat-body").innerHTML = rows.map((s, i) => {
+    const b = s.barrier, star = i === 0 ? '<span class="star" title="Best in this view, in hindsight">★</span>' : "";
+    const mid = barrier
+      ? `<td class="n">${b ? money(b.net) : "—"}</td><td>${b ? HOW[b.hit] : "no result"}</td><td class="n">${b ? Math.round(b.hold_s / 60) + " min" : "—"}</td>`
+      : `<td class="n">${money(s.at.m5)}</td><td class="n">${money(s.at.m15)}</td><td class="n">${money(s.at.m30)}</td><td class="n">${money(s.at.m60)}</td><td class="n">${money(s.best_exit.net)} <span class="muted">at ${s.best_exit.minute} min</span></td>`;
+    return `<tr data-id="${s.id}" ${E.sel?.id === s.id ? 'aria-current="true"' : ""}><th scope="row"><button type="button" data-pick="${s.id}">${star}${esc(s.name)}</button></th><td class="n">${costText(s.cost)}</td>${mid}<td class="n">${limit(s.max_profit)}</td><td class="n">${s.max_loss == null ? "unlimited" : rs(s.max_loss)}</td></tr>`;
+  }).join("");
+  $("#strat-note").textContent = `Results are in rupees for 1 lot (65), after charges. ${bad ? bad + " strategies could not be priced at this time because a quote was missing. " : ""}"Best profit" and "Worst loss" are at expiry, before charges.`;
+}
+$("#strat-body").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-pick]") || (e.target.closest("tr[data-id]") && { dataset: { pick: e.target.closest("tr[data-id]").dataset.id } });
+  if (!b) return;
+  const s = E.strat.strategies.find((x) => x.id === b.dataset.pick); if (!s) return;
+  E.sel = { id: s.id, legs_text: s.legs_text, title: s.name }; drawStrat(); pickStrat(s.legs_text, s.name);
+});
+async function pickStrat(text, title, quiet = false) {
+  try {
+    const d = await api(`/explore/strategy?day=${encodeURIComponent(E.day)}&t=${E.t}&legs=${encodeURIComponent(text)}`);
+    E.detail = { d, title }; $("#strat-detail").hidden = false; drawDetail();
+    if (!quiet) $("#strat-detail").scrollIntoView({ block: "nearest", behavior: "smooth" });
+  } catch (e) { $("#strat-detail").hidden = true; if (!quiet) $("#leg-msg").textContent = friendly(e); }
+}
+function drawDetail() {
+  const { d, title } = E.detail || {}; if (!d) return;
+  $("#sd-title").textContent = title;
+  const L = d.legs.map((l) => `${l.action === "buy" ? "Buy" : "Sell"} ${l.lots} × ${l.side === "ce" ? "call" : "put"} ${inr.format(l.strike)} at ₹${l.price.toFixed(2)}`).join("; ");
+  const at = (m) => (d.curve[m - 1] == null ? "—" : rs(d.curve[m - 1])), b = d.barrier;
+  $("#sd-sum").innerHTML = `${esc(L)}. To open: <b>${costText(d.cost)}</b> (before charges). Closed after 15 minutes: <b>${at(15)}</b>. Best closing time in hindsight: <b>${rs(d.best_exit.net)}</b> after ${d.best_exit.minute} min.${b ? ` Barrier rule: <b>${rs(b.net)}</b>, ended by ${HOW[b.hit]} after ${Math.round(b.hold_s / 60)} min.` : ""}`;
+  tableView($("#ch-exit-t"), "Net result by closing time, every 10 minutes", ["Minutes after entry", "Net result"], d.minutes.filter((m) => m % 10 === 0 || m <= 5).map((m) => [String(m), rs(d.curve[m - 1])]));
+  tableView($("#ch-payoff-t"), "Profit at expiry by NIFTY level", ["NIFTY", "Profit at expiry"], d.payoff.spot.filter((_, k) => k % 5 === 0).map((x, k) => [inr.format(x), rs(d.payoff.pnl[k * 5])]));
+  plotDetail();
+}
+function plotDetail() {
+  REDRAW.detail = plotDetail;
+  const { d } = E.detail || {}; if (!d) return;
+  const e1 = $("#ch-exit"), e2 = $("#ch-payoff"), th = theme(), zero = (x0, x1) => ({ type: "line", xref: "paper", yref: "y", x0: 0, x1: 1, y0: 0, y1: 0, line: { color: th.muted, width: 1.5 } });
+  paint("exit", e1, [
+    { type: "scatter", mode: "lines", x: d.minutes, y: d.curve, name: "Result if closed at this minute", line: { color: th.s1, width: 2 }, hovertemplate: "<b>%{y:,.0f}</b> ₹ after %{x} min<extra></extra>" },
+    { type: "scatter", mode: "markers", x: [d.best_exit.minute], y: [d.best_exit.net], name: "Best exit (hindsight)", marker: { symbol: "diamond", size: 12, color: th.ink, line: { color: th.surface, width: 2 } }, hovertemplate: "Best exit: <b>%{y:,.0f}</b> ₹ after %{x} min<extra></extra>" },
+    ...(d.barrier ? [{ type: "scatter", mode: "markers", x: [d.barrier.hold_s / 60], y: [d.barrier.net], name: "Barrier rule exit", marker: { symbol: "circle-open", size: 13, color: th.ink, line: { color: th.ink, width: 3 } }, hovertemplate: "Barrier rule: <b>%{y:,.0f}</b> ₹ after %{x:.1f} min<extra></extra>" }] : []),
+  ], baseLayout(th, { height: 340, hovermode: "closest", dragmode: false, margin: { l: 66, r: 16, t: 8, b: 110 }, xaxis: axis(th, { title: ytitle(th, "minutes after entry"), fixedrange: true }), yaxis: axis(th, { tickformat: ",d", title: ytitle(th, "net result, ₹ (1 lot, after charges)"), fixedrange: true }), shapes: [zero()] }));
+  const p = d.payoff;
+  paint("payoff", e2, [
+    { type: "scatter", mode: "lines", x: p.spot, y: p.pnl, name: "Profit at expiry", line: { color: th.s1, width: 2 }, hovertemplate: "<b>%{y:,.0f}</b> ₹ if NIFTY ends at %{x:,.0f}<extra></extra>" },
+    { type: "scatter", mode: "markers", x: p.breakevens, y: p.breakevens.map(() => 0), name: "Break-even", marker: { symbol: "x", size: 11, color: th.ink, line: { color: th.ink, width: 2 } }, hovertemplate: "Break-even at <b>%{x:,.0f}</b><extra></extra>" },
+  ], baseLayout(th, { height: 340, hovermode: "closest", dragmode: false, margin: { l: 66, r: 16, t: 24, b: 110 }, xaxis: axis(th, { tickformat: ",d", title: ytitle(th, "NIFTY at expiry"), fixedrange: true }), yaxis: axis(th, { tickformat: ",d", title: ytitle(th, "profit at expiry, ₹ (before charges)"), fixedrange: true }),
+    shapes: [zero(), { type: "line", xref: "x", yref: "paper", x0: d.spot, x1: d.spot, y0: 0, y1: 1, line: { color: th.ink, width: 2 } }], annotations: [{ x: d.spot, xref: "x", yref: "paper", y: 1, yanchor: "bottom", text: `NIFTY now ${inr.format(d.spot)}`, showarrow: false, font: { size: 12, color: th.ink } }] }));
+}
+
+/* build your own */
+function drawLegs() {
+  const atm = E.strat?.atm, lab = (k) => `ATM ${k > 0 ? "+" : k < 0 ? "−" : ""}${k ? Math.abs(k) : ""}${atm ? ` (${inr.format(atm + 50 * k)})` : ""}`;
+  $("#legs").innerHTML = E.legs.map((l, i) => `<div class="legrow" data-i="${i}">
+    <div class="field"><label for="la${i}">Action</label><select id="la${i}" data-f="action"><option value="buy" ${l.action === "buy" ? "selected" : ""}>Buy</option><option value="sell" ${l.action === "sell" ? "selected" : ""}>Sell</option></select></div>
+    <div class="field"><label for="ls${i}">Call or put</label><select id="ls${i}" data-f="side"><option value="ce" ${l.side === "ce" ? "selected" : ""}>Call</option><option value="pe" ${l.side === "pe" ? "selected" : ""}>Put</option></select></div>
+    <div class="field wide"><label for="lk${i}">Strike</label><select id="lk${i}" data-f="k">${[-2, -1, 0, 1, 2].map((k) => `<option value="${k}" ${l.k === k ? "selected" : ""}>${lab(k)}</option>`).join("")}</select></div>
+    <div class="field"><label for="ll${i}">Lots</label><select id="ll${i}" data-f="lots">${[1, 2, 3, 4, 5].map((n) => `<option ${l.lots === n ? "selected" : ""}>${n}</option>`).join("")}</select></div>
+    <button class="btn sm" type="button" data-del="${i}" aria-label="Remove leg ${i + 1}" ${E.legs.length === 1 ? "disabled" : ""}>Remove</button></div>`).join("");
+  $("#leg-add").disabled = E.legs.length >= 4;
+}
+$("#legs").addEventListener("change", (e) => { const f = e.target.dataset.f, i = +e.target.closest(".legrow").dataset.i; if (f) E.legs[i][f] = f === "action" || f === "side" ? e.target.value : +e.target.value; });
+$("#legs").addEventListener("click", (e) => { const b = e.target.closest("[data-del]"); if (b) { E.legs.splice(+b.dataset.del, 1); drawLegs(); } });
+$("#leg-add").addEventListener("click", () => { if (E.legs.length < 4) { E.legs.push({ action: "sell", side: "ce", k: 1, lots: 1 }); drawLegs(); } });
+$("#leg-run").addEventListener("click", () => {
+  $("#leg-msg").textContent = "";
+  const text = E.legs.map((l) => `${l.action}:${l.side}:${l.k}:${l.lots}`).join(",");
+  E.sel = { id: "custom", legs_text: text, title: "Your strategy" }; drawStrat(); pickStrat(text, "Your strategy");
+});
 
 /* sticky story links: keep the header height and mark the step in view */
 function measureHeader() { document.documentElement.style.setProperty("--hdr", $(".top").offsetHeight + "px"); }

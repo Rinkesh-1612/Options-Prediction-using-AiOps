@@ -24,7 +24,12 @@ The page opens with a short **guided tour** (close it any time; reopen with "Sho
 3. **Inside one day**: IV, our forecast and what happened by the minute, with the NIFTY index below. Click the chart to pick a
    time. Every chart has a "Table view" with the same numbers.
 
-Steps 4 to 7 (strategies and payoffs, what each model said, the alpha test, the verdict) are being built. The older
+4. **Strategies at that moment**: 18 ready-made strategies priced at the chosen time (cost to open, result after 5, 15, 30 and 60
+   minutes, best exit in hindsight, best profit and worst loss at expiry). Switch to "Close by the barrier rule" to see how each
+   would end under a take-profit / stop-loss rule. Click a row for the result-by-closing-time chart and the payoff diagram. "Build your
+   own" prices any 1-4 leg strategy, including unbalanced ones (for example buy 1, sell 2).
+
+Steps 5 to 7 (what each model said, the alpha test, the verdict) are being built. The older
 **Forecast** and **Does it work?** pages are described below and stay reachable at `#forecast` and `#works`.
 
 ## The screen

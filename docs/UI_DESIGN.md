@@ -84,3 +84,8 @@ The page is for the examiner. One story page, top to bottom (the owner's order):
 1 calendar → 2 implied volatility (four views: IV over the days, IV vs our forecast, smile, term structure) → 3 one day by the
 minute → 4-7 (strategies, models, alpha test, verdict: next phases). Unseen days carry a star; training days carry a warning.
 Data: `/explore/*` (docs/LLD.md); model answers are computed once by the DVC stage `modelout` (no model runs in the browser).
+
+**Step 4, strategies** (`optpred.strategy`): 18 templates plus a free builder (up to 4 legs, strikes ATM ±2, 1-5 lots). Entry at the ask
+(buy) or bid (sell); exit at the opposite side; statutory charges on the value bought and sold; no margin. Two ways to close: after a set
+time (curve by minute, best exit marked as hindsight) or the barrier rule of the labels (take profit and stop loss at 2 × the recent
+one-minute swing of the position, 15-minute cap). Payoff diagram at expiry with break-evens; unlimited profit or loss is stated as such.

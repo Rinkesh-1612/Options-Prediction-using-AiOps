@@ -29,3 +29,12 @@ def net_rs(entry, exit_, qty: int, slippage_pts_per_leg: float):
     entry, exit_ = np.asarray(entry, dtype=float), np.asarray(exit_, dtype=float)
     gross = (exit_ - entry) * qty
     return gross - statutory_rs(entry, exit_, qty) - 2 * slippage_pts_per_leg * qty
+
+
+def statutory_value_rs(buy_value, sell_value):
+    """Same charges as `statutory_rs`, from the total rupee value bought and sold (any number of legs).
+
+    A short leg sells at entry and buys back at exit, so its entry premium counts as sold value."""
+    buy, sell = np.asarray(buy_value, dtype=float), np.asarray(sell_value, dtype=float)
+    fees = EXCH_TXN_RATE + SEBI_TURNOVER_RATE
+    return buy * (fees + STAMP_BUY_RATE) + sell * (fees + STT_SELL_RATE) + GST_RATE * fees * (buy + sell)
