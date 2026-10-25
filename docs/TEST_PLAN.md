@@ -8,7 +8,7 @@
 | Integration | `tests/integration/` | Real stage `main`s on synthetic raw data: check (Spark) → clean → grid → feat → labels | every push |
 | API | `tests/api/` | Every endpoint with a fake model server and registry (and a fake volatility model); LLD = real routes; page calls only documented paths | every push |
 | End-to-end | `tests/e2e/` | The running stack: API → model server → registry, web page, Prometheus | `make e2e` with the stack up |
-| UI audit | `tests/ui/ui_audit.py` | The web page in a real browser (Playwright): 12 checks at 4 screen widths, light and dark | `make ui` with the stack up |
+| UI audit | `tests/ui/ui_audit.py` | The web page in a real browser (Playwright): 13 checks at 4 screen widths, light and dark (incl. charts: drawn, tooltip, click, zoom, table twin, fallback) | `make ui` with the stack up |
 
 Synthetic data: `tests/helpers/synth.py` (raw tables in the export schema), `tests/helpers/grid_synth.py`
 (one grid day). No test needs the real data.
@@ -33,12 +33,12 @@ Synthetic data: `tests/helpers/synth.py` (raw tables in the export schema), `tes
 | T15 | Explanations | SHAP contributions add up to the score and name the planted driver; non-LightGBM models give none; served model explains only the last row; API passes `drivers` through (or null) | `unit/test_explain.py` (3) |
 | T13 | End-to-end | served model passed the gate; test-day signal round trip; reports, pipeline, metrics; web page and config; Prometheus scrapes the API | `e2e/test_stack.py` (5) |
 
-### UI audit (12 checks, report `reports/ui_audit.md`)
+### UI audit (13 checks, report `reports/ui_audit.md`)
 
 console and page errors; horizontal scroll at 375 / 768 / 1024 / 1440 px; accessible name of every control; touch
 targets ≥ 44 px on a phone; no text under 12 px; text contrast ≥ 4.5:1 in light and dark; visible keyboard focus; no
 "undefined" / "NaN" / "null" text; jargon on the first screen explained; no error alert while everything works; readable
-alert and **Try again** when the API is down; tabs exist. Result: **12 of 12 pass** (the first page failed 5 of 11:
+alert and **Try again** when the API is down; tabs exist. Result: **13 of 13 pass** (the first page failed 5 of 11:
 [before](../reports/ui_audit_before_redesign.md)). Design and evidence: [UI_DESIGN.md](UI_DESIGN.md).
 
 ## 3. How to run
@@ -56,7 +56,7 @@ The pre-push hook (`.githooks/pre-push`) runs ruff, all tests and `dvc dag` befo
 ## 4. Acceptance criteria
 
 1. All tests pass (`make test` exit 0) and lint is clean (`make lint`).
-2. `make e2e` passes against the running stack, and `make ui` passes all 12 checks.
+2. `make e2e` passes against the running stack, and `make ui` passes all 13 checks.
 3. `dvc status` = up to date: every output comes from the committed code.
 4. Every MLflow run of the final model stages has `git_dirty = False`.
 5. A broken model version is never served: the gate refuses it, or the server rolls back (both observed: v3, v6).

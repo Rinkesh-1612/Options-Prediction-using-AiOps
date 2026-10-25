@@ -429,7 +429,10 @@ def create_app(
         cv = st.reports_dir / "vol" / "cv.json"
         if cv.exists():
             r["cv"] = json.loads(cv.read_text())["results"]
-        r.pop("qlike_by_day", None)
+        by_day = r.get(
+            "qlike_by_day", {}
+        )  # keep the champion and the option market: what the per-day chart needs
+        r["qlike_by_day"] = {k: by_day[k] for k in {r.get("champion"), "implied"} if k in by_day}
         return finite(r)
 
     @app.get("/model")

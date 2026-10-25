@@ -12,7 +12,7 @@
   --primary: #1d4ed8; --on-primary: #ffffff; --focus: #1d4ed8;
   --good: #15803d; --good-bg: #dcfce7; --bad: #b91c1c; --bad-bg: #fee2e2; --warn: #92400e; --warn-bg: #fef3c7;
   --info-bg: #dbeafe;
-  --c-forecast: #1d4ed8; --c-implied: #475569; --c-real: #c2410c;
+  --c-forecast: #2a78d6; --c-implied: #eb6834; --c-real: #1baf7a;
   --r: 10px; --gap: 16px; --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 @media (prefers-color-scheme: dark) {
@@ -21,7 +21,7 @@
     --primary: #60a5fa; --on-primary: #0b1220; --focus: #93c5fd;
     --good: #4ade80; --good-bg: #052e16; --bad: #f87171; --bad-bg: #450a0a; --warn: #fbbf24; --warn-bg: #422006;
     --info-bg: #172554;
-    --c-forecast: #60a5fa; --c-implied: #a8b3c5; --c-real: #fb923c;
+    --c-forecast: #3987e5; --c-implied: #d95926; --c-real: #199e70;
   }
 }
 * { box-sizing: border-box; }
@@ -121,7 +121,13 @@ input[type="range"] { width: 100%; height: 44px; margin: 0; accent-color: var(--
 .judge { margin-top: 14px; display: flex; align-items: center; gap: 8px; font-weight: 600; }
 @media (min-width: 560px) { .stats { grid-template-columns: repeat(3, 1fr); } }
 figure.chart { margin: 20px 0 0; }
-figure.chart #chart { display: block; width: 100%; height: auto; color: var(--muted); touch-action: pan-y; cursor: crosshair; }
+figure.chart .plot { width: 100%; min-height: 200px; touch-action: pan-y; }
+figure.chart #chart svg.fb { display: block; width: 100%; height: auto; color: var(--muted); cursor: crosshair; }
+figure.chart .ct { font-size: 16px; margin: 0 0 8px; }
+.ranges { gap: 8px; margin-bottom: 8px; }
+.ranges .btn[aria-pressed="true"] { background: var(--soft); border-color: var(--primary); font-weight: 600; }
+details.tv { margin-top: 8px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 figure.chart figcaption { font-size: 14px; color: var(--muted); margin-top: 8px; }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 8px; font-size: 14px; color: var(--ink); }
 .legend span { display: inline-flex; align-items: center; gap: 8px; }
@@ -307,9 +313,15 @@ label.lbl { display: block; font-size: 14px; font-weight: 600; margin: 12px 0 6p
         <div class="stats" id="stats"></div>
         <p class="judge" id="judge"></p>
         <figure class="chart">
-          <svg id="chart" role="img" aria-label="Chart of the expected move through the day" height="260"></svg>
-          <div class="legend" id="legend" aria-hidden="false"></div>
-          <figcaption>Click or drag on the chart to move to another time. The line shows the move expected over the following <span id="cap-h">15</span> minutes.</figcaption>
+          <div class="ranges row" role="group" aria-label="Zoom the chart to part of the day">
+            <button class="btn sm" type="button" data-range="all" aria-pressed="true">Whole day</button>
+            <button class="btn sm" type="button" data-range="morning" aria-pressed="false">Morning</button>
+            <button class="btn sm" type="button" data-range="midday" aria-pressed="false">Midday</button>
+            <button class="btn sm" type="button" data-range="afternoon" aria-pressed="false">Afternoon</button>
+          </div>
+          <div id="chart" class="plot" role="img" aria-label="Chart of the expected move through the day"></div>
+          <div id="chart-table"></div>
+          <figcaption>Move the pointer over the chart to read the values. Click or tap to choose that time. Drag to zoom in; double-click to zoom out. The line shows the move expected over the following <span id="cap-h">15</span> minutes.</figcaption>
         </figure>
       </div>
 
@@ -339,6 +351,13 @@ label.lbl { display: block; font-size: 14px; font-weight: 600; margin: 12px 0 6p
       <li>Every trade pays the real cost: the gap between the buy and sell price (the <button class="term" type="button" data-term="spread">spread</button>) plus taxes and fees.</li>
       <li>Results come with their uncertainty (a <button class="term" type="button" data-term="interval">95% interval</button>), not just the best case.</li>
     </ol>
+    <h2 class="sec">Day by day</h2>
+    <figure class="chart"><h3 class="ct">How far off was the forecast of movement on each unseen day?</h3>
+      <div id="ch-err" class="plot" role="img" aria-label="Forecast error on each unseen day: our forecast against the options market. Lower is better."></div><div id="ch-err-t"></div>
+      <figcaption>Lower is better. Our forecast was closer than the options market on every unseen day.</figcaption></figure>
+    <figure class="chart"><h3 class="ct">What the call/put models made, added up over the unseen days</h3>
+      <div id="ch-cum" class="plot" role="img" aria-label="Total result after costs of each call or put model over the unseen days"></div><div id="ch-cum-t"></div>
+      <figcaption>Above the zero line would be a profit. The line for the best model in training ends below it.</figcaption></figure>
     <h2 class="sec">All the numbers</h2>
     <details><summary>Forecasting how much NIFTY moves</summary><div class="dbody">
       <div class="scroll"><table><thead><tr><th scope="col">Forecaster</th><th scope="col" class="n">Training score</th><th scope="col" class="n">Unseen-days score</th><th scope="col" class="n">Match with reality</th></tr></thead><tbody id="vol-table"></tbody></table></div>
@@ -348,9 +367,8 @@ label.lbl { display: block; font-size: 14px; font-weight: 600; margin: 12px 0 6p
       <div class="scroll"><table><thead><tr><th scope="col">Model</th><th scope="col" class="n">Training ₹/day</th><th scope="col" class="n">Unseen ₹/day</th><th scope="col">95% interval</th><th scope="col" class="n">Trades</th><th scope="col" class="n">Win rate</th></tr></thead><tbody id="res-table"></tbody></table></div>
       <p class="hint" id="res-meta"></p>
     </div></details>
-    <details><summary>Has the market changed? (data drift)</summary><div class="dbody">
-      <div class="bars" id="drift-bars" role="img" aria-label="Share of inputs outside their normal range, per day"></div>
-      <div class="legend"><span><i class="sw" style="background:var(--primary)"></i>training days</span><span><i class="sw" style="background:var(--c-real)"></i>unseen days</span><span><i class="sw" style="border-top:2px dashed var(--muted)"></i>alarm level</span></div>
+    <details id="drift-details"><summary>Has the market changed? (data drift)</summary><div class="dbody">
+      <div id="drift-bars" class="plot" role="img" aria-label="Share of inputs outside their normal range, per day"></div><div id="drift-tv"></div>
       <p class="hint" id="drift-note"></p>
     </div></details>
     <details><summary>What the call/put model looks at</summary><div class="dbody">
@@ -368,6 +386,7 @@ label.lbl { display: block; font-size: 14px; font-weight: 600; margin: 12px 0 6p
       <div class="card"><div class="row" style="justify-content:space-between"><h2 style="font-size:18px">The pipeline</h2><button class="btn sm" id="pipe-refresh" type="button">Refresh</button></div>
         <div class="dag" id="dag" aria-busy="true"></div></div>
       <div class="card"><h2 style="font-size:18px;margin-bottom:8px">Speed (last successful run of each step)</h2>
+        <div id="ch-thr" class="plot" role="img" aria-label="Speed of each step in rows per second"></div>
         <div class="scroll"><table><thead><tr><th scope="col">Step</th><th scope="col">Input</th><th scope="col" class="n">Rows</th><th scope="col" class="n">Seconds</th><th scope="col" class="n">Rows per second</th></tr></thead><tbody id="thr"></tbody></table></div></div>
       <div class="cols">
         <div class="card"><div class="row" style="justify-content:space-between"><h2 style="font-size:18px" id="runs-title">Recent runs</h2><button class="btn sm" id="runs-all" type="button" hidden>Show all steps</button></div>
@@ -424,6 +443,7 @@ label.lbl { display: block; font-size: 14px; font-weight: 600; margin: 12px 0 6p
 <div id="tip" role="tooltip" hidden></div>
 <div class="toast" id="toast" role="status" hidden></div>
 
+<script src="vendor/plotly-basic.min.js"></script>
 <script>
 "use strict";
 const $ = (s, r = document) => r.querySelector(s);
@@ -535,7 +555,7 @@ function show(tab, push = true) {
   $$("[role=tabpanel]").forEach((p) => (p.hidden = p.id !== "tab-" + tab));
   if (push) writeHash(tab);
   if (!S.loadedTabs[tab]) { S.loadedTabs[tab] = true; ({ works: loadWorks, pipeline: loadPipeline, controls: loadControls })[tab]?.(); }
-  if (tab === "forecast") requestAnimationFrame(drawChart);
+  requestAnimationFrame(() => (tab === "forecast" ? plotForecast() : redrawAll()));
 }
 function writeHash(tab) {
   const cur = $$("[role=tab]").find((b) => b.getAttribute("aria-selected") === "true")?.dataset.tab;
@@ -597,46 +617,196 @@ function renderAnswer() {
   $("#cap-h").textContent = mins;
 }
 
-function niceStep(raw) { const p = 10 ** Math.floor(Math.log10(raw)), n = raw / p; return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p; }
-function drawChart() {
-  const el = $("#chart"); if (!el || !S.series || !el.parentElement.clientWidth) return;
-  const W = Math.max(300, Math.floor(el.parentElement.clientWidth)), H = Math.round(Math.min(340, Math.max(230, W * 0.44)));
+/* ---------- charts: Plotly (self-hosted, frontend/vendor); a plain SVG chart takes over when it is missing ---------- */
+const HAS_PLOTLY = typeof Plotly !== "undefined";
+const cssv = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const theme = () => ({ ink: cssv("--ink"), muted: cssv("--muted"), line: cssv("--line"), surface: cssv("--surface"), s1: cssv("--c-forecast"), s2: cssv("--c-implied"), s3: cssv("--c-real") });
+const FONT = "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif";
+const coarse = () => matchMedia("(pointer: coarse)").matches;
+const PCONF = { displayModeBar: false, displaylogo: false, responsive: true, scrollZoom: false, doubleClick: "reset", showTips: false };
+const iso = (day, s) => `${day}T${pad(Math.floor(s / 3600))}:${pad(Math.floor((s % 3600) / 60))}:${pad(s % 60)}`;
+const sodOfX = (x) => { const m = String(x).match(/(\d\d):(\d\d)(?::(\d\d))?/); return m ? +m[1] * 3600 + +m[2] * 60 + +(m[3] || 0) : null; };
+const shortDay = (d) => new Date(d + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+const REDRAW = {};  // chart name -> function that draws it again (used when the light / dark setting changes)
+
+function baseLayout(th, o = {}) {
+  return { paper_bgcolor: "rgba(0,0,0,0)", plot_bgcolor: "rgba(0,0,0,0)", font: { family: FONT, size: 12, color: th.muted }, margin: { l: 58, r: 16, t: 8, b: 44 },
+    hoverlabel: { bgcolor: th.surface, bordercolor: th.line, font: { family: FONT, size: 13, color: th.ink } },
+    legend: { orientation: "h", x: 0, y: -0.2, yanchor: "top", font: { family: FONT, size: 13, color: th.ink } }, ...o };
+}
+const axis = (th, o = {}) => ({ gridcolor: th.line, gridwidth: 1, zeroline: false, linecolor: th.line, tickfont: { family: FONT, size: 12, color: th.muted }, ...o });
+const ytitle = (th, text) => ({ text, font: { family: FONT, size: 12, color: th.muted }, standoff: 8 });
+
+/* every chart has a table twin: tooltips enhance, they never gate */
+function tableView(host, caption, headers, rows) {
+  host.innerHTML = `<details class="tv"><summary>Table view of this chart</summary><div class="dbody scroll"><table><caption class="sr">${esc(caption)}</caption>
+    <thead><tr>${headers.map((h, i) => `<th scope="col" class="${i ? "n" : ""}">${esc(h)}</th>`).join("")}</tr></thead>
+    <tbody>${rows.map((r) => `<tr>${r.map((c, i) => (i ? `<td class="n">${esc(c)}</td>` : `<th scope="row" style="font-weight:600">${esc(c)}</th>`)).join("")}</tr>`).join("")}</tbody></table></div></details>`;
+}
+function noPlot(el) { el.innerHTML = '<p class="hint">The interactive chart could not be loaded. The table below has the same numbers.</p>'; }
+function paint(name, el, data, layout) {  // draw (or redraw) one chart; a hidden tab has no width, so it waits until shown
+  return el.clientWidth ? Plotly.react(el, data, layout, PCONF) : Promise.resolve();
+}
+const redrawAll = () => Object.values(REDRAW).forEach((f) => f());
+
+/* ---- the forecast chart ---- */
+function chartLabel() {
+  const { f, im, re } = momentValues();
+  return `Chart of the move expected over the next ${S.h / 60} minutes through the trading day, in index points: our forecast, the options market and what happened, with the NIFTY index below. Selected time ${hm(S.t)}: forecast ${fmtPts(f)}, options market ${fmtPts(im)}, what happened ${fmtPts(re)}.`;
+}
+function forecastTable() {
+  const h = S.h, sd = S.series, rows = [];
+  for (let k = 0; k < sd.sod.length; k += 30) {
+    const p = (key) => fmtPts(points(sd[key + h][k], k));
+    rows.push([hm(sd.sod[k]), p("forecast_"), p("implied_"), p("realized_")]);
+  }
+  tableView($("#chart-table"), `Move expected over the next ${h / 60} minutes, every 30 minutes`, ["Time", "Our forecast", "Options market", "What happened"], rows);
+}
+function plotForecast() {
+  REDRAW.forecast = plotForecast;
+  const el = $("#chart"); if (!S.series || !el.clientWidth) return;
+  forecastTable();
+  if (!HAS_PLOTLY) return drawChartFallback();
+  const th = theme(), sd = S.series, h = S.h, i = idx(S.t), xsel = iso(S.day, S.t), xs = sd.sod.map((s) => iso(S.day, s));
+  const toPts = (arr) => arr.map((v, k) => (v == null || sd.spot[k] == null ? null : (v * sd.spot[k]) / 1e4));
+  const F = toPts(sd["forecast_" + h]), I = toPts(sd["implied_" + h]), R = toPts(sd["realized_" + h]);
+  const line = (y, name, color, dash) => ({ type: "scatter", mode: "lines", x: xs, y, name, xaxis: "x", yaxis: "y", line: { color, width: 2, dash }, connectgaps: false, hovertemplate: `<b>%{y:.0f}</b> points · %{fullData.name}<extra></extra>` });
+  const data = [line(F, "Our forecast", th.s1, "solid"), line(I, "Options market", th.s2, "dash"), line(R, "What actually happened (hindsight)", th.s3, "dot"),
+    { type: "scatter", mode: "lines", x: xs, y: sd.spot, name: "NIFTY index", xaxis: "x2", yaxis: "y2", line: { color: th.muted, width: 1.5 }, hovertemplate: "<b>%{y:,.0f}</b> · NIFTY index<extra></extra>" },
+    { type: "scatter", mode: "markers", x: [xsel, xsel, xsel], y: [F[i], I[i], R[i]], xaxis: "x", yaxis: "y", marker: { size: 10, color: [th.s1, th.s2, th.s3], line: { color: th.surface, width: 2 } }, hoverinfo: "skip", showlegend: false },
+    { type: "scatter", mode: "markers", x: [xsel], y: [sd.spot[i]], xaxis: "x2", yaxis: "y2", marker: { size: 9, color: th.ink, line: { color: th.surface, width: 2 } }, hoverinfo: "skip", showlegend: false }];
+  const spike = { showspikes: true, spikemode: "across", spikethickness: 1, spikecolor: th.muted, spikedash: "solid", spikesnap: "cursor" };
+  const x0 = iso(S.day, X0), x1 = iso(S.day, X1);
+  const layout = baseLayout(th, {
+    height: Math.round(Math.min(470, Math.max(340, el.clientWidth * 0.6))), margin: { l: 62, r: 16, t: 8, b: 84 }, hovermode: "x unified", dragmode: coarse() ? false : "zoom",
+    xaxis: axis(th, { type: "date", domain: [0, 1], anchor: "y", matches: "x2", showticklabels: false, fixedrange: false, ...spike }),
+    xaxis2: axis(th, { type: "date", domain: [0, 1], anchor: "y2", range: [x0, x1], tickformat: "%H:%M", dtick: 3600000, tick0: iso(S.day, 36000), hoverformat: "%H:%M", fixedrange: false, ...spike }),
+    yaxis: axis(th, { domain: [0.36, 1], anchor: "x", rangemode: "tozero", tickformat: ",d", title: ytitle(th, "index points"), fixedrange: true }),
+    yaxis2: axis(th, { domain: [0, 0.22], anchor: "x2", tickformat: ",d", title: ytitle(th, "NIFTY"), fixedrange: true }),
+    shapes: [{ type: "line", xref: "x", yref: "paper", x0: xsel, x1: xsel, y0: 0, y1: 1, line: { color: th.ink, width: 2 } }],
+  });
+  el.setAttribute("aria-label", chartLabel());
+  paint("forecast", el, data, layout).then(() => {
+    if (el._bound) return; el._bound = true;
+    el.on("plotly_click", (ev) => { const s = sodOfX(ev.points?.[0]?.x); if (s != null) setMoment(Math.round(s / 60) * 60, true); });
+    el.on("plotly_relayout", () => markRange());
+  });
+  markRange();
+}
+function plotMoment() {  // the selected time moved: update the marker and the line, nothing else
+  const el = $("#chart"); if (!S.series) return;
+  if (!HAS_PLOTLY || !el.data) return plotForecast();
+  const sd = S.series, h = S.h, i = idx(S.t), xsel = iso(S.day, S.t), sp = sd.spot[i];
+  const pt = (key) => (sd[key + h][i] == null || sp == null ? null : (sd[key + h][i] * sp) / 1e4);
+  Plotly.update(el, { x: [[xsel, xsel, xsel], [xsel]], y: [[pt("forecast_"), pt("implied_"), pt("realized_")], [sp]] }, { "shapes[0].x0": xsel, "shapes[0].x1": xsel }, [4, 5]);
+  el.setAttribute("aria-label", chartLabel());
+}
+const RANGES = { all: [34200, 54000], morning: [34200, 41400], midday: [41400, 48600], afternoon: [48600, 54000] };
+function markRange() {
+  const el = $("#chart"), r = el.layout?.xaxis2?.range; if (!r) return;
+  const [a, z] = [sodOfX(r[0]), sodOfX(r[1])];
+  $$("[data-range]").forEach((b) => { const [p, q] = RANGES[b.dataset.range]; b.setAttribute("aria-pressed", Math.abs(a - p) < 60 && Math.abs(z - q) < 60 ? "true" : "false"); });
+}
+$$("[data-range]").forEach((b) => b.addEventListener("click", () => {
+  const el = $("#chart"), [a, z] = RANGES[b.dataset.range];
+  if (HAS_PLOTLY && el.data) Plotly.relayout(el, { "xaxis2.range": [iso(S.day, a), iso(S.day, z)] });
+}));
+
+/* plain SVG chart, used only when the chart library did not load */
+function drawChartFallback() {
+  const host = $("#chart"); if (!S.series || !host.clientWidth) return;
+  const W = Math.max(300, Math.floor(host.clientWidth)), H = Math.round(Math.min(340, Math.max(230, W * 0.44)));
   const m = { l: 56, r: 26, t: 12, b: 30 }, h = S.h, sd = S.series;
-  const conv = (arr) => arr.map((v, i) => (v == null || sd.spot[i] == null ? null : (v * sd.spot[i]) / 1e4));
+  const conv = (arr) => arr.map((v, k) => (v == null || sd.spot[k] == null ? null : (v * sd.spot[k]) / 1e4));
   const F = conv(sd["forecast_" + h]), I = conv(sd["implied_" + h]), R = conv(sd["realized_" + h]);
   const ymax = (Math.max(...[...F, ...I, ...R].filter((v) => v != null)) || 1) * 1.1;
   const x = (s) => m.l + ((s - X0) / (X1 - X0)) * (W - m.l - m.r), y = (v) => H - m.b - (v / ymax) * (H - m.t - m.b);
-  const path = (a) => { let d = "", pen = false; a.forEach((v, i) => { if (v == null) { pen = false; return; } d += (pen ? "L" : "M") + x(sd.sod[i]).toFixed(1) + "," + y(v).toFixed(1); pen = true; }); return d; };
-  const step = niceStep(ymax / 4); let g = "";
-  for (let v = 0; v <= ymax; v += step) g += `<line class="grid-l" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text class="ax" x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end">${inr.format(v)}</text>`;
+  const path = (a) => { let d = "", pen = false; a.forEach((v, k) => { if (v == null) { pen = false; return; } d += (pen ? "L" : "M") + x(sd.sod[k]).toFixed(1) + "," + y(v).toFixed(1); pen = true; }); return d; };
+  let g = ""; for (let v = 0; v <= ymax; v += niceStep(ymax / 4)) g += `<line class="grid-l" x1="${m.l}" x2="${W - m.r}" y1="${y(v)}" y2="${y(v)}"/><text class="ax" x="${m.l - 8}" y="${y(v) + 4}" text-anchor="end">${inr.format(v)}</text>`;
   for (let hr = 10; hr <= 15; hr++) g += `<text class="ax" x="${x(hr * 3600)}" y="${H - 8}" text-anchor="middle">${hr}:00</text>`;
-  const i = idx(S.t), mx = x(S.t);
-  const dots = [[F, "--c-forecast"], [I, "--c-implied"], [R, "--c-real"]].map(([a, c]) => (a[i] == null ? "" : `<circle cx="${mx}" cy="${y(a[i])}" r="5" fill="var(${c})" stroke="var(--surface)" stroke-width="2"/>`)).join("");
-  el.setAttribute("viewBox", `0 0 ${W} ${H}`); el.setAttribute("height", H);
-  el.setAttribute("aria-label", `Chart of the expected move over the next ${h / 60} minutes through the trading day, in index points. Selected time ${hm(S.t)}.`);
-  el.innerHTML = `${g}
-    <text class="ax" transform="translate(13 ${(m.t + H - m.b) / 2}) rotate(-90)" text-anchor="middle">index points</text>
-    <path d="${path(I)}" fill="none" stroke="var(--c-implied)" stroke-width="2" stroke-dasharray="6 4"/>
-    <path d="${path(R)}" fill="none" stroke="var(--c-real)" stroke-width="2.5" stroke-dasharray="2 3" stroke-linecap="round"/>
-    <path d="${path(F)}" fill="none" stroke="var(--c-forecast)" stroke-width="3"/>
-    <line x1="${mx}" x2="${mx}" y1="${m.t}" y2="${H - m.b}" stroke="var(--ink)" stroke-width="2"/>${dots}
-    <rect x="${m.l}" y="0" width="${W - m.l - m.r}" height="${H - m.b}" fill="transparent" id="hit"/>`;
-  const pick = (e) => { const r = el.getBoundingClientRect(), px = ((e.clientX - r.left) / r.width) * W; setMoment(X0 + Math.round(((px - m.l) / (W - m.l - m.r)) * (X1 - X0) / 60) * 60, true); };
-  el.onpointerdown = (e) => { el.setPointerCapture(e.pointerId); pick(e); el.onpointermove = (ev) => ev.buttons && pick(ev); };
-  el.onpointerup = () => (el.onpointermove = null);
-  $("#legend").innerHTML = [["--c-forecast", "", "Our forecast"], ["--c-implied", "6 4", "Options market"], ["--c-real", "2 3", "What actually happened (hindsight)"]]
-    .map(([c, d, n]) => `<span><svg class="sw" viewBox="0 0 28 10" aria-hidden="true"><line x1="0" y1="5" x2="28" y2="5" stroke="var(${c})" stroke-width="${d ? 2.5 : 3}" ${d ? `stroke-dasharray="${d}"` : ""}/></svg>${n}</span>`).join("");
+  const mx = x(S.t);
+  host.innerHTML = `<svg class="fb" viewBox="0 0 ${W} ${H}" height="${H}" role="img" aria-label="${esc(chartLabel())}">${g}
+    <path d="${path(I)}" fill="none" stroke="var(--c-implied)" stroke-width="2" stroke-dasharray="6 4"/><path d="${path(R)}" fill="none" stroke="var(--c-real)" stroke-width="2" stroke-dasharray="2 3"/>
+    <path d="${path(F)}" fill="none" stroke="var(--c-forecast)" stroke-width="2"/><line x1="${mx}" x2="${mx}" y1="${m.t}" y2="${H - m.b}" stroke="var(--ink)" stroke-width="2"/></svg>
+    <p class="legend"><span>Solid: our forecast</span><span>Dashed: options market</span><span>Dotted: what happened</span></p>`;
+  const el = host.querySelector("svg"), pick = (e) => { const r = el.getBoundingClientRect(), px = ((e.clientX - r.left) / r.width) * W; setMoment(X0 + Math.round((((px - m.l) / (W - m.l - m.r)) * (X1 - X0)) / 60) * 60, true); };
+  el.onpointerdown = (e) => { el.setPointerCapture(e.pointerId); pick(e); el.onpointermove = (ev) => ev.buttons && pick(ev); }; el.onpointerup = () => (el.onpointermove = null);
 }
-new ResizeObserver(() => drawChart()).observe($("#answer"));
+function niceStep(raw) { const p = 10 ** Math.floor(Math.log10(raw)), n = raw / p; return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p; }
+new ResizeObserver(() => { if (!HAS_PLOTLY) drawChartFallback(); }).observe($("#answer"));
+
+/* ---- "Does it work?": evidence, day by day ---- */
+function drawErr(vol) {
+  const el = $("#ch-err"), by = vol.qlike_by_day || {}, ours = by[vol.champion]?.["900"], opt = by.implied?.["900"];
+  if (!ours || !opt) { el.textContent = "Not available."; return; }
+  const days = vol.test_days;
+  tableView($("#ch-err-t"), "Forecast error on each unseen day (15-minute forecast)", ["Day", "Our forecast", "Options market", "Closer"], days.map((d) => [d, ours[d].toFixed(3), opt[d].toFixed(3), ours[d] < opt[d] ? "Our forecast" : "Options market"]));
+  if (!HAS_PLOTLY) return noPlot(el);
+  const th = theme(), lab = days.map(shortDay);
+  const bar = (y, name, color) => ({ type: "bar", x: lab, y, name, width: 0.32, marker: { color, line: { color: th.surface, width: 2 } }, hovertemplate: `<b>%{y:.3f}</b> · ${name}<extra></extra>` });
+  const draw = () => paint("err", el, [bar(days.map((d) => ours[d]), "Our forecast", th.s1), bar(days.map((d) => opt[d]), "Options market", th.s2)],
+    baseLayout(theme(), { height: 340, barmode: "group", bargap: 0.3, bargroupgap: 0.06, hovermode: "x unified", dragmode: false, margin: { l: 58, r: 12, t: 8, b: 80 },
+      xaxis: axis(theme(), { type: "category", fixedrange: true }), yaxis: axis(theme(), { rangemode: "tozero", title: ytitle(theme(), "forecast error (lower is better)"), fixedrange: true }) }));
+  draw(); REDRAW.err = draw;
+}
+function drawCum(res) {
+  const el = $("#ch-cum"), days = res.test_days, champ = res.champion, fams = Object.keys(res.results).filter((f) => f !== "stay_out");
+  const cum = (a) => a.reduce((acc, v) => (acc.push((acc.at(-1) ?? 0) + v), acc), []), series = Object.fromEntries(fams.map((f) => [f, cum(res.results[f].per_day || [])]));
+  tableView($("#ch-cum-t"), "Cumulative result of the best model over the unseen days", ["Day", "That day", "Total so far"], days.map((d, k) => [d, rs(res.results[champ].per_day[k]), rs(series[champ][k])]));
+  if (!HAS_PLOTLY) return noPlot(el);
+  const lab = days.map(shortDay), draw = () => {
+    const th = theme(), others = fams.filter((f) => f !== champ);
+    const tr = others.map((f, k) => ({ type: "scatter", mode: "lines", x: lab, y: series[f], name: "Other models", legendgroup: "others", showlegend: k === 0, line: { color: th.muted, width: 1.5 }, opacity: 0.55, hovertemplate: `<b>%{y:,.0f}</b> ₹ · ${f}<br>after %{x}<extra></extra>` }));
+    tr.push({ type: "scatter", mode: "lines+markers", x: lab, y: series[champ], name: `Best model in training (${champ})`, line: { color: th.s1, width: 2 }, marker: { size: 8, color: th.s1, line: { color: th.surface, width: 2 } }, hovertemplate: `<b>%{y:,.0f}</b> ₹ · ${champ}<br>after %{x}<extra></extra>` });
+    paint("cum", el, tr, baseLayout(th, { height: 340, hovermode: "closest", dragmode: false, margin: { l: 66, r: 16, t: 14, b: 90 },
+      xaxis: axis(th, { type: "category", fixedrange: true }), yaxis: axis(th, { tickformat: ",d", title: ytitle(th, "total result so far (₹, after costs)"), fixedrange: true }),
+      shapes: [{ type: "line", xref: "paper", yref: "y", x0: 0, x1: 1, y0: 0, y1: 0, line: { color: th.muted, width: 1.5 } }],
+      annotations: [{ xref: "paper", yref: "y", x: 0, y: 0, yanchor: "bottom", xanchor: "left", text: "staying out: ₹0", showarrow: false, font: { size: 12, color: th.muted } },
+        { x: lab.at(-1), y: series[champ].at(-1), xanchor: "right", yanchor: "top", yshift: -8, text: `<b>${rs(series[champ].at(-1))}</b>`, showarrow: false, font: { size: 13, color: th.ink } }] }));
+  };
+  draw(); REDRAW.cum = draw;
+}
+function drawDrift(dd) {
+  S.driftData = dd;
+  const el = $("#drift-bars");
+  tableView($("#drift-tv"), "Share of inputs outside their normal range, per day", ["Day", "Share outside", "Kind of day"], dd.map((x) => [x.day, `${Math.round(x.share * 100)}%`, x.split === "test" ? "unseen" : "training"]));
+  if (!HAS_PLOTLY) return noPlot(el);
+  const draw = () => {
+    const th = theme(), part = (split, name, color) => { const q = dd.filter((x) => x.split === split); return { type: "bar", x: q.map((x) => x.day), y: q.map((x) => x.share * 100), name, marker: { color, line: { color: th.surface, width: 1 } }, hovertemplate: `<b>%{y:.0f}%</b> of inputs outside their normal range<br>%{x|%a %d %b} · ${name}<extra></extra>` }; };
+    const ticks = dd.filter((_, k) => k % 8 === 0).map((x) => x.day);
+    paint("drift", el, [part("dev", "Training days", th.muted), part("test", "Unseen days", th.s1)], baseLayout(th, { height: 300, barmode: "overlay", bargap: 0.25, hovermode: "closest", dragmode: false, margin: { l: 56, r: 16, t: 14, b: 84 },
+      xaxis: axis(th, { type: "category", tickmode: "array", tickvals: ticks, ticktext: ticks.map(shortDay), fixedrange: true }), yaxis: axis(th, { range: [0, 40], ticksuffix: "%", title: ytitle(th, "inputs outside their normal range"), fixedrange: true }),
+      shapes: [{ type: "line", xref: "paper", yref: "y", x0: 0, x1: 1, y0: 30, y1: 30, line: { color: th.ink, width: 1.5 } }],
+      annotations: [{ xref: "paper", yref: "y", x: 1, y: 30, xanchor: "right", yanchor: "bottom", text: "alarm level: 30%", showarrow: false, font: { size: 12, color: th.ink } }] }));
+  };
+  draw(); REDRAW.drift = () => S.driftData && drawDrift(S.driftData);
+}
+$("#drift-details").addEventListener("toggle", (e) => { if (e.target.open && S.driftData) requestAnimationFrame(() => drawDrift(S.driftData)); });
+
+/* ---- "How it's built": speed ---- */
+function drawThroughput(stages) {
+  const el = $("#ch-thr"), rows = stages.filter((s) => s.throughput).map((s) => [s.name, s.throughput.rows_per_s]).sort((a, b) => a[1] - b[1]);
+  if (!rows.length || !HAS_PLOTLY) { el.textContent = ""; return; }
+  const compact = (v) => (v >= 1e6 ? (v / 1e6).toFixed(1) + " M" : v >= 1e3 ? Math.round(v / 1e3) + " k" : String(v));
+  const draw = () => {
+    const th = theme();
+    paint("thr", el, [{ type: "bar", orientation: "h", x: rows.map((r) => r[1]), y: rows.map((r) => r[0]), width: 0.5, marker: { color: th.s1, line: { color: th.surface, width: 2 } }, text: rows.map((r) => compact(r[1])), textposition: "outside", cliponaxis: false, textfont: { family: FONT, size: 12, color: th.ink }, hovertemplate: "<b>%{x:,.0f}</b> rows per second<br>%{y}<extra></extra>" }],
+      baseLayout(th, { height: 46 * rows.length + 70, dragmode: false, hovermode: "closest", showlegend: false, margin: { l: 70, r: 60, t: 6, b: 56 },
+        xaxis: axis(th, { type: "log", range: [Math.log10(Math.min(...rows.map((r) => r[1]))) - 0.4, Math.log10(Math.max(...rows.map((r) => r[1]))) + 0.5], tickvals: [1e3, 1e4, 1e5, 1e6, 1e7], ticktext: ["1 k", "10 k", "100 k", "1 M", "10 M"], title: ytitle(th, "rows per second (log scale: each tick is 10 times more)"), fixedrange: true }), yaxis: axis(th, { fixedrange: true, automargin: true }) }));
+  };
+  draw(); REDRAW.thr = draw;
+}
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", redrawAll);
+
 
 function setMoment(t, user = false) {
   t = Math.min(X1, Math.max(X0, Math.round(t / 60) * 60));
   S.t = t; $("#t").value = t; $("#t").setAttribute("aria-valuetext", hm(t)); $("#clock").textContent = hm(t);
-  renderAnswer(); drawChart(); writeHash();
+  renderAnswer(); plotMoment(); writeHash();
   clearTimeout(S.timer); S.timer = setTimeout(loadSignal, user ? 250 : 0);
 }
 $("#t").addEventListener("input", (e) => setMoment(+e.target.value, true));
-$$("input[name=h]").forEach((r) => r.addEventListener("change", () => { S.h = +r.value; presetsEnable(); renderAnswer(); drawChart(); }));
+$$("input[name=h]").forEach((r) => r.addEventListener("change", () => { S.h = +r.value; presetsEnable(); renderAnswer(); plotForecast(); }));
 $("#step-b").addEventListener("click", () => setMoment(S.t - 300, true));
 $("#step-f").addEventListener("click", () => setMoment(S.t + 300, true));
 function argbest(fn, better) {
@@ -664,10 +834,10 @@ $("#play").addEventListener("click", () => {
 
 async function loadSeries(first = false) {
   S.series = null; $("#answer").setAttribute("aria-busy", "true"); skel($("#headline"), true); skel($("#subline"), true);
-  $("#stats").innerHTML = ""; $("#judge").innerHTML = ""; $("#chart").innerHTML = "";
+  $("#stats").innerHTML = ""; $("#judge").innerHTML = "";
   try {
     S.series = await api(`/vol/day?day=${encodeURIComponent(S.day)}`);
-    clearError(); presetsEnable();
+    clearError(); presetsEnable(); plotForecast();
     if (first && !S.fromHash) { const p = presetTimes(); if (p.busy) S.t = p.busy; }
     setMoment(S.t);
   } catch (e) { showError(e, () => loadSeries(first)); }
@@ -763,13 +933,14 @@ async function loadWorks() {
   $("#res-table").innerHTML = fams.sort((a, b) => res.results[b].cv_net_per_day - res.results[a].cv_net_per_day).map((f) => { const x = res.results[f];
     return `<tr><th scope="row" style="font-weight:600">${esc(f)} ${f === res.champion ? '<span class="tag">best in training</span>' : base.has(f) ? '<span class="tag">simple baseline</span>' : ""}</th><td class="n">${rs(x.cv_net_per_day)}</td><td class="n ${x.net_per_day > 0 ? "good" : x.net_per_day < 0 ? "bad" : ""}"><b>${rs(x.net_per_day)}</b></td>
       <td>${ciSvg(x.ci95_net_per_day[0], x.ci95_net_per_day[1], x.net_per_day, lo, hi)} <span class="num muted" style="font-size:13px">${rs(x.ci95_net_per_day[0])} to ${rs(x.ci95_net_per_day[1])}</span></td><td class="n">${x.trades}</td><td class="n">${x.trades ? Math.round(x.hit_rate * 100) + "%" : "—"}</td></tr>`; }).join("");
+  drawErr(vol); drawCum(res);
   $("#res-meta").textContent = `Unseen days: ${res.test_days[0]} to ${res.test_days.at(-1)}. ` + (res.cv ? `Training days: ${res.cv.dev_days[0]} to ${res.cv.dev_days[1]}. ${res.cv.trials} settings were tried.` : "");
   const imp = Object.entries(res.importance || {}), top = imp.length ? imp[0][1] : 1;
   $("#importance").innerHTML = imp.map(([k, x]) => `<div class="hbar"><span class="mono">${esc(k)}</span><div class="t" style="width:${(x / top) * 100}%"></div><span class="num muted">${(x * 100).toFixed(1)}%</span></div>`).join("") || '<p class="muted">No report.</p>';
   $("#ablation").innerHTML = Object.entries(res.ablation || {}).map(([g, d]) => `<tr><th scope="row" style="font-weight:600">${esc(g)}</th><td class="n ${d.net_per_day < 0 ? "bad" : "good"}">${rs(d.net_per_day)}</td></tr>`).join("");
   try {
-    const dd = await api("/drift/daily"), max = Math.max(0.35, ...dd.map((x) => x.share));
-    $("#drift-bars").innerHTML = dd.map((x) => `<div class="${x.split === "test" ? "test" : ""}" title="${x.day}: ${Math.round(x.share * 100)}%" style="height:${Math.max(2, (x.share / max) * 100)}%"></div>`).join("") + `<span class="limit" style="bottom:${(0.3 / max) * 100}%"></span>`;
+    const dd = await api("/drift/daily");
+    drawDrift(dd);
     const avg = (s) => { const q = dd.filter((x) => x.split === s); return q.length ? Math.round((q.reduce((a, x) => a + x.share, 0) / q.length) * 1000) / 10 : 0; };
     $("#drift-note").innerHTML = `Share of inputs outside their normal day-to-day range (${T("drift", "data drift")}). Average: ${avg("dev")}% on training days, ${avg("test")}% on unseen days. ${dd.filter((x) => x.drift).length} of ${dd.length} days crossed the alarm level.`;
   } catch { $("#drift-note").textContent = "Drift information is not available."; }
@@ -792,7 +963,7 @@ async function loadPipeline() {
         <b><span class="dot ${cls === "ok" ? "ok" : cls === "bad" ? "bad" : ""}"></span>${esc(s.name)}</b><span class="muted">${l ? `${l.status === "ok" ? "succeeded" : "FAILED"} · ${dur(l.duration_s)}${speed}` : "never run"}</span></button>`;
     }).join("")}</div>`).join("");
     $("#thr").innerHTML = p.stages.filter((x) => x.throughput).map((x) => `<tr><th scope="row" style="font-weight:600">${esc(x.name)}</th><td class="muted">${esc(x.throughput.unit)}</td><td class="n">${inr.format(x.throughput.rows)}</td><td class="n">${x.throughput.seconds.toFixed(1)}</td><td class="n"><b>${inr.format(x.throughput.rows_per_s)}</b></td></tr>`).join("") || '<tr><td colspan="5" class="muted">No runs yet.</td></tr>';
-    requestAnimationFrame(() => drawEdges(p.edges));
+    drawThroughput(p.stages); requestAnimationFrame(() => drawEdges(p.edges));
     $$(".node", dag).forEach((n) => n.addEventListener("click", () => { runFilter = runFilter === n.dataset.stage ? null : n.dataset.stage; loadPipeline(); }));
     clearError();
   } catch (e) { dag.innerHTML = ""; showError(e, loadPipeline); }

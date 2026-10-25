@@ -359,3 +359,24 @@ def test_vol_day_series_has_one_point_per_minute_and_hindsight_nulls(env, tmp_pa
     )
     assert "spot" not in seen["cols"] and not any(k.startswith("rv_fwd") for k in seen["cols"])
     assert c.get("/vol/day", params={"day": "2020-01-01"}).status_code == 404
+
+
+def test_vol_results_keeps_per_day_scores_of_champion_and_option_market_only(env, tmp_path):
+    from dataclasses import replace
+
+    (tmp_path / "vol").mkdir()
+    day = {"2026-10-01": 0.03, "2026-10-02": 0.04}
+    (tmp_path / "vol" / "test.json").write_text(
+        json.dumps(
+            {
+                "test_days": list(day),
+                "champion": "har_iv",
+                "verdict": {},
+                "results": {},
+                "qlike_by_day": {k: {"300": day, "900": day} for k in ("implied", "har", "har_iv", "lgbm")},
+            }
+        )
+    )
+    c = TestClient(create_app(replace(env, reports_dir=tmp_path), FakeModel(), FakeRegistry()))
+    r = c.get("/vol/results").json()
+    assert set(r["qlike_by_day"]) == {"har_iv", "implied"} and r["qlike_by_day"]["har_iv"]["900"] == day

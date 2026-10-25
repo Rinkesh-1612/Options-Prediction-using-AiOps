@@ -150,6 +150,49 @@ def run(url: str) -> dict:
                     fail("console", f"{w}px/{scheme}: {e}")
                 ctx.close()
 
+        # interactive charts: drawn, hover shows values, a click moves the selected time, fallback exists
+        ctx = browser.new_context(viewport={"width": 1280, "height": 900})
+        page = ctx.new_page()
+        page.goto(url + "#forecast&day=2026-10-13&t=35340", wait_until="networkidle")
+        page.wait_for_timeout(2000)
+        if not page.locator("#chart .main-svg").count():
+            fail("charts", "forecast chart was not drawn")
+        else:
+            page.locator("#chart").scroll_into_view_if_needed()
+            box = page.locator("#chart").bounding_box()
+            box = {"x": box["x"] + 70, "y": box["y"] + 20, "width": box["width"] - 90}
+            for k in range(4):
+                page.mouse.move(box["x"] + box["width"] * (0.5 + k * 0.01), box["y"] + 40)
+                page.wait_for_timeout(100)
+            page.wait_for_timeout(400)
+            if not page.locator(".hoverlayer text").count():
+                fail("charts", "no tooltip when the pointer is over the chart")
+            before = page.inner_text("#clock")
+            page.mouse.click(box["x"] + box["width"] * 0.8, box["y"] + 40)
+            page.wait_for_timeout(600)
+            if page.inner_text("#clock") == before:
+                fail("charts", "clicking the chart did not move the selected time")
+            page.click("[data-range=morning]")
+            page.wait_for_timeout(400)
+            if page.get_attribute("[data-range=morning]", "aria-pressed") != "true":
+                fail("charts", "range button did not zoom the chart")
+        if not page.locator("#chart-table table").count():
+            fail("charts", "no table twin for the forecast chart")
+        page.click("[role=tab][data-tab=works]")
+        page.wait_for_timeout(1500)
+        for cid in ("ch-err", "ch-cum"):
+            if not page.locator(f"#{cid} .main-svg").count():
+                fail("charts", f"#{cid} was not drawn")
+        ctx.close()
+        ctx = browser.new_context(viewport={"width": 1280, "height": 900})  # library blocked: SVG fallback must work
+        ctx.route("**/vendor/**", lambda r: r.abort())
+        page = ctx.new_page()
+        page.goto(url + "#forecast&day=2026-10-13&t=35340", wait_until="networkidle")
+        page.wait_for_timeout(1500)
+        if not page.locator("#chart svg.fb").count():
+            fail("charts", "no fallback chart when the chart library is missing")
+        ctx.close()
+
         # foolproof: API down -> readable alert with a way to retry
         ctx = browser.new_context(viewport={"width": 1440, "height": 900})
         page = ctx.new_page()
@@ -183,6 +226,7 @@ CHECKS = {
     "bad_text": "no 'undefined' / 'NaN' / 'null' text",
     "jargon": "jargon on the first screen is explained (term button) or folded away",
     "false_alarm": "no error alert while everything works",
+    "charts": "charts: drawn, tooltip, click selects a time, zoom buttons, table twin, fallback",
     "api_down": "API down: readable alert + Try again button",
     "tabs": "tabs exist",
 }

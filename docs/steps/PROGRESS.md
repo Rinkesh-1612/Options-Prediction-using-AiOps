@@ -11,7 +11,7 @@
 | [Model Training & Evaluation](model_training.md) | DONE (result: no edge on test days) |
 | [Model Deployment](deployment.md) | DONE |
 | [Model Monitoring & Maintenance](monitoring.md) | DONE |
-| [Web page (UI)](ui.md) | DONE (rebuilt for non-technical users; browser audit 12 of 12) |
+| [Web page (UI)](ui.md) | DONE (rebuilt for non-technical users; browser audit 13 of 13) |
 | [Second model: volatility forecaster](vol_model.md) | DONE (beats the option market on 10/10 test days) |
 | Documents: [architecture](../ARCHITECTURE.md), [HLD](../HLD.md), [LLD](../LLD.md), [test plan](../TEST_PLAN.md), [user manual](../USER_MANUAL.md) | DONE |
 

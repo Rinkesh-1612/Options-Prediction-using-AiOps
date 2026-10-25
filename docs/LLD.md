@@ -37,7 +37,8 @@ that happened after each minute (`null` where the data ends before the window do
 
 ### GET /vol/results
 Out: `reports/vol/test.json` (`champion, verdict{300, 900: mean_daily_qlike_diff, ci95, days_better,`
-`beats_implied}, results{forecaster: {300, 900: qlike, r2_log, corr_log}}`) + `cv`.
+`beats_implied}, results{forecaster: {300, 900: qlike, r2_log, corr_log}}`, `qlike_by_day{champion, implied:
+{300, 900: {day: qlike}}}`) + `cv`.
 
 ### GET /model
 Out: `{"champion": V, "previous": V}`, V = `{version, family, git_commit, deploy_check, metrics}`.

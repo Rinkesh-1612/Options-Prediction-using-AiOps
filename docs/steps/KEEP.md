@@ -20,7 +20,7 @@ Updated at each step.
 | `src/optpred/drift/` | stage drift + online drift (PSI) |
 | `src/optpred/serving/signal_api.py` | the API (signal, model, rollback, retrain, drift, webhook, metrics) |
 | `monitoring/` (prometheus, alerts, alertmanager, grafana dashboard) | monitoring and alerting |
-| `frontend/` (index.html, nginx.conf, Dockerfile, config.json, 40-config.sh) | the web page |
+| `frontend/` (index.html, nginx.conf, Dockerfile, config.json, 40-config.sh, vendor/ = Plotly.js) | the web page |
 | `tests/ui/`, `scripts/ui_screenshots.py`, `reports/ui_audit.md`, `reports/ui_audit_before_redesign.md`, `docs/UI_DESIGN.md` | UI audit, screenshots, design note |
 | `docker-compose.yml`, `stack`, `scripts/serve_model.sh`, `scripts/runner.sh` | serving stack, CD, rollback, retraining |
 | `scripts/encrypt_snapshot.sh` | AES-256 encryption of data + models (`--verify` checks a backup) |

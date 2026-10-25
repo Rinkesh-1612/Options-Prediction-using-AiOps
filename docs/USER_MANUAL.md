@@ -42,10 +42,13 @@ The **chart** shows the three over the whole day:
 | Line | Meaning |
 |---|---|
 | solid blue | our forecast |
-| dashed grey | the options market's expectation |
-| dotted orange | what actually happened afterwards |
+| dashed orange | the options market's expectation |
+| dotted green | what actually happened afterwards |
 
-The black vertical line is the selected time. Click or drag on the chart to move it.
+The NIFTY index is drawn below. The black vertical line is the selected time. The chart is interactive:
+point at it (or press and hold on a phone) to read the exact values of all lines; click or tap to move the selected time;
+drag to zoom in, double-click to zoom out; the buttons **Whole day / Morning / Midday / Afternoon** zoom to a part of the day;
+click a name in the legend to hide or show a line. **Table view of this chart** shows the same numbers as a table.
 
 **3. Should I buy a call or a put?** A yellow notice reminds you that this model is not proven, with its real result on
 unseen days. Below it the model's answer for the selected moment: **Buy a call**, **Buy a put** or **Stay out**. Open

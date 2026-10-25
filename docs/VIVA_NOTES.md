@@ -29,7 +29,7 @@ alerts) → automatic retraining. Result: **direction is not predictable after c
 |---|---|
 | Is the UX intuitive for your problem? | The first screen answers the trader's question in one sentence ("NIFTY is expected to move about 30 points over the next 15 minutes; the options market prices in 74"). Three numbered steps, a chart of the whole day, quick jumps to interesting moments. It opens on a real example, never on an empty screen. |
 | How did you design it? | With the UI/UX Pro Max skill (design rules for AI agents): Swiss minimalism, semantic colour tokens, light and dark, mobile first. I audited the skill's code before running it, used its rules, and rejected two of its suggestions (a marketing landing page and Google Fonts). |
-| How do you know it is free of UI errors and responsive? | A real-browser audit (Playwright): 12 checks at 375 / 768 / 1024 / 1440 px, light and dark. The first page failed 5 of 11; this one passes 12 of 12 (`reports/ui_audit.md`). |
+| How do you know it is free of UI errors and responsive? | A real-browser audit (Playwright): 13 checks at 375 / 768 / 1024 / 1440 px, light and dark. The first page failed 5 of 11; this one passes 13 of 13 (`reports/ui_audit.md`). |
 | Is it foolproof? | Only valid days and times can be chosen; destructive actions ask for confirmation; when the API fails the page shows a readable alert and a Try again button, never a raw error. |
 | Loose coupling? | The page is a static file that knows one address (`config.json`). A test checks that every path it calls is in the LLD. |
 
