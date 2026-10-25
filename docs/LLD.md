@@ -40,6 +40,25 @@ Out: `reports/vol/test.json` (`champion, verdict{300, 900: mean_daily_qlike_diff
 `beats_implied}, results{forecaster: {300, 900: qlike, r2_log, corr_log}}`, `qlike_by_day{champion, implied:
 {300, 900: {day: qlike}}}`) + `cv`.
 
+### GET /explore/days
+Out: one row per recorded day for the calendar: `{day, weekday, split (dev|test), source (train|oof|test), open, close, ret_pct, range_pct, dte, atm_iv, events[]}`.
+`events` holds `expiry` (dte 0), `big_move` (move ≥ 1% or range ≥ 1.5%) and `drift` (drift stage alarm).
+
+### GET /explore/iv/daily
+Out: per day `{day, split, iv, forecast, realized, iv_rich_share}`. All three volatilities are annual percent, averages over the
+minutes of the day; `realized` is hindsight; `forecast` is our champion volatility forecaster (`null` until stage `modelout` ran).
+`iv_rich_share` = share of minutes where the option market's volatility was above what then happened.
+
+### GET /explore/iv/day
+In (query): `day`. Out: one point per minute 09:30-15:00: `{day, sod[], spot[], iv[], realized[], forecast[]}` (annual percent).
+
+### GET /explore/iv/smile
+In (query): `day`, `t` (seconds of day). Out: the chain snapshot nearest to `t`: `{day, sod, spot, expiries[{expiry, dte, strikes[], call_iv[], put_iv[]}]}`.
+
+### GET /explore/iv/term
+In (query): `day`, `t`. Out: `{day, sod, at[{expiry, dte, iv}], series{sod[], near[], next[]}}`: ATM IV of each expiry at `t`
+and of the first two expiries through the day. 404 unknown day, 503 when the file is missing.
+
 ### GET /model
 Out: `{"champion": V, "previous": V}`, V = `{version, family, git_commit, deploy_check, metrics}`.
 Also `"vol": {version, family, deploy_check}`: the champion of the volatility forecaster `nifty-vol`.

@@ -15,6 +15,18 @@ It replays real NIFTY market days and answers two questions at any moment of the
 
 The page is **not** investment advice. It is a research system built on recorded market data.
 
+## The Explore page (new first tab)
+
+The page opens with a short **guided tour** (close it any time; reopen with "Show the guided tour"). Then, top to bottom:
+1. **Pick a day** in the calendar. ★ = unseen day (a fair test); E = expiry day; ! = big move; ~ = market-change alarm.
+2. **Implied volatility** (IV), four views: IV over the days, IV against our forecast and what happened, the smile (IV by
+   strike) and the term structure (IV by expiry). Click a dot to pick that day; use the time slider for smile and term.
+3. **Inside one day**: IV, our forecast and what happened by the minute, with the NIFTY index below. Click the chart to pick a
+   time. Every chart has a "Table view" with the same numbers.
+
+Steps 4 to 7 (strategies and payoffs, what each model said, the alpha test, the verdict) are being built. The older
+**Forecast** and **Does it work?** pages are described below and stay reachable at `#forecast` and `#works`.
+
 ## The screen
 
 ![Forecast tab](img/forecast.png)

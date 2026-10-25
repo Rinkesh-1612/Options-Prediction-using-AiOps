@@ -188,3 +188,27 @@ stages:
         cache: false
     - reports/vol/comparison.md:
         cache: false
+
+  modelout:
+    # what every model said at every minute of every day: read by the web page (docs/steps/ui.md)
+    cmd: python -m optpred.modelout.stage
+    params:
+    - vol
+    - zoo.n_test_days
+    - zoo.min_train_days
+    - zoo.val_days
+    - zoo.cpus
+    deps:
+    - src/optpred/modelout
+    - src/optpred/zoo
+    - src/optpred/vol
+    - data/grid
+    - data/feat
+    - data/labels
+    - data/days.json
+    - reports/zoo/cv.json
+    outs:
+    - data/modelout
+    metrics:
+    - reports/modelout.json:
+        cache: false

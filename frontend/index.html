@@ -219,6 +219,40 @@ dialog::backdrop { background: rgba(2, 6, 23, .6); }
 footer { color: var(--muted); font-size: 14px; padding: 0 0 24px; }
 .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 label.lbl { display: block; font-size: 14px; font-weight: 600; margin: 12px 0 6px; }
+/* explore (the story page) */
+.story { position: sticky; top: var(--hdr, 60px); z-index: 9; display: flex; gap: 8px; overflow-x: auto; padding: 8px 0; margin: 12px 0 0; background: var(--bg); scrollbar-width: thin; }
+.story a { flex: none; display: inline-flex; align-items: center; min-height: 46px; padding: 0 14px; border: 1px solid var(--line); border-radius: 999px; background: var(--surface); color: var(--ink); text-decoration: none; font-size: 15px; white-space: nowrap; }
+.story a:hover { background: var(--soft); }
+.story a.soon { color: var(--muted); }
+.story a[aria-current="true"] { border-color: var(--primary); font-weight: 600; }
+.card[id^="s-"] { scroll-margin-top: calc(var(--hdr, 60px) + 64px); }
+.tour { border-color: var(--primary); }
+.tour .shot { display: block; width: 100%; max-height: 300px; object-fit: cover; object-position: top; border: 1px solid var(--line); border-radius: 8px; margin: 12px 0; background: var(--soft); }
+.tour .dots { color: var(--muted); font-size: 14px; }
+.tour h2 { font-size: 20px; }
+.cal-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; }
+.cal-head b { font-size: 18px; }
+.cal-head .btn { min-width: 48px; }
+.cal { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.cal .dow { text-align: center; font-size: 14px; color: var(--muted); padding: 4px 0; }
+.cal button.day { min-height: 56px; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; padding: 2px; }
+.cal button.day:hover:not(:disabled) { background: var(--soft); }
+.cal button.day:disabled { background: transparent; border-style: dashed; color: var(--muted); cursor: default; }
+.cal button.day[aria-pressed="true"] { border: 2px solid var(--primary); background: var(--info-bg); font-weight: 700; }
+.cal button.day .d { font-size: 17px; }
+.cal button.day .m { font-size: 12px; color: var(--muted); min-height: 14px; letter-spacing: .02em; }
+.cal .pad { min-height: 56px; }
+.key { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 12px; font-size: 14px; color: var(--muted); }
+.dayinfo { margin-top: 14px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.dayinfo b { font-size: 17px; }
+.seg { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.seg .btn[aria-pressed="true"] { background: var(--info-bg); border-color: var(--primary); font-weight: 600; }
+.plot.tall { min-height: 360px; }
+.soon-card { border-style: dashed; }
+.soon-card h2 { font-size: 18px; }
+.soon-card ul { margin: 8px 0 0; padding-left: 20px; color: var(--muted); }
+.slider-row { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin: 4px 0 10px; }
+.slider-row input[type=range] { flex: 1; min-width: 160px; }
 </style>
 </head>
 <body>
@@ -252,27 +286,89 @@ label.lbl { display: block; font-size: 14px; font-weight: 600; margin: 12px 0 6p
     <button class="btn" id="help-btn" type="button"><svg class="i" aria-hidden="true"><use href="#i-help"/></svg>Help</button>
   </div>
   <nav class="tabs" role="tablist" aria-label="Sections">
-    <button class="tab" role="tab" id="t-forecast" data-tab="forecast" aria-controls="tab-forecast" aria-selected="true"><svg class="i" aria-hidden="true"><use href="#i-chart"/></svg>Forecast</button>
-    <button class="tab" role="tab" id="t-works" data-tab="works" aria-controls="tab-works" aria-selected="false" tabindex="-1"><svg class="i" aria-hidden="true"><use href="#i-check"/></svg>Does it work?</button>
+    <button class="tab" role="tab" id="t-explore" data-tab="explore" aria-controls="tab-explore" aria-selected="true"><svg class="i" aria-hidden="true"><use href="#i-chart"/></svg>Explore</button>
     <button class="tab" role="tab" id="t-pipeline" data-tab="pipeline" aria-controls="tab-pipeline" aria-selected="false" tabindex="-1"><svg class="i" aria-hidden="true"><use href="#i-flow"/></svg>How it's built</button>
     <button class="tab" role="tab" id="t-controls" data-tab="controls" aria-controls="tab-controls" aria-selected="false" tabindex="-1"><svg class="i" aria-hidden="true"><use href="#i-sliders"/></svg>Controls</button>
   </nav>
 </header>
 
 <main id="main" class="wrap" tabindex="-1">
-  <div id="tour" class="notice info banner" hidden>
-    <svg class="i" aria-hidden="true"><use href="#i-info"/></svg>
-    <div><b>First time here?</b> A 30-second guide explains what you see and what the words mean.
-      <div class="row" style="margin-top:8px"><button class="btn sm primary" id="tour-open" type="button">Open the guide</button><button class="btn sm" id="tour-skip" type="button">No thanks</button></div></div>
-  </div>
   <div id="alert" class="notice bad banner" role="alert" hidden>
     <svg class="i" aria-hidden="true"><use href="#i-alert"/></svg>
     <div><b id="alert-t">Something went wrong</b><p id="alert-m"></p>
       <div class="row"><button class="btn sm primary" id="alert-retry" type="button">Try again</button><button class="btn sm" id="alert-close" type="button">Dismiss</button></div></div>
   </div>
 
+  <!-- ======================= EXPLORE (the story) ======================= -->
+  <section id="tab-explore" role="tabpanel" aria-labelledby="t-explore">
+    <h1 class="page-title">NIFTY options: what the market priced, and what happened</h1>
+    <p class="lead">A guided look at our recorded NIFTY options data and the models built on it. Work top to bottom: pick a day, see its <button class="term" type="button" data-term="iv">implied volatility</button>, then look inside the day minute by minute.</p>
+    <div class="row" style="margin-top:12px"><button class="btn sm" id="tour-again" type="button"><svg class="i" aria-hidden="true"><use href="#i-info"/></svg>Show the guided tour</button></div>
+
+    <div class="stack" style="margin-top:16px">
+      <div class="card tour" id="tour" role="region" aria-labelledby="tour-h" hidden>
+        <div class="row" style="justify-content:space-between"><span class="dots" id="tour-dots">Step 1 of 6</span><button class="btn sm" id="tour-close" type="button">Close the tour</button></div>
+        <h2 id="tour-h">Welcome</h2>
+        <img class="shot" id="tour-img" alt="" hidden>
+        <p id="tour-text"></p>
+        <div class="row" style="margin-top:14px"><button class="btn sm" id="tour-back" type="button">Back</button><button class="btn sm primary" id="tour-next" type="button">Next</button></div>
+      </div>
+    </div>
+
+    <nav class="story" id="story" aria-label="Steps on this page">
+      <a href="#s-day">1 Pick a day</a><a href="#s-iv">2 Implied volatility</a><a href="#s-intra">3 Inside one day</a>
+      <a class="soon" href="#s-next">4–7 Strategies, models, verdict (next)</a>
+    </nav>
+
+    <div class="stack" style="margin-top:8px">
+      <div class="card" id="s-day" aria-labelledby="day-h">
+        <h2 class="step" id="day-h"><span class="n" aria-hidden="true">1</span>Pick a day</h2>
+        <div class="cal-head"><button class="btn sm" id="cal-prev" type="button" aria-label="Earlier month">◀</button><b id="cal-title" aria-live="polite">—</b><button class="btn sm" id="cal-next" type="button" aria-label="Later month">▶</button></div>
+        <div class="cal" id="cal" role="group" aria-label="Trading days"></div>
+        <p class="key"><span>★ unseen day (a fair test)</span><span>E expiry day</span><span>! big move</span><span>~ market-change alarm</span><span>dashed = no data</span></p>
+        <div class="dayinfo" id="dayinfo" aria-live="polite">Loading the days…</div>
+      </div>
+
+      <div class="card" id="s-iv" aria-labelledby="iv-h">
+        <h2 class="step" id="iv-h"><span class="n" aria-hidden="true">2</span>Implied volatility</h2>
+        <p class="muted" style="margin-bottom:12px">Option prices contain a guess of how much NIFTY will swing. That guess is the <button class="term" type="button" data-term="iv">implied volatility</button>. Pick a view:</p>
+        <div class="seg" role="group" aria-label="Choose a view">
+          <button class="btn sm" type="button" data-iv="time" aria-pressed="true">IV over the days</button>
+          <button class="btn sm" type="button" data-iv="forecast" aria-pressed="false">IV vs our forecast</button>
+          <button class="btn sm" type="button" data-iv="smile" aria-pressed="false">Smile</button>
+          <button class="btn sm" type="button" data-iv="term" aria-pressed="false">Term structure</button>
+        </div>
+        <div class="slider-row" id="iv-time" hidden><label for="t-iv" class="lbl" style="margin:0">Time of day <b class="clock mono" id="clock-iv">11:00</b></label><input type="range" id="t-iv" min="34200" max="54000" step="60" value="39600"></div>
+        <figure class="chart" style="margin:0"><div id="ch-iv" class="plot tall" role="img" aria-label="Implied volatility chart"></div><div id="ch-iv-t"></div>
+          <figcaption id="iv-note"></figcaption></figure>
+      </div>
+
+      <div class="card" id="s-intra" aria-labelledby="intra-h">
+        <h2 class="step" id="intra-h"><span class="n" aria-hidden="true">3</span>Inside one day</h2>
+        <p class="muted" id="intra-lead" style="margin-bottom:8px">Pick a day above.</p>
+        <div class="slider-row"><label for="t-intra" class="lbl" style="margin:0">Time of day <b class="clock mono" id="clock-intra">11:00</b></label><input type="range" id="t-intra" min="34200" max="54000" step="60" value="39600">
+          <button class="btn sm" id="e-back" type="button">−5 min</button><button class="btn sm" id="e-fwd" type="button">+5 min</button></div>
+        <div class="stats" id="intra-stats" style="grid-template-columns:repeat(auto-fit,minmax(200px,1fr))"></div>
+        <p class="judge" id="intra-judge" style="margin-top:12px"></p>
+        <figure class="chart"><div id="ch-intra" class="plot tall" role="img" aria-label="One day by the minute"></div><div id="ch-intra-t"></div>
+          <figcaption>Point at the chart to read the values. Click or tap to choose a time. Drag to zoom, double-click to zoom out. Volatility is a yearly percentage.</figcaption></figure>
+      </div>
+
+      <div class="card soon-card" id="s-next" aria-labelledby="next-h">
+        <h2 id="next-h">4–7 Coming next</h2>
+        <ul>
+          <li><b>4 Strategies at that moment:</b> long call or put, straddle, strangle, short straddle, spreads, your own legs. Profit after costs, best one in hindsight, payoff diagram.</li>
+          <li><b>5 What each model said:</b> volatility forecasters, direction models, deep models and baselines, side by side, with the real result.</li>
+          <li><b>6 The alpha test:</b> on unseen days only: the IV rich or cheap rule, a model that picks the structure, the direction signal and the equity curve.</li>
+          <li><b>7 Verdict:</b> what works and what does not, in plain words.</li>
+        </ul>
+        <div class="row" style="margin-top:10px"><span class="muted">Older pages, until these steps replace them:</span><a class="btn sm" href="#forecast">Forecast</a><a class="btn sm" href="#works">Does it work?</a></div>
+      </div>
+    </div>
+  </section>
+
   <!-- ======================= FORECAST ======================= -->
-  <section id="tab-forecast" role="tabpanel" aria-labelledby="t-forecast">
+  <section id="tab-forecast" role="tabpanel" aria-labelledby="t-forecast" hidden>
     <h1 class="page-title">How much will NIFTY move next?</h1>
     <p class="lead">This page replays real market days. Pick a moment and see what our model expects, what the <button class="term" type="button" data-term="options">options market</button> expects, and what really happened.</p>
 
@@ -468,6 +564,9 @@ const GLOSSARY = {
   hindsight: ["Hindsight", "What really happened afterwards. The model cannot see it when it forecasts. It is shown so that you can judge the forecast."],
   callput: ["Call and put", "A call gains when NIFTY goes up. A put gains when it goes down. Buying one is a bet on the direction."],
   spread: ["Spread and costs", "You buy at the higher price (the ask) and sell at the lower price (the bid). That gap, plus taxes and fees, is paid on every trade. 'After costs' means these are already subtracted."],
+  iv: ["Implied volatility (IV)", "How much movement the option prices say to expect, as a yearly percentage. A value of 16 means a typical one-day move of about 1%. High IV = expensive options."],
+  smile: ["Smile", "Implied volatility at each strike on the same day. Far-away strikes usually cost more per unit of risk, so the curve bends up like a smile."],
+  term: ["Term structure", "Implied volatility of each expiry date. Near expiries are often higher on expiry day because the market expects big moves right away."],
   unseen: ["Unseen days", "Days the models never saw while they were built or chosen. The only fair test."],
   interval: ["95% interval", "The range in which the true average most likely lies. If it includes zero, the result may be just luck."],
   edge: ["Edge", "A real, repeatable advantage after costs. 'No edge' means we could not tell the result from luck."],
@@ -534,9 +633,6 @@ document.addEventListener("keydown", (e) => { if (e.key === "Escape") closeTip()
 addEventListener("scroll", closeTip, { passive: true });
 $("#help-btn").addEventListener("click", () => $("#help").showModal());
 $("#help-close").addEventListener("click", () => $("#help").close());
-$("#tour-open").addEventListener("click", () => { $("#help").showModal(); dismissTour(); });
-$("#tour-skip").addEventListener("click", dismissTour);
-function dismissTour() { $("#tour").hidden = true; try { localStorage.setItem("tour_seen", "1"); } catch {} }
 function askConfirm(title, text, yes) {
   $("#confirm-h").textContent = title; $("#confirm-m").textContent = text; $("#confirm-yes").textContent = yes;
   const d = $("#confirm"); d.showModal();
@@ -547,20 +643,21 @@ function askConfirm(title, text, yes) {
 }
 
 /* ---------- tabs ---------- */
-const TABS = ["forecast", "works", "pipeline", "controls"], OLD = { signal: "forecast", results: "works", ops: "controls" };
+const TABS = ["explore", "forecast", "works", "pipeline", "controls"], OLD = { signal: "forecast", results: "works", ops: "controls" };
 function show(tab, push = true) {
   tab = OLD[tab] || tab;
-  if (!TABS.includes(tab)) tab = "forecast";
+  if (!TABS.includes(tab)) tab = "explore";
   $$("[role=tab]").forEach((b) => { const on = b.dataset.tab === tab; b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1; });
   $$("[role=tabpanel]").forEach((p) => (p.hidden = p.id !== "tab-" + tab));
   if (push) writeHash(tab);
-  if (!S.loadedTabs[tab]) { S.loadedTabs[tab] = true; ({ works: loadWorks, pipeline: loadPipeline, controls: loadControls })[tab]?.(); }
+  if (!S.loadedTabs[tab]) { S.loadedTabs[tab] = true; ({ explore: loadExplore, forecast: loadForecastTab, works: loadWorks, pipeline: loadPipeline, controls: loadControls })[tab]?.(); }
   requestAnimationFrame(() => (tab === "forecast" ? plotForecast() : redrawAll()));
 }
 function writeHash(tab) {
   const cur = $$("[role=tab]").find((b) => b.getAttribute("aria-selected") === "true")?.dataset.tab;
   tab = tab || cur;
-  history.replaceState(null, "", "#" + tab + (tab === "forecast" && S.day ? `&day=${S.day}&t=${S.t}` : ""));
+  const q = tab === "forecast" && S.day ? `&day=${S.day}&t=${S.t}` : tab === "explore" && E.day ? `&day=${E.day}&t=${E.t}&iv=${E.mode}` : "";
+  history.replaceState(null, "", "#" + tab + q);
 }
 $$("[role=tab]").forEach((b, i, all) => {
   b.addEventListener("click", () => show(b.dataset.tab));
@@ -645,6 +742,7 @@ function tableView(host, caption, headers, rows) {
 }
 function noPlot(el) { el.innerHTML = '<p class="hint">The interactive chart could not be loaded. The table below has the same numbers.</p>'; }
 function paint(name, el, data, layout) {  // draw (or redraw) one chart; a hidden tab has no width, so it waits until shown
+  if (!HAS_PLOTLY) { noPlot(el); return Promise.resolve(); }
   return el.clientWidth ? Plotly.react(el, data, layout, PCONF) : Promise.resolve();
 }
 const redrawAll = () => Object.values(REDRAW).forEach((f) => f());
@@ -1049,6 +1147,241 @@ $("#retrain").addEventListener("click", async () => {
   finally { setTimeout(() => ($("#retrain").disabled = false), 3000); }
 });
 
+/* ---------- explore (the story page) ---------- */
+const E = { days: null, daily: null, day: null, t: 39600, mode: "time", intra: null, smile: null, term: null, month: null, step: 0, timer: null };
+const TOUR = [
+  ["What this page is", "A demonstration built on our own recorded NIFTY options data (every minute of every trading day, since August). It shows what the options market expected, what we forecast, and what really happened. It is research, not advice.", "tour-1.png"],
+  ["Step 1: pick a day", "Days with a ★ are unseen days: no model saw them while it was built, so they are the fair test. The other days were used for training, so results on them are shown with a warning. Letters mark expiry days (E), big moves (!) and market-change alarms (~).", "tour-2.png"],
+  ["Step 2: implied volatility", "Implied volatility (IV) is the market's guess of how much NIFTY will swing, read from option prices. Four views: IV over the days, IV against our own forecast and what happened, the smile (IV by strike) and the term structure (IV by expiry).", "tour-3.png"],
+  ["Step 3: inside one day", "The same day by the minute. Click the chart to choose a time. You see the market's IV, our forecast and what happened after that time. The index is drawn underneath.", "tour-4.png"],
+  ["Next: strategies and models", "At the chosen moment you will see what a call, a put, a straddle or a spread would have made after costs, which one was best in hindsight, and what each model said. (Coming in the next version of this page.)", ""],
+  ["Be honest about the result", "Our volatility forecast beat the options market on every unseen day. Models that pick a direction (call or put) found no edge. The page shows both plainly.", ""],
+];
+const swatch = (cls, dash) => `<svg class="sw" viewBox="0 0 28 10" aria-hidden="true"><line x1="0" y1="5" x2="28" y2="5" stroke="var(${cls})" stroke-width="${dash ? 2 : 3}" ${dash ? `stroke-dasharray="${dash}"` : ""}/></svg>`;
+const pct = (v, nd = 1) => (v == null ? "—" : v.toFixed(nd) + "%");
+const longDay = (d) => new Date(d + "T00:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+const monthName = (m) => new Date(m + "-01T00:00:00").toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+
+/* tour */
+function tourDraw() {
+  const [h, text, img] = TOUR[E.step];
+  $("#tour-h").textContent = h; $("#tour-text").textContent = text;
+  $("#tour-dots").textContent = `Step ${E.step + 1} of ${TOUR.length}`;
+  const im = $("#tour-img"); im.hidden = !img; im.alt = img ? "Screenshot: " + h : ""; if (img) im.src = "img/" + img;
+  im.onerror = () => (im.hidden = true);
+  $("#tour-back").disabled = E.step === 0; $("#tour-next").textContent = E.step === TOUR.length - 1 ? "Finish" : "Next";
+}
+function tourClose() { $("#tour").hidden = true; try { localStorage.setItem("tour2_seen", "1"); } catch {} }
+function tourOpen(scroll = true) { E.step = 0; tourDraw(); $("#tour").hidden = false; if (scroll) $("#tour").scrollIntoView({ block: "nearest" }); }
+$("#tour-close").addEventListener("click", tourClose);
+$("#tour-again").addEventListener("click", () => tourOpen());
+$("#tour-back").addEventListener("click", () => { E.step = Math.max(0, E.step - 1); tourDraw(); });
+$("#tour-next").addEventListener("click", () => { if (E.step === TOUR.length - 1) return tourClose(); E.step++; tourDraw(); });
+
+/* load */
+async function loadExplore() {
+  try {
+    [E.days, E.daily] = await Promise.all([api("/explore/days"), api("/explore/iv/daily")]);
+    clearError();
+  } catch (e) { E.days = null; showError(e, () => { S.loadedTabs.explore = false; show("explore", false); }); S.loadedTabs.explore = false; return; }
+  if (!E.days.length) { $("#dayinfo").textContent = "No days are available yet."; return; }
+  const have = new Set(E.days.map((d) => d.day));
+  if (!E.day || !have.has(E.day)) { const big = E.days.filter((d) => d.split === "test" && d.events.includes("big_move")).at(-1); E.day = (big || E.days.at(-1)).day; }
+  E.month = E.day.slice(0, 7);
+  drawCal(); drawDayInfo(); drawIv(); loadIntra();
+}
+
+/* calendar */
+function drawCal() {
+  const months = [...new Set(E.days.map((d) => d.day.slice(0, 7)))], i = months.indexOf(E.month);
+  $("#cal-title").textContent = monthName(E.month); $("#cal-prev").disabled = i <= 0; $("#cal-next").disabled = i >= months.length - 1;
+  const by = Object.fromEntries(E.days.map((d) => [d.day, d]));
+  const first = new Date(E.month + "-01T00:00:00"), last = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+  let html = ["Mon", "Tue", "Wed", "Thu", "Fri"].map((n) => `<div class="dow" aria-hidden="true">${n}</div>`).join("");
+  const lead = (first.getDay() + 6) % 7; if (lead < 5) html += '<div class="pad"></div>'.repeat(lead);
+  for (let n = 1; n <= last; n++) {
+    const dt = new Date(first.getFullYear(), first.getMonth(), n), wd = (dt.getDay() + 6) % 7; if (wd > 4) continue;
+    const key = `${E.month}-${pad(n)}`, d = by[key];
+    const marks = d ? (d.split === "test" ? "★" : "") + (d.events.includes("expiry") ? "E" : "") + (d.events.includes("big_move") ? "!" : "") + (d.events.includes("drift") ? "~" : "") : "";
+    const say = d ? `${longDay(key)}${d.split === "test" ? ", unseen day" : ", training day"}${d.events.includes("expiry") ? ", expiry day" : ""}${d.events.includes("big_move") ? ", big move" : ""}` : `${longDay(key)}, no data`;
+    html += `<button class="day" type="button" data-day="${key}" ${d ? "" : "disabled"} aria-pressed="${key === E.day}" aria-label="${esc(say)}"><span class="d">${n}</span><span class="m" aria-hidden="true">${marks}</span></button>`;
+  }
+  $("#cal").innerHTML = html;
+}
+$("#cal").addEventListener("click", (e) => { const b = e.target.closest("button.day"); if (b) selectDay(b.dataset.day); });
+$("#cal-prev").addEventListener("click", () => { const m = [...new Set(E.days.map((d) => d.day.slice(0, 7)))]; E.month = m[Math.max(0, m.indexOf(E.month) - 1)]; drawCal(); });
+$("#cal-next").addEventListener("click", () => { const m = [...new Set(E.days.map((d) => d.day.slice(0, 7)))]; E.month = m[Math.min(m.length - 1, m.indexOf(E.month) + 1)]; drawCal(); });
+function selectDay(day) {
+  E.day = day; E.month = day.slice(0, 7); drawCal(); drawDayInfo(); drawIv(); loadIntra(); writeHash();
+}
+function drawDayInfo() {
+  const d = E.days.find((x) => x.day === E.day); if (!d) return;
+  const ev = { expiry: "expiry day", big_move: "big move", drift: "market-change alarm" };
+  const fair = d.split === "test"
+    ? '<span class="tag good">★ unseen day: a fair test</span>'
+    : '<span class="tag warn">training day: the models saw it, so results here are not a fair test</span>';
+  $("#dayinfo").innerHTML = `<b>${esc(longDay(d.day))}</b> ${fair}<p style="margin-top:6px">NIFTY ${d.ret_pct >= 0 ? "rose" : "fell"} <b>${Math.abs(d.ret_pct).toFixed(2)}%</b> (open ${inr.format(d.open)}, close ${inr.format(d.close)}; high to low ${d.range_pct.toFixed(2)}%). Average ATM <button class="term" type="button" data-term="iv">implied volatility</button>: <b>${pct(d.atm_iv)}</b>. ${d.events.length ? "Marked: " + d.events.map((x) => ev[x]).join(", ") + "." : ""}</p>`;
+}
+
+/* implied volatility: four views */
+$$("[data-iv]").forEach((b) => b.addEventListener("click", () => { E.mode = b.dataset.iv; $$("[data-iv]").forEach((x) => x.setAttribute("aria-pressed", String(x === b))); drawIv(); writeHash(); }));
+function band(th, days) {  // shade the unseen days (positions on a category axis are the day numbers)
+  const u = days.map((d, k) => (d.split === "test" ? k : -1)).filter((k) => k >= 0); if (!u.length) return [];
+  return [{ type: "rect", xref: "x", yref: "paper", x0: u[0] - 0.5, x1: u.at(-1) + 0.5, y0: 0, y1: 1, fillcolor: th.line, opacity: 0.35, line: { width: 0 }, layer: "below" }];
+}
+function dayAxis(th, days) {
+  const ticks = days.filter((_, k) => k % Math.max(1, Math.round(days.length / 8)) === 0).map((d) => d.day);
+  return axis(th, { type: "category", tickmode: "array", tickvals: ticks, ticktext: ticks.map(shortDay), fixedrange: true });
+}
+function drawIv() {
+  const el = $("#ch-iv"), note = $("#iv-note"), m = E.mode;
+  $("#iv-time").hidden = !(m === "smile" || m === "term");
+  if (!E.daily) return;
+  if (m === "time" || m === "forecast") return drawIvDays(el, note, m);
+  drawIvDay(el, note, m);
+}
+function drawIvDays(el, note, m) {
+  const D = E.daily, meta = Object.fromEntries(E.days.map((d) => [d.day, d])), days = D.map((d) => ({ day: d.day, split: d.split }));
+  const x = D.map((d) => d.day), hasF = D.some((d) => d.forecast != null);
+  const rows = D.map((d) => [d.day, pct(d.iv), d.forecast == null ? "—" : pct(d.forecast), pct(d.realized), d.split === "test" ? "unseen" : "training"]);
+  tableView($("#ch-iv-t"), "Implied volatility per day", ["Day", "Options market IV", "Our forecast", "What happened", "Kind of day"], rows);
+  el.setAttribute("aria-label", m === "time" ? "Average implied volatility of each day" : "Implied volatility, our forecast and realized volatility of each day");
+  const draw = () => {
+    const th = theme(), line = (y, name, color, dash) => ({ type: "scatter", mode: "lines+markers", x, y, name, line: { color, width: 2, dash }, marker: { size: 5, color }, customdata: x.map((d) => shortDay(d)), hovertemplate: `<b>%{y:.1f}%</b> · ${name}<extra></extra>` });
+    const data = [line(D.map((d) => d.iv), "Options market (IV)", th.s2, "dash")];
+    if (m === "forecast") { if (hasF) data.push(line(D.map((d) => d.forecast), "Our forecast", th.s1, "solid")); data.push(line(D.map((d) => d.realized), "What happened (hindsight)", th.s3, "dot")); }
+    else {
+      const ev = (key, name, symbol) => { const q = D.filter((d) => meta[d.day]?.events.includes(key)); return { type: "scatter", mode: "markers", x: q.map((d) => d.day), y: q.map((d) => d.iv), name, marker: { symbol, size: 11, color: th.ink, line: { color: th.surface, width: 1.5 } }, hovertemplate: `${name}<extra></extra>` }; };
+      data.push(ev("expiry", "Expiry day", "triangle-up"), ev("big_move", "Big move day", "diamond"), ev("drift", "Market-change alarm", "x"));
+    }
+    const k = Math.max(0, x.indexOf(E.day)), sel = [{ type: "line", xref: "x", yref: "paper", x0: k, x1: k, y0: 0, y1: 1, line: { color: th.ink, width: 2 } }];
+    paint("iv", el, data, baseLayout(th, { height: 380, hovermode: "x unified", dragmode: false, margin: { l: 58, r: 16, t: 8, b: 96 }, xaxis: dayAxis(th, days), yaxis: axis(th, { rangemode: "tozero", ticksuffix: "%", title: ytitle(th, "volatility, yearly %"), fixedrange: true }), shapes: [...band(th, days), ...sel] })).then(() => {
+      if (el._iv) return; el._iv = true; el.on("plotly_click", (ev) => { const d = ev.points?.[0]?.x; if (d && /^\d{4}-/.test(d)) selectDay(d); });
+    });
+  };
+  draw(); REDRAW.iv = () => (E.mode === "time" || E.mode === "forecast" ? drawIvDays(el, note, E.mode) : drawIvDay(el, note, E.mode));
+  const u = D.filter((d) => d.split === "test");
+  if (m === "time") note.textContent = "Each dot is one day. The grey band marks the unseen days. Triangles are expiry days, diamonds are big-move days. Click a dot to pick that day.";
+  else if (!hasF) note.textContent = "Our forecast appears here after the model outputs are computed.";
+  else {
+    const above = u.filter((d) => d.forecast != null && d.iv > d.forecast).length, closer = u.filter((d) => d.forecast != null && Math.abs(d.forecast - d.realized) < Math.abs(d.iv - d.realized)).length;
+    note.textContent = `On ${u.length} unseen days: the options market's volatility was above our forecast on ${above}, and our forecast was closer to what happened than the options market on ${closer}. Averages over the minutes of each day.`;
+  }
+}
+async function drawIvDay(el, note, m) {
+  const t = E.t;
+  try {
+    const q = `day=${encodeURIComponent(E.day)}&t=${t}`;
+    const d = m === "smile" ? await api(`/explore/iv/smile?${q}`) : await api(`/explore/iv/term?${q}`);
+    if (m !== E.mode) return;
+    if (m === "smile") return drawSmile(el, note, d);
+    drawTerm(el, note, d);
+  } catch (e) { el.innerHTML = `<p class="hint">${esc(friendly(e))}</p>`; }
+}
+function drawSmile(el, note, d) {
+  const exps = d.expiries;
+  tableView($("#ch-iv-t"), "Implied volatility by strike", ["Strike", ...exps.flatMap((e) => [`Call IV ${e.expiry}`, `Put IV ${e.expiry}`])], exps[0].strikes.map((k, i) => [inr.format(k), ...exps.flatMap((e) => [pct(e.call_iv[i]), pct(e.put_iv[i])])]));
+  el.setAttribute("aria-label", `Implied volatility by strike at ${hm(d.sod)}`);
+  const draw = () => {
+    const th = theme(), cols = [th.s2, th.s1], data = exps.flatMap((e, i) => [
+      { type: "scatter", mode: "lines+markers", x: e.strikes, y: e.call_iv, name: `Call · expires ${shortDay(e.expiry)} (${e.dte} d)`, line: { color: cols[i % 2], width: 2 }, marker: { size: 5 }, hovertemplate: "<b>%{y:.1f}%</b> call IV<extra></extra>" },
+      { type: "scatter", mode: "lines+markers", x: e.strikes, y: e.put_iv, name: `Put · expires ${shortDay(e.expiry)} (${e.dte} d)`, line: { color: cols[i % 2], width: 2, dash: "dash" }, marker: { size: 5, symbol: "square" }, hovertemplate: "<b>%{y:.1f}%</b> put IV<extra></extra>" }]);
+    paint("iv", el, data, baseLayout(th, { height: 392, hovermode: "x unified", dragmode: false, margin: { l: 58, r: 16, t: 24, b: 130 }, xaxis: axis(th, { tickformat: ",d", title: ytitle(th, "strike"), fixedrange: true }), yaxis: axis(th, { ticksuffix: "%", title: ytitle(th, "implied volatility, yearly %"), fixedrange: true }), shapes: [{ type: "line", xref: "x", yref: "paper", x0: d.spot, x1: d.spot, y0: 0, y1: 1, line: { color: th.ink, width: 2 } }], annotations: [{ x: d.spot, xref: "x", yref: "paper", y: 1, yanchor: "bottom", text: `NIFTY ${inr.format(d.spot)}`, showarrow: false, font: { size: 12, color: th.ink } }] }));
+  };
+  draw(); REDRAW.iv = () => drawIvDay(el, $("#iv-note"), E.mode);
+  note.innerHTML = `The ${T("smile", "smile")}: implied volatility at each strike on ${longDay(E.day)} at ${hm(d.sod)}. The black line is where NIFTY stood. Change the time with the slider above.`;
+}
+function drawTerm(el, note, d) {
+  const s = d.series, cap = (e) => `${shortDay(e.expiry)} (${e.dte} d)`;
+  tableView($("#ch-iv-t"), "ATM implied volatility of the first two expiries", ["Time", "Near expiry", "Next expiry"], s.sod.filter((_, k) => k % 15 === 0).map((v, k) => [hm(v), pct(s.near[k * 15]), pct(s.next[k * 15])]));
+  el.setAttribute("aria-label", "At-the-money implied volatility of the first two expiries through the day");
+  const x = s.sod.map((v) => iso(E.day, v)), xs = iso(E.day, d.sod);
+  const draw = () => {
+    const th = theme(), line = (y, name, color, dash) => ({ type: "scatter", mode: "lines", x, y, name, line: { color, width: 2, dash }, connectgaps: false, hovertemplate: `<b>%{y:.1f}%</b> · ${name}<extra></extra>` });
+    paint("iv", el, [line(s.near, `Near expiry ${d.at[0] ? cap(d.at[0]) : ""}`, th.s2, "dash"), line(s.next, `Next expiry ${d.at[1] ? cap(d.at[1]) : ""}`, th.s1, "solid")], baseLayout(th, { height: 380, hovermode: "x unified", dragmode: false, margin: { l: 58, r: 16, t: 8, b: 96 }, xaxis: axis(th, { type: "date", tickformat: "%H:%M", hoverformat: "%H:%M", fixedrange: true }), yaxis: axis(th, { ticksuffix: "%", title: ytitle(th, "ATM implied volatility, yearly %"), fixedrange: true }), shapes: [{ type: "line", xref: "x", yref: "paper", x0: xs, x1: xs, y0: 0, y1: 1, line: { color: th.ink, width: 2 } }] }));
+  };
+  draw(); REDRAW.iv = () => drawIvDay(el, $("#iv-note"), E.mode);
+  const [a, b] = d.at;
+  note.innerHTML = a && b ? `The ${T("term", "term structure")} at ${hm(d.sod)}: the expiry in ${a.dte} day${a.dte === 1 ? "" : "s"} is priced at ${pct(a.iv)}, the next one (${b.dte} days) at ${pct(b.iv)}. ${a.iv > b.iv ? "Near-term options cost more per unit of time: the market expects a move soon." : "Later expiries cost more: the market expects calm now."}` : "Only one expiry is in the data at this moment.";
+}
+
+/* one day by the minute */
+async function loadIntra() {
+  const day = E.day; skel($("#intra-lead"), true);
+  try {
+    const d = await api(`/explore/iv/day?day=${encodeURIComponent(day)}`);
+    if (day !== E.day) return;
+    E.intra = d; skel($("#intra-lead"), false); clearError();
+    $("#intra-lead").textContent = `${longDay(day)}. Options market volatility, our forecast and what happened, one point per minute.`;
+    plotIntra(); intraMoment();
+  } catch (e) { skel($("#intra-lead"), false); showError(e, loadIntra); }
+}
+const iIdx = () => Math.round((E.t - 34200) / 60);
+function intraVals() {
+  const d = E.intra, i = iIdx(); if (!d) return {};
+  return { iv: d.iv[i], f: d.forecast?.[i], re: d.realized[i], spot: d.spot[i] };
+}
+function intraMoment() {
+  const d = E.intra; if (!d) return;
+  const { iv, f, re } = intraVals();
+  $("#intra-stats").innerHTML = `
+    <div class="stat"><div class="lab">${swatch("--c-implied", "6 4")}${T("options", "Options market")}</div><div class="val num">${pct(iv)}</div><div class="cap">implied volatility now</div></div>
+    <div class="stat"><div class="lab">${swatch("--c-forecast")}${T("forecast", "Our forecast")}</div><div class="val num">${f == null ? "—" : pct(f)}</div><div class="cap">${f == null ? "not computed yet" : "for the next 15 minutes"}</div></div>
+    <div class="stat"><div class="lab">${swatch("--c-real", "2 3")}${T("hindsight", "What happened")}</div><div class="val num">${pct(re)}</div><div class="cap">${re == null ? "not known yet at this time" : "over the next 15 minutes (hindsight)"}</div></div>`;
+  const j = $("#intra-judge");
+  if (iv != null && re != null) {
+    const rich = iv > re, close = f != null ? (Math.abs(f - re) < Math.abs(iv - re) ? "Our forecast was closer to what happened." : "The options market was closer.") : "";
+    j.innerHTML = `<span>Options were <b>${rich ? "expensive" : "cheap"}</b> at ${hm(E.t)}: they priced ${pct(iv)} and ${pct(re)} happened. ${close}</span>`;
+  } else j.textContent = "";
+  $("#clock-intra").textContent = $("#clock-iv").textContent = hm(E.t); $("#t-intra").value = $("#t-iv").value = E.t;
+  plotIntraMoment();
+}
+function plotIntra() {
+  REDRAW.intra = plotIntra;
+  const el = $("#ch-intra"), d = E.intra; if (!d || !el.clientWidth) return;
+  const x = d.sod.map((s) => iso(E.day, s)), hasF = !!d.forecast;
+  tableView($("#ch-intra-t"), "One day by the minute, every 30 minutes", ["Time", "Options market IV", "Our forecast", "What happened", "NIFTY"], d.sod.map((s, i) => i).filter((i) => i % 30 === 0).map((i) => [hm(d.sod[i]), pct(d.iv[i]), d.forecast ? pct(d.forecast[i]) : "—", pct(d.realized[i]), d.spot[i] == null ? "—" : inr.format(d.spot[i])]));
+  const th = theme(), xs = iso(E.day, E.t), line = (y, name, color, dash) => ({ type: "scatter", mode: "lines", x, y, name, xaxis: "x", yaxis: "y", line: { color, width: 2, dash }, connectgaps: false, hovertemplate: `<b>%{y:.1f}%</b> · ${name}<extra></extra>` });
+  const v = intraVals(), data = [line(d.iv, "Options market (IV)", th.s2, "dash")];
+  if (hasF) data.push(line(d.forecast, "Our forecast", th.s1, "solid"));
+  data.push(line(d.realized, "What happened (hindsight)", th.s3, "dot"),
+    { type: "scatter", mode: "lines", x, y: d.spot, name: "NIFTY index", xaxis: "x2", yaxis: "y2", line: { color: th.muted, width: 1.5 }, hovertemplate: "<b>%{y:,.0f}</b> · NIFTY index<extra></extra>" },
+    { type: "scatter", mode: "markers", x: hasF ? [xs, xs, xs] : [xs, xs], y: hasF ? [v.iv, v.f, v.re] : [v.iv, v.re], xaxis: "x", yaxis: "y", marker: { size: 10, color: hasF ? [th.s2, th.s1, th.s3] : [th.s2, th.s3], line: { color: th.surface, width: 2 } }, hoverinfo: "skip", showlegend: false },
+    { type: "scatter", mode: "markers", x: [xs], y: [v.spot], xaxis: "x2", yaxis: "y2", marker: { size: 9, color: th.ink, line: { color: th.surface, width: 2 } }, hoverinfo: "skip", showlegend: false });
+  const spike = { showspikes: true, spikemode: "across", spikethickness: 1, spikecolor: th.muted, spikedash: "solid", spikesnap: "cursor" };
+  const layout = baseLayout(th, {
+    height: Math.round(Math.min(480, Math.max(360, el.clientWidth * 0.62))), margin: { l: 62, r: 16, t: 8, b: 84 }, hovermode: "x unified", dragmode: coarse() ? false : "zoom",
+    xaxis: axis(th, { type: "date", domain: [0, 1], anchor: "y", matches: "x2", showticklabels: false, ...spike }),
+    xaxis2: axis(th, { type: "date", domain: [0, 1], anchor: "y2", range: [iso(E.day, 34200), iso(E.day, 54000)], tickformat: "%H:%M", dtick: 3600000, tick0: iso(E.day, 36000), hoverformat: "%H:%M", ...spike }),
+    yaxis: axis(th, { domain: [0.36, 1], anchor: "x", rangemode: "tozero", ticksuffix: "%", title: ytitle(th, "volatility, yearly %"), fixedrange: true }),
+    yaxis2: axis(th, { domain: [0, 0.22], anchor: "x2", tickformat: ",d", title: ytitle(th, "NIFTY"), fixedrange: true }),
+    shapes: [{ type: "line", xref: "x", yref: "paper", x0: xs, x1: xs, y0: 0, y1: 1, line: { color: th.ink, width: 2 } }],
+  });
+  el.setAttribute("aria-label", `${longDay(E.day)} by the minute: options market volatility, our forecast, what happened and the NIFTY index`);
+  paint("intra", el, data, layout).then(() => {
+    if (el._bound) return; el._bound = true;
+    el.on("plotly_click", (ev) => { const s = sodOfX(ev.points?.[0]?.x); if (s != null) setT(Math.round(s / 60) * 60, true); });
+  });
+}
+function plotIntraMoment() {
+  const el = $("#ch-intra"), d = E.intra; if (!d || !el.data) return;
+  const v = intraVals(), xs = iso(E.day, E.t), n = d.forecast ? 3 : 2, ys = d.forecast ? [v.iv, v.f, v.re] : [v.iv, v.re];
+  const k = el.data.length - 2;
+  Plotly.update(el, { x: [Array(n).fill(xs), [xs]], y: [ys, [v.spot]] }, { "shapes[0].x0": xs, "shapes[0].x1": xs }, [k, k + 1]);
+}
+function setT(t, user = false) {
+  E.t = Math.min(54000, Math.max(34200, Math.round(t / 60) * 60));
+  intraMoment(); writeHash();
+  if (E.mode === "smile" || E.mode === "term") { clearTimeout(E.timer); E.timer = setTimeout(drawIv, user ? 200 : 0); }
+}
+for (const id of ["#t-intra", "#t-iv"]) $(id).addEventListener("input", (e) => setT(+e.target.value, true));
+$("#e-back").addEventListener("click", () => setT(E.t - 300, true));
+$("#e-fwd").addEventListener("click", () => setT(E.t + 300, true));
+
+/* sticky story links: keep the header height and mark the step in view */
+function measureHeader() { document.documentElement.style.setProperty("--hdr", $(".top").offsetHeight + "px"); }
+addEventListener("resize", measureHeader); measureHeader();
+
 /* ---------- start ---------- */
 async function start() {
   clearError();
@@ -1056,16 +1389,19 @@ async function start() {
   $("#links").innerHTML = [["Experiments and models (MLflow)", CFG.mlflow_url], ["Live monitoring (Grafana)", CFG.grafana_url], ["API reference", CFG.api_url + "/docs"]]
     .filter(([, u]) => u).map(([n, u]) => `<a class="btn" href="${esc(u)}" target="_blank" rel="noopener">${esc(n)}<span class="muted"> (opens in a new tab)</span></a>`).join("");
   refreshStatus(); if (!S.statusTimer) S.statusTimer = setInterval(refreshStatus, 15000);
+}
+async function loadForecastTab() {
   api("/results").then((r) => { S.results = r; const c = r.results[r.champion]; if (c) $("#dir-warn").textContent = c.ci95_net_per_day[0] > 0 ? "Shown for transparency." : `On ${r.test_days.length} days it had never seen, this model lost ${rs(-c.net_per_day)} a day after costs.`; }).catch(() => {});
   if (!(await loadDays())) return;
   await loadSeries(true);
 }
 (function boot() {
   const [tab, ...kv] = location.hash.slice(1).split("&"), q = Object.fromEntries(kv.map((x) => x.split("=")));
-  if (q.day) S.day = q.day;
-  if (q.t && /^[0-9]+$/.test(q.t)) { S.t = +q.t; S.fromHash = true; }
-  try { if (!localStorage.getItem("tour_seen")) $("#tour").hidden = false; } catch {}
-  show(tab || "forecast", false);
+  if (q.day && /^\d{4}-\d\d-\d\d$/.test(q.day)) { S.day = q.day; E.day = q.day; }
+  if (q.t && /^[0-9]+$/.test(q.t)) { S.t = +q.t; S.fromHash = true; E.t = Math.min(54000, Math.max(34200, +q.t)); }
+  if (["time", "forecast", "smile", "term"].includes(q.iv)) { E.mode = q.iv; $$("[data-iv]").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.iv === q.iv))); }
+  try { if (!localStorage.getItem("tour2_seen")) tourOpen(false); } catch { tourOpen(false); }
+  show(tab || "explore", false);
   start();
 })();
 </script>

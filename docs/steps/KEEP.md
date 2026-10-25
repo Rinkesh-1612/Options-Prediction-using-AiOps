@@ -17,6 +17,9 @@ Updated at each step.
 | `src/optpred/labels/` | stage labels (costs, triple barrier) |
 | `src/optpred/zoo/` | stages zoo_train, zoo_eval (data, simulator, models, seqnets, MLflow tracking, pyfunc, promote/deploy gate) |
 | `src/optpred/vol/` | stage vol, second model `nifty-vol` (inputs, forecasters, pyfunc) |
+| `src/optpred/modelout/`, `data/modelout/`, `reports/modelout.json`, `tests/unit/test_modelout.py` | stage modelout: every model's answer at every minute of every day (read by the page) |
+| `src/optpred/serving/explore.py`, `tests/api/test_explore.py` | API of the Explore page (calendar, IV views) |
+| `frontend/img/`, `scripts/tour_images.py` | pictures of the guided tour |
 | `src/optpred/drift/` | stage drift + online drift (PSI) |
 | `src/optpred/serving/signal_api.py` | the API (signal, model, rollback, retrain, drift, webhook, metrics) |
 | `monitoring/` (prometheus, alerts, alertmanager, grafana dashboard) | monitoring and alerting |
@@ -27,7 +30,7 @@ Updated at each step.
 | `tests/unit/test_export.py`, `test_eda_rules.py`, `test_grid.py`, `test_featurelib.py`, `test_barrier.py`, `test_zoo.py`, `test_promote.py`, `test_psi.py`, `test_parallel.py`, `tests/api/test_signal_api.py`, `tests/integration/test_data_pipeline.py`, `tests/api/test_lld.py`, `tests/e2e/`, `tests/unit/test_vol.py`, `tests/unit/test_explain.py` | tests |
 | `scripts/test_report.py`, `reports/test_report.md` | test report |
 | `tests/helpers/grid_synth.py`, `tests/helpers/synth.py` | synthetic data for the tests |
-| `dvc.yaml` stages `export`, `check`, `clean`, `eda`, `grid`, `feat`, `labels`, `zoo_train`, `zoo_eval`, `drift`, `vol` | pipeline |
+| `dvc.yaml` stages `export`, `check`, `clean`, `eda`, `grid`, `feat`, `labels`, `zoo_train`, `zoo_eval`, `drift`, `vol`, `modelout` | pipeline |
 | `params.yaml` sections `export`, `spark`, `check`, `eda`, `grid`, `feat`, `labels`, `zoo`, `drift`, `vol` | settings |
 | `MLproject`, `reports/mlproject_test_run.log`, `scripts/make_diagrams.py`, `docs/architecture.svg`, `docs/hld.svg`, `docs/VIVA_NOTES.md` | MLflow project, diagrams, viva |
 | `dvc.lock`, `.dvc/`, `.dvcignore`, `.gitignore`, `.gitattributes`, `data/.gitignore` | versioning |

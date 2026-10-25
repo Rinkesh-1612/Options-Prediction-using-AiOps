@@ -1,0 +1,16 @@
+2026-10-25 15:04:25,158 INFO optpred.modelout: run 20261025T203425-modelout  commit 218260d00f (DIRTY)
+2026-10-25 15:04:29,149 INFO optpred.modelout: direction stay_out    done
+2026-10-25 15:04:30,248 INFO optpred.modelout: direction random      done
+2026-10-25 15:04:31,271 INFO optpred.modelout: direction momentum    done
+2026-10-25 15:04:47,979 INFO optpred.modelout: direction linear      done
+2026-10-25 15:05:45,312 INFO optpred.modelout: direction lgbm_reg    done
+2026-10-25 15:06:33,974 INFO optpred.modelout: direction lgbm_clf    done
+2026-10-25 15:06:56,151 INFO optpred.modelout: direction meta        done
+2026-10-25 15:15:40,066 INFO optpred.modelout: direction gru         done
+2026-10-25 15:23:17,980 INFO optpred.modelout: direction transformer done
+2026-10-25 15:23:31,124 INFO optpred.common.parallel: ray: 49 days on 2 CPUs in 6.8 s
+2026-10-25 15:23:33,774 INFO optpred.modelout: volatility implied  done
+2026-10-25 15:23:35,158 INFO optpred.modelout: volatility har      done
+2026-10-25 15:23:36,287 INFO optpred.modelout: volatility har_iv   done
+2026-10-25 15:23:50,334 INFO optpred.modelout: volatility lgbm     done
+2026-10-25 15:23:51,526 INFO optpred.modelout: run 20261025T203425-modelout finished: ok in 1166.4s

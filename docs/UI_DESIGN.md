@@ -77,3 +77,10 @@ UI_URL=http://127.0.0.1:8080 /usr/bin/python3 scripts/ui_screenshots.py   # redo
 - Palette (checked with the `dataviz` skill validator, light and dark): forecast `#2a78d6` / `#3987e5`, options market `#eb6834` / `#d95926`, what happened `#1baf7a` / `#199e70`. Lines also differ in style (solid, dashed, dotted), so colour is never the only signal.
 - Interaction: unified hover tooltip, click to select a time, drag to zoom, double-click to reset, zoom buttons, legend toggle. Each chart has a **table view** with the same numbers.
 - Charts: forecast and NIFTY index (one day); error per unseen day; cumulative result of the call/put models; drift per day; speed per step.
+
+## Explore page (rebuilt 2026-10-25 after the owner's feedback)
+
+The page is for the examiner. One story page, top to bottom (the owner's order): guided tour (closable, reopen with a button) →
+1 calendar → 2 implied volatility (four views: IV over the days, IV vs our forecast, smile, term structure) → 3 one day by the
+minute → 4-7 (strategies, models, alpha test, verdict: next phases). Unseen days carry a star; training days carry a warning.
+Data: `/explore/*` (docs/LLD.md); model answers are computed once by the DVC stage `modelout` (no model runs in the browser).

@@ -54,6 +54,7 @@ from prometheus_client import (
 
 from optpred.common.clock import SESSION_FIRST_MIN, SESSION_LAST_MIN
 from optpred.drift.psi import DriftMonitor
+from optpred.serving.explore import explore_router
 
 log = logging.getLogger("optpred.serving.signal_api")
 KEYS = ["day", "sod", "atm"]
@@ -79,6 +80,8 @@ class Settings:
     retrain_cooldown_s: float = 3600.0  # alerts cannot start retrains more often than this
     dvc_path: Path = Path("dvc.yaml")
     logs_root: Path = Path("logs")
+    chain_dir: Path = Path("data/clean/option_chain_snap")
+    modelout_dir: Path = Path("data/modelout")
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -101,6 +104,8 @@ class Settings:
             retrain_cooldown_s=float(e.get("RETRAIN_COOLDOWN_S", cls.retrain_cooldown_s)),
             dvc_path=Path(e.get("DVC_PATH", cls.dvc_path)),
             logs_root=Path(e.get("LOGS_ROOT", cls.logs_root)),
+            chain_dir=Path(e.get("CHAIN_DIR", cls.chain_dir)),
+            modelout_dir=Path(e.get("MODELOUT_DIR", cls.modelout_dir)),
         )
 
 
@@ -231,6 +236,12 @@ def create_app(
 
     def accepted() -> list[str]:
         return json.loads(st.days_path.read_text())["accepted"]
+
+    def vol_champion() -> str:
+        p = st.zoo_dir.parent / "vol" / "test.json"
+        return json.loads(p.read_text()).get("champion", "har_iv") if p.exists() else "har_iv"
+
+    app.include_router(explore_router(st, accepted, vol_champion))
 
     @lru_cache(maxsize=4)
     def day_frames(day: str) -> tuple[pd.DataFrame, pd.DataFrame]:
