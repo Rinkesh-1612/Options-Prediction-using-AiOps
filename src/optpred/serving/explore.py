@@ -16,7 +16,10 @@ from fastapi import APIRouter, HTTPException
 from optpred.strategy.legs import TEMPLATES, legs_text, parse_legs
 from optpred.strategy.sim import LOT, Unavailable, evaluate, grid_columns, load_quotes
 from optpred.vol.inputs import YEAR_S, inputs, targets
+from optpred.vol.models import qlike
 
+BASELINES = {"stay_out", "random", "momentum"}
+LABEL_COLS = [f"{s}_{c}" for s in ("ce", "pe") for c in ("valid", "net_rs", "hit", "hold_s")] + ["sod"]
 BIG_MOVE_PCT = 1.0  # |close / open - 1| at or above this is a "big move" day
 BIG_RANGE_PCT = 1.5  # or a high-to-low range at or above this
 MINUTE_FROM, MINUTE_TO = 34200, 54000  # 09:30 .. 15:00, the span the page shows
@@ -55,6 +58,11 @@ def _day_frame(path: str, mtime: int) -> pd.DataFrame:
 @functools.lru_cache(maxsize=256)
 def _chain(path: str, mtime: int) -> pd.DataFrame:
     return pd.read_parquet(path).sort_values(["sod", "expiry_rank", "strike"]).reset_index(drop=True)
+
+
+@functools.lru_cache(maxsize=64)
+def _labels(path: str, mtime: int) -> pd.DataFrame:
+    return pd.read_parquet(path, columns=LABEL_COLS).set_index("sod")
 
 
 @functools.lru_cache(maxsize=6)
@@ -310,5 +318,133 @@ def explore_router(st, accepted, vol_champion) -> APIRouter:
         except ValueError as e:
             raise HTTPException(422, str(e)) from e
         return {"day": day, "sod": t, "legs_text": legs_text(parsed)} | priced(day, t, parsed)
+
+    def direction_rows(day: str) -> pd.DataFrame:
+        p = st.modelout_dir / "direction" / f"{day}.parquet"
+        if not p.exists():
+            raise HTTPException(503, "the model outputs are not computed yet (stage modelout)")
+        return _modelout(str(p), _mt(p))
+
+    def labels_of(day: str) -> pd.DataFrame:
+        p = st.label_dir / f"{day}.parquet"
+        if not p.exists():
+            raise HTTPException(503, f"labels for {day} are not available now")
+        return _labels(str(p), _mt(p))
+
+    def action_of(row) -> str:
+        ce, pe = float(row.score_ce), float(row.score_pe)
+        best = max(ce if np.isfinite(ce) else -np.inf, pe if np.isfinite(pe) else -np.inf)
+        if not best > row.tau:
+            return "STAY_OUT"
+        return "BUY_CE" if ce >= pe else "BUY_PE"
+
+    @r.get("/models")
+    def models(day: str, t: int):
+        """What every model said at the minute of `t`, and what happened.
+        Direction models: call, put or stay out, and the net ₹ of following them (one lot, barrier exit).
+        Volatility forecasters: forecast vs realized."""
+        need(day)
+        m = int(t) // 60 * 60
+        d, lab = direction_rows(day), labels_of(day)
+        at = d[d["sod"] == m]
+        row = lab.loc[m] if m in lab.index else None
+        out = []
+        for x in at.itertuples():
+            act = action_of(x)
+            side = "ce" if act == "BUY_CE" else "pe" if act == "BUY_PE" else None
+            net = {
+                s: (num(row[f"{s}_net_rs"], 0) if row is not None and bool(row[f"{s}_valid"]) else None)
+                for s in ("ce", "pe")
+            }
+            followed = net[side] if side else None
+            out.append(
+                {
+                    "family": x.family,
+                    "baseline": x.family in BASELINES,
+                    "source": x.source,
+                    "action": act,
+                    "score_ce": num(x.score_ce, 3),
+                    "score_pe": num(x.score_pe, 3),
+                    "tau": num(x.tau, 3),
+                    "ce_net": net["ce"],
+                    "pe_net": net["pe"],
+                    "result": followed,
+                    "ended_by": int(row[f"{side}_hit"]) if side and followed is not None else None,
+                }
+            )
+        rows = minute_rows(day)
+        iv, rv = (rows["iv"].get(m), rows["rv_fwd_900"].get(m)) if m in rows.index else (None, None)
+        v = st.modelout_dir / "vol" / f"{day}.parquet"
+        vol = []
+        if v.exists():
+            vd = _modelout(str(v), _mt(v))
+            for x in vd[vd["sod"] == m].itertuples():
+                f = float(ann_vol(x.fc_900, 900))
+                vol.append(
+                    {
+                        "family": x.family,
+                        "source": x.source,
+                        "forecast": num(f),
+                        "kind": "market" if x.family == "implied" else "forecast",
+                    }
+                )
+        return {
+            "day": day,
+            "sod": m,
+            "iv": num(iv),
+            "realized": num(float(ann_vol(rv, 900))) if rv is not None and math.isfinite(rv) else None,
+            "direction": out,
+            "vol": vol,
+        }
+
+    @r.get("/models/day")
+    def models_day(day: str):
+        """The whole day for every model: direction models trade one position at a time at the minute rows
+        (net ₹, trades, hit rate); volatility forecasters: QLIKE (lower is better)."""
+        need(day)
+        d, lab = direction_rows(day), labels_of(day)
+        direction = []
+        for fam, g in d.groupby("family"):
+            g, net, n, hits, free = g.sort_values("sod"), 0.0, 0, 0, 0
+            for x in g.itertuples():
+                if x.sod < free:
+                    continue
+                act = action_of(x)
+                if act == "STAY_OUT" or x.sod not in lab.index:
+                    continue
+                side = "ce" if act == "BUY_CE" else "pe"
+                row = lab.loc[x.sod]
+                if not bool(row[f"{side}_valid"]):
+                    continue
+                n, net, hits = n + 1, net + float(row[f"{side}_net_rs"]), hits + (row[f"{side}_net_rs"] > 0)
+                free = x.sod + float(row[f"{side}_hold_s"])
+            direction.append(
+                {
+                    "family": fam,
+                    "baseline": fam in BASELINES,
+                    "source": g["source"].iloc[0],
+                    "trades": n,
+                    "net": num(net, 0),
+                    "hit_rate": num(hits / n, 3) if n else None,
+                }
+            )
+        vol = []
+        v = st.modelout_dir / "vol" / f"{day}.parquet"
+        if v.exists():
+            rows = minute_rows(day)
+            vd = _modelout(str(v), _mt(v))
+            for fam, g in vd.groupby("family"):
+                j = g.set_index("sod").reindex(rows.index)
+                ok = j["fc_900"].notna() & rows["rv_fwd_900"].notna()
+                vol.append(
+                    {
+                        "family": fam,
+                        "source": g["source"].iloc[0],
+                        "qlike": num(qlike(rows.loc[ok, "rv_fwd_900"], j.loc[ok, "fc_900"]), 4)
+                        if ok.any()
+                        else None,
+                    }
+                )
+        return {"day": day, "direction": direction, "vol": vol}
 
     return r

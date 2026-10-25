@@ -1,4 +1,5 @@
 import json
+from dataclasses import replace
 
 import numpy as np
 import pandas as pd
@@ -124,3 +125,56 @@ def test_strategies_list_prices_every_template_and_the_detail_route_validates(ex
         c.get("/explore/strategy", params={"day": DAY, "t": 55650, "legs": "buy:ce:0:1"}).status_code == 409
     )
     assert c.get("/explore/strategies", params={"day": "2020-01-01", "t": 36000}).status_code == 404
+
+
+def test_models_at_a_moment_and_over_a_day(ex, tmp_path):
+    sod = np.arange(33300, 55800, 60)
+    mo = tmp_path / "modelout"
+    (mo / "direction").mkdir(parents=True)
+    (mo / "vol").mkdir()
+    rows = []
+    for fam, ce, pe, tau in (
+        ("lgbm_reg", 5.0, 1.0, 2.0),
+        ("stay_out", -np.inf, -np.inf, np.inf),
+        ("random", 0.2, 0.9, 5.0),
+    ):
+        rows += [(DAY, s, fam, ce, pe, tau, "test") for s in sod]
+    pd.DataFrame(rows, columns=["day", "sod", "family", "score_ce", "score_pe", "tau", "source"]).to_parquet(
+        mo / "direction" / f"{DAY}.parquet"
+    )
+    pd.DataFrame(
+        {"day": DAY, "sod": sod, "family": "har_iv", "fc_300": 8.0, "fc_900": 14.0, "source": "test"}
+    ).to_parquet(mo / "vol" / f"{DAY}.parquet")
+    lab = pd.DataFrame({"sod": np.arange(33300, 55800)})
+    for s in ("ce", "pe"):
+        lab[f"{s}_valid"], lab[f"{s}_net_rs"], lab[f"{s}_hit"], lab[f"{s}_hold_s"] = (
+            True,
+            100.0 if s == "ce" else -50.0,
+            1,
+            120.0,
+        )
+    (tmp_path / "labels").mkdir()
+    lab.to_parquet(tmp_path / "labels" / f"{DAY}.parquet")
+    c = client(replace(ex, label_dir=tmp_path / "labels"))
+    r = c.get("/explore/models", params={"day": DAY, "t": 40000}).json()
+    by = {x["family"]: x for x in r["direction"]}
+    assert (
+        by["lgbm_reg"]["action"] == "BUY_CE"
+        and by["lgbm_reg"]["result"] == 100.0
+        and by["lgbm_reg"]["ended_by"] == 1
+    )
+    assert by["stay_out"]["action"] == "STAY_OUT" and by["stay_out"]["result"] is None
+    assert (
+        by["random"]["action"] == "STAY_OUT"
+        and by["lgbm_reg"]["baseline"] is False
+        and by["random"]["baseline"] is True
+    )
+    assert r["vol"][0]["forecast"] == pytest.approx(ann_vol(14.0, 900), abs=0.01) and r["realized"] > 0
+    d = c.get("/explore/models/day", params={"day": DAY}).json()
+    dd = {x["family"]: x for x in d["direction"]}
+    assert (
+        dd["stay_out"]["trades"] == 0
+        and dd["lgbm_reg"]["trades"] > 100
+        and dd["lgbm_reg"]["net"] == 100.0 * dd["lgbm_reg"]["trades"]
+    )
+    assert dd["lgbm_reg"]["hit_rate"] == 1.0 and d["vol"][0]["qlike"] is not None

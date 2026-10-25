@@ -29,7 +29,11 @@ The page opens with a short **guided tour** (close it any time; reopen with "Sho
    would end under a take-profit / stop-loss rule. Click a row for the result-by-closing-time chart and the payoff diagram. "Build your
    own" prices any 1-4 leg strategy, including unbalanced ones (for example buy 1, sell 2).
 
-Steps 5 to 7 (what each model said, the alpha test, the verdict) are being built. The older
+5. **What each model said**: at the chosen time, the volatility forecasts against what happened, and each direction model's call,
+   put or stay-out with the money it would have made. A badge says whether the day is a fair test for that model. A chart shows
+   the whole day.
+
+Steps 6 and 7 (the alpha test, the verdict) are being built. The older
 **Forecast** and **Does it work?** pages are described below and stay reachable at `#forecast` and `#works`.
 
 ## The screen

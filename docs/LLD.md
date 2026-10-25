@@ -72,6 +72,16 @@ In (query): `day`, `t`, `legs` = `action:side:offset:lots,...` (1-4 legs, offset
 Out: the same fields for that strategy plus `payoff{spot[], pnl[], breakevens[], max_profit, max_loss}`. 422 bad legs, 409 cannot be priced
 at that time (no quote, too close to the close), 404 unknown day.
 
+### GET /explore/models
+In (query): `day`, `t`. Out: what every model said at the minute of `t` (from stage `modelout`) and what happened:
+`{day, sod, iv, realized, direction[{family, baseline, source (test|oof|train), action (BUY_CE|BUY_PE|STAY_OUT), score_ce, score_pe, tau,
+ce_net, pe_net, result, ended_by}], vol[{family, kind (forecast|market), source, forecast}]}`. `source`: `test` = unseen day, `oof` = the model had not
+seen the day (walk-forward), `train` = in-sample. Net rupees are for one lot, barrier exit (the labels). 503 until stage `modelout` ran.
+
+### GET /explore/models/day
+In (query): `day`. Out: `{day, direction[{family, baseline, source, trades, net, hit_rate}], vol[{family, source, qlike}]}`: each direction model
+trades one position at a time at one-minute steps; `qlike` = error of the 15-minute volatility forecast (lower is better).
+
 ### GET /model
 Out: `{"champion": V, "previous": V}`, V = `{version, family, git_commit, deploy_check, metrics}`.
 Also `"vol": {version, family, deploy_check}`: the champion of the volatility forecaster `nifty-vol`.

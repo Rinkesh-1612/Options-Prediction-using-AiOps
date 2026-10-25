@@ -211,6 +211,8 @@ def run(url: str) -> dict:
             page.wait_for_timeout(1200)
             if "Your strategy" not in page.inner_text("#sd-title"):
                 fail("charts", "a strategy built from legs was not priced")
+        if page.locator("#m-dir tr").count() < 5 or not page.locator("#ch-dirday .main-svg").count():
+            fail("charts", "the models section (tables and chart) was not drawn")
         if not page.locator("#ch-intra-t table").count() or not page.locator("#ch-iv-t table").count():
             fail("charts", "no table twin for a chart")
         page.click("#tour-again")
