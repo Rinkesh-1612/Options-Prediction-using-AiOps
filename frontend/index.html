@@ -126,6 +126,7 @@ pre.log { background: var(--soft); border-radius: 8px; padding: 12px; max-height
     <div class="brand">NIFTY Signal <small>intraday options · AIOps</small></div>
     <span class="pill" title="Signal API"><span class="dot" id="st-api"></span>API</span>
     <span class="pill" title="Champion model in the registry"><span class="dot" id="st-model"></span><span id="st-model-t">Model</span></span>
+    <span class="pill" title="Volatility forecaster in the registry (nifty-vol)"><span class="dot" id="st-vol"></span><span id="st-vol-t">Vol model</span></span>
     <span class="pill" title="Online data drift of the served rows"><span class="dot" id="st-drift"></span><span id="st-drift-t">Drift</span></span>
   </div>
   <nav role="tablist">
@@ -164,8 +165,13 @@ pre.log { background: var(--soft); border-radius: 8px; padding: 12px; max-height
     </div>
 
     <div class="grid">
+      <div class="card">
+        <h2>Volatility forecast: how much will NIFTY move? (next 5 / 15 min)</h2>
+        <div id="vol" class="skeleton">The forecast appears here after you press <b>Get signal</b>.</div>
+      </div>
       <div class="card" aria-live="polite">
-        <h2>What the model says</h2>
+        <h2>Direction model: buy call / buy put / stay out</h2>
+        <p class="note" style="margin:-4px 0 12px"><b class="warn">No proven edge.</b> On 10 unseen days this model lost money after costs (Results tab). It is shown to explain how it decides, not as advice.</p>
         <div class="action" id="action"><div class="label">—</div><div class="muted" id="action-sub">Pick a day and a time, then press <b>Get signal</b>.</div></div>
         <div class="scores" id="scores" hidden>
           <span>Call</span><div class="track"><div class="fill" id="bar-ce" style="background:var(--ce)"></div><div class="tau" id="tau-ce"></div></div><span class="num mono" id="sc-ce"></span>
@@ -175,12 +181,8 @@ pre.log { background: var(--soft); border-radius: 8px; padding: 12px; max-height
         <div id="why" hidden></div>
       </div>
       <div class="card">
-        <h2>What happened next</h2>
+        <h2>What happened next (direction trade)</h2>
         <div id="outcome" class="skeleton">The result appears here after a signal.</div>
-      </div>
-      <div class="card">
-        <h2>Volatility forecast (next 5 / 15 min)</h2>
-        <div id="vol" class="skeleton">The forecast appears here after a signal.</div>
       </div>
     </div>
   </div>
@@ -196,7 +198,6 @@ pre.log { background: var(--soft); border-radius: 8px; padding: 12px; max-height
 
 <!-- ============================== RESULTS ============================== -->
 <section id="tab-results" hidden>
-  <div id="verdict" class="banner">Loading results…</div>
   <div class="card" style="margin-bottom:16px">
     <h2>Volatility forecast vs the option market</h2>
     <div id="vol-verdict" class="banner" style="margin-bottom:12px">Loading…</div>
@@ -206,6 +207,8 @@ pre.log { background: var(--soft); border-radius: 8px; padding: 12px; max-height
     </table></div>
     <p class="note">QLIKE = standard loss of a volatility forecast (lower is better). Corr = correlation of log forecast and log realized move. "implied" = the move priced by the ATM option IV.</p>
   </div>
+  <h2 style="font-size:13px;text-transform:uppercase;letter-spacing:.6px;color:var(--muted);margin:22px 0 8px">Direction models (buy call / buy put / stay out)</h2>
+  <div id="verdict" class="banner">Loading results…</div>
   <div class="card">
     <h2>Direction models on the test days (buy call / buy put / stay out)</h2>
     <p class="note" id="res-meta" style="margin-top:-6px"></p>
@@ -237,6 +240,11 @@ pre.log { background: var(--soft); border-radius: 8px; padding: 12px; max-height
     <div class="row" style="justify-content:space-between"><h2 style="margin:0">Pipeline (DVC)</h2><button class="btn small" id="pipe-refresh">Refresh</button></div>
     <p class="note" style="margin-top:4px">Each box is a stage. Colour = result of its last run. Click a box to see its runs.</p>
     <div class="dag" id="dag"></div>
+  </div>
+  <div class="card" style="margin-top:16px">
+    <h2>Speed and throughput (last successful run of each stage)</h2>
+    <div class="scroll"><table><thead><tr><th>Stage</th><th>Input</th><th class="num">Rows</th><th class="num">Seconds</th><th class="num">Rows per second</th></tr></thead><tbody id="thr"></tbody></table></div>
+    <p class="note">Measured from the run journal. The model stages (zoo_train, zoo_eval) fit models, so rows per second does not apply.</p>
   </div>
   <div class="grid cols-even" style="margin-top:16px">
     <div class="card">
@@ -332,6 +340,8 @@ async function status() {
   api("/model").then((m) => {
     if (!m.champion) { set("#st-model", "warn"); $("#st-model-t").textContent = "No model"; return; }
     set("#st-model", "ok"); $("#st-model-t").textContent = `Model v${m.champion.version} · ${m.champion.family}`;
+    if (m.vol) { set("#st-vol", "ok"); $("#st-vol-t").textContent = `Vol model v${m.vol.version} · ${m.vol.family}`; }
+    else { set("#st-vol", "warn"); $("#st-vol-t").textContent = "No vol model"; }
   }).catch(() => set("#st-model", "bad"));
   api("/drift").then((d) => {
     if (!d.ready) { set("#st-drift", ""); $("#st-drift-t").textContent = `Drift: ${d.rows} rows`; return; }
@@ -408,8 +418,9 @@ async function getVol(day, sod) {
   try {
     const v = await api(`/vol?day=${encodeURIComponent(day)}&sod=${sod}`);
     const cell = (x) => `<b>${x.forecast_bp.toFixed(1)}</b> bp`, ratio = (x) => x.ratio == null ? "—" : `${x.ratio.toFixed(2)}×`;
+    const q = v["15min"].ratio, said = q == null ? "" : q < 0.8 ? "The options price in <b>more</b> movement than the model expects." : q > 1.25 ? "The options price in <b>less</b> movement than the model expects." : "The options and the model roughly agree.";
     $("#vol").className = "";
-    $("#vol").innerHTML = `<div class="volgrid"><span></span><span class="muted">Model forecast</span><span class="muted">Option market (IV)</span><span class="muted">Realized (hindsight)</span>
+    $("#vol").innerHTML = `<p style="margin:0 0 10px;font-size:16px">Model expects <b>${v["15min"].forecast_bp.toFixed(1)} bp</b> (≈ ${(v["15min"].forecast_bp * (window.lastAtm || 25000) / 1e4).toFixed(0)} index points) in the next 15 min. ${said}</p><div class="volgrid"><span></span><span class="muted">Model forecast</span><span class="muted">Option market (IV)</span><span class="muted">Realized (hindsight)</span>
       ${["5min", "15min"].map((k) => `<span class="muted">${k.replace("min", " min")}</span><span>${cell(v[k])} <span class="muted">(${ratio(v[k])} implied)</span></span>
         <span>${v[k].implied_bp == null ? "—" : v[k].implied_bp.toFixed(1) + " bp"}</span><span>${v[k].realized_bp == null ? "—" : v[k].realized_bp.toFixed(1) + " bp"}</span>`).join("")}</div>
       <p class="note">Expected size of the NIFTY move, not its direction (1 bp ≈ ${((window.lastAtm || 25000) / 1e4).toFixed(1)} index points). How it compares with the option market on the test days: Results tab.</p>`;
@@ -541,11 +552,14 @@ async function loadPipeline() {
     const p = await api("/pipeline"), dag = $("#dag");
     dag.innerHTML = layers(p.stages, p.edges).map((col) => `<div class="layer">${col.map((s) => {
       const l = s.last, cls = !l ? "" : l.status === "ok" ? "ok" : "bad";
-      const speed = l?.summary?.rows_per_s ? ` · ${inr.format(l.summary.rows_per_s)} rows/s` : "";
+      const speed = s.throughput ? ` · ${inr.format(s.throughput.rows_per_s)} rows/s` : "";
       return `<div class="node ${cls} ${runFilter === s.name ? "sel" : ""}" data-stage="${esc(s.name)}" title="${esc(s.cmd)}">
         <b><span class="dot ${cls}"></span>${esc(s.name)}</b>
         <span class="muted">${l ? `${l.status} · ${dur(l.duration_s)}${speed}` : "never run"}</span></div>`;
     }).join("")}</div>`).join("");
+    $("#thr").innerHTML = p.stages.filter((x) => x.throughput).map((x) => `<tr><td>${esc(x.name)}</td><td class="muted">${esc(x.throughput.unit)}</td>
+      <td class="num">${inr.format(x.throughput.rows)}</td><td class="num">${x.throughput.seconds.toFixed(1)}</td><td class="num"><b>${inr.format(x.throughput.rows_per_s)}</b></td></tr>`).join("")
+      || '<tr><td colspan="5" class="muted">No runs yet.</td></tr>';
     requestAnimationFrame(() => drawEdges(p.edges));
     dag.querySelectorAll(".node").forEach((n) => n.addEventListener("click", () => { runFilter = n.dataset.stage; loadPipeline(); }));
   } catch (e) { $("#dag").innerHTML = `<p class="bad">Pipeline: ${esc(e.message)}</p>`; }

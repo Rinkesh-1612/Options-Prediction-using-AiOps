@@ -218,7 +218,11 @@ def pipe_env(env, tmp_path):
     (tmp_path / "logs" / "grid").mkdir(parents=True)
     (tmp_path / "logs" / "grid" / "20261024T010000-grid.log").write_text("line1\nline2\n")
     return replace(
-        env, dvc_path=tmp_path / "dvc.yaml", runs_path=tmp_path / "runs.jsonl", logs_root=tmp_path / "logs"
+        env,
+        dvc_path=tmp_path / "dvc.yaml",
+        runs_path=tmp_path / "runs.jsonl",
+        logs_root=tmp_path / "logs",
+        reports_dir=tmp_path / "no_reports",
     )
 
 
@@ -226,6 +230,7 @@ def test_pipeline_graph_runs_and_logs(pipe_env):
     c = TestClient(create_app(pipe_env, FakeModel(), FakeRegistry()))
     p = c.get("/pipeline").json()
     assert p["edges"] == [["grid", "feat"]]
+    assert p["stages"][0]["throughput"] is None  # no rows known without reports
     assert {s["name"]: s["last"]["status"] for s in p["stages"]} == {"grid": "ok", "feat": "failed"}
     runs = c.get("/pipeline/runs").json()
     assert [r["stage"] for r in runs] == ["feat", "grid"]  # newest first, removed stage hidden
@@ -293,3 +298,25 @@ def test_signal_passes_the_drivers_through(env):
     # a model that cannot explain: drivers is null
     c = TestClient(create_app(env, FakeModel("STAY_OUT"), FakeRegistry()))
     assert c.get("/signal", params={"day": DAY, "sod": 33500}).json()["drivers"] is None
+
+
+def test_pipeline_throughput_from_reports_and_the_last_ok_run(pipe_env, tmp_path):
+    from dataclasses import replace
+
+    rep = tmp_path / "rep"
+    (rep / "eda").mkdir(parents=True)
+    (rep / "eda" / "cleaning.json").write_text(
+        json.dumps({"total": {"opt_tape": {"rows_in": 1000, "rows_out": 900}}})
+    )
+    (rep / "grid.json").write_text(json.dumps({"rows": 500}))
+    (rep / "feat.json").write_text(json.dumps({"rows": 500}))
+    runs = [
+        {"run_id": "20261024T010000-grid", "stage": "grid", "status": "ok", "duration_s": 3},
+        {"run_id": "20261024T010100-feat", "stage": "feat", "status": "ok", "duration_s": 10},
+        {"run_id": "20261024T010200-feat", "stage": "feat", "status": "failed", "duration_s": 1},
+    ]
+    pipe_env.runs_path.write_text("\n".join(json.dumps(r) for r in runs) + "\n")
+    c = TestClient(create_app(replace(pipe_env, reports_dir=rep), FakeModel(), FakeRegistry()))
+    by = {s["name"]: s["throughput"] for s in c.get("/pipeline").json()["stages"]}
+    assert by["grid"] == {"rows": 900, "unit": "clean ticks", "seconds": 3, "rows_per_s": 300}
+    assert by["feat"]["rows_per_s"] == 50  # the failed 1 s run does not count

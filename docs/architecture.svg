@@ -1,0 +1,115 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1300' height='700' viewBox='0 0 1300 700'><defs><marker id='a' viewBox='0 0 10 10' refX='9' refY='5' markerWidth='7' markerHeight='7' orient='auto-start-reverse'><path d='M0,0 L10,5 L0,10 z' fill='#5d6673'/></marker></defs>
+<rect width='1300' height='700' fill='white'/>
+<text x='24' y='34' font-size='20' font-weight='700' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Architecture: one VPS, Docker, no cloud</text>
+<rect x='20' y='60' width='230' height='440' rx='12' fill='#e8f0fe' fill-opacity='.45' stroke='#4c72b0' stroke-dasharray='5 4'/>
+<text x='32' y='82' font-size='13' font-weight='700' fill='#4c72b0' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Data source</text>
+<rect x='40' y='100' width='190' height='60' rx='8' fill='#e8f0fe' stroke='#4c72b0' stroke-width='1.6'/>
+<text x='135.0' y='126.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Upstox</text>
+<text x='135.0' y='141.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>market feed</text>
+<rect x='40' y='200' width='190' height='60' rx='8' fill='#e8f0fe' stroke='#4c72b0' stroke-width='1.6'/>
+<text x='135.0' y='226.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Ravion V2</text>
+<text x='135.0' y='241.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>recorder (live system)</text>
+<rect x='40' y='300' width='190' height='60' rx='8' fill='#e8f0fe' stroke='#4c72b0' stroke-width='1.6'/>
+<text x='135.0' y='326.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>ClickHouse</text>
+<text x='135.0' y='341.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>read-only access</text>
+<path d='M135,160 L135,200' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<path d='M135,260 L135,300' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<text x='40' y='400' font-size='11' font-weight='400' fill='#3d4651' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Stage export copies it once</text>
+<text x='40' y='414' font-size='11' font-weight='400' fill='#3d4651' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>into a frozen Parquet snapshot</text>
+<text x='40' y='428' font-size='11' font-weight='400' fill='#3d4651' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>(row counts verified).</text>
+<rect x='290' y='60' width='480' height='440' rx='12' fill='#e6f4ea' fill-opacity='.45' stroke='#2e7d4f' stroke-dasharray='5 4'/>
+<text x='302' y='82' font-size='13' font-weight='700' fill='#2e7d4f' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Pipeline: DVC stages in the pipeline image (./pipe)</text>
+<rect x='300' y='100' width='100' height='56' rx='8' fill='#e6f4ea' stroke='#2e7d4f' stroke-width='1.6'/>
+<text x='350.0' y='132.2' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>export</text>
+<rect x='408' y='100' width='100' height='56' rx='8' fill='#e6f4ea' stroke='#2e7d4f' stroke-width='1.6'/>
+<text x='458.0' y='124.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>check</text>
+<text x='458.0' y='139.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Spark</text>
+<rect x='516' y='100' width='100' height='56' rx='8' fill='#e6f4ea' stroke='#2e7d4f' stroke-width='1.6'/>
+<text x='566.0' y='124.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>clean</text>
+<text x='566.0' y='139.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Ray</text>
+<rect x='624' y='100' width='100' height='56' rx='8' fill='#e6f4ea' stroke='#2e7d4f' stroke-width='1.6'/>
+<text x='674.0' y='124.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>grid</text>
+<text x='674.0' y='139.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Ray</text>
+<path d='M400,128 L408,128' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<path d='M508,128 L516,128' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<path d='M616,128 L624,128' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<rect x='300' y='200' width='100' height='56' rx='8' fill='#e6f4ea' stroke='#2e7d4f' stroke-width='1.6'/>
+<text x='350.0' y='224.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>feat</text>
+<text x='350.0' y='239.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Ray</text>
+<rect x='408' y='200' width='100' height='56' rx='8' fill='#e6f4ea' stroke='#2e7d4f' stroke-width='1.6'/>
+<text x='458.0' y='224.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>labels</text>
+<text x='458.0' y='239.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Ray</text>
+<rect x='516' y='200' width='100' height='56' rx='8' fill='#e6f4ea' stroke='#2e7d4f' stroke-width='1.6'/>
+<text x='566.0' y='224.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>vol</text>
+<text x='566.0' y='239.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>HAR vs IV</text>
+<rect x='624' y='200' width='100' height='56' rx='8' fill='#e6f4ea' stroke='#2e7d4f' stroke-width='1.6'/>
+<text x='674.0' y='224.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>drift</text>
+<text x='674.0' y='239.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>PSI</text>
+<path d='M674,156 L674,178 L350,178 L350,200' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<text x='520' y='172' font-size='11' font-weight='400' fill='#3d4651' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>data/grid</text>
+<rect x='300' y='300' width='190' height='56' rx='8' fill='#fff4e0' stroke='#c77700' stroke-width='1.6'/>
+<text x='395.0' y='324.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>zoo_train</text>
+<text x='395.0' y='339.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Ray Tune, walk-forward CV</text>
+<rect x='515' y='300' width='205' height='56' rx='8' fill='#fff4e0' stroke='#c77700' stroke-width='1.6'/>
+<text x='617.5' y='324.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>zoo_eval</text>
+<text x='617.5' y='339.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>test days once + deploy gate</text>
+<path d='M490,328 L515,328' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<path d='M350,256 L350,300' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<text x='440' y='282' font-size='11' font-weight='400' fill='#3d4651' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>data/feat + labels</text>
+<rect x='300' y='392' width='420' height='90' rx='8' fill='#f5f6f8' stroke='#9aa3af' stroke-width='1.6'/>
+<text x='510.0' y='419.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Version control and CI/CD</text>
+<text x='510.0' y='433.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Git: code, configs, reports, run journal   Git LFS: sample day</text>
+<text x='510.0' y='447.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>DVC: data + dvc.yaml DAG;  `dvc repro` = train, evaluate, deploy</text>
+<text x='510.0' y='461.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>pre-push hook: ruff, 103 tests, dvc dag</text>
+<path d='M230,330 L270,330 L270,128 L300,128' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<rect x='810' y='60' width='470' height='590' rx='12' fill='#f3e8fd' fill-opacity='.45' stroke='#7b3fb3' stroke-dasharray='5 4'/>
+<text x='822' y='82' font-size='13' font-weight='700' fill='#7b3fb3' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Docker Compose stack (./stack)</text>
+<rect x='830' y='100' width='200' height='66' rx='8' fill='#f3e8fd' stroke='#7b3fb3' stroke-width='1.6'/>
+<text x='930.0' y='129.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>frontend  :8080</text>
+<text x='930.0' y='144.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>nginx, static page, config.json</text>
+<rect x='1060' y='100' width='200' height='66' rx='8' fill='#f3e8fd' stroke='#7b3fb3' stroke-width='1.6'/>
+<text x='1160.0' y='129.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>api  :8000</text>
+<text x='1160.0' y='144.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>FastAPI (the only public entry)</text>
+<path d='M1030,133 L1060,133' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<text x='1045.0' y='124' font-size='11' font-weight='400' fill='#3d4651' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>REST</text>
+<rect x='830' y='200' width='200' height='66' rx='8' fill='#fff4e0' stroke='#c77700' stroke-width='1.6'/>
+<text x='930.0' y='229.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>mlflow  :5050</text>
+<text x='930.0' y='244.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>tracking + model registry</text>
+<rect x='1060' y='200' width='200' height='66' rx='8' fill='#f3e8fd' stroke='#7b3fb3' stroke-width='1.6'/>
+<text x='1160.0' y='229.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>model  :5001</text>
+<text x='1160.0' y='244.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>mlflow models serve (champion)</text>
+<path d='M1160,166 L1160,200' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<text x='1200' y='186' font-size='11' font-weight='400' fill='#3d4651' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>/invocations</text>
+<path d='M1030,233 L1060,233' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<text x='1045.0' y='224' font-size='11' font-weight='400' fill='#3d4651' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>alias</text>
+<path d='M770,233 L830,233' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<text x='800' y='224' font-size='11' font-weight='400' fill='#3d4651' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>runs</text>
+<rect x='830' y='300' width='200' height='66' rx='8' fill='#fde8e8' stroke='#c0392b' stroke-width='1.6'/>
+<text x='930.0' y='329.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>runner</text>
+<text x='930.0' y='344.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>retrain: alert, button, schedule</text>
+<rect x='1060' y='300' width='200' height='66' rx='8' fill='#fde8e8' stroke='#c0392b' stroke-width='1.6'/>
+<text x='1160.0' y='329.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>prometheus  :9091</text>
+<text x='1160.0' y='344.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>scrapes every 5 s</text>
+<path d='M830,333 L770,333' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<text x='800' y='324' font-size='11' font-weight='400' fill='#3d4651' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>dvc repro</text>
+<rect x='830' y='400' width='200' height='66' rx='8' fill='#fde8e8' stroke='#c0392b' stroke-width='1.6'/>
+<text x='930.0' y='429.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>alertmanager</text>
+<text x='930.0' y='444.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>DriftDetected, ModelLosing</text>
+<rect x='1060' y='400' width='200' height='66' rx='8' fill='#fde8e8' stroke='#c0392b' stroke-width='1.6'/>
+<text x='1160.0' y='429.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>grafana  :3001</text>
+<text x='1160.0' y='444.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>near-real-time dashboard</text>
+<path d='M1160,366 L1160,400' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<path d='M1060,433 L1030,433' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<text x='1045.0' y='424' font-size='11' font-weight='400' fill='#3d4651' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>alerts</text>
+<path d='M930,466 L930,492 L1272,492 L1272,133 L1260,133' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)' stroke-dasharray="5 4"/>
+<text x='1100' y='486' font-size='11' font-weight='400' fill='#3d4651' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>webhook: retrain request</text>
+<rect x='830' y='520' width='200' height='66' rx='8' fill='#fde8e8' stroke='#c0392b' stroke-width='1.6'/>
+<text x='930.0' y='549.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>node-exporter</text>
+<text x='930.0' y='564.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>host CPU, memory, disk</text>
+<text x='1050' y='540' font-size='11' font-weight='400' fill='#3d4651' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Prometheus also scrapes the api</text>
+<text x='1050' y='554' font-size='11' font-weight='400' fill='#3d4651' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>(signals, drift, pipeline, quality)</text>
+<text x='1050' y='568' font-size='11' font-weight='400' fill='#3d4651' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>and mlflow.</text>
+<rect x='290' y='520' width='480' height='60' rx='8' fill='#f5f6f8' stroke='#9aa3af' stroke-width='1.6'/>
+<text x='530.0' y='546.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Security: AES-256 encrypted backup of data + models</text>
+<text x='530.0' y='560.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>(scripts/encrypt_snapshot.sh); admin token; localhost only</text>
+</svg>

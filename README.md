@@ -1,14 +1,16 @@
 # Options-Prediction-using-AiOps
 
-DA3408 course project. Every second of the NIFTY session: buy the ATM call, buy the ATM put, or stay out —
-judged **after costs**, with a holding time set by the market (triple barrier). Built as a controlled AIOps
-pipeline, and as a signal library for the author's trading system (Ravion V2).
+DA3408 course project. A full AIOps pipeline on my own NIFTY option data (Upstox → Ravion V2): data engineering,
+tracking, gated deployment, monitoring and retraining. It forecasts **how much NIFTY will move** in the next 5 / 15
+minutes (volatility), and tests whether **buying calls or puts after costs** pays (direction). It is also a signal
+library for the author's trading system (Ravion V2).
 
 **Results.**
-- **Direction: no edge.** Nine model families were trained on 39 days and scored on 10 later test days. None beats
-  "stay out" with confidence after costs ([results](reports/zoo/comparison.md)).
-- **Volatility: predictable.** A HAR forecaster of the NIFTY move over the next 5 / 15 min beat the option market's
-  implied forecast on 10 of 10 test days ([results](reports/vol/comparison.md)).
+- **Volatility: predictable.** A HAR forecaster beat the option market's implied forecast on **10 of 10** unseen test
+  days (daily QLIKE −0.20, 95% interval −0.37 … −0.07) ([results](reports/vol/comparison.md)).
+- **Direction: no edge.** Nine model families, 39 training days, 10 later test days: none beats "stay out" after costs
+  ([results](reports/zoo/comparison.md)). Option structures, expiries and strikes chosen by ML found nothing either
+  (research branches).
 
 ![Signal tab](docs/img/signal.png)
 
@@ -21,6 +23,7 @@ pipeline, and as a signal library for the author's trading system (Ravion V2).
 | [Low-level design](docs/LLD.md) | every API endpoint and pipeline stage with its input and output |
 | [Test plan](docs/TEST_PLAN.md) | levels, 90 test cases, acceptance criteria; report in `reports/test_report.md` |
 | [User manual](docs/USER_MANUAL.md) | the web page, tab by tab; operator commands |
+| [Viva notes](docs/VIVA_NOTES.md) | short answers to likely questions |
 | [Rubric steps](docs/steps/PROGRESS.md) | one short note per course item |
 
 ## Layout
@@ -36,7 +39,7 @@ pipeline, and as a signal library for the author's trading system (Ravion V2).
 | `src/optpred/drift/` | PSI drift (per day and online) |
 | `src/optpred/serving/` | FastAPI signal API |
 | `frontend/`, `monitoring/`, `docker/` | web page; Prometheus, Alertmanager, Grafana; images |
-| `dvc.yaml`, `params.yaml` | the pipeline and every setting |
+| `dvc.yaml`, `params.yaml`, `MLproject` | the pipeline, every setting, the same commands as MLflow entry points |
 | `tests/` | unit, integration, API, end-to-end |
 
 ## Run it

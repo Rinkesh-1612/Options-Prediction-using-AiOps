@@ -226,12 +226,40 @@
    "options": {}
   },
   {
+   "type": "timeseries",
+   "title": "Volatility forecasts served per minute",
+   "id": 23,
+   "description": "GET /vol calls: the second model (nifty-vol)",
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "gridPos": {
+    "x": 0,
+    "y": 15,
+    "w": 12,
+    "h": 7
+   },
+   "targets": [
+    {
+     "refId": "A",
+     "expr": "rate(vol_requests_total[1m]) * 60",
+     "legendFormat": "forecasts / min"
+    }
+   ],
+   "fieldConfig": {
+    "defaults": {},
+    "overrides": []
+   },
+   "options": {}
+  },
+  {
    "type": "row",
    "title": "Data drift (served rows vs training days)",
    "id": 9,
    "gridPos": {
     "x": 0,
-    "y": 15,
+    "y": 22,
     "w": 24,
     "h": 1
    },
@@ -248,7 +276,7 @@
    },
    "gridPos": {
     "x": 0,
-    "y": 16,
+    "y": 23,
     "w": 4,
     "h": 7
    },
@@ -276,7 +304,7 @@
    },
    "gridPos": {
     "x": 4,
-    "y": 16,
+    "y": 23,
     "w": 8,
     "h": 7
    },
@@ -306,7 +334,7 @@
    },
    "gridPos": {
     "x": 12,
-    "y": 16,
+    "y": 23,
     "w": 12,
     "h": 7
    },
@@ -334,7 +362,7 @@
    },
    "gridPos": {
     "x": 0,
-    "y": 23,
+    "y": 30,
     "w": 4,
     "h": 4
    },
@@ -359,7 +387,7 @@
    "id": 14,
    "gridPos": {
     "x": 0,
-    "y": 27,
+    "y": 34,
     "w": 24,
     "h": 1
    },
@@ -376,7 +404,7 @@
    },
    "gridPos": {
     "x": 0,
-    "y": 28,
+    "y": 35,
     "w": 8,
     "h": 7
    },
@@ -404,7 +432,7 @@
    },
    "gridPos": {
     "x": 8,
-    "y": 28,
+    "y": 35,
     "w": 8,
     "h": 7
    },
@@ -439,7 +467,7 @@
    },
    "gridPos": {
     "x": 16,
-    "y": 28,
+    "y": 35,
     "w": 8,
     "h": 7
    },
@@ -467,7 +495,7 @@
    },
    "gridPos": {
     "x": 0,
-    "y": 35,
+    "y": 42,
     "w": 24,
     "h": 7
    },
@@ -497,7 +525,7 @@
    "id": 19,
    "gridPos": {
     "x": 0,
-    "y": 42,
+    "y": 49,
     "w": 24,
     "h": 1
    },
@@ -513,7 +541,7 @@
    },
    "gridPos": {
     "x": 0,
-    "y": 43,
+    "y": 50,
     "w": 6,
     "h": 6
    },
@@ -540,7 +568,7 @@
    },
    "gridPos": {
     "x": 6,
-    "y": 43,
+    "y": 50,
     "w": 8,
     "h": 6
    },
@@ -569,7 +597,7 @@
    },
    "gridPos": {
     "x": 14,
-    "y": 43,
+    "y": 50,
     "w": 10,
     "h": 6
    },

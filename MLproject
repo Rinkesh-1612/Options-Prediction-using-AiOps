@@ -1,0 +1,36 @@
+name: nifty-option-aiops
+
+# Every entry point runs in the same pipeline image, so a laptop, the VPS and a grader's machine get
+# identical Python, Java and library versions (dev = test environment). Build it once with `./pipe build`.
+#   mlflow run . -e test                                   # the whole test suite
+#   mlflow run . -e vol -A user=$(id -u):$(id -g)          # volatility forecaster; files stay yours
+#   mlflow run . -e zoo_train && mlflow run . -e zoo_eval  # direction models, then the deploy gate
+# MLflow starts the command without a shell, so each command runs through `bash -c`.
+# The data stages (export ... labels) run through DVC: `./pipe dvc repro` (see dvc.yaml).
+docker_env:
+  image: optpred-pipeline:latest
+  # /etc/passwd and /etc/group: Spark refuses a user ID with no name inside the container (as in ./pipe)
+  volumes: ["${PWD}:/app", "/etc/passwd:/etc/passwd:ro", "/etc/group:/etc/group:ro"]
+  environment: [["HOME", "/tmp"], ["SPARK_LOCAL_IP", "127.0.0.1"]]
+
+entry_points:
+  check:
+    command: "bash -c 'cd /app && python -m optpred.data.check'"
+  clean:
+    command: "bash -c 'cd /app && python -m optpred.eda.clean'"
+  grid:
+    command: "bash -c 'cd /app && python -m optpred.transform.grid'"
+  feat:
+    command: "bash -c 'cd /app && python -m optpred.featurelib.build'"
+  labels:
+    command: "bash -c 'cd /app && python -m optpred.labels.barrier'"
+  zoo_train:
+    command: "bash -c 'cd /app && python -m optpred.zoo.train'"
+  zoo_eval:
+    command: "bash -c 'cd /app && python -m optpred.zoo.evaluate'"
+  vol:
+    command: "bash -c 'cd /app && python -m optpred.vol.stage'"
+  drift:
+    command: "bash -c 'cd /app && python -m optpred.drift.track'"
+  test:
+    command: "bash -c 'cd /app && pytest -q -p no:cacheprovider tests/unit tests/api tests/integration'"

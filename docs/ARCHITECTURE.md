@@ -3,30 +3,9 @@
 One VPS, no cloud. Everything runs in Docker: the pipeline in one image (`./pipe`), the services with
 Docker Compose (`./stack`). Ravion V2 (the author's live trading system) records the market data.
 
-```mermaid
-flowchart LR
-  subgraph SRC[Data source]
-    U[Upstox feed] --> R[Ravion V2 recorder] --> CH[(ClickHouse)]
-  end
-  subgraph PIPE["Pipeline — DVC stages in the pipeline image (Spark, Ray, pandas, LightGBM, PyTorch)"]
-    E[export] --> C[check<br/>Spark] --> CL[clean<br/>Ray]
-    CL --> EDA[eda] & G[grid<br/>Ray] --> F[feat<br/>Ray] & L[labels<br/>Ray]
-    F & L --> ZT[zoo_train<br/>Ray Tune] --> ZE[zoo_eval<br/>deploy gate]
-    F & L --> D[drift]
-    G & F --> V[vol<br/>HAR vs IV]
-  end
-  CH --> E
-  ZT & ZE & D & V -->|runs, metrics, models| MF[(MLflow<br/>tracking + registry)]
-  subgraph STACK[Serving and monitoring — Docker Compose]
-    MS[model<br/>mlflow models serve] --> API[api<br/>FastAPI]
-    API --> WEB[frontend<br/>nginx]
-    API --> PR[Prometheus] --> GF[Grafana]
-    PR --> AM[Alertmanager] -->|webhook| API
-    API -->|retrain request| RUN[runner] -->|dvc repro| ZT
-  end
-  MF -->|alias champion| MS
-  DVCR[(DVC remote)] -.- PIPE
-```
+![Architecture diagram](architecture.svg)
+
+*Left to right: the data source, the pipeline (DVC stages in the pipeline image), and the serving and monitoring stack (Docker Compose). Source of the picture: `scripts/make_diagrams.py`.*
 
 | Block | What it does | Where |
 |---|---|---|
@@ -52,3 +31,57 @@ Prometheus 9091.
 **Versioning.** Git: code, configs, reports, run journal. Git LFS: one sample day. DVC: all data, local remote.
 MLflow registry: models (aliases `champion`, `previous`; tag `deploy_check`). Encrypted backup of data and
 models: `scripts/encrypt_snapshot.sh`.
+
+## The pipeline as a DVC DAG (this is the CI pipeline)
+
+`./pipe dvc dag` draws it from `dvc.yaml`. The Pipeline tab of the web page draws the same graph from the live file.
+
+```
+                                                     +--------+*****                                                             
+                                                     | export |     **********                                                   
+                                                     +--------+               **********                                         
+                                                     **                                 **********                               
+                                                    *                                             **********                     
+                                                   *                                                        **********           
+                                           **+-------+******                                                          *****      
+                                    ******* *| check |**** ***********                                                    *      
+                            ********  *******+-------+    *******  **************                                         *      
+                     *******     *****   ***      *              ********   ****************                              *      
+             ********      ******     ***         *                      *******     ******************                   *      
+      *******        ******         **            *                             *******       ******** **********         *      
+  ****            ***             ***             *                                    ****           *****      *****+-------+  
+  *               *                  ******       *                                       *                *******    | clean |  
+  *               *                        ****** *                                       *       *********  *        +-------+  
+  *               *                              *****                                    ********            *       **         
+  *               *                               *   ******                      *********                    **    *           
+  *               *                               *         ***            *******        *                      *  *            
+  ***             *                               *           +------+*****               *                    +-----+           
+     ******       *                               *         **| grid |                    *                    | eda |           
+           ****** *                               *   ********+------+                    *                    +-----+           
+                 *****                           *****    **          *                   *                                      
+                  *   ******               ******  *    **             *                  *                                      
+                  *         ***         ***        *  **                **                *                                      
+                  *           +--------+       +------+                   *               *                                      
+                  *         **| labels |     **| feat |****                **            *                                       
+                  *  *********+--------+*****  +------+    ******            *          *                                        
+                *****     **     ********      **      **        ******       *       **                                         
+         *******  *    *** ******        *    *          *             ******  **    *                                           
+    *****         *  ** ***               *  *            *                  *****  *                                            
+****        +-----------+              +-------+         ***                   +-----+                                           
+   ****     | zoo_train |              | drift |   ******                      | vol |                                           
+       *****+-----------+              +-------+***                            +-----+                                           
+            ****      *                  *****                                                                                   
+                ****   **          ******                                                                                        
+                    ***  *      ***                                                                                              
+                    +----------+                                                                                                 
+                    | zoo_eval |                                                                                                 
+                    +----------+
+```
+
+**CI and CD with DVC.** CI = the pre-push hook (`.githooks/pre-push`): ruff, all tests, `dvc dag`. CD = `dvc repro`:
+a stage runs again only when its code, its parameters or its input data changed; `zoo_eval` registers a new model, the
+smoke test checks it, and only then does the alias `champion` move. The model server follows the alias.
+
+**Reproducibility.** Every MLflow run carries the Git commit, `git_dirty` and the DVC hash of its data. The run
+journal (`runs/runs.jsonl`) records commit, parameters hash, duration and result of every stage run.
+`MLproject` runs the same commands in the same image (`mlflow run . -e test`; log in `reports/mlproject_test_run.log`).

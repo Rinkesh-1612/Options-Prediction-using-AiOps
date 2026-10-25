@@ -18,7 +18,9 @@
 ## Open items
 
 - From the development guideline (sections I, III, IV, V), still to do:
-  Docker Hub push (needs account), optional Swarm test.
+  Docker Hub push (needs account), optional Swarm test, push to GitHub.
+- Evaluation guideline checked 2026-10-25: MLproject restored (run log in reports/), speed and throughput shown in the
+  Pipeline tab, architecture + HLD diagrams (svg), paradigm / tracking / monitoring-coverage text in the HLD, viva notes.
 - Done from the guideline: Ray runs every per-day data stage (`optpred.common.parallel.map_days`);
   reproducibility: final zoo_train / zoo_eval / drift runs on clean commit 08f847c (MLflow tags
   git_commit=08f847c, git_dirty=False; same results; champion v7); integration test of

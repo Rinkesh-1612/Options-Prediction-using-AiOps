@@ -12,6 +12,11 @@ model forecasts the NIFTY move over the next 5 / 15 min and beats the option mar
 test days (`reports/vol/comparison.md`). A good volatility forecast did not make straddles profitable after the spread
 (research branch `forward-data`: volatility, expiry-day and execution studies, with the forward days); for Ravion it is a filter and sizing input.
 
+![High-level design](hld.svg)
+
+*Five layers from raw ticks to a served, monitored forecast, and the rules that hold them together. Source:
+`scripts/make_diagrams.py`. The runtime picture (containers, ports) is in [ARCHITECTURE.md](ARCHITECTURE.md).*
+
 ## 2. Design rules
 
 1. **No look-ahead.** Every feature uses only data up to its second (tested for every feature). Gaps are
@@ -23,6 +28,13 @@ test days (`reports/vol/comparison.md`). A good volatility forecast did not make
    The test days only report.
 5. **Everything is a stage.** DVC runs it; the run journal (`runs/runs.jsonl`) records commit, parameters,
    duration and result; MLflow records models and metrics with the commit and the DVC data hashes.
+
+6. **Functional stages, small classes where state is needed.** Every pipeline stage is a function: files in, files
+   out, no hidden state (`dvc.yaml` is the call graph). Classes are used only where an object holds state or a
+   contract: the model families (`fit` / `predict_day`), the registered feature, the API application.
+7. **Loose coupling.** The web page and the model are separate blocks that talk only through configurable REST
+   calls: the page knows one address (`config.json`), the API is the only entry, the model server is never exposed.
+   A test checks that every path the page calls is in the LLD.
 
 ## 3. Main decisions
 
@@ -61,3 +73,38 @@ test days (`reports/vol/comparison.md`). A good volatility forecast did not make
 - **Explainability:** global: gain importance and group ablation for the champion (Results tab, MLflow). Per signal:
   exact SHAP values of the score (`/signal` → `drivers`; Signal tab, "Why the put scored …"). They add up to the score.
 - **Collaboration:** shared MLflow UI, Grafana, Git history, `docs/steps/` (one reviewed note per rubric item).
+
+## 6. Experiment tracking: what MLflow records
+
+Experiments `nifty-zoo` (direction models, drift) and `nifty-vol` (volatility forecasters); registered models
+`nifty-signal` and `nifty-vol` (aliases `champion`, `previous`; tag `deploy_check`).
+
+| Kind | What is recorded |
+|---|---|
+| Parameters | every model setting of the grid, the family, the threshold quantile |
+| Metrics | cross-validation net ₹/day, trades, hit rate, Sharpe, drawdown, IC per fold; test metrics with the 95% interval; QLIKE and correlation for the volatility forecasters |
+| Artifacts | the model (pyfunc), feature importance, the group ablation, drift per day |
+| **Beyond autolog** | the **Git commit** and `git_dirty`, the **DVC hash** of the feature and label data, the dev and test day ranges, per-fold results, the deploy-gate result (`deploy_check`), the drift series over time |
+
+## 7. Monitoring: what is watched, and are all components covered?
+
+| Component | How it is monitored |
+|---|---|
+| api | Prometheus scrapes it every 5 s: requests, latency, signals by action, served trades won / lost and net ₹, volatility forecasts, drift, data quality, last run of every stage |
+| model server | `model_service_up` (the api pings it), `model_call_seconds`; the server also checks itself and rolls back |
+| mlflow | scraped directly (`job=mlflow`), health check in Compose |
+| host | node-exporter: CPU, memory, disk |
+| pipeline stages | `pipeline_last_run_ok{stage}` from the run journal; alert `PipelineStageFailed` |
+| frontend (static nginx) | no own metrics; its calls appear in the api request metrics, and Compose restarts it |
+| Prometheus, Alertmanager, Grafana | `up` of every scrape target; alert `TargetDown` |
+
+Eight alert rules (`monitoring/alerts.yml`): DriftDetected, ModelLosing, LowHitRate, ModelServiceDown, TargetDown,
+PipelineStageFailed, SlowApi, BadDataRate. Grafana refreshes every 5 s.
+
+## 8. Speed and throughput
+
+Measured from the run journal and shown live in the Pipeline tab (table "Speed and throughput").
+Data engineering: `check` (Spark) reads 86 M raw option ticks at about 350,000 rows/s; `clean` (Ray, 2 CPUs) cleans
+111 M ticks in about 4 minutes; `grid` builds 1.1 M one-second rows from 106 M clean ticks in about 90 s. Whole
+pipeline from clean data to a registered, deployed model: about 40 minutes (training dominates). One signal:
+about 90 ms through the API.

@@ -35,6 +35,7 @@ Out: `reports/vol/test.json` (`champion, verdict{300, 900: mean_daily_qlike_diff
 
 ### GET /model
 Out: `{"champion": V, "previous": V}`, V = `{version, family, git_commit, deploy_check, metrics}`.
+Also `"vol": {version, family, deploy_check}`: the champion of the volatility forecaster `nifty-vol`.
 
 ### GET /results
 Out: `reports/zoo/test.json` (`test_days, champion, results{family: net_per_day, ci95_net_per_day, trades,`

@@ -28,6 +28,7 @@ Updated at each step.
 | `tests/helpers/grid_synth.py`, `tests/helpers/synth.py` | synthetic data for the tests |
 | `dvc.yaml` stages `export`, `check`, `clean`, `eda`, `grid`, `feat`, `labels`, `zoo_train`, `zoo_eval`, `drift`, `vol` | pipeline |
 | `params.yaml` sections `export`, `spark`, `check`, `eda`, `grid`, `feat`, `labels`, `zoo`, `drift`, `vol` | settings |
+| `MLproject`, `reports/mlproject_test_run.log`, `scripts/make_diagrams.py`, `docs/architecture.svg`, `docs/hld.svg`, `docs/VIVA_NOTES.md` | MLflow project, diagrams, viva |
 | `dvc.lock`, `.dvc/`, `.dvcignore`, `.gitignore`, `.gitattributes`, `data/.gitignore` | versioning |
 | `pipe`, `docker/Dockerfile.pipeline`, `docker/Dockerfile.serve`, `requirements.txt` (the only one), `Makefile`, `pyproject.toml`, `.githooks/pre-push` | run environment, CI |
 | `data/sample/` (Git LFS: one test day of feat + labels), `data/raw`, `data/days.json`, `data/clean`, `data/grid`, `data/feat`, `data/labels` | data (DVC) |

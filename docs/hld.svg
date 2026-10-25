@@ -1,0 +1,101 @@
+<svg xmlns='http://www.w3.org/2000/svg' width='1210' height='740' viewBox='0 0 1210 740'><defs><marker id='a' viewBox='0 0 10 10' refX='9' refY='5' markerWidth='7' markerHeight='7' orient='auto-start-reverse'><path d='M0,0 L10,5 L0,10 z' fill='#5d6673'/></marker></defs>
+<rect width='1210' height='740' fill='white'/>
+<text x='24' y='34' font-size='20' font-weight='700' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>High-level design: from raw ticks to a served, monitored forecast</text>
+<rect x='20' y='60' width='830' height='90' rx='12' fill='#e8f0fe' fill-opacity='.45' stroke='#4c72b0' stroke-dasharray='5 4'/>
+<text x='32' y='82' font-size='13' font-weight='700' fill='#4c72b0' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>1  Data</text>
+<rect x='20' y='180' width='830' height='90' rx='12' fill='#e6f4ea' fill-opacity='.45' stroke='#2e7d4f' stroke-dasharray='5 4'/>
+<text x='32' y='202' font-size='13' font-weight='700' fill='#2e7d4f' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>2  Features and targets</text>
+<rect x='20' y='300' width='830' height='90' rx='12' fill='#fff4e0' fill-opacity='.45' stroke='#c77700' stroke-dasharray='5 4'/>
+<text x='32' y='322' font-size='13' font-weight='700' fill='#c77700' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>3  Models</text>
+<rect x='20' y='420' width='830' height='90' rx='12' fill='#f3e8fd' fill-opacity='.45' stroke='#7b3fb3' stroke-dasharray='5 4'/>
+<text x='32' y='442' font-size='13' font-weight='700' fill='#7b3fb3' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>4  Release</text>
+<rect x='20' y='540' width='830' height='170' rx='12' fill='#fde8e8' fill-opacity='.45' stroke='#c0392b' stroke-dasharray='5 4'/>
+<text x='32' y='562' font-size='13' font-weight='700' fill='#c0392b' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>5  Operate</text>
+<rect x='40' y='92' width='190' height='52' rx='8' fill='#e8f0fe' stroke='#4c72b0' stroke-width='1.6'/>
+<text x='135.0' y='114.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>raw ticks</text>
+<text x='135.0' y='128.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>ClickHouse -&gt; Parquet</text>
+<rect x='250' y='92' width='190' height='52' rx='8' fill='#e8f0fe' stroke='#4c72b0' stroke-width='1.6'/>
+<text x='345.0' y='114.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>check</text>
+<text x='345.0' y='128.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>accept or reject each day</text>
+<rect x='460' y='92' width='190' height='52' rx='8' fill='#e8f0fe' stroke='#4c72b0' stroke-width='1.6'/>
+<text x='555.0' y='114.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>clean</text>
+<text x='555.0' y='128.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>outlier rules, fill with age limit</text>
+<rect x='670' y='92' width='190' height='52' rx='8' fill='#e8f0fe' stroke='#4c72b0' stroke-width='1.6'/>
+<text x='765.0' y='114.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>grid</text>
+<text x='765.0' y='128.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>1 row per second, ATM +-2 legs</text>
+<path d='M230,118 L250,118' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<path d='M440,118 L460,118' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<path d='M650,118 L670,118' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<rect x='40' y='212' width='250' height='52' rx='8' fill='#e6f4ea' stroke='#2e7d4f' stroke-width='1.6'/>
+<text x='165.0' y='234.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>feature library</text>
+<text x='165.0' y='248.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>46 features, tested for look-ahead</text>
+<rect x='310' y='212' width='250' height='52' rx='8' fill='#e6f4ea' stroke='#2e7d4f' stroke-width='1.6'/>
+<text x='435.0' y='234.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>triple-barrier labels</text>
+<text x='435.0' y='248.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>net rupees of a trade</text>
+<rect x='580' y='212' width='250' height='52' rx='8' fill='#e6f4ea' stroke='#2e7d4f' stroke-width='1.6'/>
+<text x='705.0' y='234.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>volatility targets</text>
+<text x='705.0' y='248.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>realized move, 5 and 15 min</text>
+<rect x='40' y='332' width='250' height='52' rx='8' fill='#fff4e0' stroke='#c77700' stroke-width='1.6'/>
+<text x='165.0' y='354.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>model zoo: 9 families</text>
+<text x='165.0' y='368.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>walk-forward CV, Ray Tune</text>
+<rect x='310' y='332' width='250' height='52' rx='8' fill='#fff4e0' stroke='#c77700' stroke-width='1.6'/>
+<text x='435.0' y='354.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>volatility forecaster</text>
+<text x='435.0' y='368.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>HAR vs the option market's IV</text>
+<rect x='40' y='452' width='190' height='52' rx='8' fill='#f3e8fd' stroke='#7b3fb3' stroke-width='1.6'/>
+<text x='135.0' y='474.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>test days scored once</text>
+<text x='135.0' y='488.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>choose on validation only</text>
+<rect x='250' y='452' width='190' height='52' rx='8' fill='#f3e8fd' stroke='#7b3fb3' stroke-width='1.6'/>
+<text x='345.0' y='474.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>deploy gate</text>
+<text x='345.0' y='488.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>smoke test before serving</text>
+<rect x='460' y='452' width='190' height='52' rx='8' fill='#f3e8fd' stroke='#7b3fb3' stroke-width='1.6'/>
+<text x='555.0' y='474.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>model registry</text>
+<text x='555.0' y='488.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>champion / previous</text>
+<rect x='670' y='452' width='190' height='52' rx='8' fill='#f3e8fd' stroke='#7b3fb3' stroke-width='1.6'/>
+<text x='765.0' y='474.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>model server + API</text>
+<text x='765.0' y='488.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>rollback if a version fails</text>
+<path d='M230,478 L250,478' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<path d='M440,478 L460,478' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<path d='M650,478 L670,478' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<rect x='40' y='572' width='250' height='52' rx='8' fill='#fde8e8' stroke='#c0392b' stroke-width='1.6'/>
+<text x='165.0' y='594.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>web page</text>
+<text x='165.0' y='608.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>signal, results, pipeline, ops</text>
+<rect x='310' y='572' width='250' height='52' rx='8' fill='#fde8e8' stroke='#c0392b' stroke-width='1.6'/>
+<text x='435.0' y='594.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Prometheus + Grafana</text>
+<text x='435.0' y='608.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>metrics, alerts, drift</text>
+<rect x='40' y='642' width='250' height='52' rx='8' fill='#fde8e8' stroke='#c0392b' stroke-width='1.6'/>
+<text x='165.0' y='664.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>drift check (PSI)</text>
+<text x='165.0' y='678.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>per day and online</text>
+<rect x='310' y='642' width='250' height='52' rx='8' fill='#fde8e8' stroke='#c0392b' stroke-width='1.6'/>
+<text x='435.0' y='664.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>retrain: alert, button, schedule</text>
+<text x='435.0' y='678.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>then the gate again</text>
+<path d='M435,150 L435,180' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<path d='M435,270 L435,300' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<path d='M435,390 L435,420' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<path d='M435,510 L435,540' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
+<path d='M560,668 L885,668 L885,358 L580,358' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)' stroke-dasharray="5 4"/>
+<text x='905' y='520' font-size='11' font-weight='400' fill='#3d4651' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>retrain</text>
+<rect x='930' y='60' width='260' height='650' rx='12' fill='#f5f6f8' fill-opacity='.45' stroke='#9aa3af' stroke-dasharray='5 4'/>
+<text x='942' y='82' font-size='13' font-weight='700' fill='#9aa3af' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Design rules</text>
+<text x='946' y='106' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>1  No look-ahead.</text>
+<text x='946' y='121' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Every input uses data up to its</text>
+<text x='946' y='136' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>second. Gaps: forward fill</text>
+<text x='946' y='151' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>with an age limit.</text>
+<text x='946' y='204' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>2  One definition of a trade.</text>
+<text x='946' y='219' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Buy at the ask, sell at the bid,</text>
+<text x='946' y='234' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>statutory costs. Labels,</text>
+<text x='946' y='249' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>simulator and API share it.</text>
+<text x='946' y='302' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>3  The day is the unit.</text>
+<text x='946' y='317' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Stages run per day (Ray).</text>
+<text x='946' y='332' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Splits are by whole day.</text>
+<text x='946' y='400' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>4  Choose on validation,</text>
+<text x='946' y='415' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>report on test.</text>
+<text x='946' y='430' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Test days are scored once.</text>
+<text x='946' y='498' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>5  Everything is a stage.</text>
+<text x='946' y='513' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>DVC runs it; the run journal and</text>
+<text x='946' y='528' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>MLflow record the commit.</text>
+<text x='946' y='596' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>6  Loose coupling.</text>
+<text x='946' y='611' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>The page knows only the API</text>
+<text x='946' y='626' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>address (config.json).</text>
+<text x='946' y='641' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Functional stages: files in,</text>
+<text x='946' y='656' font-size='12' font-weight='400' fill='#14171c' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>files out.</text>
+</svg>

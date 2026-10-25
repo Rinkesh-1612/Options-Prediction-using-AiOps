@@ -1,0 +1,6 @@
+# mlflow run . -e test -A user=$(id -u):$(id -g) --env-manager local   (2026-10-25, MLflow 3.17.1 client)
+2026/10/25 09:18:38 INFO mlflow.projects.docker: optpred-pipeline:latest already exists
+2026/10/25 09:18:38 INFO mlflow.projects.utils: === Created directory /tmp/tmpcb_3f8i9 for downloading remote URIs passed to arguments of type 'path' ===
+2026/10/25 09:18:38 INFO mlflow.projects.backend.local: === Running command 'docker run --rm --user 1000:1000 -v /<scratch>/mlrun.db:/mlflow/tmp/mlruns -v /home/trader/Options-Prediction-using-AiOps/mlruns/0/435732e525ae47569e0f5a079f70568a/artifacts:/home/trader/Options-Prediction-using-AiOps/mlruns/0/435732e525ae47569e0f5a079f70568a/artifacts -v ${PWD}:/app -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro -e MLFLOW_RUN_ID=435732e525ae47569e0f5a079f70568a -e MLFLOW_TRACKING_URI=sqlite:////mlflow/tmp/mlruns -e MLFLOW_EXPERIMENT_ID=0 -e HOME=/tmp -e SPARK_LOCAL_IP=127.0.0.1 optpred-pip
+99 passed, 14 warnings in 75.20s (0:01:15)
+2026/10/25 09:19:57 INFO mlflow.projects: === Run (ID '435732e525ae47569e0f5a079f70568a') succeeded ===

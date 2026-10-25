@@ -420,6 +420,15 @@ def create_app(
             }
         if "champion" in out:
             m.version.set(out["champion"]["version"])
+        try:  # the volatility forecaster (second model)
+            v = c.get_model_version_by_alias(st.vol_model_name, "champion")
+            out["vol"] = {
+                "version": int(v.version),
+                "family": c.get_run(v.run_id).data.tags.get("family"),
+                "deploy_check": v.tags.get("deploy_check"),
+            }
+        except Exception:  # noqa: BLE001 -- no volatility model registered yet
+            pass
         return out
 
     @app.get("/results")
@@ -507,6 +516,39 @@ def create_app(
         keep = ("run_id", "stage", "started", "status", "duration_s", "git_commit", "git_dirty", "exit_code")
         return {k: r.get(k) for k in keep} | {"summary": r.get("summary") or {}}
 
+    def report(path: str):
+        p = st.reports_dir / path
+        return json.loads(p.read_text()) if p.exists() else None
+
+    def throughput(stage: str, run: dict | None) -> dict | None:
+        """Input rows of the stage and rows per second of its last successful run (None for model fits)."""
+        if not run or not run.get("duration_s"):
+            return None
+        clean = (report("eda/cleaning.json") or {}).get("total", {})
+        grid = (report("grid.json") or {}).get("rows")
+        by_stage = {
+            "check": (
+                sum(v.get("tape_rows_raw", 0) for v in (report("quality.json") or {}).values()),
+                "raw option ticks",
+            ),
+            "clean": (sum(t.get("rows_in", 0) for t in clean.values()), "raw ticks"),
+            "eda": (sum(t.get("rows_out", 0) for t in clean.values()), "clean ticks"),
+            "grid": (sum(t.get("rows_out", 0) for t in clean.values()), "clean ticks"),
+            "feat": (grid, "grid rows"),
+            "labels": (grid, "grid rows"),
+            "drift": ((report("feat.json") or {}).get("rows"), "feature rows"),
+            "vol": (grid, "grid rows"),
+        }
+        rows, unit = by_stage.get(stage, (None, None))
+        if not rows:
+            return None
+        return {
+            "rows": int(rows),
+            "unit": unit,
+            "seconds": run["duration_s"],
+            "rows_per_s": round(rows / run["duration_s"]),
+        }
+
     @app.get("/pipeline")
     def pipeline():
         sts = stages()
@@ -521,10 +563,15 @@ def create_app(
                 for a, produced in outs.items():
                     if a != b and any(dep == o or dep.startswith(o.rstrip("/") + "/") for o in produced):
                         edges.append([a, b])
-        last = {}
+        last, last_ok = {}, {}
         for r in journal():
             last[r.get("stage")] = run_view(r)
-        nodes = [{"name": n, "cmd": v.get("cmd"), "last": last.get(n)} for n, v in sts.items()]
+            if r.get("status") == "ok":
+                last_ok[r.get("stage")] = run_view(r)
+        nodes = [
+            {"name": n, "cmd": v.get("cmd"), "last": last.get(n), "throughput": throughput(n, last_ok.get(n))}
+            for n, v in sts.items()
+        ]
         return {"stages": nodes, "edges": sorted({tuple(e) for e in edges})}
 
     @app.get("/pipeline/runs")
