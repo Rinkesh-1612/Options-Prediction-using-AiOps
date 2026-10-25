@@ -21,7 +21,7 @@ library for the author's trading system (Ravion V2).
 | [Architecture](docs/ARCHITECTURE.md) | diagram, blocks, ports, versioning |
 | [High-level design](docs/HLD.md) | problem, design rules, decisions, technology map |
 | [Low-level design](docs/LLD.md) | every API endpoint and pipeline stage with its input and output |
-| [Test plan](docs/TEST_PLAN.md) | levels, 90 test cases, acceptance criteria; report in `reports/test_report.md` |
+| [Test plan](docs/TEST_PLAN.md) | levels, 104 test cases, acceptance criteria; report in `reports/test_report.md` |
 | [User manual](docs/USER_MANUAL.md) | the web page, tab by tab; operator commands |
 | [Viva notes](docs/VIVA_NOTES.md) | short answers to likely questions |
 | [Rubric steps](docs/steps/PROGRESS.md) | one short note per course item |
