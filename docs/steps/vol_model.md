@@ -20,3 +20,6 @@ Forecast tab (headline answer and chart, `GET /vol/day`), "Does it work?" tab (v
 
 **Limit.** A good forecast is not a trade: buying straddles on it lost money after the spread (research note on
 `vol-track`). For Ravion it is a filter and position-size input.
+
+
+Using the forecast as a gate for trading (buy options when the forecast is high, sell when low) was tested: see [strategy_search.md](strategy_search.md). Result: no structure pays after costs.

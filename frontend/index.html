@@ -1595,7 +1595,7 @@ async function loadVerdict() {
       <article class="verdict ${edge ? "good" : "bad"}"><h2>${ico(edge ? "check" : "x")}Call or put?</h2>
         <div class="big ${edge ? "good" : "bad"}">${edge ? "Yes, an edge" : "No edge shown"}</div>
         <p>The best call/put model made <b class="${c.net_per_day >= 0 ? "good" : "bad"}">${rs(c.net_per_day)} a day</b> on ${res.test_days.length} unseen days after costs (95% interval ${rs(c.ci95_net_per_day[0])} to ${rs(c.ci95_net_per_day[1])}).</p></article>`;
-    $("#verdict-note").textContent = "Strategy results in step 4 are examples for one moment, not tested across days. A rule that picks strategies by itself, and an equity curve over all unseen days, were planned and are not built.";
+    $("#verdict-note").textContent = "Strategy results in step 4 are examples for one moment. The rules "high forecast volatility: buy options, low: sell them" were tested on the training days in a separate research study (27 structures, 5 holding times): none paid after costs, so the unseen days were not scored. A strategy-picking rule on this page and an equity curve over all unseen days are not built.";
     box.setAttribute("aria-busy", "false");
   } catch (e) { box.innerHTML = `<div class="verdict"><p>${esc(friendly(e))}</p></div>`; }
 }

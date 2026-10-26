@@ -24,11 +24,12 @@ model_training, deployment, monitoring, ui, vol_model. Then `docs/ARCHITECTURE.m
 
 ## Honest results
 - Volatility forecast: works (15-minute QLIKE better than the options market on 10 of 10 unseen days).
+- Vol gate (high forecast: buy options, low: sell): tested on training days, did not pay after costs (docs/steps/strategy_search.md).
 - Call/put models: lost about ₹1,376 a day on the unseen days after costs. No edge.
-- Strategies (page step 4): examples for one moment. Not tested across days.
+- Strategies (page step 4): examples for one moment. The vol-gate study (27 structures x 5 holds, training days only): no structure pays after spread and charges; long straddle/strangle improves with the forecast but stays below zero; the training period was a falling market (-7.9%), which flatters long puts.
 
 ## Not done (say so in the viva)
-- A rule or model that picks strategies, and an equity curve over all unseen days (the "alpha test").
+- A strategy-picking rule on the page and an equity curve over all unseen days. The volatility-gate idea WAS tested on the training days (branch `strategy-search`, summary in `docs/steps/strategy_search.md`): no structure paid after costs, so the unseen days were not scored.
 - Docker Hub push (needs your account), Swarm test, an off-machine DVC remote (today the remote is a folder on the same disk).
 - `docs/steps/data_identification.md` still names old folders (bars, ticks, micro) from removed stages.
 - Margin for short strategies is not modelled.

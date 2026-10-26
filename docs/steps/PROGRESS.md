@@ -12,7 +12,7 @@
 | [Model Deployment](deployment.md) | DONE |
 | [Model Monitoring & Maintenance](monitoring.md) | DONE |
 | [Web page (UI)](ui.md) | DONE (rebuilt for non-technical users; browser audit 13 of 13) |
-| [Web page v2: Explore story page](ui.md) | DONE (steps 1-6: tour, calendar, IV views, one day by the minute, strategies, models, verdict). Not built: a rule/model that picks strategies across days and an equity curve |
+| [Web page v2: Explore story page](ui.md) | DONE (steps 1-6: tour, calendar, IV views, one day by the minute, strategies, models, verdict). Not built on the page: a strategy-picking rule and an equity curve. The vol-gate idea was tested on training days: [strategy_search.md](strategy_search.md) (no structure pays after costs) |
 | [Second model: volatility forecaster](vol_model.md) | DONE (beats the option market on 10/10 test days) |
 | Documents: [architecture](../ARCHITECTURE.md), [HLD](../HLD.md), [LLD](../LLD.md), [test plan](../TEST_PLAN.md), [user manual](../USER_MANUAL.md) | DONE |
 
@@ -34,4 +34,4 @@
 ## Wrap-up (2026-10-26)
 
 Project stopped at the owner's request so that the owner can study it. Handover: [WRAP_UP.md](WRAP_UP.md).
-Not done: Docker Hub push, Swarm test, off-machine DVC remote, strategy-picking model and equity curve (alpha test).
+Not done: Docker Hub push, Swarm test, off-machine DVC remote, strategy-picking rule and equity curve on the page.

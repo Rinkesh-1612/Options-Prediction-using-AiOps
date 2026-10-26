@@ -7,7 +7,7 @@ Updated at each step.
 
 | Path | Why |
 |---|---|
-| `docs/steps/` | reviewed write-ups, progress, this list, `WRAP_UP.md` (handover) |
+| `docs/steps/` | reviewed write-ups, progress, this list, `WRAP_UP.md` (handover), `strategy_search.md` (vol-gate study) |
 | `docs/ARCHITECTURE.md`, `HLD.md`, `LLD.md`, `TEST_PLAN.md`, `USER_MANUAL.md`, `docs/img/`, `README.md`, `AI_DISCLOSURE.md` | documents |
 | `src/optpred/common/clock.py`, `runlog.py`, `spark.py`, `parallel.py` | session clock, run journal, Spark (`check`), Ray per-day tasks |
 | `src/optpred/data/export.py`, `check.py` | stages export, check |
