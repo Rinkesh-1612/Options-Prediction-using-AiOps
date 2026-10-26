@@ -12,7 +12,7 @@
 | [Model Deployment](deployment.md) | DONE |
 | [Model Monitoring & Maintenance](monitoring.md) | DONE |
 | [Web page (UI)](ui.md) | DONE (rebuilt for non-technical users; browser audit 13 of 13) |
-| [Web page v2: Explore (calendar, IV views, one day by the minute)](ui.md) | IN PROGRESS: calendar, IV views, one day by the minute, strategies and model outputs built; models side by side, alpha test and verdict next |
+| [Web page v2: Explore story page](ui.md) | DONE (steps 1-6: tour, calendar, IV views, one day by the minute, strategies, models, verdict). Not built: a rule/model that picks strategies across days and an equity curve |
 | [Second model: volatility forecaster](vol_model.md) | DONE (beats the option market on 10/10 test days) |
 | Documents: [architecture](../ARCHITECTURE.md), [HLD](../HLD.md), [LLD](../LLD.md), [test plan](../TEST_PLAN.md), [user manual](../USER_MANUAL.md) | DONE |
 
@@ -30,3 +30,8 @@
   per-signal explainability (SHAP: /signal drivers + Forecast tab);
   end-to-end tests (tests/e2e, `make e2e`); scalability and collaboration notes (HLD section 5);
   old caches removed (DVC cache 12 -> 9.5 GB, old MLflow experiments and models purged).
+
+## Wrap-up (2026-10-26)
+
+Project stopped at the owner's request so that the owner can study it. Handover: [WRAP_UP.md](WRAP_UP.md).
+Not done: Docker Hub push, Swarm test, off-machine DVC remote, strategy-picking model and equity curve (alpha test).

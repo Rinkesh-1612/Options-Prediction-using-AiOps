@@ -331,8 +331,7 @@ h3.sub { font-size: 16px; margin: 16px 0 6px; }
     </div>
 
     <nav class="story" id="story" aria-label="Steps on this page">
-      <a href="#s-day">1 Pick a day</a><a href="#s-iv">2 Implied volatility</a><a href="#s-intra">3 Inside one day</a><a href="#s-strat">4 Strategies</a><a href="#s-models">5 Models</a>
-      <a class="soon" href="#s-next">6–7 Alpha, verdict (next)</a>
+      <a href="#s-day">1 Pick a day</a><a href="#s-iv">2 Implied volatility</a><a href="#s-intra">3 Inside one day</a><a href="#s-strat">4 Strategies</a><a href="#s-models">5 Models</a><a href="#s-verdict">6 Verdict</a>
     </nav>
 
     <div class="stack" style="margin-top:8px">
@@ -410,13 +409,11 @@ h3.sub { font-size: 16px; margin: 16px 0 6px; }
         <figure class="chart"><h4 class="ct">Direction models over the whole day: money made following each one</h4><div id="ch-dirday" class="plot" role="img" aria-label="Money made by each direction model over the day"></div><div id="ch-dirday-t"></div></figure>
       </div>
 
-      <div class="card soon-card" id="s-next" aria-labelledby="next-h">
-        <h2 id="next-h">6–7 Coming next</h2>
-        <ul>
-          <li><b>6 The alpha test:</b> on unseen days only: the IV rich or cheap rule, a model that picks the structure, the direction signal and the equity curve.</li>
-          <li><b>7 Verdict:</b> what works and what does not, in plain words.</li>
-        </ul>
-        <div class="row" style="margin-top:10px"><span class="muted">Older pages, until these steps replace them:</span><a class="btn sm" href="#forecast">Forecast</a><a class="btn sm" href="#works">Does it work?</a></div>
+      <div class="card" id="s-verdict" aria-labelledby="verdict-h">
+        <h2 class="step" id="verdict-h"><span class="n" aria-hidden="true">6</span>Verdict</h2>
+        <div class="verdicts" id="verdict-box" aria-busy="true"><div class="verdict"><p class="skel">Loading…</p></div><div class="verdict"><p class="skel">Loading…</p></div></div>
+        <p class="muted" style="margin-top:12px" id="verdict-note"></p>
+        <div class="row" style="margin-top:10px"><span class="muted">Full tables and the old pages:</span><a class="btn sm" href="#works">Does it work?</a><a class="btn sm" href="#forecast">Forecast</a></div>
       </div>
     </div>
   </section>
@@ -840,7 +837,7 @@ function plotForecast() {
   });
   el.setAttribute("aria-label", chartLabel());
   paint("forecast", el, data, layout).then(() => {
-    if (el._bound) return; el._bound = true;
+    if (el._bound || !el.on) return; el._bound = true;
     el.on("plotly_click", (ev) => { const s = sodOfX(ev.points?.[0]?.x); if (s != null) setMoment(Math.round(s / 60) * 60, true); });
     el.on("plotly_relayout", () => markRange());
   });
@@ -1210,7 +1207,7 @@ const TOUR = [
   ["Step 2: implied volatility", "Implied volatility (IV) is the market's guess of how much NIFTY will swing, read from option prices. Four views: IV over the days, IV against our own forecast and what happened, the smile (IV by strike) and the term structure (IV by expiry).", "tour-3.png"],
   ["Step 3: inside one day", "The same day by the minute. Click the chart to choose a time. You see the market's IV, our forecast and what happened after that time. The index is drawn underneath.", "tour-4.png"],
   ["Step 4: strategies at that moment", "What 18 ready-made strategies (calls, puts, straddles, spreads, ratio spreads and more) would have made if you had entered at the chosen time, after all charges. Close them after a set time or by a barrier rule. Click a row to see the result by closing time and the profit at expiry. You can also build your own with up to 4 legs.", "tour-5.png"],
-  ["Coming next: models and the verdict", "Next versions add what each model said at that moment (volatility, direction, deep models, baselines) and the alpha test on unseen days.", ""],
+  ["Step 5 and 6: models and the verdict", "Step 5 shows what each model said at the chosen moment, next to what happened, with a badge that says whether the day is a fair test for that model. Step 6 gives the verdict in plain words: the volatility forecast works; the call/put models showed no edge after costs.", ""],
   ["Be honest about the result", "Our volatility forecast beat the options market on every unseen day. Models that pick a direction (call or put) found no edge. The page shows both plainly.", ""],
 ];
 const swatch = (cls, dash) => `<svg class="sw" viewBox="0 0 28 10" aria-hidden="true"><line x1="0" y1="5" x2="28" y2="5" stroke="var(${cls})" stroke-width="${dash ? 2 : 3}" ${dash ? `stroke-dasharray="${dash}"` : ""}/></svg>`;
@@ -1236,6 +1233,7 @@ $("#tour-next").addEventListener("click", () => { if (E.step === TOUR.length - 1
 
 /* load */
 async function loadExplore() {
+  loadVerdict();
   try {
     [E.days, E.daily] = await Promise.all([api("/explore/days"), api("/explore/iv/daily")]);
     clearError();
@@ -1312,7 +1310,7 @@ function drawIvDays(el, note, m) {
     }
     const k = Math.max(0, x.indexOf(E.day)), sel = [{ type: "line", xref: "x", yref: "paper", x0: k, x1: k, y0: 0, y1: 1, line: { color: th.ink, width: 2 } }];
     paint("iv", el, data, baseLayout(th, { height: 380, hovermode: "x unified", dragmode: false, margin: { l: 58, r: 16, t: 8, b: 96 }, xaxis: dayAxis(th, days), yaxis: axis(th, { rangemode: "tozero", ticksuffix: "%", title: ytitle(th, "volatility, yearly %"), fixedrange: true }), shapes: [...band(th, days), ...sel] })).then(() => {
-      if (el._iv) return; el._iv = true; el.on("plotly_click", (ev) => { const d = ev.points?.[0]?.x; if (d && /^\d{4}-/.test(d)) selectDay(d); });
+      if (el._iv || !el.on) return; el._iv = true; el.on("plotly_click", (ev) => { const d = ev.points?.[0]?.x; if (d && /^\d{4}-/.test(d)) selectDay(d); });
     });
   };
   draw(); REDRAW.iv = () => (E.mode === "time" || E.mode === "forecast" ? drawIvDays(el, note, E.mode) : drawIvDay(el, note, E.mode));
@@ -1415,7 +1413,7 @@ function plotIntra() {
   });
   el.setAttribute("aria-label", `${longDay(E.day)} by the minute: options market volatility, our forecast, what happened and the NIFTY index`);
   paint("intra", el, data, layout).then(() => {
-    if (el._bound) return; el._bound = true;
+    if (el._bound || !el.on) return; el._bound = true;
     el.on("plotly_click", (ev) => { const s = sodOfX(ev.points?.[0]?.x); if (s != null) setT(Math.round(s / 60) * 60, true); });
   });
 }
@@ -1581,6 +1579,25 @@ function drawDirDay() {
   const th = theme();
   paint("dirday", el, [{ type: "bar", orientation: "h", y: rows.map((x) => MNAME[x.family] || x.family), x: rows.map((x) => x.net), width: 0.5, marker: { color: rows.map((x) => (x.baseline ? th.muted : th.s1)), line: { color: th.surface, width: 2 } }, text: rows.map((x) => rs(x.net)), textposition: "outside", cliponaxis: false, textfont: { family: FONT, size: 12, color: th.ink }, hovertemplate: "<b>%{x:,.0f}</b> ₹ · %{y}<extra></extra>" }],
     baseLayout(th, { height: 40 * rows.length + 90, hovermode: "closest", dragmode: false, showlegend: false, margin: { l: 210, r: 70, t: 6, b: 56 }, xaxis: axis(th, { range: [Math.min(0, ...rows.map((x) => x.net)) * 1.35, Math.max(0, ...rows.map((x) => x.net)) * 1.35 + 50], tickformat: ",d", title: ytitle(th, "net result of following the model today, ₹"), fixedrange: true, zeroline: true, zerolinecolor: th.muted }), yaxis: axis(th, { autorange: "reversed", fixedrange: true, automargin: true }) }));
+}
+
+/* ---------- verdict ---------- */
+async function loadVerdict() {
+  const box = $("#verdict-box");
+  try {
+    const [vol, res] = await Promise.all([api("/vol/results"), api("/results")]);
+    const v = vol.verdict["900"], n = vol.test_days.length, c = res.results[res.champion], edge = c.ci95_net_per_day[0] > 0, ok = v.beats_implied;
+    const ico = (n) => `<svg class="i" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+    box.innerHTML = `
+      <article class="verdict ${ok ? "good" : "warn"}"><h2>${ico(ok ? "check" : "alert")}How big a move?</h2>
+        <div class="big ${ok ? "good" : "warn"}">${ok ? "Yes, it works" : "Not proven"}</div>
+        <p>Our forecast of the next 15 minutes was closer to what happened than the ${T("options", "options market")} on <b>${v.days_better} of ${n}</b> ${T("unseen", "unseen days")}.${ok ? " The gap is real: its 95% interval stays on one side of zero." : ""}</p></article>
+      <article class="verdict ${edge ? "good" : "bad"}"><h2>${ico(edge ? "check" : "x")}Call or put?</h2>
+        <div class="big ${edge ? "good" : "bad"}">${edge ? "Yes, an edge" : "No edge shown"}</div>
+        <p>The best call/put model made <b class="${c.net_per_day >= 0 ? "good" : "bad"}">${rs(c.net_per_day)} a day</b> on ${res.test_days.length} unseen days after costs (95% interval ${rs(c.ci95_net_per_day[0])} to ${rs(c.ci95_net_per_day[1])}).</p></article>`;
+    $("#verdict-note").textContent = "Strategy results in step 4 are examples for one moment, not tested across days. A rule that picks strategies by itself, and an equity curve over all unseen days, were planned and are not built.";
+    box.setAttribute("aria-busy", "false");
+  } catch (e) { box.innerHTML = `<div class="verdict"><p>${esc(friendly(e))}</p></div>`; }
 }
 
 /* sticky story links: keep the header height and mark the step in view */

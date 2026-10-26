@@ -13,7 +13,7 @@
 Synthetic data: `tests/helpers/synth.py` (raw tables in the export schema), `tests/helpers/grid_synth.py`
 (one grid day). No test needs the real data.
 
-## 2. Test cases (105)
+## 2. Test cases (124: 119 pass, 5 e2e skipped without the stack)
 
 | ID | Area | Cases | File |
 |---|---|---|---|
@@ -31,9 +31,11 @@ Synthetic data: `tests/helpers/synth.py` (raw tables in the export schema), `tes
 | T12 | Contract | LLD = routes; page uses documented paths only | `api/test_lld.py` (2) |
 | T14 | Volatility model | inputs have no look-ahead; targets look only forward; QLIKE zero for a perfect forecast; each of 4 forecasters fits and predicts positive; HAR beats a noise IV on clustered volatility | `unit/test_vol.py` (8) |
 | T15 | Explanations | SHAP contributions add up to the score and name the planted driver; non-LightGBM models give none; served model explains only the last row; API passes `drivers` through (or null) | `unit/test_explain.py` (3) |
+| T16 | Strategies | statutory charges equal the single-leg formula; bad leg text rejected with a plain message; a flat market loses the spread and charges; short straddle is a credit with unlimited loss; long call and put payoffs; take-profit when the bid jumps; no price near the close; put-side extremes are "unlimited" | `unit/test_strategy.py` (8) |
+| T17 | Explore API and model outputs | calendar and events; IV by minute with and without the stored forecast; smile and term structure (expiries sent in separate seconds are merged); strategies list and detail (422 bad legs, 409 no quote); models at a moment and over a day; which model sees which day (walk-forward plan) | `api/test_explore.py` (8), `unit/test_modelout.py` (2) |
 | T13 | End-to-end | served model passed the gate; test-day signal round trip; reports, pipeline, metrics; web page and config; Prometheus scrapes the API | `e2e/test_stack.py` (5) |
 
-### UI audit (13 checks, report `reports/ui_audit.md`)
+### UI audit (13 checks, now on the Explore page: calendar, four IV views, intraday chart, strategies table and builder, models tables, guided tour, fallback without the chart library, report `reports/ui_audit.md`)
 
 console and page errors; horizontal scroll at 375 / 768 / 1024 / 1440 px; accessible name of every control; touch
 targets ≥ 44 px on a phone; no text under 12 px; text contrast ≥ 4.5:1 in light and dark; visible keyboard focus; no

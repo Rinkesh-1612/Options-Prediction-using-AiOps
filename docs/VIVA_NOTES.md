@@ -48,3 +48,16 @@ Git (code), Git LFS (sample day), DVC (data, DAG, CI), Spark / Ray (data enginee
 registry, serving, MLproject), FastAPI (REST), Docker + Compose (identical environments, two services), Prometheus
 (metrics), Alertmanager (alerts → retrain), Grafana (near-real-time dashboard), LightGBM / PyTorch (models), SHAP
 (explanations).
+
+## Straight answers about the tools (checked 2026-10-26)
+
+| Question | Answer |
+|---|---|
+| Git LFS? | Yes, narrowly: one rule for `*.parquet`; two sample files (one test day of features and labels, 6 MB). The large data is in DVC. |
+| DVC? | Yes: 12 stages, `dvc.lock` in git, cache 9.5 GB, `dvc status` clean. The remote is a folder on the same disk, so it is not an off-machine backup. |
+| Spark? Ray? | Both used. Spark: stage `check` (day-quality rules). Ray: per-day parallel jobs in 7 stages and Ray Tune in `zoo_train`. |
+| Ray Serve? | No. Only Ray Core and Tune. Serving is MLflow Serve behind a FastAPI layer. |
+| Kubernetes? Swarm? | No. Docker Compose is the orchestrator. Swarm is a possible next step. |
+| MLflow? | Yes: tracking (263 runs, 2 experiments), registry with aliases champion / previous, deploy gate, MLflow Serve, MLproject. |
+| Docker Hub? | Not pushed. Images are built locally. |
+| Prometheus, Grafana? | Yes: 4 targets, 8 alert rules, one dashboard; DriftDetected and ModelLosing start a retrain (ran live once). |
