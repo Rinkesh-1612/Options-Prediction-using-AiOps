@@ -64,7 +64,7 @@ def build_report(xml_path: Path, commit: str, when: str) -> tuple[str, bool, dic
     return "\n".join(lines) + "\n", ok, metric
 
 
-def main() -> int:
+def main(argv: list[str], summary: dict) -> int:
     XML.parent.mkdir(exist_ok=True)
     subprocess.run([sys.executable, "-m", "pytest", "-q", f"--junitxml={XML}", "-p", "no:cacheprovider"])
     if not XML.exists():
@@ -79,8 +79,11 @@ def main() -> int:
     OUT.write_text(text)
     METRIC.write_text(json.dumps(metric) + "\n")
     print(text.split("\n\n")[2])
+    summary.update(metric)  # the run journal (and the pipeline screen) shows the counts
     return 0 if ok else 1
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    from optpred.common import runlog
+
+    sys.exit(runlog.run("tests", main))

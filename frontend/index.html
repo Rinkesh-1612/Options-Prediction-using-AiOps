@@ -186,10 +186,10 @@ tr.click { cursor: pointer; } tr.click:hover, tr.sel { background: var(--soft); 
 .hbar .t { height: 8px; background: var(--primary); border-radius: 4px; }
 
 /* pipeline */
-.dag { position: relative; display: flex; gap: 12px; overflow-x: auto; padding: 6px 2px 10px; }
+.dag { position: relative; display: flex; gap: 10px; overflow-x: auto; padding: 6px 2px 10px; }
 .dag svg { position: absolute; inset: 0; pointer-events: none; overflow: visible; }
 .layer { display: flex; flex-direction: column; gap: 12px; justify-content: center; position: relative; z-index: 1; }
-.node { width: 132px; min-height: 44px; padding: 8px; border-radius: 8px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
+.node { width: 116px; min-height: 44px; padding: 8px; border-radius: 8px; border: 2px solid var(--line); background: var(--surface); color: var(--ink); font: inherit; font-size: 13px; text-align: left; cursor: pointer; }
 .node b { display: flex; gap: 6px; align-items: center; font-size: 15px; }
 .node.ok { border-color: var(--good); } .node.bad { border-color: var(--bad); } .node.sel { box-shadow: 0 0 0 3px var(--focus); }
 pre.log { background: var(--soft); border-radius: 8px; padding: 12px; max-height: 360px; overflow: auto; font: 13px/1.5 var(--mono); white-space: pre-wrap; word-break: break-word; margin: 0; }
@@ -536,7 +536,8 @@ h3.sub { font-size: 16px; margin: 16px 0 6px; }
         <div id="ch-thr" class="plot" role="img" aria-label="Speed of each step in rows per second"></div>
         <div class="scroll"><table><thead><tr><th scope="col">Step</th><th scope="col">Input</th><th scope="col" class="n">Rows</th><th scope="col" class="n">Seconds</th><th scope="col" class="n">Rows per second</th></tr></thead><tbody id="thr"></tbody></table></div></div>
       <div class="cols">
-        <div class="card"><div class="row" style="justify-content:space-between"><h2 style="font-size:18px" id="runs-title">Recent runs</h2><button class="btn sm" id="runs-all" type="button" hidden>Show all steps</button></div>
+        <div class="card"><div class="row" style="justify-content:space-between"><h2 style="font-size:18px" id="runs-title">Recent runs</h2><div class="row"><button class="btn sm" id="runs-failed" type="button" aria-pressed="false">Failed only</button><button class="btn sm" id="runs-all" type="button" hidden>Show all steps</button></div></div>
+          <p class="muted" id="runs-stock" style="margin:6px 0"></p>
           <div class="scroll tall"><table><thead><tr><th scope="col">Started</th><th scope="col">Step</th><th scope="col">Result</th><th scope="col" class="n">Time</th><th scope="col">Commit</th></tr></thead><tbody id="runs"></tbody></table></div></div>
         <div class="card"><h2 style="font-size:18px;margin-bottom:8px" id="log-title">Run log</h2>
           <dl class="kv" id="run-summary" style="margin-bottom:10px"></dl>
@@ -559,10 +560,10 @@ h3.sub { font-size: 16px; margin: 16px 0 6px; }
       <div class="card"><h2 style="font-size:18px">Actions</h2>
         <label class="lbl" for="token">Admin token (kept in this tab only)</label>
         <input type="password" id="token" autocomplete="off" placeholder="Leave empty if no token is set">
-        <label class="lbl" for="reason">Reason for retraining</label>
+        <label class="lbl" for="reason">Reason (kept with the request)</label>
         <input type="text" id="reason" maxlength="200" value="manual">
-        <div class="row" style="margin-top:16px"><button class="btn danger" id="rollback" type="button">Go back to the previous model</button><button class="btn" id="retrain" type="button">Retrain the models</button></div>
-        <p class="hint">Going back swaps in the previous model; the server follows within about 10 seconds. Retraining builds a new model and puts it in service only if it passes a safety check.</p></div>
+        <div class="row" style="margin-top:16px"><button class="btn danger" id="rollback" type="button">Go back to the previous model</button><button class="btn" id="retrain" type="button">Retrain the models</button><button class="btn" id="piperun" type="button">Run the pipeline</button></div>
+        <p class="hint">Going back swaps in the previous model; the server follows within about 10 seconds. Retraining builds a new model and puts it in service only if it passes a safety check. Running the pipeline reruns only the steps whose code, data or settings changed, then the tests and the final check (gate); follow it in “How it's built”.</p></div>
       <div class="card"><h2 style="font-size:18px;margin-bottom:10px">Other tools</h2><div class="row" id="links"></div></div>
     </div>
   </section>
@@ -572,12 +573,14 @@ h3.sub { font-size: 16px; margin: 16px 0 6px; }
 <dialog id="help" aria-labelledby="help-h">
   <div class="dlg-head"><h2 id="help-h">Help</h2><button class="btn sm" id="help-close" type="button">Close</button></div>
   <div class="dlg-body">
-    <h3>How to use this page in 3 steps</h3>
+    <h3>How to use this page</h3>
     <ol class="plain">
-      <li><b>Pick a moment.</b> Choose a day and a time, or use a quick jump. The page replays real history.</li>
-      <li><b>Read the forecast.</b> It says how many points NIFTY is expected to move, and compares that with what the options market expects and with what happened.</li>
-      <li><b>Check whether it works.</b> The "Does it work?" tab shows the test results in plain words.</li>
+      <li><b>Pick a day</b> in the calendar on the Explore tab. ★ marks an unseen day: the fair test.</li>
+      <li><b>Read the implied volatility</b>: what the options market expected, against our forecast and what happened.</li>
+      <li><b>Click a time</b> in the one-day chart. Steps 4 and 5 show the strategies and what each model said at that time.</li>
+      <li><b>Read the verdict</b> in step 6. "How it's built" shows the pipeline; "Controls" is for the operator.</li>
     </ol>
+    <p class="hint">"Show the guided tour" on the Explore tab opens the short tour again.</p>
     <h3 style="margin-top:20px">Words explained</h3>
     <dl id="glossary"></dl>
   </div>
@@ -1097,7 +1100,7 @@ async function loadWorks() {
 }
 
 /* ---------- how it's built ---------- */
-let runFilter = null;
+let runFilter = null, failedOnly = false;
 function layers(stages, edges) {
   const depth = Object.fromEntries(stages.map((s) => [s.name, 0]));
   for (let i = 0; i < stages.length; i++) for (const [a, b] of edges) depth[b] = Math.max(depth[b], depth[a] + 1);
@@ -1129,7 +1132,9 @@ function drawEdges(edges) {
 async function loadRuns() {
   $("#runs-title").textContent = runFilter ? `Runs of ${runFilter}` : "Recent runs"; $("#runs-all").hidden = !runFilter;
   try {
-    const runs = await api("/pipeline/runs?limit=40" + (runFilter ? "&stage=" + encodeURIComponent(runFilter) : ""));
+    const all = await api("/pipeline/runs?limit=500" + (runFilter ? "&stage=" + encodeURIComponent(runFilter) : ""));
+    const bad = all.filter((r) => r.status !== "ok"), runs = (failedOnly ? bad : all).slice(0, 40);
+    $("#runs-stock").textContent = `${all.length} runs${runFilter ? " of " + runFilter : ""}: ${all.length - bad.length} succeeded, ${bad.length} failed.` + (bad.length ? ` Last failure: ${bad[0].stage}, ${(bad[0].started || "").slice(0, 10)}.` : "");
     $("#runs").innerHTML = runs.map((r) => `<tr class="click" tabindex="0" data-run="${esc(r.run_id)}"><td class="mono" style="font-size:13px">${esc((r.started || "").replace("T", " ").slice(0, 16))}</td><td>${esc(r.stage)}</td>
       <td><span class="tag ${r.status === "ok" ? "good" : "bad"}">${r.status === "ok" ? "succeeded" : "failed"}</span></td><td class="n">${dur(r.duration_s)}</td><td class="mono" style="font-size:13px">${esc((r.git_commit || "").slice(0, 7))}${r.git_dirty ? ' <span class="warn" title="uncommitted code">*</span>' : ""}</td></tr>`).join("") || '<tr><td colspan="5" class="muted">No runs yet.</td></tr>';
     $$("tr.click", $("#runs")).forEach((tr) => { const go = () => { $$("tr", $("#runs")).forEach((x) => x.classList.remove("sel")); tr.classList.add("sel"); showRun(runs.find((r) => r.run_id === tr.dataset.run)); };
@@ -1137,6 +1142,7 @@ async function loadRuns() {
   } catch (e) { $("#runs").innerHTML = `<tr><td colspan="5" class="muted">${esc(friendly(e))}</td></tr>`; }
 }
 $("#runs-all").addEventListener("click", () => { runFilter = null; loadPipeline(); });
+$("#runs-failed").addEventListener("click", (e) => { failedOnly = !failedOnly; e.currentTarget.setAttribute("aria-pressed", failedOnly); e.currentTarget.textContent = failedOnly ? "All results" : "Failed only"; loadRuns(); });
 $("#pipe-refresh").addEventListener("click", loadPipeline);
 async function showRun(r) {
   $("#log-title").textContent = `Run log: ${r.stage}`;
@@ -1191,6 +1197,12 @@ $("#rollback").addEventListener("click", async () => {
   $("#rollback").disabled = true;
   try { const r = await api("/rollback", { method: "POST", headers: adminHeaders() }); toast(`Done: version ${r.champion} is now in use.`); } catch (e) { showError(e, null); }
   loadControls(); refreshStatus();
+});
+$("#piperun").addEventListener("click", async () => {
+  if (!(await askConfirm("Run the pipeline?", "This runs every step whose code, data or settings changed, then all tests and the final check. Steps that are up to date are skipped.", "Yes, run it"))) return;
+  $("#piperun").disabled = true;
+  try { await api("/pipeline/run?reason=" + encodeURIComponent($("#reason").value || "manual"), { method: "POST", headers: adminHeaders() }); toast("The pipeline run was requested. Follow it in the “How it's built” tab."); } catch (e) { showError(e, null); }
+  finally { setTimeout(() => ($("#piperun").disabled = false), 3000); }
 });
 $("#retrain").addEventListener("click", async () => {
   if (!(await askConfirm("Retrain the models?", "This builds new models in the background (about 30 minutes). A new model goes into service only if it passes the safety check.", "Yes, retrain"))) return;
@@ -1595,7 +1607,7 @@ async function loadVerdict() {
       <article class="verdict ${edge ? "good" : "bad"}"><h2>${ico(edge ? "check" : "x")}Call or put?</h2>
         <div class="big ${edge ? "good" : "bad"}">${edge ? "Yes, an edge" : "No edge shown"}</div>
         <p>The best call/put model made <b class="${c.net_per_day >= 0 ? "good" : "bad"}">${rs(c.net_per_day)} a day</b> on ${res.test_days.length} unseen days after costs (95% interval ${rs(c.ci95_net_per_day[0])} to ${rs(c.ci95_net_per_day[1])}).</p></article>`;
-    $("#verdict-note").textContent = "Strategy results in step 4 are examples for one moment. The rules "high forecast volatility: buy options, low: sell them" were tested on the training days in a separate research study (27 structures, 5 holding times): none paid after costs, so the unseen days were not scored. A strategy-picking rule on this page and an equity curve over all unseen days are not built.";
+    $("#verdict-note").textContent = "Strategy results in step 4 are examples for one moment. The rules “high forecast volatility: buy options, low: sell them” were tested on the training days in a separate research study (27 structures, 5 holding times): none paid after costs, so the unseen days were not scored. A strategy-picking rule on this page and an equity curve over all unseen days are not built.";
     box.setAttribute("aria-busy", "false");
   } catch (e) { box.innerHTML = `<div class="verdict"><p>${esc(friendly(e))}</p></div>`; }
 }

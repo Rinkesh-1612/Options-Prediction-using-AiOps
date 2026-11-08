@@ -1,0 +1,6 @@
+2026-11-08 12:01:26,268 INFO optpred.gate: run 20261108T173126-gate  commit 133345fa0e (DIRTY)
+2026-11-08 12:01:26,287 INFO optpred.ci.gate: tests PASS  123 passed, 0 failed, 5 skipped
+2026-11-08 12:01:26,287 INFO optpred.ci.gate: data  PASS  49 accepted days
+2026-11-08 12:01:26,287 INFO optpred.ci.gate: vol   PASS  beats implied at 900s: True, deployed v2
+2026-11-08 12:01:26,288 INFO optpred.ci.gate: zoo   PASS  champion lgbm_reg deployed v10
+2026-11-08 12:01:26,296 INFO optpred.gate: run 20261108T173126-gate finished: ok in 0.0s

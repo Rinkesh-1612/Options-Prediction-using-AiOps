@@ -102,6 +102,18 @@ def test_rollback_needs_token_and_swaps(env):
     assert r.json() == {"champion": 1, "previous": 2} and reg.alias["champion"] == "1"
 
 
+def test_pipeline_run_needs_token_writes_one_request(env, tmp_path):
+    from dataclasses import replace
+
+    req = tmp_path / "state" / "pipeline_request.json"
+    c = TestClient(create_app(replace(env, pipeline_request=req), FakeModel(), FakeRegistry()))
+    assert c.post("/pipeline/run").status_code == 401
+    h = {"X-Admin-Token": "secret"}
+    assert c.post("/pipeline/run", params={"reason": "demo"}, headers=h).status_code == 202
+    assert json.loads(req.read_text())["reason"] == "demo"
+    assert c.post("/pipeline/run", headers=h).status_code == 409  # one waiting run at a time
+
+
 def alert(name, status="firing"):
     return {"alerts": [{"status": status, "labels": {"alertname": name}}]}
 
@@ -159,6 +171,20 @@ def test_data_quality_gauges(env, tmp_path):
     text = c.get("/metrics").text
     assert 'data_rows_dropped_share{table="opt_tape"} 0.01' in text
     assert 'data_days{verdict="accepted"} 1.0' in text
+
+
+def test_runner_heartbeat_gauge_and_failed_requests_are_logged(env, tmp_path, caplog):
+    from dataclasses import replace
+
+    beat = tmp_path / "runner_heartbeat"
+    beat.touch()
+    c = TestClient(create_app(replace(env, runner_heartbeat=beat), FakeModel(), FakeRegistry()))
+    lines = c.get("/metrics").text.splitlines()
+    line = next(x for x in lines if x.startswith("runner_heartbeat_age_seconds "))
+    assert 0 <= float(line.split()[1]) < 60
+    with caplog.at_level("WARNING", logger="optpred.serving.signal_api"):
+        assert c.get("/signal", params={"day": "1999-01-01", "sod": 40000}).status_code == 404
+    assert any("-> 404" in r.getMessage() for r in caplog.records)
 
 
 def test_buy_without_tradable_entry_is_blocked(env):

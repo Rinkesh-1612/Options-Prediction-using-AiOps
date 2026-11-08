@@ -77,6 +77,8 @@ class Settings:
     reports_dir: Path = Path("reports")
     runs_path: Path = Path("runs/runs.jsonl")
     retrain_request: Path = Path("state/retrain_request.json")
+    runner_heartbeat: Path = Path("state/runner_heartbeat")  # touched by scripts/runner.sh every loop
+    pipeline_request: Path = Path("state/pipeline_request.json")  # runner: dvc repro gate
     retrain_cooldown_s: float = 3600.0  # alerts cannot start retrains more often than this
     dvc_path: Path = Path("dvc.yaml")
     logs_root: Path = Path("logs")
@@ -101,6 +103,8 @@ class Settings:
             reports_dir=Path(e.get("REPORTS_DIR", cls.reports_dir)),
             runs_path=Path(e.get("RUNS_PATH", cls.runs_path)),
             retrain_request=Path(e.get("RETRAIN_REQUEST", cls.retrain_request)),
+            runner_heartbeat=Path(e.get("RUNNER_HEARTBEAT", cls.runner_heartbeat)),
+            pipeline_request=Path(e.get("PIPELINE_REQUEST", cls.pipeline_request)),
             retrain_cooldown_s=float(e.get("RETRAIN_COOLDOWN_S", cls.retrain_cooldown_s)),
             dvc_path=Path(e.get("DVC_PATH", cls.dvc_path)),
             logs_root=Path(e.get("LOGS_ROOT", cls.logs_root)),
@@ -181,6 +185,9 @@ class Metrics:
         )
         self.vol_requests = Counter("vol_requests_total", "Volatility forecasts served", registry=r)
         self.retrains = Counter("retrain_requests_total", "Retrain requests", ["source"], registry=r)
+        self.runner_age = Gauge(
+            "runner_heartbeat_age_seconds", "Seconds since the retrain runner last looped", registry=r
+        )
         self.days = Gauge("data_days", "Trading days by check verdict", ["verdict"], registry=r)
         self.dropped = Gauge(
             "data_rows_dropped_share",
@@ -260,7 +267,12 @@ def create_app(
         try:
             resp = await call_next(request)
             status = resp.status_code
+            if status >= 400:  # every refused or failed request leaves a line in the log
+                log.warning("%s %s -> %d", request.method, request.url.path, status)
             return resp
+        except Exception:
+            log.exception("%s %s -> unhandled error", request.method, request.url.path)
+            raise
         finally:
             path = request.scope.get("route").path if request.scope.get("route") else "other"
             m.requests.labels(path, str(status)).inc()
@@ -513,6 +525,17 @@ def create_app(
         request_retrain(reason, "manual")
         return {"accepted": True, "reason": reason}
 
+    @app.post("/pipeline/run", status_code=202, dependencies=[Depends(require_admin)])
+    def pipeline_run(reason: str = Query("manual", max_length=200)):
+        """Ask the runner to run the CI pipeline (`dvc repro gate`): stale stages only, then the gate."""
+        if st.pipeline_request.exists():
+            raise HTTPException(409, "a pipeline run is already waiting")
+        st.pipeline_request.parent.mkdir(parents=True, exist_ok=True)
+        req = {"requested": time.strftime("%Y-%m-%dT%H:%M:%S"), "reason": reason, "source": "manual"}
+        st.pipeline_request.write_text(json.dumps(req))
+        log.warning("pipeline run requested: %s", reason)
+        return {"accepted": True, "reason": reason}
+
     @app.get("/drift")
     def drift_status():
         if drift is None:
@@ -654,6 +677,8 @@ def create_app(
 
     def refresh_gauges() -> None:
         m.model_up.set(1 if srv.ping() else 0)
+        if st.runner_heartbeat.exists():  # no file = runner never started; TargetDown/RunnerDown stay quiet
+            m.runner_age.set(time.time() - st.runner_heartbeat.stat().st_mtime)
         if drift is not None:
             s = drift.status()
             m.drift.set(1 if s["drift"] else 0)

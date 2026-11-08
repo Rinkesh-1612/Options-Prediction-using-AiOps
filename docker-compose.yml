@@ -66,6 +66,7 @@ services:
       DVC_PATH: /app/dvc.yaml
       LOGS_ROOT: /app/logs
       RETRAIN_REQUEST: /app/state/retrain_request.json
+      PIPELINE_REQUEST: /app/state/pipeline_request.json
       RETRAIN_COOLDOWN_S: ${RETRAIN_COOLDOWN_S:-3600}
       ADMIN_TOKEN: ${ADMIN_TOKEN:-}
     volumes:
@@ -127,6 +128,10 @@ services:
       - ./monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
       - alertmanager-data:/alertmanager
     depends_on: [api]
+    restart: unless-stopped
+
+  blackbox:                    # probes the web page and the model server (they have no /metrics)
+    image: prom/blackbox-exporter:v0.25.0
     restart: unless-stopped
 
   node-exporter:               # host CPU, memory, disk

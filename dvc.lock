@@ -754,39 +754,39 @@ stages:
     deps:
     - path: docs/LLD.md
       hash: md5
-      md5: af718b8c7548bd04f8005ffe539cc4b5
-      size: 9818
+      md5: 0bb79400853ae0a79e35a7de76068e67
+      size: 10534
     - path: frontend/index.html
       hash: md5
-      md5: fb0086c3395ab479f1e98e857f21774a
-      size: 147912
+      md5: 07ada33c784888d501736a870140b04a
+      size: 149726
     - path: pyproject.toml
       hash: md5
       md5: 6cb0095771ea4d13b958fceba19f12d4
       size: 738
     - path: scripts
       hash: md5
-      md5: 56850f276afb05d22afbdab4ed29ae59.dir
-      size: 23694
-      nfiles: 8
+      md5: 2da1d972a4771dfa77d5ad0dec4540ac.dir
+      size: 24055
+      nfiles: 7
     - path: src/optpred
       hash: md5
-      md5: 4d1b1d8f2f2e37173bd3c52deaa74500.dir
-      size: 213350
+      md5: efd29ee564c5323669c232aba3afe922.dir
+      size: 215070
       nfiles: 55
     - path: tests
       hash: md5
-      md5: 012730fe0c786a08fd5905868ccdb3c6.dir
-      size: 78727
-      nfiles: 29
+      md5: 7e949acfe051757de9b2d311a261d541.dir
+      size: 80781
+      nfiles: 30
     outs:
     - path: reports/test_report.md
       hash: md5
-      md5: 9e9288caec95412e98feab9015ba80f6
-      size: 11078
+      md5: 903c110c95d11e3be424ce4777300b28
+      size: 11352
     - path: reports/tests.json
       hash: md5
-      md5: 5c8ad4636f703b36e5792a8654cff816
+      md5: e78fc33a8c96d075f66e2506aeed56ba
       size: 70
   gate:
     cmd: python -m optpred.ci.gate
@@ -797,7 +797,7 @@ stages:
       size: 1678
     - path: reports/tests.json
       hash: md5
-      md5: 5c8ad4636f703b36e5792a8654cff816
+      md5: e78fc33a8c96d075f66e2506aeed56ba
       size: 70
     - path: reports/vol/test.json
       hash: md5
@@ -820,5 +820,5 @@ stages:
     outs:
     - path: reports/gate.json
       hash: md5
-      md5: 8028427eca02aaf91d6a8478e2151040
+      md5: f7ff04d9dbc34a8333b0e0a805584324
       size: 350

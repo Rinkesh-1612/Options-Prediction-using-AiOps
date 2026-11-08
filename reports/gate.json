@@ -3,7 +3,7 @@
  "checks": {
   "tests": {
    "pass": true,
-   "detail": "121 passed, 0 failed, 5 skipped"
+   "detail": "124 passed, 0 failed, 5 skipped"
   },
   "data": {
    "pass": true,

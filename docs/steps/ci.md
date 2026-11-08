@@ -35,7 +35,8 @@ make ci                      # = ./pipe dvc repro gate   (the pre-push hook runs
 ./pipe dvc exp run -S vol.stride_s=60 && ./pipe dvc exp show       # experiment = changed param, then compare
 ```
 
-**Trigger.** `.githooks/pre-push` runs `dvc repro gate`. The push stops if the gate fails, or if CI changed
+**Trigger.** `.githooks/pre-push` runs `dvc repro gate`. The web page can start the same run (Controls → *Run the
+pipeline* → `POST /pipeline/run` → runner). The push stops if the gate fails, or if CI changed
 `dvc.lock` or `reports/` (then commit them first). No cloud CI: the course does not allow cloud platforms.
 
 **CD.** `zoo_eval` and `vol` register the new model in MLflow; it becomes `champion` only after its smoke test.

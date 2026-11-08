@@ -13,7 +13,7 @@
 Synthetic data: `tests/helpers/synth.py` (raw tables in the export schema), `tests/helpers/grid_synth.py`
 (one grid day). No test needs the real data.
 
-## 2. Test cases (126: 121 pass, 5 e2e skipped without the stack)
+## 2. Test cases (129: 124 pass, 5 e2e skipped without the stack; e2e 5/5 with the stack)
 
 | ID | Area | Cases | File |
 |---|---|---|---|
@@ -27,12 +27,13 @@ Synthetic data: `tests/helpers/synth.py` (raw tables in the export schema), `tes
 | T8 | Drift | same distribution low PSI, shift high; NaN share change; monitor waits for rows, then flags | `unit/test_psi.py` (3) |
 | T9 | Ray | day results keep their order | `unit/test_parallel.py` (1) |
 | T10 | Data pipeline | holiday rejected, duplicates counted; session rows only; 22,500 grid rows with legs, ask > bid; float features; labels aligned | `integration/test_data_pipeline.py` (5) |
-| T11 | API | signal without future rows; volatility forecast uses only rows up to the second; hindsight; blocked entry; losing trade metric; 404 / 503; rollback token and swap; alert → one retrain then cooldown; drift and gauges; data-quality gauges; pipeline graph, runs, log (path attack refused), throughput from the last successful run; whole-day volatility series (`/vol/day`); inf → null; drivers passed through | `api/test_signal_api.py` (16) |
+| T11 | API | signal without future rows; volatility forecast uses only rows up to the second; hindsight; blocked entry; losing trade metric; 404 / 503; rollback token and swap; alert → one retrain then cooldown; drift and gauges; data-quality gauges; pipeline graph, runs, log (path attack refused), throughput from the last successful run; whole-day volatility series (`/vol/day`); inf → null; drivers passed through; runner heartbeat gauge; failed requests logged; pipeline run needs the token, one waiting run | `api/test_signal_api.py` (19) |
 | T12 | Contract | LLD = routes; page uses documented paths only | `api/test_lld.py` (2) |
 | T14 | Volatility model | inputs have no look-ahead; targets look only forward; QLIKE zero for a perfect forecast; each of 4 forecasters fits and predicts positive; HAR beats a noise IV on clustered volatility | `unit/test_vol.py` (8) |
 | T15 | Explanations | SHAP contributions add up to the score and name the planted driver; non-LightGBM models give none; served model explains only the last row; API passes `drivers` through (or null) | `unit/test_explain.py` (3) |
 | T16 | Strategies | statutory charges equal the single-leg formula; bad leg text rejected with a plain message; a flat market loses the spread and charges; short straddle is a credit with unlimited loss; long call and put payoffs; take-profit when the bid jumps; no price near the close; put-side extremes are "unlimited" | `unit/test_strategy.py` (8) |
 | T18 | CI gate | all criteria pass; each broken criterion fails | `unit/test_gate.py` (2) |
+| T19 | Web page | the page script parses (`node --check`; a syntax error once broke the whole page) | `unit/test_page_script.py` (1) |
 | T17 | Explore API and model outputs | calendar and events; IV by minute with and without the stored forecast; smile and term structure (expiries sent in separate seconds are merged); strategies list and detail (422 bad legs, 409 no quote); models at a moment and over a day; which model sees which day (walk-forward plan) | `api/test_explore.py` (8), `unit/test_modelout.py` (2) |
 | T13 | End-to-end | served model passed the gate; test-day signal round trip; reports, pipeline, metrics; web page and config; Prometheus scrapes the API | `e2e/test_stack.py` (5) |
 

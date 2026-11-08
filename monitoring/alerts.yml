@@ -34,6 +34,18 @@ groups:
         labels: { severity: critical }
         annotations:
           summary: "Prometheus cannot scrape {{ $labels.job }}"
+      - alert: ComponentDown          # blackbox probe of the web page or the model server failed
+        expr: probe_success == 0
+        for: 1m
+        labels: { severity: critical }
+        annotations:
+          summary: "{{ $labels.instance }} does not answer"
+      - alert: RunnerDown             # the retrain runner stopped looping (it touches a file every 15 s)
+        expr: runner_heartbeat_age_seconds > 120
+        for: 1m
+        labels: { severity: critical }
+        annotations:
+          summary: "The retrain runner has not looped for 2 minutes"
       - alert: PipelineStageFailed
         expr: pipeline_last_run_ok == 0
         for: 10s

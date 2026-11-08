@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
-# Retrains when asked. The API writes state/retrain_request.json (from the web page or a drift
-# alert); this loop picks it up, runs zoo_train and zoo_eval, and archives the request with its outcome.
+# Runs work that the API asks for. Two request files in state/ (written by the web page, or for retrain also by a
+# drift alert): retrain_request.json -> zoo_train + zoo_eval (forced); pipeline_request.json -> `dvc repro gate`
+# (the CI pipeline: stale stages only, tests, acceptance gate). Each request is archived with its outcome.
 # zoo_eval deploys the new champion only if its smoke test passes (optpred.zoo.promote).
 set -u
 # Scheduled retrain: RETRAIN_EVERY_S > 0 writes a request that often (0 = only on request or alert).
 REQ=state/retrain_request.json
+PREQ=state/pipeline_request.json
 EVERY="${RETRAIN_EVERY_S:-0}"
 mkdir -p state
 echo "retrain runner waiting for $REQ (scheduled every ${EVERY}s; 0 = off)"
@@ -22,5 +24,14 @@ while true; do
     echo "retrain $result"
     mv state/retrain_running.json "state/retrain_$(date +%Y%m%dT%H%M%S)_$result.json"
   fi
+  # Pipeline run from the console (POST /pipeline/run): the CI pipeline, stale stages only, then the gate.
+  if [ -f "$PREQ" ]; then
+    echo "pipeline run requested: $(cat "$PREQ")"
+    mv "$PREQ" state/pipeline_running.json
+    if dvc repro gate; then result=ok; else result=FAILED; fi
+    echo "pipeline run $result"
+    mv state/pipeline_running.json "state/pipeline_$(date +%Y%m%dT%H%M%S)_$result.json"
+  fi
+  touch state/runner_heartbeat   # the API turns its age into the gauge runner_heartbeat_age_seconds
   sleep "${POLL_SECONDS:-15}"
 done

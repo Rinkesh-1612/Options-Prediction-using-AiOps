@@ -99,6 +99,11 @@ Out: `{"champion": int, "previous": int}`. 401 bad token, 409 no previous versio
 Header: `X-Admin-Token`. In (query): `reason` (≤ 200 characters). Writes `state/retrain_request.json`.
 Out (202): `{"accepted": true, "reason": str}`.
 
+### POST /pipeline/run
+Header: `X-Admin-Token`. In (query): `reason` (≤ 200 characters). Writes `state/pipeline_request.json`; the runner
+runs `dvc repro gate` (stale stages, tests, acceptance gate). Out (202): `{"accepted": true, "reason": str}`.
+409 when a run is already waiting.
+
 ### GET /drift
 Out: `{rows, ready, drift, share, psi{feature: value}}` for the last 1,000 served rows. 404 before the
 `drift` stage has written its reference.

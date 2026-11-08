@@ -34,32 +34,39 @@ def shot(page, name: str, full: bool = True) -> None:
 
 def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
+    seen = "try{localStorage.setItem('tour2_seen','1')}catch(e){}"  # skip the tour in the pictures
     with sync_playwright() as p:
         b = p.chromium.launch()
-        # skip the first-visit banner so that it does not hide the page in the pictures
         ctx = b.new_context(viewport={"width": 1280, "height": 900})
-        ctx.add_init_script("try{localStorage.setItem('tour_seen','1')}catch(e){}")
+        ctx.add_init_script(seen)
+        page = ctx.new_page()
+        page.goto(f"{URL}/#explore&day={DAY}&t={T}&iv=forecast", wait_until="networkidle")
+        shot(page, "explore")
+        for tab in ("pipeline", "controls"):  # the two other tabs
+            page.click(f"[role=tab][data-tab='{tab}']")
+            shot(page, tab)
+        # the older pages, reached from step 6 of Explore
+        page.close()  # a hash change alone does not reload the page: open each older view fresh
         page = ctx.new_page()
         page.goto(f"{URL}/#forecast&day={DAY}&t={T}", wait_until="networkidle")
         page.click("#dir-details summary")
         shot(page, "forecast")
-        for tab, name in (("works", "works"), ("pipeline", "pipeline"), ("controls", "controls")):
-            page.click(f"[role=tab][data-tab='{tab}']")
-            if tab == "works":
-                page.click("summary:has-text('Forecasting how much')")
-            shot(page, name)
+        page.close()
+        page = ctx.new_page()
+        page.goto(f"{URL}/#works", wait_until="networkidle")
+        page.click("summary:has-text('Forecasting how much')")
+        shot(page, "works")
         page.click("#help-btn")
         shot(page, "help", full=False)
-        page.close()
         ctx.close()
-        for width, height, name, scheme in ((390, 844, "phone", "light"), (390, 844, "phone-dark", "dark")):
+        for name, scheme in (("phone", "light"), ("phone-dark", "dark")):
             ctx = b.new_context(
-                viewport={"width": width, "height": height}, color_scheme=scheme, device_scale_factor=2
+                viewport={"width": 390, "height": 844}, color_scheme=scheme, device_scale_factor=2
             )
-            ctx.add_init_script("try{localStorage.setItem('tour_seen','1')}catch(e){}")
+            ctx.add_init_script(seen)
             page = ctx.new_page()
-            page.goto(f"{URL}/#forecast&day={DAY}&t={T}", wait_until="networkidle")
-            shot(page, name)
+            page.goto(f"{URL}/#explore&day={DAY}&t={T}", wait_until="networkidle")
+            shot(page, name, full=False)
             ctx.close()
         b.close()
 

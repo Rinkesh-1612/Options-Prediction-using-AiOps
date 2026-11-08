@@ -91,15 +91,17 @@ Experiments `nifty-zoo` (direction models, drift) and `nifty-vol` (volatility fo
 | Component | How it is monitored |
 |---|---|
 | api | Prometheus scrapes it every 5 s: requests, latency, signals by action, served trades won / lost and net ₹, volatility forecasts, drift, data quality, last run of every stage |
-| model server | `model_service_up` (the api pings it), `model_call_seconds`; the server also checks itself and rolls back |
+| model server | blackbox probe of `/ping` (`probe_success`), `model_service_up` (the api pings it), `model_call_seconds`; the server also checks itself and rolls back |
 | mlflow | scraped directly (`job=mlflow`), health check in Compose |
 | host | node-exporter: CPU, memory, disk |
 | pipeline stages | `pipeline_last_run_ok{stage}` from the run journal; alert `PipelineStageFailed` |
-| frontend (static nginx) | no own metrics; its calls appear in the api request metrics, and Compose restarts it |
-| Prometheus, Alertmanager, Grafana | `up` of every scrape target; alert `TargetDown` |
+| frontend (static nginx) | blackbox probe of the page (`probe_success`); alert `ComponentDown` |
+| retrain runner | heartbeat file → `runner_heartbeat_age_seconds` (api); alert `RunnerDown` |
+| Prometheus, Alertmanager, Grafana | each scraped directly; `up` of every target; alert `TargetDown` |
 
-Eight alert rules (`monitoring/alerts.yml`): DriftDetected, ModelLosing, LowHitRate, ModelServiceDown, TargetDown,
-PipelineStageFailed, SlowApi, BadDataRate. Grafana refreshes every 5 s.
+Ten alert rules (`monitoring/alerts.yml`): DriftDetected, ModelLosing, LowHitRate, ModelServiceDown, TargetDown,
+ComponentDown, RunnerDown, PipelineStageFailed, SlowApi, BadDataRate. Grafana refreshes every 5 s; panel
+"Components up" shows every component. The api logs every 4xx / 5xx request and every unhandled error.
 
 ## 8. Speed and throughput
 

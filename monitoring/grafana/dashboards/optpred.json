@@ -1,5 +1,5 @@
 {
- "title": "NIFTY signal \u2014 production",
+ "title": "NIFTY signal — production",
  "uid": "optpred",
  "schemaVersion": 39,
  "version": 2,
@@ -55,7 +55,7 @@
   },
   {
    "type": "timeseries",
-   "title": "Served trades: cumulative net \u20b9 after costs",
+   "title": "Served trades: cumulative net ₹ after costs",
    "id": 3,
    "description": "",
    "datasource": {
@@ -72,7 +72,7 @@
     {
      "refId": "A",
      "expr": "signal_net_rupees_cum",
-     "legendFormat": "net \u20b9"
+     "legendFormat": "net ₹"
     }
    ],
    "fieldConfig": {
@@ -485,6 +485,65 @@
    "options": {}
   },
   {
+   "type": "stat",
+   "title": "Components up (1 = up): scrape targets, probes, runner",
+   "id": 24,
+   "gridPos": {
+    "x": 0,
+    "y": 42,
+    "w": 24,
+    "h": 7
+   },
+   "datasource": {
+    "type": "prometheus",
+    "uid": "prom"
+   },
+   "targets": [
+    {
+     "expr": "up",
+     "legendFormat": "{{job}}",
+     "refId": "A"
+    },
+    {
+     "expr": "probe_success",
+     "legendFormat": "{{instance}}",
+     "refId": "B"
+    },
+    {
+     "expr": "runner_heartbeat_age_seconds < bool 120",
+     "legendFormat": "runner",
+     "refId": "C"
+    }
+   ],
+   "options": {
+    "reduceOptions": {
+     "calcs": [
+      "lastNotNull"
+     ]
+    },
+    "colorMode": "background",
+    "textMode": "value_and_name"
+   },
+   "fieldConfig": {
+    "defaults": {
+     "thresholds": {
+      "mode": "absolute",
+      "steps": [
+       {
+        "color": "red",
+        "value": null
+       },
+       {
+        "color": "green",
+        "value": 1
+       }
+      ]
+     }
+    },
+    "overrides": []
+   }
+  },
+  {
    "type": "timeseries",
    "title": "Host CPU and memory",
    "id": 18,
@@ -495,7 +554,7 @@
    },
    "gridPos": {
     "x": 0,
-    "y": 42,
+    "y": 49,
     "w": 24,
     "h": 7
    },
@@ -525,7 +584,7 @@
    "id": 19,
    "gridPos": {
     "x": 0,
-    "y": 49,
+    "y": 56,
     "w": 24,
     "h": 1
    },
@@ -541,7 +600,7 @@
    },
    "gridPos": {
     "x": 0,
-    "y": 50,
+    "y": 57,
     "w": 6,
     "h": 6
    },
@@ -568,7 +627,7 @@
    },
    "gridPos": {
     "x": 6,
-    "y": 50,
+    "y": 57,
     "w": 8,
     "h": 6
    },
@@ -597,7 +656,7 @@
    },
    "gridPos": {
     "x": 14,
-    "y": 50,
+    "y": 57,
     "w": 10,
     "h": 6
    },
