@@ -21,7 +21,7 @@ Format: one Parquet file per table per day, `ts_ns` = UTC nanoseconds.
 data/raw/<table>/YYYY-MM-DD.parquet   source snapshot (DVC)
 data/raw/manifest.json                rows per file
 data/days.json                        accepted / rejected days
-data/bars, ticks, features, micro     derived by DVC stages
+data/clean, grid, feat, labels, modelout   derived by DVC stages
 ```
 
 **Biases.**

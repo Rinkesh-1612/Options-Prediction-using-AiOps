@@ -749,3 +749,76 @@ stages:
       hash: md5
       md5: cf33050053510bc274fb404684db2271
       size: 1482
+  tests:
+    cmd: ruff check . && ruff format --check . && python scripts/test_report.py
+    deps:
+    - path: docs/LLD.md
+      hash: md5
+      md5: af718b8c7548bd04f8005ffe539cc4b5
+      size: 9818
+    - path: frontend/index.html
+      hash: md5
+      md5: fb0086c3395ab479f1e98e857f21774a
+      size: 147912
+    - path: pyproject.toml
+      hash: md5
+      md5: 6cb0095771ea4d13b958fceba19f12d4
+      size: 738
+    - path: scripts
+      hash: md5
+      md5: 56850f276afb05d22afbdab4ed29ae59.dir
+      size: 23694
+      nfiles: 8
+    - path: src/optpred
+      hash: md5
+      md5: 4d1b1d8f2f2e37173bd3c52deaa74500.dir
+      size: 213350
+      nfiles: 55
+    - path: tests
+      hash: md5
+      md5: 012730fe0c786a08fd5905868ccdb3c6.dir
+      size: 78727
+      nfiles: 29
+    outs:
+    - path: reports/test_report.md
+      hash: md5
+      md5: 9e9288caec95412e98feab9015ba80f6
+      size: 11078
+    - path: reports/tests.json
+      hash: md5
+      md5: 5c8ad4636f703b36e5792a8654cff816
+      size: 70
+  gate:
+    cmd: python -m optpred.ci.gate
+    deps:
+    - path: data/days.json
+      hash: md5
+      md5: 96ba327842a4cc8892310a4dcf8a9365
+      size: 1678
+    - path: reports/tests.json
+      hash: md5
+      md5: 5c8ad4636f703b36e5792a8654cff816
+      size: 70
+    - path: reports/vol/test.json
+      hash: md5
+      md5: a5e92d00a3017e47a9295c3edd437007
+      size: 5098
+    - path: reports/zoo/test.json
+      hash: md5
+      md5: c07d2870026f566195ab3aeb92cc23a4
+      size: 5785
+    - path: src/optpred/ci
+      hash: md5
+      md5: 4eb22ebd33ffc15d8313204eb8f6abb4.dir
+      size: 3325
+      nfiles: 2
+    params:
+      params.yaml:
+        gate:
+          min_tests: 100
+          min_days: 40
+    outs:
+    - path: reports/gate.json
+      hash: md5
+      md5: 8028427eca02aaf91d6a8478e2151040
+      size: 350

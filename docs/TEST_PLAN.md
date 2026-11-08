@@ -13,7 +13,7 @@
 Synthetic data: `tests/helpers/synth.py` (raw tables in the export schema), `tests/helpers/grid_synth.py`
 (one grid day). No test needs the real data.
 
-## 2. Test cases (124: 119 pass, 5 e2e skipped without the stack)
+## 2. Test cases (126: 121 pass, 5 e2e skipped without the stack)
 
 | ID | Area | Cases | File |
 |---|---|---|---|
@@ -32,6 +32,7 @@ Synthetic data: `tests/helpers/synth.py` (raw tables in the export schema), `tes
 | T14 | Volatility model | inputs have no look-ahead; targets look only forward; QLIKE zero for a perfect forecast; each of 4 forecasters fits and predicts positive; HAR beats a noise IV on clustered volatility | `unit/test_vol.py` (8) |
 | T15 | Explanations | SHAP contributions add up to the score and name the planted driver; non-LightGBM models give none; served model explains only the last row; API passes `drivers` through (or null) | `unit/test_explain.py` (3) |
 | T16 | Strategies | statutory charges equal the single-leg formula; bad leg text rejected with a plain message; a flat market loses the spread and charges; short straddle is a credit with unlimited loss; long call and put payoffs; take-profit when the bid jumps; no price near the close; put-side extremes are "unlimited" | `unit/test_strategy.py` (8) |
+| T18 | CI gate | all criteria pass; each broken criterion fails | `unit/test_gate.py` (2) |
 | T17 | Explore API and model outputs | calendar and events; IV by minute with and without the stored forecast; smile and term structure (expiries sent in separate seconds are merged); strategies list and detail (422 bad legs, 409 no quote); models at a moment and over a day; which model sees which day (walk-forward plan) | `api/test_explore.py` (8), `unit/test_modelout.py` (2) |
 | T13 | End-to-end | served model passed the gate; test-day signal round trip; reports, pipeline, metrics; web page and config; Prometheus scrapes the API | `e2e/test_stack.py` (5) |
 
@@ -40,8 +41,7 @@ Synthetic data: `tests/helpers/synth.py` (raw tables in the export schema), `tes
 console and page errors; horizontal scroll at 375 / 768 / 1024 / 1440 px; accessible name of every control; touch
 targets ≥ 44 px on a phone; no text under 12 px; text contrast ≥ 4.5:1 in light and dark; visible keyboard focus; no
 "undefined" / "NaN" / "null" text; jargon on the first screen explained; no error alert while everything works; readable
-alert and **Try again** when the API is down; tabs exist. Result: **13 of 13 pass** (the first page failed 5 of 11:
-[before](../reports/ui_audit_before_redesign.md)). Design and evidence: [UI_DESIGN.md](UI_DESIGN.md).
+alert and **Try again** when the API is down; tabs exist. Result: **13 of 13 pass** (the first page failed 5 of 11).
 
 ## 3. How to run
 
@@ -53,11 +53,12 @@ mlflow run . -e test   # the same tests through the MLproject (log: reports/mlpr
 make report      # all tests -> reports/test_report.md (numbers copied from pytest's JUnit file)
 ./pipe bash -c "E2E_API_URL=http://127.0.0.1:8000 python scripts/test_report.py"   # report incl. e2e
 ```
-The pre-push hook (`.githooks/pre-push`) runs ruff, all tests and `dvc dag` before every push.
+CI: `make ci` (= `dvc repro gate`) runs ruff and all tests as the DVC stage `tests`, then checks the acceptance
+criteria in the stage `gate`. The pre-push hook runs the same before every push ([steps/ci.md](steps/ci.md)).
 
 ## 4. Acceptance criteria
 
-1. All tests pass (`make test` exit 0) and lint is clean (`make lint`).
+1. All tests pass and lint is clean, and the DVC stage `gate` passes (`make ci`; result in `reports/gate.json`).
 2. `make e2e` passes against the running stack, and `make ui` passes all 13 checks.
 3. `dvc status` = up to date: every output comes from the committed code.
 4. Every MLflow run of the final model stages has `git_dirty = False`.

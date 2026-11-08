@@ -12,7 +12,7 @@
   `GET /signal?day&sod` → action, scores, and what happened after it. Also `/days`, `/model`, `/results`.
 
 **CI/CD.**
-- CI: `.githooks/pre-push` runs ruff, all tests and `dvc dag` in the pipeline image.
+- CI: the DVC DAG ends in `tests` (ruff + pytest) → `gate` (acceptance); `make ci` and the pre-push hook run `dvc repro gate` ([ci.md](ci.md)).
 - CD: `dvc repro` → `zoo_eval` registers the champion → [promote.py](../../src/optpred/zoo/promote.py) smoke-tests it
   (loads it from the registry, predicts one full day) → only then aliases move (`champion`, old one → `previous`).
   The model server follows the alias, so promotion = deployment.

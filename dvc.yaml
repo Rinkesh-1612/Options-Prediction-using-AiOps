@@ -91,10 +91,10 @@ stages:
     - data/days.json
     outs:
     - data/feat
+    - reports/feature_catalog.md:
+        cache: false
     metrics:
     - reports/feat.json:
-        cache: false
-    - reports/feature_catalog.md:
         cache: false
 
   labels:
@@ -140,10 +140,11 @@ stages:
     - data/feat
     - data/labels
     - reports/zoo/cv.json
+    outs:
+    - reports/zoo/comparison.md:
+        cache: false
     metrics:
     - reports/zoo/test.json:
-        cache: false
-    - reports/zoo/comparison.md:
         cache: false
 
   drift:
@@ -181,12 +182,12 @@ stages:
     outs:
     - reports/vol/test_scatter.png:
         cache: false
+    - reports/vol/comparison.md:
+        cache: false
     metrics:
     - reports/vol/cv.json:
         cache: false
     - reports/vol/test.json:
-        cache: false
-    - reports/vol/comparison.md:
         cache: false
 
   modelout:
@@ -212,3 +213,44 @@ stages:
     metrics:
     - reports/modelout.json:
         cache: false
+
+  # ---- continuous integration (course lecture 11: CI with DVC) ----
+  # `dvc repro` reruns a stage only when its code, data or params changed. These two stages make the DAG the CI
+  # pipeline: a code change reruns the tests; a data, model or param change reruns the affected stages; then the
+  # gate checks the acceptance criteria and fails `dvc repro` if one fails (docs/steps/ci.md).
+  tests:
+    cmd: ruff check . && ruff format --check . && python scripts/test_report.py
+    deps:
+    - src/optpred
+    - tests
+    - scripts
+    - pyproject.toml
+    - docs/LLD.md
+    - frontend/index.html
+    outs:
+    - reports/test_report.md:
+        cache: false
+    metrics:
+    - reports/tests.json:
+        cache: false
+
+  gate:
+    cmd: python -m optpred.ci.gate
+    params:
+    - gate
+    deps:
+    - src/optpred/ci
+    - reports/tests.json
+    - data/days.json
+    - reports/vol/test.json
+    - reports/zoo/test.json
+    metrics:
+    - reports/gate.json:
+        cache: false
+
+# `dvc plots show` / `dvc plots diff` (images: compared side by side between commits or experiments)
+plots:
+- reports/eda/coverage.png
+- reports/eda/index_returns.png
+- reports/drift/daily.png
+- reports/vol/test_scatter.png

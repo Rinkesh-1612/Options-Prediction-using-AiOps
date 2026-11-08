@@ -145,6 +145,9 @@ Prometheus text. Main series: `signals_total{action}`, `signal_outcomes_total{re
 | zoo_eval | + test days, `cv.json` | `reports/zoo/test.json`, `comparison.md`, registered + deployed model |
 | vol | `data/grid`, `data/feat` | `reports/vol/cv.json`, `test.json`, `comparison.md`, `test_scatter.png`, model `nifty-vol` |
 | drift | `data/feat` | `reports/drift/reference.json`, `daily.json`, `daily.png` |
+| modelout | `data/grid`, `data/feat`, `data/labels`, `cv.json` | `data/modelout/<day>.parquet` (every model, every minute), `reports/modelout.json` |
+| tests | `src/`, `tests/`, `scripts/`, `docs/LLD.md`, page | `reports/tests.json` (counts), `reports/test_report.md`; fails on a lint or test error |
+| gate | `tests.json`, `days.json`, `vol/test.json`, `zoo/test.json` | `reports/gate.json` (4 criteria); fails when one fails |
 
 ## 3. Model interface (`src/optpred/zoo/models.py`)
 

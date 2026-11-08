@@ -17,7 +17,7 @@ alerts) → automatic retraining. Result: **direction is not predictable after c
 | Why triple-barrier labels? | The holding time should follow the market, not be fixed. Take-profit and stop-loss scale with the option's own volatility; a time cap is only a safety. |
 | Why a 1-second grid and a feature registry? | Keeps order-flow detail. A new feature = one function; the tests check every feature for look-ahead automatically. |
 | Why Ray and Spark? | Spark scans all 114 M raw rows (`check`, ≈ 350 k option ticks per second). Per-day stages are independent, so Ray tasks run days in parallel and Ray Tune searches settings. |
-| Why DVC as CI/CD? | Course stack. `dvc.yaml` is the DAG; `dvc repro` reruns only stale stages; the pre-push hook runs lint, tests and `dvc dag`. |
+| Why DVC as CI/CD? | Course stack (lecture 11). `dvc.yaml` is the DAG; `dvc repro` reruns only stale stages. Stage `tests` = ruff + pytest; stage `gate` fails the run if a criterion fails. The pre-push hook runs `dvc repro gate`. |
 | Why MLflow Serve behind FastAPI? | Loose coupling: the page only knows the API address; the API is the only public entry; the model server follows the registry alias. |
 | How is a bad model stopped? | Deploy gate: load from the registry and predict a full day before `champion` moves. If a version does not start in 180 s, the server rolls back to `previous` (tested with a broken version). Manual rollback: `POST /rollback`. |
 | How do you detect drift? | PSI per feature against the training days. Limits come from normal day-to-day variation (a fixed 0.25 flagged 45 of 49 normal days). Online: last 1,000 served rows. |
@@ -54,7 +54,7 @@ registry, serving, MLproject), FastAPI (REST), Docker + Compose (identical envir
 | Question | Answer |
 |---|---|
 | Git LFS? | Yes, narrowly: one rule for `*.parquet`; two sample files (one test day of features and labels, 6 MB). The large data is in DVC. |
-| DVC? | Yes: 12 stages, `dvc.lock` in git, cache 9.5 GB, `dvc status` clean. The remote is a folder on the same disk, so it is not an off-machine backup. |
+| DVC? | Yes: 14 stages (12 data/model + `tests` + `gate`), `dvc.lock` in git, cache 9.5 GB, `dvc status` clean. The remote is a folder on the same disk, so it is not an off-machine backup. |
 | Spark? Ray? | Both used. Spark: stage `check` (day-quality rules). Ray: per-day parallel jobs in 7 stages and Ray Tune in `zoo_train`. |
 | Ray Serve? | No. Only Ray Core and Tune. Serving is MLflow Serve behind a FastAPI layer. |
 | Kubernetes? Swarm? | No. Docker Compose is the orchestrator. Swarm is a possible next step. |

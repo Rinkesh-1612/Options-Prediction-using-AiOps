@@ -151,5 +151,4 @@ make e2e                       # check the running stack
 make ui                        # browser audit of this page (errors, phone width, contrast, keyboard)
 bash scripts/encrypt_snapshot.sh            # encrypted backup of data and models
 ```
-Settings are in `params.yaml`. The admin token is the environment variable `ADMIN_TOKEN` (empty = no token). The design
-of the page and how it was tested are in [UI_DESIGN.md](UI_DESIGN.md).
+Settings are in `params.yaml`. The admin token is the environment variable `ADMIN_TOKEN` (empty = no token).

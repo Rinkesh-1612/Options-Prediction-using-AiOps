@@ -116,7 +116,7 @@ def architecture() -> None:
         392,
         420,
         90,
-        "Version control and CI/CD\nGit: code, configs, reports, run journal   Git LFS: sample day\nDVC: data + dvc.yaml DAG;  `dvc repro` = train, evaluate, deploy\npre-push hook: ruff, 103 tests, dvc dag",
+        "Version control and CI/CD\nGit: code, configs, reports, run journal   Git LFS: sample day\nDVC: data + dvc.yaml DAG;  `dvc repro` = train, evaluate, deploy\nCI: dvc repro gate (tests -> gate), run by pre-push",
         "note",
         11,
     )

@@ -1,9 +1,0 @@
-# The NAIVE single-stage version of Dockerfile.serve. Kept only to measure the size difference
-# (see scripts/image_sizes.sh); nothing runs from it.
-FROM python:3.11-bookworm
-WORKDIR /app
-COPY requirements.txt .
-RUN pip install -r requirements.txt
-COPY pyproject.toml .
-COPY src ./src
-ENV PYTHONPATH=/app/src PYTHONUNBUFFERED=1 HOME=/tmp

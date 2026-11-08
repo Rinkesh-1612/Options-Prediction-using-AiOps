@@ -1,13 +1,16 @@
 # One entry point for every routine task. Everything runs in the pipeline image (./pipe), so results do not
 # depend on the host Python. `make help` lists the targets.
 .DEFAULT_GOAL := help
-.PHONY: help build lint format test test-unit e2e ui report pipeline dag status stack-up stack-down demo
+.PHONY: help build ci lint format test test-unit e2e ui report pipeline dag status metrics stack-up stack-down demo
 
 help:            ## list the targets
-	@grep -E '^[a-z-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
+	@grep -E '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
 
 build:           ## build the pipeline image (Python, Java, Spark, Ray)
 	./pipe build
+
+ci:              ## CI with DVC: rerun what changed, lint + tests, then the acceptance gate (same as the pre-push hook)
+	./pipe dvc repro gate
 
 lint:            ## PEP 8 and import order (ruff, the rules in pyproject.toml)
 	./pipe ruff check .
@@ -31,7 +34,7 @@ ui:              ## browser audit of the running page: errors, responsive, contr
 report:          ## run every test and write reports/test_report.md
 	./pipe python scripts/test_report.py
 
-pipeline:        ## rerun every out-of-date DVC stage (the frozen evaluate stage never reruns)
+pipeline:        ## rerun every out-of-date DVC stage
 	./pipe dvc repro
 
 dag:             ## print the pipeline graph
@@ -39,6 +42,10 @@ dag:             ## print the pipeline graph
 
 status:          ## which stages are out of date
 	./pipe dvc status
+
+metrics:         ## metrics and params of this commit vs the last one (dvc metrics diff / params diff)
+	./pipe dvc metrics diff HEAD~1
+	./pipe dvc params diff HEAD~1
 
 stack-up:        ## build and start the serving and monitoring stack
 	./stack up -d --build

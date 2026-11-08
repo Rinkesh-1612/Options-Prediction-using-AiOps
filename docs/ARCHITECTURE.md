@@ -37,49 +37,16 @@ models: `scripts/encrypt_snapshot.sh`.
 `./pipe dvc dag` draws it from `dvc.yaml`. The "How it's built" tab of the web page draws the same graph from the live file.
 
 ```
-                                                     +--------+*****                                                             
-                                                     | export |     **********                                                   
-                                                     +--------+               **********                                         
-                                                     **                                 **********                               
-                                                    *                                             **********                     
-                                                   *                                                        **********           
-                                           **+-------+******                                                          *****      
-                                    ******* *| check |**** ***********                                                    *      
-                            ********  *******+-------+    *******  **************                                         *      
-                     *******     *****   ***      *              ********   ****************                              *      
-             ********      ******     ***         *                      *******     ******************                   *      
-      *******        ******         **            *                             *******       ******** **********         *      
-  ****            ***             ***             *                                    ****           *****      *****+-------+  
-  *               *                  ******       *                                       *                *******    | clean |  
-  *               *                        ****** *                                       *       *********  *        +-------+  
-  *               *                              *****                                    ********            *       **         
-  *               *                               *   ******                      *********                    **    *           
-  *               *                               *         ***            *******        *                      *  *            
-  ***             *                               *           +------+*****               *                    +-----+           
-     ******       *                               *         **| grid |                    *                    | eda |           
-           ****** *                               *   ********+------+                    *                    +-----+           
-                 *****                           *****    **          *                   *                                      
-                  *   ******               ******  *    **             *                  *                                      
-                  *         ***         ***        *  **                **                *                                      
-                  *           +--------+       +------+                   *               *                                      
-                  *         **| labels |     **| feat |****                **            *                                       
-                  *  *********+--------+*****  +------+    ******            *          *                                        
-                *****     **     ********      **      **        ******       *       **                                         
-         *******  *    *** ******        *    *          *             ******  **    *                                           
-    *****         *  ** ***               *  *            *                  *****  *                                            
-****        +-----------+              +-------+         ***                   +-----+                                           
-   ****     | zoo_train |              | drift |   ******                      | vol |                                           
-       *****+-----------+              +-------+***                            +-----+                                           
-            ****      *                  *****                                                                                   
-                ****   **          ******                                                                                        
-                    ***  *      ***                                                                                              
-                    +----------+                                                                                                 
-                    | zoo_eval |                                                                                                 
-                    +----------+
+export → check → clean → eda
+                       → grid → feat, labels → zoo_train → zoo_eval ─┐
+                              → vol ──────────────────────────────────┤
+                              → drift, modelout                       │
+tests (ruff + pytest + report) ───────────────────────────────────────┴→ gate
 ```
 
-**CI and CD with DVC.** CI = the pre-push hook (`.githooks/pre-push`): ruff, all tests, `dvc dag`. CD = `dvc repro`:
-a stage runs again only when its code, its parameters or its input data changed; `zoo_eval` registers a new model, the
+**CI and CD with DVC** ([steps/ci.md](steps/ci.md)). CI = `dvc repro gate`: a stage runs again only when its code, its
+parameters or its input data changed; stage `tests` runs ruff and pytest; stage `gate` fails the run if an acceptance
+criterion fails. The pre-push hook runs it. CD: `zoo_eval` registers a new model, the
 smoke test checks it, and only then does the alias `champion` move. The model server follows the alias.
 
 **Reproducibility.** Every MLflow run carries the Git commit, `git_dirty` and the DVC hash of its data. The run

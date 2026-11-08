@@ -2,12 +2,12 @@
 
 > Create new features from existing ones to improve model performance.
 
-**Design: a feature library with CI.** [src/optpred/featurelib/](../../src/optpred/featurelib/)
+**Design: a feature library, tested in CI.** [src/optpred/featurelib/](../../src/optpred/featurelib/)
 - A feature = one function with `@feature(group, lookback_s)` in `groups/*.py`. One day of `data/grid` in, columns out.
 - Stage `feat`: `data/grid` → `data/feat/<day>.parquet`. Groups are switched on in `params.yaml → feat.groups`.
 - Generated: [reports/feature_catalog.md](../../reports/feature_catalog.md) (from the docstrings) and `reports/feat.json` (NaN share, mean, std).
 
-**CI** (`tests/unit/test_featurelib.py`, run by the pre-push hook). Each registered feature is tested automatically:
+**CI** (`tests/unit/test_featurelib.py`, run by the DVC stage `tests`). Each registered feature is tested automatically:
 no look-ahead (the value at t stays the same when the data after t is removed), docstring, row count, no inf,
 values after the lookback, unique column names.
 

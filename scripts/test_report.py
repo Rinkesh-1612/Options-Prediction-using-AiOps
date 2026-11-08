@@ -7,6 +7,7 @@ Exit code is 0 only when every test passed (the acceptance criterion in docs/TES
 
 from __future__ import annotations
 
+import json
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -15,9 +16,10 @@ from pathlib import Path
 
 XML = Path("reports/junit.xml")
 OUT = Path("reports/test_report.md")
+METRIC = Path("reports/tests.json")  # DVC metric of the `tests` stage, read by the gate
 
 
-def build_report(xml_path: Path, commit: str, when: str) -> tuple[str, bool]:
+def build_report(xml_path: Path, commit: str, when: str) -> tuple[str, bool, dict]:
     root = ET.parse(xml_path).getroot()
     suite = root if root.tag == "testsuite" else root.find("testsuite")
     cases = []
@@ -52,7 +54,14 @@ def build_report(xml_path: Path, commit: str, when: str) -> tuple[str, bool]:
         "|---|---|---|---|",
     ]
     lines += [f"| {m} | {t} | {s} | {sec:.2f} |" for m, t, s, sec in cases]
-    return "\n".join(lines) + "\n", ok
+    metric = {
+        "total": n,
+        "passed": counts["PASSED"],
+        "failed": counts["FAILED"],
+        "errors": counts["ERROR"],
+        "skipped": counts["SKIPPED"],
+    }
+    return "\n".join(lines) + "\n", ok, metric
 
 
 def main() -> int:
@@ -66,8 +75,9 @@ def main() -> int:
         or "unknown"
     )
     when = datetime.now(timezone(timedelta(hours=5, minutes=30))).strftime("%Y-%m-%d %H:%M IST")
-    text, ok = build_report(XML, commit, when)
+    text, ok, metric = build_report(XML, commit, when)
     OUT.write_text(text)
+    METRIC.write_text(json.dumps(metric) + "\n")
     print(text.split("\n\n")[2])
     return 0 if ok else 1
 

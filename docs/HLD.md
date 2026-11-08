@@ -57,7 +57,7 @@ test days (`reports/vol/comparison.md`). A good volatility forecast did not make
 | Data engineering: Spark, Ray | Spark (`check`), Ray tasks (all per-day stages), Ray Tune (training) |
 | Experiment tracking: MLflow | Experiment `nifty-zoo`, registry `nifty-signal` |
 | Containerization: Docker, Compose | Pipeline image, serving image (multi-stage), frontend image, Compose stack |
-| CI/CD: DVC | `dvc repro` = training + evaluation + gated deployment; pre-push hook = lint + tests |
+| CI/CD: DVC | DAG ends in `tests` → `gate`; `dvc repro gate` = lint, tests, training, evaluation, gated deployment, acceptance (pre-push hook runs it) |
 | Serving: MLflow Serve, REST | `mlflow models serve` behind the FastAPI API |
 | Monitoring: Prometheus, Grafana | Metrics, 8 alerts, dashboard; Alertmanager → retraining |
 | No cloud | One self-managed VPS |

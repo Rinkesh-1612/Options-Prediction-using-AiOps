@@ -1,0 +1,21 @@
+{
+ "pass": true,
+ "checks": {
+  "tests": {
+   "pass": true,
+   "detail": "121 passed, 0 failed, 5 skipped"
+  },
+  "data": {
+   "pass": true,
+   "detail": "49 accepted days"
+  },
+  "vol": {
+   "pass": true,
+   "detail": "beats implied at 900s: True, deployed v2"
+  },
+  "zoo": {
+   "pass": true,
+   "detail": "champion lgbm_reg deployed v10"
+  }
+ }
+}

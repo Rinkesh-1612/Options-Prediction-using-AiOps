@@ -120,3 +120,7 @@ vol:                       # volatility forecaster (optpred.vol). Fixed before a
     artifact_root: mlflow/artifacts
     experiment: nifty-vol
     registered_model: nifty-vol
+
+gate:                      # CI acceptance gate (optpred.ci.gate): the last stage of the DAG
+  min_tests: 100           # fewer tests than this = the suite is broken, not green
+  min_days: 40             # enough accepted days for 4 walk-forward folds + 10 test days

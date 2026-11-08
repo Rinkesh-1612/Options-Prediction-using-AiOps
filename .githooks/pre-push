@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# Our CI. Git runs this before every push; a non-zero exit stops the push.
-#   1. Git LFS uploads the tracked sample files.
-#   2. ruff checks style.        3. pytest runs every test.
-#   4. DVC checks that dvc.yaml is a valid DAG and prints which stages are out of date.
+# CI trigger. Git runs this before every push; a non-zero exit stops the push.
+# The CI pipeline itself is the DVC DAG (dvc.yaml): `dvc repro gate` reruns every stage whose code, data or
+# params changed (lint + tests in stage `tests`), then stage `gate` checks the acceptance criteria.
 # Everything runs in the pipeline image, the same one used for real runs.
 # Turn it on once:  git config core.hooksPath .githooks
 set -euo pipefail
@@ -12,8 +11,9 @@ if ! docker image inspect optpred-pipeline:latest >/dev/null 2>&1; then
   echo "pre-push: build the image first: ./pipe build" >&2
   exit 1
 fi
-echo "== ruff";   ./pipe ruff check .
-echo "== pytest"; ./pipe pytest -q -p no:cacheprovider
-echo "== dvc dag"; ./pipe dvc dag
-echo "== dvc status (information only)"; ./pipe dvc status || true
-echo "pre-push: all checks passed"
+echo "== dvc repro gate"; ./pipe dvc repro gate
+if ! git diff --quiet -- dvc.lock reports; then
+  echo "pre-push: CI changed dvc.lock or reports/. Commit them, then push again." >&2
+  exit 1
+fi
+echo "pre-push: CI passed (dvc.lock and reports match the pushed commit)"
