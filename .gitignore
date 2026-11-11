@@ -1,20 +1,18 @@
+# Python
 __pycache__/
 *.egg-info/
 .venv/
 .pytest_cache/
 .ruff_cache/
+# secrets and runtime state
+.env
+/state
+# local MLflow store (experiments, registry) and stray default folders
+/mlflow
+/mlruns
+# data is in DVC (data/.gitignore lists the stage outputs)
 /data/raw
 *.parquet.part
-/data/bars
-.pytest_cache/
-.ruff_cache/
-/data/features
-/mlflow
-/state
-.env
-/state/ray
-/reports/junit.xml
-/mlflow_first_try
 /.dvc/cache
-/data/ticks
-/data/micro
+# test run output (the report in reports/test_report.md is committed)
+/reports/junit.xml

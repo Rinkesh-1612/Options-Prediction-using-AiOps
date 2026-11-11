@@ -133,10 +133,13 @@ class ModelServer:
 
     def __init__(self, url: str, timeout_s: float = 10.0):
         self.url, self.timeout_s = url.rstrip("/"), timeout_s
+        # one client for the life of the API: connections are kept open (a new client per call costs a TLS
+        # context and a TCP connect each time; httpx.Client is safe to share between threads)
+        self.http = httpx.Client(timeout=timeout_s)
 
     def ping(self) -> bool:
         try:
-            return httpx.get(f"{self.url}/ping", timeout=self.timeout_s).status_code == 200
+            return self.http.get(f"{self.url}/ping").status_code == 200
         except httpx.HTTPError:
             return False
 
@@ -145,7 +148,7 @@ class ModelServer:
             "dataframe_split": {"columns": list(X.columns), "data": json.loads(X.to_json(orient="values"))}
         }
         try:
-            r = httpx.post(f"{self.url}/invocations", json=body, timeout=self.timeout_s)
+            r = self.http.post(f"{self.url}/invocations", json=body)
             r.raise_for_status()
             return pd.DataFrame(r.json()["predictions"])
         except (httpx.HTTPError, KeyError, ValueError) as e:

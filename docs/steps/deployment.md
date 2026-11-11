@@ -1,4 +1,4 @@
-# Model Deployment — DONE
+# Model Deployment
 
 > Choose a deployment strategy; deploy to a serving infrastructure. AIOps: CI/CD, serving (MLflow Serve, REST),
 > monitor in production, rollback for failed deployments.

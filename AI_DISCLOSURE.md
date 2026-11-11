@@ -18,6 +18,15 @@ and these documents; ran the pipeline and the checks; and reported the results, 
   (still in Git history before commit `817a1b1`).
 - 2026-10-23 – 10-24: the pipeline was rebuilt item by item with the author's review: cleaning, 1-second grid,
   feature library, triple-barrier labels, model zoo, deploy gate, drift, monitoring, web page, documents.
+- 2026-10-24 – 10-26: with Claude: the volatility forecaster, the Explore page, the strategy simulator, and
+  research studies on branches (results in `docs/steps/strategy_search.md`).
+- 2026-11-08 – 11-11: the author asked Claude to check the project against the official evaluation guideline and
+  to finish it. Claude moved CI into the DVC pipeline (stages `tests` and `gate`, as in course lecture 11), fixed a
+  page error, added monitoring of every component, removed unused files and brought the documents up to date.
+
+**Impact:** AI wrote most of the lines in this repository. It made the breadth possible (14 pipeline stages, 130
+tests, monitoring, a web page) in the time available. The problem, the data, the design choices listed above and
+the decision to report the negative trading result are the author's.
 
 **Where the numbers come from:** every result comes from a journaled run (`runs/runs.jsonl`, `logs/`) and an
 MLflow run tied to a Git commit and DVC data hashes, never from text written by AI. The author is responsible

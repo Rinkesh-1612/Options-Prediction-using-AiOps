@@ -1,4 +1,4 @@
-# Business Understanding — DONE
+# Business Understanding
 
 > Clearly define the business problem and desired outcomes. Establish measurable success metrics.
 

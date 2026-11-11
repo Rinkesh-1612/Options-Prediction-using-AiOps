@@ -1,4 +1,4 @@
-# Model Selection — DONE
+# Model Selection
 
 > Choose appropriate ML algorithms based on the problem and data characteristics.
 

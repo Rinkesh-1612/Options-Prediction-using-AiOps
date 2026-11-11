@@ -1,4 +1,4 @@
-# Model Training & Evaluation — DONE
+# Model Training & Evaluation
 
 > Train models, experiment with hyperparameters and architectures. Evaluate with appropriate metrics,
 > compare models, select the best. AIOps: automate, track versions / hyperparameters / metrics (MLflow), Docker.

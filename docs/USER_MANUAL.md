@@ -124,6 +124,7 @@ The page never shows a raw error. A red box says what happened in plain words an
 ./stack down                   # stop (data stays)
 ./pipe dvc repro               # run the pipeline; a new model is served only if it passes the safety check
 make e2e                       # check the running stack
+make demo                      # replay the unseen days through the API (Grafana moves); stop: ./stack stop replay
 make ui                        # browser audit of this page (errors, phone width, contrast, keyboard)
 bash scripts/encrypt_snapshot.sh            # encrypted backup of data and models
 ```

@@ -53,7 +53,8 @@ groups:
         annotations:
           summary: "The last run of stage {{ $labels.stage }} failed"
       - alert: SlowApi
-        expr: histogram_quantile(0.95, sum by (le) (rate(api_request_seconds_bucket[5m]))) > 1
+        # user requests only: /metrics and /healthz are probes (every 5 s) and would hide the real request time
+        expr: histogram_quantile(0.95, sum by (le) (rate(api_request_seconds_bucket{path!~"/metrics|/healthz"}[5m]))) > 1
         for: 5m
         labels: { severity: warning }
         annotations:

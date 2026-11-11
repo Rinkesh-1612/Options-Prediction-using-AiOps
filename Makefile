@@ -1,7 +1,7 @@
 # One entry point for every routine task. Everything runs in the pipeline image (./pipe), so results do not
 # depend on the host Python. `make help` lists the targets.
 .DEFAULT_GOAL := help
-.PHONY: help build ci lint format test test-unit e2e ui report pipeline dag status metrics stack-up stack-down demo
+.PHONY: help build ci lint format test test-unit e2e ui report pipeline dag status metrics stack-up stack-down demo mlproject-test
 
 help:            ## list the targets
 	@grep -E '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -53,7 +53,7 @@ stack-up:        ## build and start the serving and monitoring stack
 stack-down:      ## stop the stack (data and volumes stay)
 	./stack down
 
-demo:            ## replay validation days through the API so Grafana moves
+demo:            ## replay the unseen days through the API so Grafana moves (stop: ./stack stop replay)
 	./stack --profile demo up -d replay
 
 mlproject-test:  ## run the test entry point through MLflow Projects (needs mlflow on the host)

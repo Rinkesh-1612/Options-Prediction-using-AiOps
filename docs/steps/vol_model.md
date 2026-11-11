@@ -1,4 +1,4 @@
-# Second model: volatility forecaster — DONE
+# Second model: volatility forecaster
 
 > Why: direction is not predictable (correlation ≈ 0.01). HRT, Jane Street and Optiver write that the target is
 > where the signal is; for options the key quantity is volatility. Research: `research/` on branch `vol-track`.
@@ -16,7 +16,7 @@
 Correlation with the realized move 0.68 (implied: −0.18).
 
 **Serving.** Registered as `nifty-vol` after a smoke test; the API loads `nifty-vol@champion` (`GET /vol`);
-Forecast tab (headline answer and chart, `GET /vol/day`), "Does it work?" tab (verdict and table).
+Explore tab (IV against our forecast, by day and by minute; verdict in step 6); the older Forecast and "Does it work?" pages (`GET /vol/day`, table).
 
 **Limit.** A good forecast is not a trade: buying straddles on it lost money after the spread (research note on
 `vol-track`). For Ravion it is a filter and position-size input.

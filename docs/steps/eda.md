@@ -1,4 +1,4 @@
-# Data Exploration & Analysis (EDA) — DONE
+# Data Exploration & Analysis (EDA)
 
 > Perform EDA to understand data characteristics, identify patterns, and detect potential issues
 > (e.g., missing values, outliers).

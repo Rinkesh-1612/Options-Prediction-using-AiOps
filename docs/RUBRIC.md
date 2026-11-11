@@ -22,11 +22,11 @@ Course: DA3408 "AI Application Evaluation Guideline". One row per item. Short no
 | Design, OO / functional | [HLD.md](HLD.md) §2–3; functional stages + small classes (models, API) |
 | Loose coupling | page ↔ API only by REST; address in `frontend/config.json` |
 | Coding style, logging, exceptions, comments | ruff (PEP 8) in CI; run journal `runs/runs.jsonl` + `logs/<stage>/`; docstrings per module |
-| Unit tests, test report | 129 cases (124 pass, 5 e2e skip without the stack; e2e 5/5 with it); `make e2e` with the stack |
+| Unit tests, test report | 130 cases (125 pass, 5 e2e skip without the stack; e2e 5/5 with it); `make e2e` with the stack |
 | Data engineering (Spark / Ray) | Spark: stage `check`. Ray: per-day stages, Ray Tune. Speed: [HLD.md](HLD.md) §8 |
 | CI with DVC, DVC DAG, Git / LFS / DVC | [steps/ci.md](steps/ci.md): DAG ends in `tests` → `gate`; `make ci` = `dvc repro gate` |
 | Experiment tracking | MLflow experiments `nifty-zoo`, `nifty-vol`; params, metrics, artifacts, git commit tags ([HLD.md](HLD.md) §6) |
-| Prometheus + Grafana | 8 scrape targets (api, mlflow, host, Prometheus, Alertmanager, Grafana, blackbox probes of page + model) + runner heartbeat; 10 alert rules; one dashboard ([HLD.md](HLD.md) §7) |
+| Prometheus + Grafana | 8 scrape targets (api, mlflow, host, Prometheus, Alertmanager, Grafana, blackbox probes of page + model) + runner heartbeat; 10 alert rules; one dashboard, 5 s refresh; `make demo` replays the unseen days through the API so it moves ([HLD.md](HLD.md) §7) |
 | Packaging | MLflow Serve (model), [MLproject](../MLproject), FastAPI (API), Docker images, Compose with separate `frontend` and `api` services |
 
 ## Results (honest)

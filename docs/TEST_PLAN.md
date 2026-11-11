@@ -13,7 +13,7 @@
 Synthetic data: `tests/helpers/synth.py` (raw tables in the export schema), `tests/helpers/grid_synth.py`
 (one grid day). No test needs the real data.
 
-## 2. Test cases (129: 124 pass, 5 e2e skipped without the stack; e2e 5/5 with the stack)
+## 2. Test cases (130: 125 pass, 5 e2e skipped without the stack; e2e 5/5 with the stack)
 
 | ID | Area | Cases | File |
 |---|---|---|---|
@@ -34,6 +34,7 @@ Synthetic data: `tests/helpers/synth.py` (raw tables in the export schema), `tes
 | T16 | Strategies | statutory charges equal the single-leg formula; bad leg text rejected with a plain message; a flat market loses the spread and charges; short straddle is a credit with unlimited loss; long call and put payoffs; take-profit when the bid jumps; no price near the close; put-side extremes are "unlimited" | `unit/test_strategy.py` (8) |
 | T18 | CI gate | all criteria pass; each broken criterion fails | `unit/test_gate.py` (2) |
 | T19 | Web page | the page script parses (`node --check`; a syntax error once broke the whole page) | `unit/test_page_script.py` (1) |
+| T20 | Demo replay | calls `/signal` and `/vol` for every step of the unseen days; counts answers and refusals | `unit/test_replay.py` (1) |
 | T17 | Explore API and model outputs | calendar and events; IV by minute with and without the stored forecast; smile and term structure (expiries sent in separate seconds are merged); strategies list and detail (422 bad legs, 409 no quote); models at a moment and over a day; which model sees which day (walk-forward plan) | `api/test_explore.py` (8), `unit/test_modelout.py` (2) |
 | T13 | End-to-end | served model passed the gate; test-day signal round trip; reports, pipeline, metrics; web page and config; Prometheus scrapes the API | `e2e/test_stack.py` (5) |
 

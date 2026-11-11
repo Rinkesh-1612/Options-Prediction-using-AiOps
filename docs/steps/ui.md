@@ -1,4 +1,4 @@
-# Web Page (UI): DONE (rebuilt 2026-10-25)
+# Web Page (UI)
 
 **Code.** [frontend/index.html](../../frontend/index.html): one static page (Plotly.js vendored in `frontend/vendor/`). Manual: [USER_MANUAL.md](../USER_MANUAL.md).
 

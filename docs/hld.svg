@@ -72,7 +72,7 @@
 <path d='M435,270 L435,300' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
 <path d='M435,390 L435,420' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
 <path d='M435,510 L435,540' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
-<path d='M560,668 L885,668 L885,358 L580,358' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)' stroke-dasharray="5 4"/>
+<path d='M560,668 L885,668 L885,358 L580,358' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)' stroke-dasharray='5 4'/>
 <text x='905' y='520' font-size='11' font-weight='400' fill='#3d4651' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>retrain</text>
 <rect x='930' y='60' width='260' height='650' rx='12' fill='#f5f6f8' fill-opacity='.45' stroke='#9aa3af' stroke-dasharray='5 4'/>
 <text x='942' y='82' font-size='13' font-weight='700' fill='#9aa3af' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Design rules</text>

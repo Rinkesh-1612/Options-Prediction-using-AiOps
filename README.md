@@ -21,7 +21,7 @@ library for the author's trading system (Ravion V2).
 | [Architecture](docs/ARCHITECTURE.md) | diagram, blocks, ports, versioning |
 | [High-level design](docs/HLD.md) | problem, design rules, decisions, technology map |
 | [Low-level design](docs/LLD.md) | every API endpoint and pipeline stage with its input and output |
-| [Test plan](docs/TEST_PLAN.md) | levels, 129 test cases, acceptance criteria; report in `reports/test_report.md` |
+| [Test plan](docs/TEST_PLAN.md) | levels, 130 test cases, acceptance criteria; report in `reports/test_report.md` |
 | [User manual](docs/USER_MANUAL.md) | the web page for a non-technical user, with screenshots; operator commands |
 | [Viva notes](docs/VIVA_NOTES.md) | short answers to likely questions |
 | [Rubric map](docs/RUBRIC.md) | each evaluation item → where it is; results; what is not done |
@@ -53,11 +53,13 @@ export CH_PASSWORD=...       # only for the export stage (Ravion ClickHouse, rea
 ./pipe dvc repro             # the whole pipeline; deploys a new champion only if it passes the gate
 ./stack up -d --build        # web 8080 · API 8000 · MLflow 5050 · Grafana 3001 · Prometheus 9091
 make ci                      # CI = ./pipe dvc repro gate: reruns what changed, lint + tests, acceptance gate
+make demo                    # replay the unseen days through the API: Grafana moves in near real time
 make test                    # all tests; `make e2e` against the running stack; `make help` for the rest
 git config core.hooksPath .githooks   # run the CI (dvc repro gate) before every push
 ```
 
-Without the ClickHouse data, `data/sample/` (Git LFS) holds one test day of features and labels, and
-`dvc pull` restores all data from the DVC remote.
+Without the ClickHouse data: `data/sample/` (Git LFS) holds one test day of features and labels. On this server
+`dvc pull` restores all data from the DVC remote (a folder on the same disk, `../dvc-remote`; it is not reachable
+from another machine). All tests use synthetic data, so `make test` works on a fresh clone.
 
 AI use: [AI_DISCLOSURE.md](AI_DISCLOSURE.md).

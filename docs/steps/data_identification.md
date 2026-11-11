@@ -1,4 +1,4 @@
-# Data Identification & Acquisition — DONE
+# Data Identification & Acquisition
 
 > Identify and collect relevant data from various sources. Document data sources, formats, and potential biases.
 

@@ -1185,7 +1185,7 @@ async function loadControls() {
   } catch { rows.push(row("bad", "Models", "Could not read the model registry.")); $("#champ").innerHTML = '<p class="muted">Not available.</p>'; $("#prev").innerHTML = ""; }
   try {
     const d = await api("/drift");
-    rows.push(!d.ready ? row("ok", "Data drift", `Not enough served forecasts yet (${d.rows} so far). Use the Forecast tab to create some.`) : d.drift ? row("warn", "Data drift", `${Math.round(d.share * 100)}% of inputs are outside their normal range: the market may have changed.`) : row("ok", "Data drift", `Normal: ${Math.round(d.share * 100)}% of inputs outside their normal range.`));
+    rows.push(!d.ready ? row("ok", "Data drift", `Not enough served forecasts yet (${d.rows} so far). Run the demo replay (make demo) to create some.`) : d.drift ? row("warn", "Data drift", `${Math.round(d.share * 100)}% of inputs are outside their normal range: the market may have changed.`) : row("ok", "Data drift", `Normal: ${Math.round(d.share * 100)}% of inputs outside their normal range.`));
   } catch { rows.push(row("warn", "Data drift", "Not available.")); }
   list.innerHTML = rows.join(""); list.setAttribute("aria-busy", "false");
 }

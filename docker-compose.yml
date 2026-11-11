@@ -1,6 +1,6 @@
 # The serving stack. Frontend and backend are separate services that meet only over REST.
 #   ./stack up -d --build        (the wrapper sets your user id so files stay yours)
-# Pipeline stages (export, check, bars, features, train) run with ./pipe, not here.
+# Pipeline stages (dvc.yaml) run with ./pipe, not here.
 name: optpred
 
 x-user: &user "${HOST_UID:-1000}:${HOST_GID:-1000}"
@@ -159,7 +159,8 @@ services:
     build: *serve_build
     image: optpred-serve:latest
     user: *user
-    command: ["python", "-m", "optpred.monitoring.replay", "--api", "http://api:8000", "--split", "val", "--delay", "${REPLAY_DELAY:-0.2}"]
+    command: ["python", "/app/scripts/replay.py", "--api", "http://api:8000", "--delay", "${REPLAY_DELAY:-0.2}"]
+    volumes: ["./scripts:/app/scripts:ro"]
     depends_on: [api]
     restart: "no"
 

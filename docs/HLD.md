@@ -59,7 +59,7 @@ test days (`reports/vol/comparison.md`). A good volatility forecast did not make
 | Containerization: Docker, Compose | Pipeline image, serving image (multi-stage), frontend image, Compose stack |
 | CI/CD: DVC | DAG ends in `tests` → `gate`; `dvc repro gate` = lint, tests, training, evaluation, gated deployment, acceptance (pre-push hook runs it) |
 | Serving: MLflow Serve, REST | `mlflow models serve` behind the FastAPI API |
-| Monitoring: Prometheus, Grafana | Metrics, 8 alerts, dashboard; Alertmanager → retraining |
+| Monitoring: Prometheus, Grafana | Metrics of every component, 10 alerts, dashboard; Alertmanager → retraining |
 | No cloud | One self-managed VPS |
 
 ## 5. Best practices
@@ -71,7 +71,7 @@ test days (`reports/vol/comparison.md`). A good volatility forecast did not make
 - **Scalability:** the work grows with the number of days; days run in parallel on Ray (CPU limit in
   `params.yaml`, so live trading keeps its CPUs). New days = `dvc repro`.
 - **Explainability:** global: gain importance and group ablation for the champion ("Does it work?" tab, MLflow). Per signal:
-  exact SHAP values of the score (`/signal` → `drivers`; Forecast tab, "Why did it say that?"). They add up to the score.
+  exact SHAP values of the score (`/signal` → `drivers`; Forecast page, "Why did it say that?"). They add up to the score.
 - **Collaboration:** shared MLflow UI, Grafana, Git history, `docs/steps/` (one reviewed note per rubric item).
 
 ## 6. Experiment tracking: what MLflow records

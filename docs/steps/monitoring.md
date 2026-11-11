@@ -1,4 +1,4 @@
-# Model Monitoring & Maintenance — DONE
+# Model Monitoring & Maintenance
 
 > Monitor performance in production; detect data drift; retrain periodically or on degradation.
 > AIOps: automated monitoring and alerting, automated retraining, drift and performance over time, model versioning.

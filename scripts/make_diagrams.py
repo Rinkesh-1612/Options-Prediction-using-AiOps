@@ -54,9 +54,9 @@ class Svg:
 
     def arrow(self, pts, label="", dash=False, lx=None, ly=None):
         d = "M" + " L".join(f"{x},{y}" for x, y in pts)
+        dashed = " stroke-dasharray='5 4'" if dash else ""
         self.parts.append(
-            f"<path d='{d}' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'"
-            f"{' stroke-dasharray=\"5 4\"' if dash else ''}/>"
+            f"<path d='{d}' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'{dashed}/>"
         )
         if label:
             (x1, y1), (x2, y2) = pts[0], pts[-1]
