@@ -16,3 +16,5 @@ __pycache__/
 /.dvc/cache
 # test run output (the report in reports/test_report.md is committed)
 /reports/junit.xml
+# demo video (make video): large, kept out of Git
+/demo

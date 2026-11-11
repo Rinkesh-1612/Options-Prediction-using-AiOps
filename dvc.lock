@@ -762,13 +762,13 @@ stages:
       size: 149737
     - path: pyproject.toml
       hash: md5
-      md5: 6cb0095771ea4d13b958fceba19f12d4
-      size: 738
+      md5: edc2af6aab54fc7a548f575d05038f43
+      size: 828
     - path: scripts
       hash: md5
-      md5: 3d508084ba5d7617372bd129747c7821.dir
-      size: 26715
-      nfiles: 8
+      md5: 952ff4e525c257943f8cf62b5c9224aa.dir
+      size: 35476
+      nfiles: 9
     - path: src/optpred
       hash: md5
       md5: 77a6923b67b6b1a0f78f6d3a0bd1aea4.dir
@@ -782,7 +782,7 @@ stages:
     outs:
     - path: reports/test_report.md
       hash: md5
-      md5: 2e4d381b318e1da1c985770a519e50ad
+      md5: 39cf5f97085d19a776ae1304870ccc19
       size: 11435
     - path: reports/tests.json
       hash: md5
