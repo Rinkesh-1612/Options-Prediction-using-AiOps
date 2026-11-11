@@ -211,7 +211,7 @@ def hld() -> None:
     row(
         332,
         [
-            "model zoo: 9 families\nwalk-forward CV, Ray Tune",
+            "direction: baseline, linear, LightGBM\nwalk-forward CV, Ray Tune",
             "volatility forecaster\nHAR vs the option market's IV",
         ],
         "model",

@@ -1,5 +1,4 @@
 import json
-from dataclasses import replace
 
 import numpy as np
 import pandas as pd
@@ -38,15 +37,21 @@ def ex(tmp_path):
     return Settings(
         grid_dir=tmp_path / "grid",
         chain_dir=tmp_path / "chain",
-        modelout_dir=tmp_path / "modelout",
         days_path=tmp_path / "days.json",
         zoo_dir=tmp_path / "zoo",
         reports_dir=tmp_path / "reports",
     )
 
 
-def client(st):
-    return TestClient(create_app(st, FakeModel(), FakeRegistry()))
+class FakeVol:
+    """Stands in for the registered volatility model: a constant forecast."""
+
+    def predict(self, X):
+        return pd.DataFrame({"fc_300": 8.0, "fc_900": 14.0}, index=X.index)
+
+
+def client(st, vol=None):
+    return TestClient(create_app(st, FakeModel(), FakeRegistry(), vol_loader=(lambda: vol) if vol else None))
 
 
 def test_calendar_marks_unseen_days_and_events(ex):
@@ -56,21 +61,15 @@ def test_calendar_marks_unseen_days_and_events(ex):
     assert d[0]["atm_iv"] > 0 and d[0]["range_pct"] >= 0
 
 
-def test_iv_day_has_minutes_and_no_forecast_before_the_stage_ran(ex):
+def test_iv_day_has_minutes_and_no_forecast_without_a_volatility_model(ex):
     r = client(ex).get("/explore/iv/day", params={"day": DAY}).json()
     assert r["sod"][0] == 34200 and r["sod"][-1] == 54000 and len(r["sod"]) == 331
     assert r["forecast"] is None and 5 < r["iv"][10] < 30
     assert r["realized"][-1] > 0  # 15:00 + 15 min is before the close, so the future move is known
 
 
-def test_iv_day_and_daily_use_stored_forecast(ex, tmp_path):
-    mo = tmp_path / "modelout" / "vol"
-    mo.mkdir(parents=True)
-    sod = np.arange(33300, 55800, 60)
-    pd.DataFrame(
-        {"day": DAY, "sod": sod, "family": "har_iv", "fc_300": 8.0, "fc_900": 14.0, "source": "test"}
-    ).to_parquet(mo / f"{DAY}.parquet")
-    c = client(ex)
+def test_iv_day_and_daily_show_the_forecast_of_the_model_in_service(ex):
+    c = client(ex, FakeVol())
     r = c.get("/explore/iv/day", params={"day": DAY}).json()
     assert r["forecast"][5] == pytest.approx(ann_vol(14.0, 900), abs=0.01)
     daily = c.get("/explore/iv/daily").json()[0]
@@ -107,74 +106,3 @@ def test_unknown_day_and_missing_files(ex, tmp_path):
     assert c.get("/explore/iv/smile", params={"day": "2020-01-01", "t": 40000}).status_code == 404
     (tmp_path / "chain" / f"{DAY}.parquet").unlink()
     assert c.get("/explore/iv/smile", params={"day": DAY, "t": 40000}).status_code == 503
-
-
-def test_strategies_list_prices_every_template_and_the_detail_route_validates(ex):
-    c = client(ex)
-    r = c.get("/explore/strategies", params={"day": DAY, "t": 36000}).json()
-    assert r["lot"] == 65 and len(r["strategies"]) >= 15
-    by = {s["id"]: s for s in r["strategies"]}
-    assert by["long_call"]["cost"] > 0 > by["short_straddle"]["cost"]
-    assert by["long_call"]["at"]["m5"] is not None and by["iron_condor"]["max_loss"] is not None
-    d = c.get("/explore/strategy", params={"day": DAY, "t": 36000, "legs": "buy:ce:0:1,sell:ce:2:2"}).json()
-    assert d["legs_text"] == "buy:ce:0:1,sell:ce:2:2" and d["payoff"]["max_loss"] is None
-    assert (
-        c.get("/explore/strategy", params={"day": DAY, "t": 36000, "legs": "buy:ce:9:1"}).status_code == 422
-    )
-    assert (
-        c.get("/explore/strategy", params={"day": DAY, "t": 55650, "legs": "buy:ce:0:1"}).status_code == 409
-    )
-    assert c.get("/explore/strategies", params={"day": "2020-01-01", "t": 36000}).status_code == 404
-
-
-def test_models_at_a_moment_and_over_a_day(ex, tmp_path):
-    sod = np.arange(33300, 55800, 60)
-    mo = tmp_path / "modelout"
-    (mo / "direction").mkdir(parents=True)
-    (mo / "vol").mkdir()
-    rows = []
-    for fam, ce, pe, tau in (
-        ("lgbm_reg", 5.0, 1.0, 2.0),
-        ("stay_out", -np.inf, -np.inf, np.inf),
-        ("random", 0.2, 0.9, 5.0),
-    ):
-        rows += [(DAY, s, fam, ce, pe, tau, "test") for s in sod]
-    pd.DataFrame(rows, columns=["day", "sod", "family", "score_ce", "score_pe", "tau", "source"]).to_parquet(
-        mo / "direction" / f"{DAY}.parquet"
-    )
-    pd.DataFrame(
-        {"day": DAY, "sod": sod, "family": "har_iv", "fc_300": 8.0, "fc_900": 14.0, "source": "test"}
-    ).to_parquet(mo / "vol" / f"{DAY}.parquet")
-    lab = pd.DataFrame({"sod": np.arange(33300, 55800)})
-    for s in ("ce", "pe"):
-        lab[f"{s}_valid"], lab[f"{s}_net_rs"], lab[f"{s}_hit"], lab[f"{s}_hold_s"] = (
-            True,
-            100.0 if s == "ce" else -50.0,
-            1,
-            120.0,
-        )
-    (tmp_path / "labels").mkdir()
-    lab.to_parquet(tmp_path / "labels" / f"{DAY}.parquet")
-    c = client(replace(ex, label_dir=tmp_path / "labels"))
-    r = c.get("/explore/models", params={"day": DAY, "t": 40000}).json()
-    by = {x["family"]: x for x in r["direction"]}
-    assert (
-        by["lgbm_reg"]["action"] == "BUY_CE"
-        and by["lgbm_reg"]["result"] == 100.0
-        and by["lgbm_reg"]["ended_by"] == 1
-    )
-    assert by["stay_out"]["action"] == "STAY_OUT" and by["stay_out"]["result"] is None
-    assert (
-        by["random"]["action"] == "STAY_OUT"
-        and by["lgbm_reg"]["baseline"] is False
-        and by["random"]["baseline"] is True
-    )
-    assert r["vol"][0]["forecast"] == pytest.approx(ann_vol(14.0, 900), abs=0.01) and r["realized"] > 0
-    d = c.get("/explore/models/day", params={"day": DAY}).json()
-    dd = {x["family"]: x for x in d["direction"]}
-    assert (
-        dd["stay_out"]["trades"] == 0
-        and dd["lgbm_reg"]["trades"] > 100
-        and dd["lgbm_reg"]["net"] == 100.0 * dd["lgbm_reg"]["trades"]
-    )
-    assert dd["lgbm_reg"]["hit_rate"] == 1.0 and d["vol"][0]["qlike"] is not None

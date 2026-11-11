@@ -191,28 +191,15 @@ def run(url: str) -> dict:
             if page.inner_text("#clock-intra") == before:
                 fail("charts", "clicking the intraday chart did not move the selected time")
         page.wait_for_timeout(800)
-        if page.locator("#strat-body tr").count() < 10:
-            fail("charts", "the strategies table has fewer than 10 rows")
+        if not re.search(r"Buy a call|Buy a put|Stay out", page.inner_text("#dir-main")):
+            fail("charts", "step 4 did not show the call/put model's answer")
         else:
-            page.locator("#strat-body [data-pick]").first.click()
-            page.wait_for_timeout(1200)
-            if not (
-                page.locator("#ch-exit .main-svg").count() and page.locator("#ch-payoff .main-svg").count()
-            ):
-                fail("charts", "exit-time and payoff charts were not drawn for a chosen strategy")
-            page.click("[data-exit=barrier]")
+            page.click("#dir-details summary")
             page.wait_for_timeout(300)
-            if "Result" not in page.inner_text("#strat-head"):
-                fail("charts", "the barrier-rule view did not change the table")
-            page.click("#builder summary")
-            page.select_option("#la0", "sell")
-            page.click("#leg-add")
-            page.click("#leg-run")
-            page.wait_for_timeout(1200)
-            if "Your strategy" not in page.inner_text("#sd-title"):
-                fail("charts", "a strategy built from legs was not priced")
-        if page.locator("#m-dir tr").count() < 5 or not page.locator("#ch-dirday .main-svg").count():
-            fail("charts", "the models section (tables and chart) was not drawn")
+            if "happened" not in page.inner_text("#dir-body"):
+                fail("charts", "step 4 did not show what happened after the model's answer")
+        if "works" not in page.inner_text("#verdict-box").lower():
+            fail("charts", "the verdict was not drawn")
         if not page.locator("#ch-intra-t table").count() or not page.locator("#ch-iv-t table").count():
             fail("charts", "no table twin for a chart")
         page.click("#tour-again")
@@ -270,7 +257,7 @@ CHECKS = {
     "bad_text": "no 'undefined' / 'NaN' / 'null' text",
     "jargon": "jargon on the first screen is explained (term button) or folded away",
     "false_alarm": "no error alert while everything works",
-    "charts": "explore page: calendar, four IV views, intraday chart (tooltip, click), tour, table twins, fallback",
+    "charts": "explore page: calendar, four IV views, intraday chart (tooltip, click), call/put answer, verdict, tour, table twins, fallback",
     "api_down": "API down: readable alert + Try again button",
     "tabs": "tabs exist",
 }

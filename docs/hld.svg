@@ -36,7 +36,7 @@
 <text x='705.0' y='234.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>volatility targets</text>
 <text x='705.0' y='248.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>realized move, 5 and 15 min</text>
 <rect x='40' y='332' width='250' height='52' rx='8' fill='#fff4e0' stroke='#c77700' stroke-width='1.6'/>
-<text x='165.0' y='354.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>model zoo: 9 families</text>
+<text x='165.0' y='354.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>direction: baseline, linear, LightGBM</text>
 <text x='165.0' y='368.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>walk-forward CV, Ray Tune</text>
 <rect x='310' y='332' width='250' height='52' rx='8' fill='#fff4e0' stroke='#c77700' stroke-width='1.6'/>
 <text x='435.0' y='354.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>volatility forecaster</text>

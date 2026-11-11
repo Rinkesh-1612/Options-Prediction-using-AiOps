@@ -10,21 +10,16 @@ take-profit (+k₁·σ), stop-loss (−k₂·σ), time cap. σ = the option's re
 changes with the market. It is not fixed. One label gives three targets: the barrier that the price touched
 first (class), the net ₹ after costs (regression), and the holding time.
 
-**Model zoo.** All models use the same labels, the same walk-forward split (purged, with an embargo) and
+**Models.** All models use the same labels, the same walk-forward split (purged, with an embargo) and
 the same simulator in net ₹.
 
-| # | Family | Why |
-|---|---|---|
-| 0 | Baselines: stay out, momentum, random | the minimum that a model must beat |
-| 1 | Logistic / ridge | sanity check: if trees do not beat it, the trees overfit |
-| 2 | LightGBM classifier + regressor | strongest default for tabular financial data; handles NaN; gives feature importance |
-| 3 | Meta-labelling (rule → LightGBM take/skip) | a model that filters a simple signal needs less data |
-| 4 | LSTM / GRU on the last 60–120 s | time-series dependencies |
-| 5 | Small transformer (TransLOB-style) | attention over the order-book sequence |
+| Family | Why |
+|---|---|
+| Baseline: stay out | the minimum that a model must beat |
+| Ridge regression (linear) | sanity check: if trees do not beat it, the trees overfit |
+| LightGBM regressor | strongest default for tabular financial data; handles NaN; gives feature importance |
 
-**Risk from the literature:** deep order-book models lose accuracy on new data (LOBCAST, 15 models), and
-on intraday futures both LSTM and boosting stayed near 50% (2026). A deep model stays only if it beats LightGBM.
-
-Sources: [DeepLOB](https://arxiv.org/pdf/1808.03668) · [TransLOB](https://arxiv.org/pdf/2003.00130) ·
-[TLOB](https://arxiv.org/html/2502.15757v1) · [LOBCAST](https://arxiv.org/abs/2308.01915v1) ·
-[LOBFrame](https://arxiv.org/html/2403.09267v2) · [GBM vs LSTM intraday](https://econpapers.repec.org/paper/arxpapers/2605.17724.htm)
+**Kept simple on purpose.** Six more families were tried first (LightGBM classifier, meta-labelling, GRU, a small
+transformer, momentum and random baselines). None beat "stay out" on the test days, so they were removed
+(Git history before 2026-11-11). The literature says the same: deep order-book models lose accuracy on new data
+([LOBCAST](https://arxiv.org/abs/2308.01915v1)).

@@ -1,0 +1,9 @@
+2026-11-11 10:46:25,534 INFO optpred.vol: run 20261111T161625-vol  commit 423663987a (DIRTY)
+2026-11-11 10:46:53,178 INFO optpred.common.parallel: ray: 49 days on 2 CPUs in 19.3 s
+2026-11-11 10:46:55,431 INFO optpred.vol.stage: CV implied  5min qlike 0.2482 corr 0.252  15min qlike 0.2191 corr 0.303
+2026-11-11 10:46:56,864 INFO optpred.vol.stage: CV har      5min qlike 0.0483 corr 0.681  15min qlike 0.0294 corr 0.688
+2026-11-11 10:46:57,317 INFO optpred.vol.stage: CV har_iv   5min qlike 0.0480 corr 0.684  15min qlike 0.0290 corr 0.692
+2026-11-11 10:46:57,317 INFO optpred.vol.stage: champion (CV QLIKE, 15 min): har_iv
+2026-11-11 10:46:57,852 INFO optpred.vol.stage: test 5 min: champion - implied daily QLIKE -0.2190 [-0.3800, -0.0943], better on 10/10 days -> PASS
+2026-11-11 10:46:57,854 INFO optpred.vol.stage: test 15 min: champion - implied daily QLIKE -0.1999 [-0.3699, -0.0684], better on 10/10 days -> PASS
+2026-11-11 10:47:18,703 INFO optpred.vol: run 20261111T161625-vol finished: ok in 53.2s

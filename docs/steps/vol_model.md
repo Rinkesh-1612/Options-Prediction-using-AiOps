@@ -6,7 +6,7 @@
 **Code.** [src/optpred/vol/](../../src/optpred/vol/) — stage `vol`, settings `params.yaml → vol`, tests `tests/unit/test_vol.py`.
 - Target: realized NIFTY move over the next 5 and 15 min (bp). Inputs (HAR): realized move over the last 1/5/15/30 min,
   since the open, time of day, ATM-IV implied move. No look-ahead (tested).
-- Forecasters: implied (the option market), HAR, HAR + IV, LightGBM. Walk-forward CV on the dev days; champion =
+- Forecasters: implied (the option market, the baseline), HAR, HAR + IV. Walk-forward CV on the dev days; champion =
   lowest CV QLIKE at 15 min.
 - **Success rule, set before the test:** the champion's daily QLIKE is below the implied forecast's on the test days,
   95% bootstrap interval of the difference below 0.
@@ -16,10 +16,8 @@
 Correlation with the realized move 0.68 (implied: −0.18).
 
 **Serving.** Registered as `nifty-vol` after a smoke test; the API loads `nifty-vol@champion` (`GET /vol`);
-Explore tab (IV against our forecast, by day and by minute; verdict in step 6); the older Forecast and "Does it work?" pages (`GET /vol/day`, table).
+the Explore tab shows IV against the forecast by day and by minute; the Results tab has the table.
 
 **Limit.** A good forecast is not a trade: buying straddles on it lost money after the spread (research note on
 `vol-track`). For Ravion it is a filter and position-size input.
 
-
-Using the forecast as a gate for trading (buy options when the forecast is high, sell when low) was tested: see [strategy_search.md](strategy_search.md). Result: no structure pays after costs.

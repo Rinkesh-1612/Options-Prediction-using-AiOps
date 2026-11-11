@@ -44,7 +44,7 @@ def planted(n=6000, seed=0):
 @pytest.mark.parametrize("name", list(FAMILIES))
 def test_every_forecaster_fits_and_predicts_positive(name):
     X, Y = planted()
-    p = {"n_estimators": 30, "n_jobs": 1} if name == "lgbm" else {}
+    p = {}
     fc = make(name, p).fit(X[:4000], Y[:4000]).predict(X[4000:])
     assert list(fc.columns) == ["fc_300", "fc_900"] and (fc.to_numpy() > 0).all()
 

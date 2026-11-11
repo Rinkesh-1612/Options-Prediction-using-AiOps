@@ -42,20 +42,11 @@ def main() -> None:
         page = ctx.new_page()
         page.goto(f"{URL}/#explore&day={DAY}&t={T}&iv=forecast", wait_until="networkidle")
         shot(page, "explore")
-        for tab in ("pipeline", "controls"):  # the two other tabs
+        for tab in ("works", "pipeline", "controls"):  # the other tabs
             page.click(f"[role=tab][data-tab='{tab}']")
+            if tab == "works":
+                page.click("summary:has-text('Forecasting how much')")
             shot(page, tab)
-        # the older pages, reached from step 6 of Explore
-        page.close()  # a hash change alone does not reload the page: open each older view fresh
-        page = ctx.new_page()
-        page.goto(f"{URL}/#forecast&day={DAY}&t={T}", wait_until="networkidle")
-        page.click("#dir-details summary")
-        shot(page, "forecast")
-        page.close()
-        page = ctx.new_page()
-        page.goto(f"{URL}/#works", wait_until="networkidle")
-        page.click("summary:has-text('Forecasting how much')")
-        shot(page, "works")
         page.click("#help-btn")
         shot(page, "help", full=False)
         ctx.close()

@@ -38,6 +38,14 @@ def say(page: Page, text: str, extra_s: float = 0.0) -> None:
     page.wait_for_timeout(int(max(3.5, len(text) / 15) * 1000 + extra_s * 1000))
 
 
+def tab(page: Page, name: str) -> None:
+    """Open a tab of the page; the subtitle of the scene before is cleared first."""
+    page.evaluate(CAPTION_JS, "")
+    page.click(f"[role=tab][data-tab={name}]")
+    page.wait_for_timeout(2500)
+    page.evaluate("window.scrollTo({top: 0, behavior: 'smooth'})")
+
+
 def to(page: Page, selector: str, block: str = "center") -> None:
     """Scroll to an element. The page grows when new data arrives, so wait first and correct the position after."""
     js = "([s, b, how]) => document.querySelector(s)?.scrollIntoView({behavior: how, block: b})"
@@ -85,45 +93,48 @@ def explore(page: Page) -> None:
     page.wait_for_timeout(700)
     page.mouse.click(box["x"] + box["width"] * 0.6, box["y"] + 60)
     say(page, "The three boxes show the market's guess, our forecast, and what happened after that moment.")
-    to(page, "#strat-h", "start")
-    say(page, "Step 4: 18 option strategies priced at that moment on the real quotes, after all charges.")
-    page.locator("#strat-body [data-pick]").first.click()
-    page.wait_for_timeout(1000)
-    to(page, "#ch-exit")
-    say(page, "A click on a row shows the result by closing time, and the payoff at expiry.")
-    to(page, "#models-h", "start")
-    say(
-        page,
-        "Step 5: what each model said at that moment, next to what happened. 4 volatility models, 9 direction models.",
-    )
-    to(page, "#ch-dirday")
-    say(
-        page,
-        "The badge says if the day is a fair test for that model. The chart shows each model over the whole day.",
-    )
+    to(page, "#dir-h", "start")
+    say(page, "Step 4: the second model answers a harder question: buy a call, buy a put, or stay out.")
+    page.click("#dir-details summary")
+    page.wait_for_timeout(800)
+    to(page, "#dir-body")
+    say(page, "It shows why it answered that (the inputs that moved the score) and what happened next.")
     to(page, "#verdict-h", "start")
     say(
         page,
-        "Step 6, the honest verdict: the volatility forecast works. Call or put prediction shows no edge after costs.",
+        "Step 5, the honest verdict: the volatility forecast works. Call or put prediction shows no edge after costs.",
+    )
+
+
+def results(page: Page) -> None:
+    tab(page, "works")
+    say(
+        page,
+        "Results: all the numbers. Each question has 3 models: a baseline, a simple model and a better one.",
+    )
+    to(page, "#ch-cum")
+    say(
+        page, "The last 10 days were never used in training. The models are scored on them once, after costs."
     )
 
 
 def pipeline(page: Page) -> None:
-    page.click("[role=tab][data-tab=pipeline]")
-    page.wait_for_timeout(2500)
-    page.evaluate("window.scrollTo({top: 0, behavior: 'smooth'})")
+    tab(page, "pipeline")
     say(
         page,
         "How it's built: the DVC pipeline, drawn live from dvc.yaml. Green means the last run succeeded.",
     )
-    say(page, "Data: export, check with Spark, clean, grid, features and labels with Ray. Then the models.")
     say(
         page,
-        "The last two boxes are the CI: 'tests' runs lint and 130 tests, 'gate' checks the acceptance criteria.",
+        "Data: export, check with Spark, clean, grid, features and labels with Ray. Then the two models.",
+    )
+    say(
+        page,
+        "The last two boxes are the CI: 'tests' runs lint and all tests, 'gate' checks the acceptance criteria.",
     )
     to(page, "#ch-thr")
     say(page, "Speed and throughput of each stage, in rows per second, from the last successful run.")
-    to(page, "#runs-title", "start")
+    to(page, "#runs")
     say(
         page,
         "Every run is in a journal: result, time and Git commit. This is the console for successes and failures.",
@@ -138,9 +149,7 @@ def pipeline(page: Page) -> None:
 
 
 def controls(page: Page) -> None:
-    page.click("[role=tab][data-tab=controls]")
-    page.wait_for_timeout(2500)
-    page.evaluate("window.scrollTo({top: 0, behavior: 'smooth'})")
+    tab(page, "controls")
     say(page, "Controls, for the operator: the health of each part, and the model version in service.")
     to(page, "#rollback")
     say(
@@ -159,6 +168,8 @@ def tools(page: Page) -> None:
     page.goto(f"{MLFLOW}/#/models", wait_until="domcontentloaded")
     page.wait_for_selector("text=nifty-signal", timeout=60000)
     page.wait_for_timeout(1500)
+    page.keyboard.press("Escape")  # MLflow may open a "what is new" window over the list
+    page.wait_for_timeout(800)
     say(page, "The model registry. The alias 'champion' is the model in service; 'previous' is the way back.")
     page.goto(f"{GRAFANA}/d/optpred?from=now-15m&to=now&refresh=5s&kiosk", wait_until="domcontentloaded")
     page.wait_for_selector("text=Signals per minute", timeout=60000)
@@ -195,7 +206,7 @@ def main() -> None:
             record_video_size={"width": 1280, "height": 720},
         )
         page = ctx.new_page()
-        for scene in (explore, pipeline, controls, tools):
+        for scene in (explore, results, pipeline, controls, tools):
             scene(page)
         video = page.video
         ctx.close()  # the video file is complete only after the context closes

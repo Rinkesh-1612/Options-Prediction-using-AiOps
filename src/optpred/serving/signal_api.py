@@ -71,7 +71,7 @@ class Settings:
     model_url: str = "http://model:5001"
     tracking_uri: str = "http://mlflow:5000"
     model_name: str = "nifty-signal"
-    window_rows: int = 120  # rows sent per request: enough history for the sequence models (seq_len <= 120)
+    window_rows: int = 120  # rows sent per request (the served model scores the last one)
     admin_token: str = ""
     drift_ref: Path = Path("reports/drift/reference.json")
     reports_dir: Path = Path("reports")
@@ -83,7 +83,6 @@ class Settings:
     dvc_path: Path = Path("dvc.yaml")
     logs_root: Path = Path("logs")
     chain_dir: Path = Path("data/clean/option_chain_snap")
-    modelout_dir: Path = Path("data/modelout")
 
     @classmethod
     def from_env(cls) -> Settings:
@@ -109,7 +108,6 @@ class Settings:
             dvc_path=Path(e.get("DVC_PATH", cls.dvc_path)),
             logs_root=Path(e.get("LOGS_ROOT", cls.logs_root)),
             chain_dir=Path(e.get("CHAIN_DIR", cls.chain_dir)),
-            modelout_dir=Path(e.get("MODELOUT_DIR", cls.modelout_dir)),
         )
 
 
@@ -247,11 +245,14 @@ def create_app(
     def accepted() -> list[str]:
         return json.loads(st.days_path.read_text())["accepted"]
 
-    def vol_champion() -> str:
-        p = st.zoo_dir.parent / "vol" / "test.json"
-        return json.loads(p.read_text()).get("champion", "har_iv") if p.exists() else "har_iv"
+    def vol_predict(X: pd.DataFrame) -> pd.DataFrame | None:
+        """Forecast of the volatility model in service, for the Explore charts. None when none is loaded."""
+        try:
+            return vol_model().predict(X)
+        except Exception:  # noqa: BLE001 -- no volatility model registered yet: no forecast line
+            return None
 
-    app.include_router(explore_router(st, accepted, vol_champion))
+    app.include_router(explore_router(st, accepted, vol_predict))
 
     @lru_cache(maxsize=4)
     def day_frames(day: str) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -384,15 +385,12 @@ def create_app(
 
     @lru_cache(maxsize=4)
     def vol_day(day: str) -> pd.DataFrame:
-        """Inputs (causal: each row uses data up to its second) + features + realized targets of one day."""
+        """Inputs (causal: each row uses data up to its second) + realized targets of one day."""
         from optpred.vol.inputs import inputs, targets
 
         g = pd.read_parquet(st.grid_dir / f"{day}.parquet").sort_values("sod").reset_index(drop=True)
-        f = pd.read_parquet(st.feat_dir / f"{day}.parquet").sort_values("sod").reset_index(drop=True)
         spot = g["spot"].ffill().rename("spot")
-        return pd.concat([g[["sod"]], inputs(g), f.drop(columns=KEYS), targets(g), spot], axis=1).set_index(
-            "sod"
-        )
+        return pd.concat([g[["sod"]], inputs(g), targets(g), spot], axis=1).set_index("sod")
 
     @app.get("/vol")
     def vol(day: str, sod: int = Query(..., ge=SESSION_FIRST_MIN * 60, le=(SESSION_LAST_MIN + 1) * 60 - 1)):

@@ -12,7 +12,7 @@
 | no 'undefined' / 'NaN' / 'null' text | pass |  |
 | jargon on the first screen is explained (term button) or folded away | pass |  |
 | no error alert while everything works | pass |  |
-| explore page: calendar, four IV views, intraday chart (tooltip, click), tour, table twins, fallback | pass |  |
+| explore page: calendar, four IV views, intraday chart (tooltip, click), call/put answer, verdict, tour, table twins, fallback | pass |  |
 | API down: readable alert + Try again button | pass |  |
 | tabs exist | pass |  |
 

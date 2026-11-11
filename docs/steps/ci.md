@@ -12,7 +12,7 @@
 export → check → clean → eda
                        → grid → feat, labels → zoo_train → zoo_eval ─┐
                               → vol ──────────────────────────────────┤
-                              → drift, modelout                       │
+                              → drift                                 │
 tests (ruff + pytest + report) ───────────────────────────────────────┴→ gate
 ```
 
@@ -43,4 +43,4 @@ pipeline* → `POST /pipeline/run` → runner). The push stops if the gate fails
 The model server follows the alias.
 
 **Versioning.** Git: code, params, `dvc.lock`, metrics, run journal. Git LFS: one sample day (`data/sample/`).
-DVC: all data (`data/raw` … `data/modelout`, remote `../dvc-remote`). MLflow registry: models.
+DVC: all data (`data/raw` … `data/labels`, remote `../dvc-remote`). MLflow registry: models.

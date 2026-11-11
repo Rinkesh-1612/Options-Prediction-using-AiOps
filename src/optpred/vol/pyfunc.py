@@ -1,6 +1,6 @@
 """MLflow pyfunc wrapper of the volatility champion.
 
-Input: input rows (optpred.vol.inputs) plus feature columns when the model uses them.
+Input: input rows (optpred.vol.inputs).
 Output: fc_300, fc_900 = forecast NIFTY move over the next 5 / 15 min, in bp.
 """
 

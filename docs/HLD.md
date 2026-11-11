@@ -42,7 +42,7 @@ test days (`reports/vol/comparison.md`). A good volatility forecast did not make
 |---|---|---|
 | 1-second ATM-relative grid | Keeps the order-flow detail; minute data can be made from it | Minute bars (loses detail) |
 | Triple-barrier labels (σ-scaled take-profit / stop-loss, time cap) | The holding time follows the market; not fixed | One fixed horizon |
-| Model zoo: baselines, ridge, LightGBM (reg / clf), meta-labelling, GRU, transformer | Fair comparison of all families on one label, one split, one simulator | One model |
+| Three models per question: a baseline, a simple model, a better model (direction: stay out, ridge, LightGBM; volatility: option market, HAR, HAR + IV) | A model counts only if it beats the baseline on one label, one split, one simulator. Six more direction families (deep models included) were tried and removed: none beat the baseline, and they made the project hard to explain | One model with no baseline |
 | Feature library with a registry | Add a feature = one function; CI tests it automatically | Hand-written feature table |
 | Deploy gate + alias-following server | Promotion = deployment; a bad version never serves; automatic rollback | Manual restarts |
 | Drift limits from normal dev-day variation | Fixed PSI limits flagged 45 of 49 normal days | One global PSI limit |
@@ -70,8 +70,8 @@ test days (`reports/vol/comparison.md`). A good volatility forecast did not make
   services bound to localhost by default; ClickHouse read-only.
 - **Scalability:** the work grows with the number of days; days run in parallel on Ray (CPU limit in
   `params.yaml`, so live trading keeps its CPUs). New days = `dvc repro`.
-- **Explainability:** global: gain importance and group ablation for the champion ("Does it work?" tab, MLflow). Per signal:
-  exact SHAP values of the score (`/signal` → `drivers`; Forecast page, "Why did it say that?"). They add up to the score.
+- **Explainability:** global: gain importance and group ablation for the champion (Results tab, MLflow). Per signal:
+  exact SHAP values of the score (`/signal` → `drivers`; Explore step 4, "Why did it say that?"). They add up to the score.
 - **Collaboration:** shared MLflow UI, Grafana, Git history, `docs/steps/` (one reviewed note per rubric item).
 
 ## 6. Experiment tracking: what MLflow records

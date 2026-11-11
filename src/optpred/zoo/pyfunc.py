@@ -13,7 +13,7 @@ from optpred.zoo.explain import drivers
 
 
 class SignalModel(mlflow.pyfunc.PythonModel):
-    """Input: feature rows of one day, in time order (sequence models need the previous seq_len rows).
+    """Input: feature rows of one day, in time order.
     Output per row: score_ce, score_pe, action (BUY_CE / BUY_PE / STAY_OUT, using the model's tau) and
     `drivers`: for the LAST row only, a JSON string with the inputs behind the best side's score
     (optpred.zoo.explain); an empty string for other rows and for models that cannot explain."""

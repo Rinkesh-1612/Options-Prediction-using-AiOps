@@ -114,7 +114,7 @@ stages:
         cache: false
 
   zoo_train:
-    # walk-forward CV of every model family on dev days; Ray Tune + MLflow (docs/steps/model_training.md)
+    # walk-forward CV of the 3 direction families on dev days; Ray Tune + MLflow (docs/steps/model_training.md)
     cmd: python -m optpred.zoo.train
     params:
     - zoo
@@ -177,7 +177,6 @@ stages:
     deps:
     - src/optpred/vol
     - data/grid
-    - data/feat
     - data/days.json
     outs:
     - reports/vol/test_scatter.png:
@@ -188,30 +187,6 @@ stages:
     - reports/vol/cv.json:
         cache: false
     - reports/vol/test.json:
-        cache: false
-
-  modelout:
-    # what every model said at every minute of every day: read by the web page (docs/steps/ui.md)
-    cmd: python -m optpred.modelout.stage
-    params:
-    - vol
-    - zoo.n_test_days
-    - zoo.min_train_days
-    - zoo.val_days
-    - zoo.cpus
-    deps:
-    - src/optpred/modelout
-    - src/optpred/zoo
-    - src/optpred/vol
-    - data/grid
-    - data/feat
-    - data/labels
-    - data/days.json
-    - reports/zoo/cv.json
-    outs:
-    - data/modelout
-    metrics:
-    - reports/modelout.json:
         cache: false
 
   # ---- continuous integration (course lecture 11: CI with DVC) ----

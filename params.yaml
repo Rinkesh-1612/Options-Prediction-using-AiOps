@@ -56,7 +56,7 @@ labels:                    # triple-barrier targets (optpred.labels.barrier). Se
   k_sl: 2.0
   max_hold_s: 900          # safety cap, not a fixed horizon
 
-zoo:                       # model zoo: training + evaluation (optpred.zoo). Grid fixed before any zoo result
+zoo:                       # direction models: training + evaluation (optpred.zoo). Grid fixed before any result
   n_test_days: 10          # last 10 accepted days: test (only zoo_eval reads them)
   min_train_days: 19       # walk-forward: first fold trains on 19 days
   val_days: 5              # each fold validates on the next 5 days -> 4 folds on 39 dev days
@@ -71,29 +71,13 @@ zoo:                       # model zoo: training + evaluation (optpred.zoo). Gri
     experiment: nifty-zoo
     registered_model: nifty-signal
   grid:                    # one Ray Tune trial per entry
-    stay_out: [{}]
-    random: [{seed: 1}]
-    momentum: [{window: 15}, {window: 60}, {window: 300}]
+    stay_out: [{}]         # baseline: never trades
     linear: [{alpha: 1.0}, {alpha: 100.0}, {alpha: 10000.0}]
     lgbm_reg:
       - {n_estimators: 300, learning_rate: 0.03, num_leaves: 15, min_child_samples: 200}
       - {n_estimators: 300, learning_rate: 0.03, num_leaves: 15, min_child_samples: 2000}
       - {n_estimators: 300, learning_rate: 0.03, num_leaves: 63, min_child_samples: 200}
       - {n_estimators: 300, learning_rate: 0.03, num_leaves: 63, min_child_samples: 2000}
-    lgbm_clf:
-      - {n_estimators: 300, learning_rate: 0.03, num_leaves: 15, min_child_samples: 200}
-      - {n_estimators: 300, learning_rate: 0.03, num_leaves: 15, min_child_samples: 2000}
-      - {n_estimators: 300, learning_rate: 0.03, num_leaves: 63, min_child_samples: 200}
-      - {n_estimators: 300, learning_rate: 0.03, num_leaves: 63, min_child_samples: 2000}
-    meta:
-      - {window: 60, n_estimators: 300, learning_rate: 0.03, num_leaves: 15, min_child_samples: 500}
-      - {window: 60, n_estimators: 300, learning_rate: 0.03, num_leaves: 31, min_child_samples: 500}
-    gru:
-      - {hidden: 32, seq_len: 60, epochs: 3, lr: 0.001}
-      - {hidden: 64, seq_len: 60, epochs: 3, lr: 0.001}
-    transformer:
-      - {hidden: 32, heads: 4, layers: 1, seq_len: 60, epochs: 3, lr: 0.001}
-      - {hidden: 32, heads: 4, layers: 2, seq_len: 60, epochs: 3, lr: 0.001}
 
 drift:                     # data drift by PSI (optpred.drift). Online (API) and per day (stage drift)
   n_bins: 10
@@ -111,10 +95,9 @@ vol:                       # volatility forecaster (optpred.vol). Fixed before a
   bootstrap: 5000
   seed: 20261024
   models:
-    implied: {}
-    har: {}
-    har_iv: {}
-    lgbm: {n_estimators: 400, learning_rate: 0.03, num_leaves: 15, min_child_samples: 200, n_jobs: 4}
+    implied: {}            # baseline: the option market's own forecast (implied volatility)
+    har: {}                # linear regression on past moves (HAR)
+    har_iv: {}             # HAR + the implied volatility as one more input
   mlflow:
     tracking_uri: "sqlite:///mlflow/mlflow.db"
     artifact_root: mlflow/artifacts

@@ -1,6 +1,6 @@
 """Volatility forecasters. Each predicts log(rv_fwd_h) for both horizons. Same interface:
 
-m = make(name, params).fit(X, Y)      # X: inputs (+ features for lgbm), Y: targets
+m = make(name, params).fit(X, Y)      # X: inputs (optpred.vol.inputs), Y: targets
 m.predict(X) -> DataFrame [fc_300, fc_900] in bp
 """
 
@@ -56,39 +56,7 @@ class Linear:
         )
 
 
-class LGBM:
-    """LightGBM on the HAR inputs and every library feature."""
-
-    def __init__(self, params):
-        self.p, self.m, self.cols = params, {}, None
-
-    def fit(self, X, Y):
-        import lightgbm as lgb
-
-        self.cols = list(X.columns)
-        for h in HORIZONS:
-            ok = Y[f"rv_fwd_{h}"].gt(0)
-            self.m[h] = lgb.LGBMRegressor(
-                n_estimators=self.p.get("n_estimators", 400),
-                learning_rate=self.p.get("learning_rate", 0.03),
-                num_leaves=self.p.get("num_leaves", 15),
-                min_child_samples=self.p.get("min_child_samples", 200),
-                subsample=0.8,
-                subsample_freq=1,
-                colsample_bytree=0.8,
-                random_state=SEED,
-                n_jobs=self.p.get("n_jobs", 4),
-                verbose=-1,
-            ).fit(X.loc[ok, self.cols], np.log(Y.loc[ok, f"rv_fwd_{h}"]))
-        return self
-
-    def predict(self, X):
-        return pd.DataFrame(
-            {f"fc_{h}": np.exp(self.m[h].predict(X[self.cols])) for h in HORIZONS}, index=X.index
-        )
-
-
-FAMILIES = {"implied": Implied, "har": Linear, "har_iv": Linear, "lgbm": LGBM}
+FAMILIES = {"implied": Implied, "har": Linear, "har_iv": Linear}
 
 
 def make(name: str, params: dict):

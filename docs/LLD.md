@@ -41,12 +41,12 @@ Out: `reports/vol/test.json` (`champion, verdict{300, 900: mean_daily_qlike_diff
 {300, 900: {day: qlike}}}`) + `cv`.
 
 ### GET /explore/days
-Out: one row per recorded day for the calendar: `{day, weekday, split (dev|test), source (train|oof|test), open, close, ret_pct, range_pct, dte, atm_iv, events[]}`.
+Out: one row per recorded day for the calendar: `{day, weekday, split (dev|test), open, close, ret_pct, range_pct, dte, atm_iv, events[]}`.
 `events` holds `expiry` (dte 0), `big_move` (move ≥ 1% or range ≥ 1.5%) and `drift` (drift stage alarm).
 
 ### GET /explore/iv/daily
 Out: per day `{day, split, iv, forecast, realized, iv_rich_share}`. All three volatilities are annual percent, averages over the
-minutes of the day; `realized` is hindsight; `forecast` is our champion volatility forecaster (`null` until stage `modelout` ran).
+minutes of the day; `realized` is hindsight; `forecast` comes from the volatility model in service (`null` when no model is registered; on `dev` days the model has seen the day).
 `iv_rich_share` = share of minutes where the option market's volatility was above what then happened.
 
 ### GET /explore/iv/day
@@ -58,29 +58,6 @@ In (query): `day`, `t` (seconds of day). Out: the chain snapshot nearest to `t`:
 ### GET /explore/iv/term
 In (query): `day`, `t`. Out: `{day, sod, at[{expiry, dte, iv}], series{sod[], near[], next[]}}`: ATM IV of each expiry at `t`
 and of the first two expiries through the day. 404 unknown day, 503 when the file is missing.
-
-### GET /explore/strategies
-In (query): `day`, `t` (second of day). Out: `{day, sod, lot, atm, strategies[]}`: every ready-made strategy (18: long and short
-volatility, spreads, ratio spreads, backspreads, broken wing, jade lizard) entered at `t`: `{id, name, kind, legs_text, legs[{side,
-action, lots, strike, price, k}], cost (₹; > 0 pay, < 0 receive), curve[] (net ₹ if closed after 1, 2, 3 ... minutes), at{m5, m15, m30,
-m60}, best_exit{minute, net} (hindsight), barrier{hit (+1 take profit, -1 stop loss, 0 time cap), hold_s, net, sigma}|null,
-max_profit, max_loss (at expiry, before charges; `null` = unlimited or very large: net long or short calls, or puts), breakevens[]}`. A strategy that cannot be priced has `error`.
-Buy legs fill at the ask and exit at the bid, sell legs the other way; statutory charges, no brokerage; margin is not modelled.
-
-### GET /explore/strategy
-In (query): `day`, `t`, `legs` = `action:side:offset:lots,...` (1-4 legs, offset -2..2 strikes from ATM at entry, lots 1-10).
-Out: the same fields for that strategy plus `payoff{spot[], pnl[], breakevens[], max_profit, max_loss}`. 422 bad legs, 409 cannot be priced
-at that time (no quote, too close to the close), 404 unknown day.
-
-### GET /explore/models
-In (query): `day`, `t`. Out: what every model said at the minute of `t` (from stage `modelout`) and what happened:
-`{day, sod, iv, realized, direction[{family, baseline, source (test|oof|train), action (BUY_CE|BUY_PE|STAY_OUT), score_ce, score_pe, tau,
-ce_net, pe_net, result, ended_by}], vol[{family, kind (forecast|market), source, forecast}]}`. `source`: `test` = unseen day, `oof` = the model had not
-seen the day (walk-forward), `train` = in-sample. Net rupees are for one lot, barrier exit (the labels). 503 until stage `modelout` ran.
-
-### GET /explore/models/day
-In (query): `day`. Out: `{day, direction[{family, baseline, source, trades, net, hit_rate}], vol[{family, source, qlike}]}`: each direction model
-trades one position at a time at one-minute steps; `qlike` = error of the 15-minute volatility forecast (lower is better).
 
 ### GET /model
 Out: `{"champion": V, "previous": V}`, V = `{version, family, git_commit, deploy_check, metrics}`.
@@ -148,9 +125,8 @@ Prometheus text. Main series: `signals_total{action}`, `signal_outcomes_total{re
 | labels | `data/grid` | `data/labels/<day>.parquet` (per side: `valid, entry, sigma, hit, hold_s, exit, net_rs`), `reports/labels.json` |
 | zoo_train | `data/feat`, `data/labels` (dev days) | `reports/zoo/cv.json`, `reports/zoo/importance.json`, MLflow runs |
 | zoo_eval | + test days, `cv.json` | `reports/zoo/test.json`, `comparison.md`, registered + deployed model |
-| vol | `data/grid`, `data/feat` | `reports/vol/cv.json`, `test.json`, `comparison.md`, `test_scatter.png`, model `nifty-vol` |
+| vol | `data/grid` | `reports/vol/cv.json`, `test.json`, `comparison.md`, `test_scatter.png`, model `nifty-vol` |
 | drift | `data/feat` | `reports/drift/reference.json`, `daily.json`, `daily.png` |
-| modelout | `data/grid`, `data/feat`, `data/labels`, `cv.json` | `data/modelout/<day>.parquet` (every model, every minute), `reports/modelout.json` |
 | tests | `src/`, `tests/`, `scripts/`, `docs/LLD.md`, page | `reports/tests.json` (counts), `reports/test_report.md`; fails on a lint or test error |
 | gate | `tests.json`, `days.json`, `vol/test.json`, `zoo/test.json` | `reports/gate.json` (4 criteria); fails when one fails |
 

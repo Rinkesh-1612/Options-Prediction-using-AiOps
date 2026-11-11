@@ -2,22 +2,22 @@
 
 Source: `pred_contrib` of the booster.
 For one row and one side: score = base + sum of the contributions of all inputs.
-For the regression champion the unit is expected net rupees, so "ATM IV: +₹40" reads directly.
-Only LightGBM models can explain; other families (linear, GRU, ...) return None and the signal has no drivers.
+The unit is expected net rupees, so "ATM IV: +₹40" reads directly.
+Only the LightGBM model can explain; the other families return None and the signal has no drivers.
 """
 
 from __future__ import annotations
 
 import numpy as np
 
-from optpred.zoo.models import LGBMClassifier, LGBMRegressor
+from optpred.zoo.models import LGBMRegressor
 
 SIDES = ("ce", "pe")
 
 
 def drivers(model, x_row: np.ndarray, side: int, k: int = 5) -> dict | None:
     """The k inputs that moved the score of `side` most (by size), for one feature row (shape (F,))."""
-    if not isinstance(model, LGBMRegressor):  # LGBMClassifier is a subclass: log-odds instead of rupees
+    if not isinstance(model, LGBMRegressor):
         return None
     names = [f for f, kept in zip(model.features, model.keep, strict=True) if kept]
     x = np.asarray(x_row, dtype=np.float32)[model.keep]
@@ -26,7 +26,7 @@ def drivers(model, x_row: np.ndarray, side: int, k: int = 5) -> dict | None:
     top = np.argsort(-np.abs(c))[:k]
     return {
         "side": SIDES[side],
-        "unit": "log-odds" if isinstance(model, LGBMClassifier) else "net_rs",
+        "unit": "net_rs",
         "base": base,
         "score": float(contrib.sum()),
         "top": [

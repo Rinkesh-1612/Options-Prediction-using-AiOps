@@ -8,20 +8,8 @@ from optpred.zoo.sim import choose_tau, simulate, trades_one_day
 FEATURES = ["spot_ret_15s", "spot_ret_60s", "spot_ret_300s", "f3"]
 SMALL = {
     "stay_out": {},
-    "random": {"seed": 1},
-    "momentum": {"window": 60},
     "linear": {"alpha": 1.0},
     "lgbm_reg": {"n_estimators": 20, "learning_rate": 0.1, "num_leaves": 7, "min_child_samples": 20},
-    "lgbm_clf": {"n_estimators": 20, "learning_rate": 0.1, "num_leaves": 7, "min_child_samples": 20},
-    "meta": {
-        "window": 60,
-        "n_estimators": 20,
-        "learning_rate": 0.1,
-        "num_leaves": 7,
-        "min_child_samples": 20,
-    },
-    "gru": {"hidden": 8, "seq_len": 10, "epochs": 1, "lr": 0.01},
-    "transformer": {"hidden": 8, "heads": 2, "layers": 1, "seq_len": 10, "epochs": 1, "lr": 0.01},
 }
 
 

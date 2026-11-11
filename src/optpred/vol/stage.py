@@ -1,7 +1,8 @@
 """Stage vol: forecast the NIFTY move over the next 5 and 15 min; compare with the option market's forecast.
 
   * Rows: one every `stride_s` seconds from 09:20, while the target window ends before the close.
-  * Forecasters (optpred.vol.models): implied (IV, scale fitted), har, har_iv, lgbm.
+  * Forecasters (optpred.vol.models): implied (the option market's IV, scale fitted) = the baseline,
+    har (past moves), har_iv (past moves + IV).
   * Walk-forward CV on the dev days (same folds as the zoo). Champion = lowest CV QLIKE at the main horizon.
   * Test days: every forecaster trained on all dev days. Success rule (fixed before any test result):
     the champion's daily QLIKE is lower than the implied forecast's, and the 95% bootstrap interval of the
@@ -42,13 +43,11 @@ from optpred.zoo.data import split_days  # noqa: E402
 
 log = logging.getLogger("optpred.vol.stage")
 OUT = Path("reports/vol")
-KEYS = ["day", "sod", "atm"]
 
 
-def day_rows(day: str, grid_dir: str, feat_dir: str, stride: int, first_s: int) -> pd.DataFrame:
+def day_rows(day: str, grid_dir: str, stride: int, first_s: int) -> pd.DataFrame:
     g = pd.read_parquet(Path(grid_dir) / f"{day}.parquet").sort_values("sod").reset_index(drop=True)
-    f = pd.read_parquet(Path(feat_dir) / f"{day}.parquet").sort_values("sod").reset_index(drop=True)
-    d = pd.concat([g[["sod"]], inputs(g), targets(g), f.drop(columns=KEYS)], axis=1).assign(day=day)
+    d = pd.concat([g[["sod"]], inputs(g), targets(g)], axis=1).assign(day=day)
     keep = (
         (d["sod"] >= first_s)
         & (d["sod"] % stride == 0)
@@ -103,9 +102,7 @@ def main(argv: list[str], summary: dict) -> int:
     accepted = json.loads(Path("data/days.json").read_text())["accepted"]
     dev, test, folds = split_days(accepted, z["n_test_days"], z["min_train_days"], z["val_days"])
     rows = map_days(
-        lambda d: day_rows(
-            d, params["grid"]["out_dir"], params["feat"]["out_dir"], v["stride_s"], v["first_s"]
-        ),
+        lambda d: day_rows(d, params["grid"]["out_dir"], v["stride_s"], v["first_s"]),
         accepted,
         params["eda"]["workers"],
     )
@@ -215,7 +212,7 @@ def main(argv: list[str], summary: dict) -> int:
     }
 
     tracking.setup(v["mlflow"])
-    tags = tracking.version_tags(("data/grid", "data/feat")) | {"stage": "vol"}
+    tags = tracking.version_tags(("data/grid",)) | {"stage": "vol"}
     reg = v["mlflow"]["registered_model"]
     for name in v["models"]:
         with mlflow.start_run(

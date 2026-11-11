@@ -19,7 +19,7 @@ SHOTS = [
     ("tour-2.png", "#s-day"),
     ("tour-3.png", "#s-iv"),
     ("tour-4.png", "#s-intra"),
-    ("tour-5.png", "#s-strat"),
+    ("tour-5.png", "#s-dir"),
 ]
 
 

@@ -317,9 +317,9 @@ stages:
       size: 5392
     - path: src/optpred/zoo
       hash: md5
-      md5: 00eaf1881aa60e8e015a00b248c9c7a8.dir
-      size: 40803
-      nfiles: 10
+      md5: eccda0b4aff4e7c5f54e41c6ce89bdcf.dir
+      size: 33734
+      nfiles: 9
     params:
       params.yaml:
         zoo:
@@ -345,12 +345,6 @@ stages:
           grid:
             stay_out:
             - {}
-            random:
-            - seed: 1
-            momentum:
-            - window: 15
-            - window: 60
-            - window: 300
             linear:
             - alpha: 1.0
             - alpha: 100.0
@@ -372,61 +366,11 @@ stages:
               learning_rate: 0.03
               num_leaves: 63
               min_child_samples: 2000
-            lgbm_clf:
-            - n_estimators: 300
-              learning_rate: 0.03
-              num_leaves: 15
-              min_child_samples: 200
-            - n_estimators: 300
-              learning_rate: 0.03
-              num_leaves: 15
-              min_child_samples: 2000
-            - n_estimators: 300
-              learning_rate: 0.03
-              num_leaves: 63
-              min_child_samples: 200
-            - n_estimators: 300
-              learning_rate: 0.03
-              num_leaves: 63
-              min_child_samples: 2000
-            meta:
-            - window: 60
-              n_estimators: 300
-              learning_rate: 0.03
-              num_leaves: 15
-              min_child_samples: 500
-            - window: 60
-              n_estimators: 300
-              learning_rate: 0.03
-              num_leaves: 31
-              min_child_samples: 500
-            gru:
-            - hidden: 32
-              seq_len: 60
-              epochs: 3
-              lr: 0.001
-            - hidden: 64
-              seq_len: 60
-              epochs: 3
-              lr: 0.001
-            transformer:
-            - hidden: 32
-              heads: 4
-              layers: 1
-              seq_len: 60
-              epochs: 3
-              lr: 0.001
-            - hidden: 32
-              heads: 4
-              layers: 2
-              seq_len: 60
-              epochs: 3
-              lr: 0.001
     outs:
     - path: reports/zoo/cv.json
       hash: md5
-      md5: f5cd5711a64d513872ded170577bab4f
-      size: 17186
+      md5: cb1d524e4626b9eafb771dbe826cfd51
+      size: 6722
     - path: reports/zoo/importance.json
       hash: md5
       md5: b9b2f573000c04a035bab69752d50ee1
@@ -446,13 +390,13 @@ stages:
       nfiles: 49
     - path: reports/zoo/cv.json
       hash: md5
-      md5: f5cd5711a64d513872ded170577bab4f
-      size: 17186
+      md5: cb1d524e4626b9eafb771dbe826cfd51
+      size: 6722
     - path: src/optpred/zoo
       hash: md5
-      md5: 00eaf1881aa60e8e015a00b248c9c7a8.dir
-      size: 40803
-      nfiles: 10
+      md5: eccda0b4aff4e7c5f54e41c6ce89bdcf.dir
+      size: 33734
+      nfiles: 9
     params:
       params.yaml:
         zoo:
@@ -478,12 +422,6 @@ stages:
           grid:
             stay_out:
             - {}
-            random:
-            - seed: 1
-            momentum:
-            - window: 15
-            - window: 60
-            - window: 300
             linear:
             - alpha: 1.0
             - alpha: 100.0
@@ -505,65 +443,15 @@ stages:
               learning_rate: 0.03
               num_leaves: 63
               min_child_samples: 2000
-            lgbm_clf:
-            - n_estimators: 300
-              learning_rate: 0.03
-              num_leaves: 15
-              min_child_samples: 200
-            - n_estimators: 300
-              learning_rate: 0.03
-              num_leaves: 15
-              min_child_samples: 2000
-            - n_estimators: 300
-              learning_rate: 0.03
-              num_leaves: 63
-              min_child_samples: 200
-            - n_estimators: 300
-              learning_rate: 0.03
-              num_leaves: 63
-              min_child_samples: 2000
-            meta:
-            - window: 60
-              n_estimators: 300
-              learning_rate: 0.03
-              num_leaves: 15
-              min_child_samples: 500
-            - window: 60
-              n_estimators: 300
-              learning_rate: 0.03
-              num_leaves: 31
-              min_child_samples: 500
-            gru:
-            - hidden: 32
-              seq_len: 60
-              epochs: 3
-              lr: 0.001
-            - hidden: 64
-              seq_len: 60
-              epochs: 3
-              lr: 0.001
-            transformer:
-            - hidden: 32
-              heads: 4
-              layers: 1
-              seq_len: 60
-              epochs: 3
-              lr: 0.001
-            - hidden: 32
-              heads: 4
-              layers: 2
-              seq_len: 60
-              epochs: 3
-              lr: 0.001
     outs:
     - path: reports/zoo/comparison.md
       hash: md5
-      md5: 993323004f7cff31d8acaa8286e44e09
-      size: 711
+      md5: 2276a717cc9583d355024140c9260074
+      size: 326
     - path: reports/zoo/test.json
       hash: md5
-      md5: c07d2870026f566195ab3aeb92cc23a4
-      size: 5785
+      md5: d22191917d6e3b7cf7f70c94b418256c
+      size: 2125
   drift:
     cmd: python -m optpred.drift.track
     deps:
@@ -613,11 +501,6 @@ stages:
       hash: md5
       md5: 96ba327842a4cc8892310a4dcf8a9365
       size: 1678
-    - path: data/feat
-      hash: md5
-      md5: c370ee04e83d6eea4e3691e71c03c968.dir
-      size: 265269408
-      nfiles: 49
     - path: data/grid
       hash: md5
       md5: e3421995d54abc9e07dfdb182f8364aa.dir
@@ -625,8 +508,8 @@ stages:
       nfiles: 49
     - path: src/optpred/vol
       hash: md5
-      md5: 32db59b56f7e16b6b4d8955e2547fa13.dir
-      size: 17709
+      md5: 66a4003deb7a6dbed29ab9ca5612a449.dir
+      size: 16388
       nfiles: 5
     params:
       params.yaml:
@@ -640,12 +523,6 @@ stages:
             implied: {}
             har: {}
             har_iv: {}
-            lgbm:
-              n_estimators: 400
-              learning_rate: 0.03
-              num_leaves: 15
-              min_child_samples: 200
-              n_jobs: 4
           mlflow:
             tracking_uri: sqlite:///mlflow/mlflow.db
             artifact_root: mlflow/artifacts
@@ -657,16 +534,16 @@ stages:
     outs:
     - path: reports/vol/comparison.md
       hash: md5
-      md5: 0ff9af548291f311691c05d68734d02b
-      size: 395
+      md5: 5c5956361be478e67f06b821fabc5bc4
+      size: 335
     - path: reports/vol/cv.json
       hash: md5
-      md5: d58fc12add06c1de604a192c20081c9c
-      size: 1732
+      md5: 23a885458285409544ae10f2f092d725
+      size: 1473
     - path: reports/vol/test.json
       hash: md5
-      md5: a5e92d00a3017e47a9295c3edd437007
-      size: 5098
+      md5: 0f21c09ef11496cdb76388f74852156d
+      size: 4005
     - path: reports/vol/test_scatter.png
       hash: md5
       md5: 3c0093d64eaaf5735a5ddf2671649fa2
@@ -754,39 +631,39 @@ stages:
     deps:
     - path: docs/LLD.md
       hash: md5
-      md5: 0bb79400853ae0a79e35a7de76068e67
-      size: 10534
+      md5: 09475a1423386bca10fce23bd2b0305f
+      size: 8307
     - path: frontend/index.html
       hash: md5
-      md5: 404f15379505dea9ec659bdb5da5c0cc
-      size: 149737
+      md5: 488f410dc297e903fff1f2cc3cd9f711
+      size: 108437
     - path: pyproject.toml
       hash: md5
       md5: edc2af6aab54fc7a548f575d05038f43
       size: 828
     - path: scripts
       hash: md5
-      md5: 952ff4e525c257943f8cf62b5c9224aa.dir
-      size: 35476
+      md5: a8596d5677cc380b949772c1b88b01e2.dir
+      size: 35242
       nfiles: 9
     - path: src/optpred
       hash: md5
-      md5: 77a6923b67b6b1a0f78f6d3a0bd1aea4.dir
-      size: 215283
-      nfiles: 55
+      md5: e14cb2f61e55384a3e2f6dca12551c65.dir
+      size: 177820
+      nfiles: 48
     - path: tests
       hash: md5
-      md5: c5cf507219c403cb18a6656094bf7ba5.dir
-      size: 81882
-      nfiles: 31
+      md5: 5db32ddd1797f0b340168bccb0d76d1f.dir
+      size: 72943
+      nfiles: 29
     outs:
     - path: reports/test_report.md
       hash: md5
-      md5: 39cf5f97085d19a776ae1304870ccc19
-      size: 11435
+      md5: 068d01388706e5221d3c2d472e5c51b3
+      size: 9741
     - path: reports/tests.json
       hash: md5
-      md5: 517355d65b08e942f92fde55ba9d8cca
+      md5: 1a00b51b37e35b13c8fb50dca6d397fe
       size: 70
   gate:
     cmd: python -m optpred.ci.gate
@@ -797,16 +674,16 @@ stages:
       size: 1678
     - path: reports/tests.json
       hash: md5
-      md5: 517355d65b08e942f92fde55ba9d8cca
+      md5: 1a00b51b37e35b13c8fb50dca6d397fe
       size: 70
     - path: reports/vol/test.json
       hash: md5
-      md5: a5e92d00a3017e47a9295c3edd437007
-      size: 5098
+      md5: 0f21c09ef11496cdb76388f74852156d
+      size: 4005
     - path: reports/zoo/test.json
       hash: md5
-      md5: c07d2870026f566195ab3aeb92cc23a4
-      size: 5785
+      md5: d22191917d6e3b7cf7f70c94b418256c
+      size: 2125
     - path: src/optpred/ci
       hash: md5
       md5: 4eb22ebd33ffc15d8313204eb8f6abb4.dir
@@ -820,5 +697,5 @@ stages:
     outs:
     - path: reports/gate.json
       hash: md5
-      md5: 726de4bdb953a3314a28e2730ec779ac
+      md5: e48731aaaf47a09bf8d8e0241a564b84
       size: 350

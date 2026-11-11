@@ -1,0 +1,7 @@
+2026-11-11 11:55:15,822 INFO optpred.zoo_eval: run 20261111T172515-zoo_eval  commit 423663987a (DIRTY)
+2026-11-11 11:55:24,799 INFO optpred.zoo.evaluate: champion (chosen on cross-validation): lgbm_reg
+2026-11-11 11:55:26,843 INFO optpred.zoo.evaluate: stay_out    test net/day      0.0 [    0.0,     0.0]  trades    0  hit 0.00
+2026-11-11 11:55:37,445 INFO optpred.zoo.evaluate: linear      test net/day   -136.9 [ -686.1,   275.3]  trades    9  hit 0.56
+2026-11-11 11:56:18,671 INFO optpred.zoo.evaluate: lgbm_reg    test net/day  -1376.4 [-2936.5,     0.0]  trades  132  hit 0.41
+2026-11-11 11:56:29,596 INFO optpred.zoo.promote: deployed version 12 (previous: 11)
+2026-11-11 11:56:29,626 INFO optpred.zoo_eval: run 20261111T172515-zoo_eval finished: ok in 73.8s

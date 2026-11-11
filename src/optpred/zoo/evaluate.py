@@ -50,7 +50,7 @@ def signature(features: list[str]):
 
 
 OUT = Path("reports/zoo")
-BASELINES = {"stay_out", "random", "momentum"}
+BASELINES = {"stay_out"}
 
 
 def main(argv: list[str], summary: dict) -> int:

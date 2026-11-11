@@ -18,12 +18,12 @@ The page is **not** investment advice. It is a research system built on recorded
 ## The screen
 
 At the top: the name, a **status light** (green = everything normal; press it for details), a **Help** button (always
-in the same place) and three tabs: **Explore**, **How it's built**, **Controls**. On a phone the tabs are at the bottom
-of the screen, where your thumb is. The dark version follows your device setting.
+in the same place) and four tabs: **Explore**, **Results**, **How it's built**, **Controls**. On a phone the tabs are at
+the bottom of the screen, where your thumb is. The dark version follows your device setting.
 
 <img src="img/phone.png" alt="The page on a phone" width="260"> <img src="img/phone-dark.png" alt="Dark mode on a phone" width="260">
 
-## Explore: six steps, top to bottom
+## Explore: five steps, top to bottom
 
 ![Explore tab](img/explore.png)
 
@@ -37,32 +37,21 @@ buttons under the title jump to each step.
 3. **Inside one day**: IV, our forecast and what happened, one point per minute, with the NIFTY index below. Click the
    chart or drag the slider to pick a time; **−5 min / +5 min** step through time. Three boxes and one sentence say who
    was closer at that time.
-4. **Strategies at that moment**: 18 ready-made strategies priced at the chosen time, after all charges: cost to open,
-   result after 5, 15, 30 and 60 minutes, best exit in hindsight, best profit and worst loss at expiry. Switch to **Close
-   by the barrier rule** for a take-profit / stop-loss exit. Click a row for the result by closing time and the payoff
-   diagram. **Build your own** prices any 1–4 leg strategy, also unbalanced ones (for example buy 1, sell 2).
-5. **What each model said** at the chosen time: the volatility forecasts against what happened, and each call/put model's
-   answer with the money it would have made. A badge says whether the day is a fair test for that model. A chart shows
-   the result of each model over the whole day.
-6. **Verdict** in plain words: the forecast of how much NIFTY moves works; call/put prediction shows no edge after costs.
-   The buttons **Does it work?** and **Forecast** open the two older, more detailed pages (below).
+4. **Call or put at that moment?** The second model answers: **Buy a call**, **Buy a put** or **Stay out**. A yellow
+   notice says that this model is **not proven**. Open **"Why did it say that, and what happened next?"** to see the
+   expected result of each side, the inputs that pushed the answer most, and what the trade would really have made.
+5. **Verdict** in plain words: the forecast of how much NIFTY moves works; call/put prediction shows no edge after costs.
 
 Every chart is interactive: point at it (or press and hold on a phone) to read the values, drag to zoom, double-click to
 zoom out, click a legend name to hide a line. **Table view of this chart** shows the same numbers as a table.
 
-## The two older pages (from step 6)
+## Results
 
-**Forecast** — one moment in detail: pick a day and time, read one sentence (for example *"NIFTY is expected to move
-about 30 points over the next 15 minutes. The options market is pricing in about 74 points."*), and the call/put model's
-answer. Open **"Why did it say that, and what happened next?"** for the five inputs that pushed the answer most and what
-the trade would really have made. The model is marked **not proven**.
+![Results tab](img/works.png)
 
-![Forecast page](img/forecast.png)
-
-**Does it work?** — two verdict cards, the three rules of the test, and folded sections with all the numbers (the
-forecasters, the call/put models with their 95% intervals, market change, what the call/put model looks at).
-
-![Does it work page](img/works.png)
+Two verdict cards, the three rules of the test, and folded sections with all the numbers (open what you need): the
+three volatility forecasters, the three call/put models with their 95% intervals, whether the market has changed, and
+what the call/put model looks at.
 
 ## Words you may not know
 
@@ -101,7 +90,7 @@ failures, and a click on a run shows its log with the error.
 ## Using the keyboard
 
 `Tab` moves between controls and shows a blue outline on the current one. The arrow keys change the time slider and move
-between the three tabs. `Esc` closes the Help window and any explanation. A link at the very top ("Skip to content")
+between the four tabs. `Esc` closes the Help window and any explanation. A link at the very top ("Skip to content")
 appears on the first `Tab`.
 
 ## When something goes wrong
