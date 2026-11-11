@@ -10,10 +10,14 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 IMAGE=optpred-pipeline:latest
+# DVC remote: the folder ../dvc-remote next to this checkout (.dvc/config: url = ../../dvc-remote, relative to
+# .dvc/). It is mounted at /dvc-remote, where the same relative path points inside the container.
+REMOTE="$(dirname "$PWD")/dvc-remote"
+mkdir -p "$REMOTE"
 if [[ "${1:-}" == "build" ]]; then
   exec docker build -f docker/Dockerfile.pipeline -t "$IMAGE" .
 fi
 exec docker run --rm --network host --user "$(id -u):$(id -g)" \
   -e HOME=/tmp -e SPARK_LOCAL_IP=127.0.0.1 -e USER="$(id -un)" -e CH_PASSWORD="${CH_PASSWORD:-}" \
   -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro \
-  -v "$PWD":/app -w /app "$IMAGE" "$@"
+  -v "$PWD":/app -v "$REMOTE":/dvc-remote -w /app "$IMAGE" "$@"
