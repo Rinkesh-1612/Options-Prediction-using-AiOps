@@ -61,7 +61,7 @@ services:
       DAYS_PATH: /app/data/days.json
       ZOO_DIR: /app/reports/zoo
       DRIFT_REF: /app/reports/drift/reference.json
-      RUNS_PATH: /app/runs/runs.jsonl
+      RUNS_PATH: /app/logs/runs.jsonl
       REPORTS_DIR: /app/reports
       DVC_PATH: /app/dvc.yaml
       LOGS_ROOT: /app/logs
@@ -72,7 +72,6 @@ services:
     volumes:
       - ./data:/app/data:ro          # the parent folder: DVC recreates data/feat and data/labels on each run
       - ./reports:/app/reports:ro
-      - ./runs:/app/runs:ro
       - ./logs:/app/logs:ro
       - ./dvc.yaml:/app/dvc.yaml:ro
       - ./state:/app/state

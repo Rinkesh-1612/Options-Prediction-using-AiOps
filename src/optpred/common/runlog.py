@@ -2,7 +2,7 @@
 
 For each run this writes
   * logs/<stage>/<run_id>.log   -- the full log of that run
-  * runs/runs.jsonl             -- one JSON line: who/what/when/which code/which
+  * logs/runs.jsonl             -- one JSON line: who/what/when/which code/which
                                    params/how long/exit code/stage summary
 
 Both are committed to Git, so any number in the report can be traced to the
@@ -99,8 +99,7 @@ def run(stage: str, main: Callable[[list[str], dict], int], argv: list[str] | No
             duration_s=round(time.monotonic() - t0, 1),
             summary=summary,
         )
-        Path("runs").mkdir(exist_ok=True)
-        with open("runs/runs.jsonl", "a") as f:
+        with open("logs/runs.jsonl", "a") as f:  # logs/ exists: this run's log file is in it
             f.write(json.dumps(record, default=str) + "\n")
         log.info("run %s finished: %s in %.1fs", run_id, record["status"], record["duration_s"])
     return code

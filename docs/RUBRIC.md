@@ -21,7 +21,7 @@ Course: DA3408 "AI Application Evaluation Guideline". One row per item. Short no
 | ML pipeline visualization | "How it's built" tab: live DVC DAG, speed per stage, runs with totals and a "Failed only" filter, run logs, data quality; Controls tab (management console): run the pipeline (`dvc repro gate`), retrain, rollback, links to MLflow (5050) and Grafana (3001) |
 | Design, OO / functional | [HLD.md](HLD.md) §2–3; functional stages + small classes (models, API) |
 | Loose coupling | page ↔ API only by REST; address in `frontend/config.json` |
-| Coding style, logging, exceptions, comments | ruff (PEP 8) in CI; run journal `runs/runs.jsonl` + `logs/<stage>/`; docstrings per module |
+| Coding style, logging, exceptions, comments | ruff (PEP 8) in CI; run journal `logs/runs.jsonl` + `logs/<stage>/`; docstrings per module |
 | Unit tests, test report | 111 cases (106 pass, 5 e2e skip without the stack; e2e 5/5 with it); `make e2e` with the stack |
 | Data engineering (Spark / Ray) | Spark: stage `check`. Ray: per-day stages, Ray Tune. Speed: [HLD.md](HLD.md) §8 |
 | CI with DVC, DVC DAG, Git / LFS / DVC | [steps/ci.md](steps/ci.md): DAG ends in `tests` → `gate`; `make ci` = `dvc repro gate` |

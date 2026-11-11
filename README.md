@@ -29,20 +29,30 @@ library for the author's trading system (Ravion V2).
 
 ## Layout
 
-| Path | What |
-|---|---|
-| `src/optpred/data/` | `export` (ClickHouse → Parquet), `check` (Spark day check) |
-| `src/optpred/eda/`, `transform/` | `clean`, `eda`, `grid` (Ray per day) |
-| `src/optpred/featurelib/` | feature library (registry; every feature tested) |
-| `src/optpred/labels/` | costs, triple-barrier labels |
-| `src/optpred/zoo/` | direction models (baseline, linear, LightGBM), simulator, training (Ray Tune, MLflow), evaluation, deploy gate |
-| `src/optpred/vol/` | volatility forecaster (option-market baseline, HAR, HAR + IV; model `nifty-vol`) |
-| `src/optpred/drift/` | PSI drift (per day and online) |
-| `src/optpred/serving/` | FastAPI signal API |
-| `src/optpred/ci/` | CI acceptance gate (last DVC stage) |
-| `frontend/`, `monitoring/`, `docker/` | web page (plain-language, responsive, light + dark); Prometheus, Alertmanager, Grafana; images |
-| `dvc.yaml`, `params.yaml`, `MLproject` | the pipeline, every setting, the same commands as MLflow entry points |
-| `tests/` | unit, integration, API, end-to-end; `tests/ui/` browser audit of the page |
+```
+dvc.yaml  params.yaml      the pipeline (13 stages) and every setting
+src/optpred/
+  data/                    stages export (ClickHouse → Parquet), check (Spark)
+  eda/  transform/         stages clean, eda, grid (Ray, one task per day)
+  featurelib/  labels/     stages feat (feature registry), labels (costs, triple barrier)
+  zoo/                     direction models (baseline, linear, LightGBM): stages zoo_train, zoo_eval, deploy gate
+  vol/                     volatility forecaster (option-market baseline, HAR, HAR + IV): stage vol
+  drift/                   PSI drift: stage drift, and the online check in the API
+  ci/                      stage gate (CI acceptance criteria)
+  serving/                 FastAPI: the only thing the web page talks to
+  common/                  session clock, run journal, Spark and Ray helpers
+tests/                     unit, integration, api, e2e, ui (browser audit)
+frontend/                  the web page (static, nginx)
+monitoring/                Prometheus, alert rules, Alertmanager, Grafana dashboard
+docker/  docker-compose.yml  pipe  stack     images, the serving stack, and the two entry scripts
+scripts/                   what the system runs: retrain runner, model server start, demo replay, test report, backup
+scripts/docs/              tools that make the diagrams, screenshots and the demo video
+reports/                   metrics and plots written by the stages (in Git)
+logs/                      one log per stage run + the run journal logs/runs.jsonl (in Git)
+data/                      DVC data (not in Git); data/sample = one day in Git LFS
+docs/                      the documents listed above; docs/steps = one short note per lifecycle step
+MLproject                  the same stage commands as MLflow entry points
+```
 
 ## Run it
 

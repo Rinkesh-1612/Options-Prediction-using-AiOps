@@ -1,6 +1,6 @@
 """Pictures for the guided tour of the web page (frontend/img/tour-*.png), taken with a real browser.
 
-Run:  UI_URL=http://127.0.0.1:8080 /usr/bin/python3 scripts/tour_images.py
+Run:  UI_URL=http://127.0.0.1:8080 /usr/bin/python3 scripts/docs/tour_images.py
 Then rebuild the frontend image (./stack up -d --build frontend).
 """
 

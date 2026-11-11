@@ -5,7 +5,7 @@ Docker Compose (`./stack`). Ravion V2 (the author's live trading system) records
 
 ![Architecture diagram](architecture.svg)
 
-*Left to right: the data source, the pipeline (DVC stages in the pipeline image), and the serving and monitoring stack (Docker Compose). Source of the picture: `scripts/make_diagrams.py`.*
+*Left to right: the data source, the pipeline (DVC stages in the pipeline image), and the serving and monitoring stack (Docker Compose). Source of the picture: `scripts/docs/make_diagrams.py`.*
 
 | Block | What it does | Where |
 |---|---|---|
@@ -50,5 +50,5 @@ criterion fails. The pre-push hook runs it. CD: `zoo_eval` registers a new model
 smoke test checks it, and only then does the alias `champion` move. The model server follows the alias.
 
 **Reproducibility.** Every MLflow run carries the Git commit, `git_dirty` and the DVC hash of its data. The run
-journal (`runs/runs.jsonl`) records commit, parameters hash, duration and result of every stage run.
+journal (`logs/runs.jsonl`) records commit, parameters hash, duration and result of every stage run.
 `MLproject` runs the same commands in the same image (`mlflow run . -e test`; log in `reports/mlproject_test_run.log`).

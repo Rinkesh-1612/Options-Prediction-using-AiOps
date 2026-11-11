@@ -30,6 +30,6 @@ and these documents; ran the pipeline and the checks; and reported the results, 
 monitoring, a web page) in the time available. The problem, the data, the design choices listed above and
 the decision to report the negative trading result are the author's.
 
-**Where the numbers come from:** every result comes from a journaled run (`runs/runs.jsonl`, `logs/`) and an
+**Where the numbers come from:** every result comes from a journaled run (`logs/runs.jsonl`, `logs/`) and an
 MLflow run tied to a Git commit and DVC data hashes, never from text written by AI. The author is responsible
 for, and can explain, every component.

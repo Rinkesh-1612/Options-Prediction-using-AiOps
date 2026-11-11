@@ -53,7 +53,7 @@ def test_runlog_journals_success_and_failure(tmp_path, monkeypatch):
 
     assert runlog.run("demo", ok, []) == 0
     assert runlog.run("demo", lambda a, s: 1, []) == 1
-    recs = [json.loads(x) for x in (tmp_path / "runs" / "runs.jsonl").read_text().splitlines()]
+    recs = [json.loads(x) for x in (tmp_path / "logs" / "runs.jsonl").read_text().splitlines()]
     assert [r["status"] for r in recs] == ["ok", "failed"]
     assert recs[0]["summary"] == {"rows": 7}
     assert all((tmp_path / r["log"]).exists() for r in recs)

@@ -75,7 +75,7 @@ class Settings:
     admin_token: str = ""
     drift_ref: Path = Path("reports/drift/reference.json")
     reports_dir: Path = Path("reports")
-    runs_path: Path = Path("runs/runs.jsonl")
+    runs_path: Path = Path("logs/runs.jsonl")
     retrain_request: Path = Path("state/retrain_request.json")
     runner_heartbeat: Path = Path("state/runner_heartbeat")  # touched by scripts/runner.sh every loop
     pipeline_request: Path = Path("state/pipeline_request.json")  # runner: dvc repro gate

@@ -1,6 +1,6 @@
 """Take the screenshots used in the user manual with a real browser (Playwright, host Python).
 
-Run:  UI_URL=http://127.0.0.1:8080 /usr/bin/python3 scripts/ui_screenshots.py [outdir]
+Run:  UI_URL=http://127.0.0.1:8080 /usr/bin/python3 scripts/docs/ui_screenshots.py [outdir]
 """
 
 from __future__ import annotations

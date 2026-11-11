@@ -15,7 +15,7 @@ test days (`reports/vol/comparison.md`). A good volatility forecast did not make
 ![High-level design](hld.svg)
 
 *Five layers from raw ticks to a served, monitored forecast, and the rules that hold them together. Source:
-`scripts/make_diagrams.py`. The runtime picture (containers, ports) is in [ARCHITECTURE.md](ARCHITECTURE.md).*
+`scripts/docs/make_diagrams.py`. The runtime picture (containers, ports) is in [ARCHITECTURE.md](ARCHITECTURE.md).*
 
 ## 2. Design rules
 
@@ -26,7 +26,7 @@ test days (`reports/vol/comparison.md`). A good volatility forecast did not make
 3. **Day is the unit.** Stages work per day (Ray tasks); splits are by whole day; a trade never crosses a day.
 4. **Choose on validation, report on test.** Champion and threshold come from walk-forward CV on the dev days.
    The test days only report.
-5. **Everything is a stage.** DVC runs it; the run journal (`runs/runs.jsonl`) records commit, parameters,
+5. **Everything is a stage.** DVC runs it; the run journal (`logs/runs.jsonl`) records commit, parameters,
    duration and result; MLflow records models and metrics with the commit and the DVC data hashes.
 
 6. **Functional stages, small classes where state is needed.** Every pipeline stage is a function: files in, files

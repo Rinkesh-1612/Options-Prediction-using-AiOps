@@ -1,6 +1,6 @@
 """Record the demo video: a real browser walks through the running stack, with the explanation as subtitles.
 
-Run (host Python with Playwright, stack up):   /usr/bin/python3 scripts/demo_video.py [outdir]
+Run (host Python with Playwright, stack up):   /usr/bin/python3 scripts/docs/demo_video.py [outdir]
 Output: <outdir>/demo.webm (1280x720, subtitles in the picture). About 5 minutes. Nothing is simulated: every screen is the live system.
 """
 

@@ -1,6 +1,6 @@
 """Draw docs/architecture.svg (runtime architecture) and docs/hld.svg (high-level design). No dependencies.
 
-Run:  python3 scripts/make_diagrams.py
+Run:  python3 scripts/docs/make_diagrams.py
 """
 
 from __future__ import annotations

@@ -3,6 +3,6 @@
 #   ./stack up -d --build     ./stack ps     ./stack logs -f api     ./stack down
 set -euo pipefail
 cd "$(dirname "$0")"
-mkdir -p mlflow state reports logs runs
+mkdir -p mlflow state reports logs
 export HOST_UID="$(id -u)" HOST_GID="$(id -g)"
 exec docker compose "$@"
