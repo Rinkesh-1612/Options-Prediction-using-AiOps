@@ -57,7 +57,7 @@ demo:            ## replay the unseen days through the API so Grafana moves (sto
 	./stack --profile demo up -d replay
 
 video:           ## record the demo video with subtitles to demo/demo.webm (stack up; Playwright on the host)
-	REPLAY_DELAY=1.5 ./stack --profile demo up -d replay
+	REPLAY_DELAY=5 ./stack --profile demo up -d replay
 	/usr/bin/python3 scripts/demo_video.py demo
 	./stack stop replay
 
