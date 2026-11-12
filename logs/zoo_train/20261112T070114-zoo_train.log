@@ -1,7 +1,0 @@
-2026-11-12 01:31:14,260 INFO optpred.zoo_train: run 20261112T070114-zoo_train  commit ab9ebd3453
-2026-11-12 01:31:14,271 INFO optpred.zoo.train: dev 39 days (4 folds), test 10 days (not read here)
-2026-11-12 01:31:48,150 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
-2026-11-12 01:34:10,608 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
-2026-11-12 01:35:44,921 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
-2026-11-12 01:41:27,734 INFO optpred.zoo.train: ablation without time   : {'net_per_day': -18.7713, 'ic_ce': -0.0049, 'ic_pe': -0.0017}
-2026-11-12 01:43:32,414 INFO optpred.zoo.train: ablation without spot   : {'net_per_day': -246.0309, 'ic_ce': -0.0112, 'ic_pe': -0.004}
