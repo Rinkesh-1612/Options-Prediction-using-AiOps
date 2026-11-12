@@ -237,4 +237,10 @@ def explore_router(st, accepted, vol_predict) -> APIRouter:
         }
         return {"day": day, "sod": int(t), "at": at, "series": series}
 
+    def warm() -> None:
+        """Fill the per-day caches (the first call reads every day: about 20 s). Run at API start-up."""
+        days()
+        iv_daily()
+
+    r.warm = warm
     return r

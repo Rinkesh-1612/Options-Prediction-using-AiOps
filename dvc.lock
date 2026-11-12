@@ -648,8 +648,8 @@ stages:
       nfiles: 9
     - path: src/optpred
       hash: md5
-      md5: 3ca68810fb9b9687cba5fe803000598c.dir
-      size: 176398
+      md5: 93547df13d5451af26d7e60a0b11e4d7.dir
+      size: 177288
       nfiles: 48
     - path: tests
       hash: md5
@@ -659,7 +659,7 @@ stages:
     outs:
     - path: reports/test_report.md
       hash: md5
-      md5: 620f3b4973916dbdda70e9eb6a50be64
+      md5: 7aff34943fdd4cd701405a82fe86c1bb
       size: 9634
     - path: reports/tests.json
       hash: md5

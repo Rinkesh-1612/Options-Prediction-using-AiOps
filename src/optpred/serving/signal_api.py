@@ -31,6 +31,7 @@ import logging
 import math
 import os
 import re
+import threading
 import time
 from dataclasses import dataclass
 from functools import lru_cache
@@ -251,7 +252,23 @@ def create_app(
         except Exception:  # noqa: BLE001 -- no volatility model registered yet: no forecast line
             return None
 
-    app.include_router(explore_router(st, accepted, vol_predict))
+    explore = explore_router(st, accepted, vol_predict)
+    app.include_router(explore)
+
+    def warm_explore() -> None:
+        """Read every day once in the background, so the first visitor of the Explore tab does not wait."""
+
+        def run() -> None:
+            try:
+                explore.warm()
+                log.info("explore caches are warm")
+            except Exception:  # noqa: BLE001 -- data being rebuilt: the first request fills the caches instead
+                log.warning("explore caches not warmed at start-up", exc_info=True)
+
+        threading.Thread(target=run, daemon=True, name="warm-explore").start()
+
+    # runs when the server starts (not in unit tests, which make no server)
+    app.router.on_startup.append(warm_explore)
 
     @lru_cache(maxsize=4)
     def day_frames(day: str) -> tuple[pd.DataFrame, pd.DataFrame]:
