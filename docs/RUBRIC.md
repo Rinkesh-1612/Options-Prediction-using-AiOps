@@ -51,12 +51,12 @@ Development Guidelines". Short notes per lifecycle step are in
 | IV. Scalability, explainability, documentation | [HLD.md](HLD.md) §5; SHAP per signal on the page (Explore step 4) |
 | AI fair-use code of conduct | [AI_DISCLOSURE.md](../AI_DISCLOSURE.md): tools, how they were used, impact |
 
-## Results (honest)
+## Results
 
 - Volatility forecast: beats the option market on 10 of 10 unseen days (QLIKE −0.20, 95% CI below 0).
 - Call/put direction: no edge after costs (about −₹1,376 a day on unseen days).
 
-## Not done or not used (say so in the viva)
+## Not done or not used
 
 - Not used: Ray Serve, Kubernetes, Swarm, Docker Hub push, cloud CI (cloud is not allowed).
 - DVC remote is a folder on the same disk, not off-machine.

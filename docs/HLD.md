@@ -72,7 +72,7 @@ is not part of this submission); for Ravion it is a filter and sizing input.
   `params.yaml`, so live trading keeps its CPUs). New days = `dvc repro`.
 - **Explainability:** global: gain importance and group ablation for the champion (Results tab, MLflow). Per signal:
   exact SHAP values of the score (`/signal` → `drivers`; Explore step 4, "Why did it say that?"). They add up to the score.
-- **Collaboration:** shared MLflow UI, Grafana, Git history, `docs/steps/` (one reviewed note per rubric item).
+- **Collaboration:** shared MLflow UI, Grafana, Git history, `docs/steps/` (one short note per lifecycle step).
 
 ## 6. Experiment tracking: what MLflow records
 
