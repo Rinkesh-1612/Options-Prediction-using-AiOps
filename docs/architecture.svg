@@ -106,9 +106,9 @@
 <rect x='830' y='520' width='200' height='66' rx='8' fill='#fde8e8' stroke='#c0392b' stroke-width='1.6'/>
 <text x='930.0' y='549.7' font-size='12' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>node-exporter</text>
 <text x='930.0' y='564.7' font-size='12' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>host CPU, memory, disk</text>
-<text x='1050' y='540' font-size='11' font-weight='400' fill='#3d4651' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Prometheus also scrapes the api</text>
-<text x='1050' y='554' font-size='11' font-weight='400' fill='#3d4651' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>(signals, drift, pipeline, quality)</text>
-<text x='1050' y='568' font-size='11' font-weight='400' fill='#3d4651' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>and mlflow.</text>
+<text x='1050' y='540' font-size='11' font-weight='400' fill='#3d4651' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Prometheus scrapes api, mlflow, grafana,</text>
+<text x='1050' y='554' font-size='11' font-weight='400' fill='#3d4651' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>alertmanager; a blackbox probe checks</text>
+<text x='1050' y='568' font-size='11' font-weight='400' fill='#3d4651' text-anchor='start' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>the page and the model server.</text>
 <rect x='290' y='520' width='480' height='60' rx='8' fill='#f5f6f8' stroke='#9aa3af' stroke-width='1.6'/>
 <text x='530.0' y='546.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Security: AES-256 encrypted backup of data + models</text>
 <text x='530.0' y='560.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>(scripts/encrypt_snapshot.sh); admin token; localhost only</text>

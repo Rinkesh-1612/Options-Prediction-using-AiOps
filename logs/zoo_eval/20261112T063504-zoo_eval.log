@@ -1,0 +1,7 @@
+2026-11-12 01:05:04,340 INFO optpred.zoo_eval: run 20261112T063504-zoo_eval  commit d864f63a19
+2026-11-12 01:05:16,370 INFO optpred.zoo.evaluate: champion (chosen on cross-validation): lgbm_reg
+2026-11-12 01:05:18,533 INFO optpred.zoo.evaluate: stay_out    test net/day      0.0 [    0.0,     0.0]  trades    0  hit 0.00
+2026-11-12 01:05:29,953 INFO optpred.zoo.evaluate: linear      test net/day   -136.9 [ -686.1,   275.3]  trades    9  hit 0.56
+2026-11-12 01:06:15,666 INFO optpred.zoo.evaluate: lgbm_reg    test net/day  -1376.4 [-2936.5,     0.0]  trades  132  hit 0.41
+2026-11-12 01:06:28,822 INFO optpred.zoo.promote: deployed version 14 (previous: 13)
+2026-11-12 01:06:28,849 INFO optpred.zoo_eval: run 20261112T063504-zoo_eval finished: ok in 84.5s

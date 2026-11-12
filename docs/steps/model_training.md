@@ -30,4 +30,7 @@ numbers are read. All families are scored on the 10 test days (`reports/zoo/comp
 feature group turns the CV result negative), and it did not hold. The test days were seen by the old
 models (not trained or tuned on).
 
+**Reproducibility.** The final runs of `zoo_train`, `zoo_eval`, `vol` and `drift` were made on the clean commit
+`d864f63` (MLflow tags `git_commit`, `git_dirty = False`, DVC data hashes; journal `logs/runs.jsonl`).
+
 **Docker.** Every stage runs in the pipeline image (`./pipe`, `docker/Dockerfile.pipeline`, one `requirements.txt`).

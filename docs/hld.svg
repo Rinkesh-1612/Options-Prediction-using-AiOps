@@ -58,7 +58,7 @@
 <path d='M650,478 L670,478' fill='none' stroke='#5d6673' stroke-width='1.6' marker-end='url(#a)'/>
 <rect x='40' y='572' width='250' height='52' rx='8' fill='#fde8e8' stroke='#c0392b' stroke-width='1.6'/>
 <text x='165.0' y='594.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>web page</text>
-<text x='165.0' y='608.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>forecast, does it work, how built, controls</text>
+<text x='165.0' y='608.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>explore, results, how built, controls</text>
 <rect x='310' y='572' width='250' height='52' rx='8' fill='#fde8e8' stroke='#c0392b' stroke-width='1.6'/>
 <text x='435.0' y='594.85' font-size='11' font-weight='700' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>Prometheus + Grafana</text>
 <text x='435.0' y='608.85' font-size='11' font-weight='400' fill='#14171c' text-anchor='middle' font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'>metrics, alerts, drift</text>

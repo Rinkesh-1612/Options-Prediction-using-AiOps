@@ -2,7 +2,8 @@
 
 For a trader. No programming is needed to use the page. The sections "Controls" and "For the operator" are for the person who runs the server.
 
-Open **http://&lt;server&gt;:8080** (on this server: http://<server-ip>:8080).
+Open **http://127.0.0.1:8080** on the server (or through an SSH tunnel). With `BIND=0.0.0.0` in `.env` the page is at
+**http://&lt;server address&gt;:8080**.
 
 ## What this page does, in one minute
 

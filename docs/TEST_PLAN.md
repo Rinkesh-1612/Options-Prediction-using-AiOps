@@ -13,7 +13,7 @@
 Synthetic data: `tests/helpers/synth.py` (raw tables in the export schema), `tests/helpers/grid_synth.py`
 (one grid day). No test needs the real data.
 
-## 2. Test cases (111: 106 pass, 5 e2e skipped without the stack; e2e 5/5 with the stack)
+## 2. Test cases (110: 105 pass, 5 e2e skipped without the stack; e2e 5/5 with the stack)
 
 | ID | Area | Cases | File |
 |---|---|---|---|
@@ -27,7 +27,7 @@ Synthetic data: `tests/helpers/synth.py` (raw tables in the export schema), `tes
 | T8 | Drift | same distribution low PSI, shift high; NaN share change; monitor waits for rows, then flags | `unit/test_psi.py` (3) |
 | T9 | Ray | day results keep their order | `unit/test_parallel.py` (1) |
 | T10 | Data pipeline | holiday rejected, duplicates counted; session rows only; 22,500 grid rows with legs, ask > bid; float features; labels aligned | `integration/test_data_pipeline.py` (5) |
-| T11 | API | signal without future rows; volatility forecast uses only rows up to the second; hindsight; blocked entry; losing trade metric; 404 / 503; rollback token and swap; alert → one retrain then cooldown; drift and gauges; data-quality gauges; pipeline graph, runs, log (path attack refused), throughput from the last successful run; whole-day volatility series (`/vol/day`); inf → null; drivers passed through; runner heartbeat gauge; failed requests logged; pipeline run needs the token, one waiting run | `api/test_signal_api.py` (19) |
+| T11 | API | signal without future rows; volatility forecast uses only rows up to the second; hindsight; blocked entry; losing trade metric; 404 / 503; rollback token and swap; alert → one retrain then cooldown; drift and gauges; data-quality gauges; pipeline graph, runs, log (path attack refused), throughput from the last successful run; inf → null; drivers passed through; runner heartbeat gauge; failed requests logged; pipeline run needs the token, one waiting run | `api/test_signal_api.py` (18) |
 | T12 | Contract | LLD = routes; page uses documented paths only | `api/test_lld.py` (2) |
 | T14 | Volatility model | inputs have no look-ahead; targets look only forward; QLIKE zero for a perfect forecast; each of 3 forecasters fits and predicts positive; HAR beats a noise IV on clustered volatility | `unit/test_vol.py` (7) |
 | T15 | Explanations | SHAP contributions add up to the score and name the planted driver; non-LightGBM models give none; served model explains only the last row; API passes `drivers` through (or null) | `unit/test_explain.py` (3) |
@@ -68,4 +68,5 @@ criteria in the stage `gate`. The pre-push hook runs the same before every push 
 ## 5. Report
 
 `reports/test_report.md` (written by `scripts/test_report.py`), with the commit and the result of each case.
-Last report: see `reports/test_report.md`; including the 5 end-to-end tests against the running stack.
+The committed report comes from the CI stage `tests`, which has no running stack, so it shows the 5 end-to-end
+tests as skipped. `make e2e` runs them against the stack: 5 of 5 pass.

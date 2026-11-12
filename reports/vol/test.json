@@ -153,7 +153,7 @@
  },
  "deployment": {
   "deployed": true,
-  "version": 3,
-  "previous": 2
+  "version": 4,
+  "previous": 3
  }
 }

@@ -23,12 +23,12 @@ Docker Compose (`./stack`). Ravion V2 (the author's live trading system) records
 | api | The only public entry: signals, volatility forecasts (loads `nifty-vol`), results, pipeline, rollback, retrain, metrics | `src/optpred/serving/signal_api.py` |
 | frontend | Static web page (4 tabs: Explore, Results, How it's built, Controls); knows only the API address | `frontend/` |
 | Prometheus, Alertmanager, Grafana | Metrics every 5 s, 10 alert rules, one dashboard; a blackbox probe checks the page and the model server | `monitoring/` |
-| runner | Runs `zoo_train` → `zoo_eval` when a retrain is requested (alert, button, schedule) | `scripts/runner.sh` |
+| runner | Runs `zoo_train` → `zoo_eval` when a retrain is requested (alert, button, schedule), and `dvc repro gate` when the page asks for a pipeline run | `scripts/runner.sh` |
 
 **Ports** (bound to `127.0.0.1` unless `BIND` is set): web page 8080, API 8000, MLflow 5050, Grafana 3001,
 Prometheus 9091.
 
-**Versioning.** Git: code, configs, reports, run journal. Git LFS: one sample day. DVC: all data, local remote.
+**Versioning.** Git: code, configs, reports, run journal. Git LFS: one sample day. DVC: all data; the remote is a folder on the same disk (`../dvc-remote`).
 MLflow registry: models (aliases `champion`, `previous`; tag `deploy_check`). Encrypted backup of data and
 models: `scripts/encrypt_snapshot.sh`.
 

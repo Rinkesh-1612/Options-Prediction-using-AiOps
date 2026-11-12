@@ -12,6 +12,8 @@ from pathlib import Path
 from playwright.sync_api import sync_playwright
 
 URL = os.environ.get("UI_URL", "http://127.0.0.1:8080")
+MLFLOW = os.environ.get("MLFLOW_URL", "http://127.0.0.1:5050")
+GRAFANA = os.environ.get("GRAFANA_URL", "http://127.0.0.1:3001")
 OUT = Path(sys.argv[1] if len(sys.argv) > 1 else "docs/img")
 DAY, T = "2026-10-13", 35340  # a real moment: the options priced in far more movement than happened
 
@@ -49,6 +51,19 @@ def main() -> None:
             shot(page, tab)
         page.click("#help-btn")
         shot(page, "help", full=False)
+        # the two MLOps tools the Controls tab links to
+        page.goto(f"{MLFLOW}/#/experiments/3", wait_until="domcontentloaded")
+        page.wait_for_timeout(6000)
+        page.keyboard.press("Escape")
+        shot(page, "mlflow-runs", full=False)
+        page.goto(f"{MLFLOW}/#/models/nifty-signal", wait_until="domcontentloaded")
+        page.wait_for_timeout(6000)
+        page.keyboard.press("Escape")
+        shot(page, "mlflow-registry", full=False)
+        page.goto(f"{GRAFANA}/d/optpred?from=now-30m&to=now&kiosk", wait_until="domcontentloaded")
+        page.wait_for_selector("text=Signals per minute", timeout=60000)
+        page.wait_for_timeout(5000)
+        shot(page, "grafana", full=False)
         ctx.close()
         for name, scheme in (("phone", "light"), ("phone-dark", "dark")):
             ctx = b.new_context(

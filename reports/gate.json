@@ -3,7 +3,7 @@
  "checks": {
   "tests": {
    "pass": true,
-   "detail": "106 passed, 0 failed, 5 skipped"
+   "detail": "105 passed, 0 failed, 5 skipped"
   },
   "data": {
    "pass": true,
@@ -11,11 +11,11 @@
   },
   "vol": {
    "pass": true,
-   "detail": "beats implied at 900s: True, deployed v3"
+   "detail": "beats implied at 900s: True, deployed v4"
   },
   "zoo": {
    "pass": true,
-   "detail": "champion lgbm_reg deployed v13"
+   "detail": "champion lgbm_reg deployed v14"
   }
  }
 }

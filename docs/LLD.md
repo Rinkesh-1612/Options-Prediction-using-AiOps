@@ -29,12 +29,6 @@ V = `{forecast_bp, implied_bp, ratio, realized_bp}`: the `nifty-vol` champion's 
 the move implied by the ATM IV, their ratio, and the realized move (known only after the fact).
 Inputs use only rows up to `sod`. 503 when no `nifty-vol` champion is registered.
 
-### GET /vol/day
-In (query): `day`. Out: one value per minute from 09:30 to 15:00 (331 points):
-`{day, sod[], spot[], forecast_300[], implied_300[], realized_300[], forecast_900[], implied_900[], realized_900[]}`.
-Moves are in basis points (1 bp = 0.01% of NIFTY); `spot` converts them to index points. `realized_*` is the move
-that happened after each minute (`null` where the data ends before the window does); it is hindsight. 404 unknown day, 503 as `/vol`.
-
 ### GET /vol/results
 Out: `reports/vol/test.json` (`champion, verdict{300, 900: mean_daily_qlike_diff, ci95, days_better,`
 `beats_implied}, results{forecaster: {300, 900: qlike, r2_log, corr_log}}`, `qlike_by_day{champion, implied:
@@ -93,8 +87,9 @@ In: Alertmanager webhook body. `DriftDetected` or `ModelLosing` (firing) → ret
 Out: `[{day, split, share, drift}]` from `reports/drift/daily.json`.
 
 ### GET /pipeline
-Out: `{"stages": [{name, cmd, last}], "edges": [[from, to]]}`. Edges: an output of one stage is a
-dependency of the other (`dvc.yaml`). `last` = the newest run in the journal.
+Out: `{"stages": [{name, cmd, last, throughput}], "edges": [[from, to]]}`. Edges: an output of one stage is a
+dependency of the other (`dvc.yaml`). `last` = the newest run in the journal. `throughput` = `{rows, unit, seconds,
+rows_per_s}` of the last successful run (`null` for stages that do not process rows).
 
 ### GET /pipeline/runs
 In (query): `limit` (1–500, default 50), `stage` (optional). Out: runs of current stages, newest first:
@@ -107,10 +102,11 @@ In: `run_id` (`[0-9T]+-[a-z_]+`), `tail` (1–5000 lines). Out: text. 400 bad id
 Out: `{accepted: [days], rejected: {day: [reasons]}, cleaning: {table: {rows_in, rows_out, drop_*, null_*}}}`.
 
 ### GET /metrics
-Prometheus text. Main series: `signals_total{action}`, `signal_outcomes_total{result}`,
-`signal_net_rupees_total`, `api_request_seconds`, `model_call_seconds`, `model_version`, `model_service_up`,
-`drift_detected`, `drift_share`, `feature_psi{feature}`, `pipeline_last_run_ok{stage}`,
-`data_rows_dropped_share{table}`, `retrain_requests_total{source}`.
+Prometheus text. Series: `api_requests_total{path,status}`, `api_request_seconds{path}`, `model_call_seconds`,
+`signals_total{action}`, `signals_blocked_total`, `signal_outcomes_total{result}`, `signal_net_rupees_cum`,
+`signal_trade_net_rupees`, `vol_requests_total`, `model_version`, `model_service_up`, `drift_detected`, `drift_share`,
+`drift_window_rows`, `feature_psi{feature}`, `pipeline_last_run_ok{stage}`, `retrain_requests_total{source}`,
+`runner_heartbeat_age_seconds`, `data_days{verdict}`, `data_rows_dropped_share{table}`, `data_rule_rows{table,rule}`.
 
 ## 2. Pipeline stages (`dvc.yaml`, settings in `params.yaml`)
 

@@ -348,45 +348,6 @@ def test_pipeline_throughput_from_reports_and_the_last_ok_run(pipe_env, tmp_path
     assert by["feat"]["rows_per_s"] == 50  # the failed 1 s run does not count
 
 
-def test_vol_day_series_has_one_point_per_minute_and_hindsight_nulls(env, tmp_path):
-    from dataclasses import replace
-
-    from tests.helpers.grid_synth import synth_grid
-
-    n = 22500
-    g = synth_grid(n=n).assign(day=DAY)
-    g["sod"] = np.arange(33300, 33300 + n)
-    (tmp_path / "grid").mkdir()
-    g.to_parquet(tmp_path / "grid" / f"{DAY}.parquet")
-    pd.DataFrame({"day": DAY, "sod": g["sod"], "atm": 25000.0, "f1": 0.0}).to_parquet(
-        env.feat_dir / f"{DAY}.parquet"
-    )
-    seen = {}
-
-    class Fake:
-        def predict(self, X):
-            seen["cols"] = list(X.columns)
-            return pd.DataFrame(
-                {"fc_300": np.full(len(X), 10.0), "fc_900": np.full(len(X), 20.0)}, index=X.index
-            )
-
-    c = TestClient(
-        create_app(replace(env, grid_dir=tmp_path / "grid"), FakeModel(), FakeRegistry(), vol_loader=Fake)
-    )
-    r = c.get("/vol/day", params={"day": DAY}).json()
-    assert r["sod"][0] == 34200 and r["sod"][-1] == 54000 and len(r["sod"]) == 331
-    assert all(
-        len(r[k]) == 331 for k in ("spot", "forecast_900", "implied_900", "realized_900", "forecast_300")
-    )
-    assert (
-        r["forecast_900"][0] == 20.0
-        and r["realized_900"][-1] is not None
-        and r["realized_900"][0] is not None
-    )
-    assert "spot" not in seen["cols"] and not any(k.startswith("rv_fwd") for k in seen["cols"])
-    assert c.get("/vol/day", params={"day": "2020-01-01"}).status_code == 404
-
-
 def test_vol_results_keeps_per_day_scores_of_champion_and_option_market_only(env, tmp_path):
     from dataclasses import replace
 

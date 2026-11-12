@@ -8,7 +8,7 @@ from __future__ import annotations
 from pathlib import Path
 from xml.sax.saxutils import escape
 
-DOCS = Path(__file__).resolve().parents[1] / "docs"
+DOCS = Path(__file__).resolve().parents[2] / "docs"  # repo/docs (this file is in repo/scripts/docs)
 FONT = "font-family='system-ui,-apple-system,Segoe UI,Roboto,sans-serif'"
 COLORS = {
     "data": ("#e8f0fe", "#4c72b0"),
@@ -149,7 +149,7 @@ def architecture() -> None:
     s.text(
         1050,
         540,
-        "Prometheus also scrapes the api\n(signals, drift, pipeline, quality)\nand mlflow.",
+        "Prometheus scrapes api, mlflow, grafana,\nalertmanager; a blackbox probe checks\nthe page and the model server.",
         11,
         fill="#3d4651",
     )
@@ -233,7 +233,7 @@ def hld() -> None:
     row(
         572,
         [
-            "web page\nforecast, does it work, how built, controls",
+            "web page\nexplore, results, how built, controls",
             "Prometheus + Grafana\nmetrics, alerts, drift",
         ],
         "ops",

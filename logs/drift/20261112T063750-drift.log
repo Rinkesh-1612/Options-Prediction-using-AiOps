@@ -1,0 +1,5 @@
+2026-11-12 01:07:50,903 INFO optpred.drift: run 20261112T063750-drift  commit d864f63a19
+2026-11-12 01:08:19,678 INFO matplotlib.category: Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-11-12 01:08:19,681 INFO matplotlib.category: Using categorical units to plot a list of strings that are all parsable as floats or dates. If these strings should be plotted as numbers, cast to the appropriate data type before plotting.
+2026-11-12 01:08:29,090 INFO optpred.drift.track: 0 of 49 days drift (share > 0.30): []
+2026-11-12 01:08:29,093 INFO optpred.drift: run 20261112T063750-drift finished: ok in 38.2s

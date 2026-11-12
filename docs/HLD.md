@@ -9,8 +9,8 @@ model was trained or tuned on**, with a 95% bootstrap interval over days, agains
 
 Results: **direction — no edge detected** (`reports/zoo/comparison.md`). **Volatility — predictable:** a second
 model forecasts the NIFTY move over the next 5 / 15 min and beats the option market's implied forecast on 10 of 10
-test days (`reports/vol/comparison.md`). A good volatility forecast did not make straddles profitable after the spread
-(research branch `forward-data`: volatility, expiry-day and execution studies, with the forward days); for Ravion it is a filter and sizing input.
+test days (`reports/vol/comparison.md`). The forecast is not a trade by itself (buying straddles on it did not pay after the spread, in a separate study that
+is not part of this submission); for Ravion it is a filter and sizing input.
 
 ![High-level design](hld.svg)
 
@@ -55,10 +55,10 @@ test days (`reports/vol/comparison.md`). A good volatility forecast did not make
 |---|---|
 | Version control: Git, Git LFS, DVC | Git (code, reports, journal), LFS (sample day), DVC (data, remote) |
 | Data engineering: Spark, Ray | Spark (`check`), Ray tasks (all per-day stages), Ray Tune (training) |
-| Experiment tracking: MLflow | Experiment `nifty-zoo`, registry `nifty-signal` |
-| Containerization: Docker, Compose | Pipeline image, serving image (multi-stage), frontend image, Compose stack |
+| Experiment tracking: MLflow | Experiments `nifty-zoo`, `nifty-vol`; registry `nifty-signal`, `nifty-vol` (section 6) |
+| Containerization: Docker, Compose, Docker Hub | Pipeline image, serving image (multi-stage), frontend image, Compose stack. Images are built locally; they are not pushed to Docker Hub |
 | CI/CD: DVC | DAG ends in `tests` → `gate`; `dvc repro gate` = lint, tests, training, evaluation, gated deployment, acceptance (pre-push hook runs it) |
-| Serving: MLflow Serve, REST | `mlflow models serve` behind the FastAPI API |
+| Serving: MLflow Serve, Ray Serve, REST | `mlflow models serve` behind the FastAPI API. Ray Serve is not used |
 | Monitoring: Prometheus, Grafana | Metrics of every component, 10 alerts, dashboard; Alertmanager → retraining |
 | No cloud | One self-managed VPS |
 
@@ -108,5 +108,5 @@ ComponentDown, RunnerDown, PipelineStageFailed, SlowApi, BadDataRate. Grafana re
 Measured from the run journal and shown live in the "How it's built" tab (table "Speed").
 Data engineering: `check` (Spark) reads 86 M raw option ticks at about 350,000 rows/s; `clean` (Ray, 2 CPUs) cleans
 111 M ticks in about 4 minutes; `grid` builds 1.1 M one-second rows from 106 M clean ticks in about 90 s. Whole
-pipeline from clean data to a registered, deployed model: about 40 minutes (training dominates). One signal:
+pipeline from clean data to a registered, deployed model: about 30 minutes on a quiet server (training dominates). One signal:
 about 90 ms through the API.
