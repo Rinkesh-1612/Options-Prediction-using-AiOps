@@ -142,6 +142,7 @@ def pipeline(page: Page) -> None:
     page.click("#runs-failed")
     page.wait_for_timeout(1200)
     page.locator("#runs tr").first.click()
+    to(page, "#log-title")  # the filtered list is shorter, so the page moved: bring the list and the log back
     say(page, "'Failed only' lists the failures. A click on a run opens its log, with the full error.")
     page.click("#runs-failed")
     to(page, "#quality")
@@ -200,6 +201,16 @@ def main() -> None:
     OUT.mkdir(parents=True, exist_ok=True)
     with sync_playwright() as p:
         b = p.chromium.launch()
+        # Warm-up, not recorded: after a restart the API reads all days once, which is slower than the page waits.
+        warm = b.new_page()
+        for _ in range(8):
+            warm.goto(f"{UI}/#explore&day={DAY}&t=39600")
+            try:
+                warm.wait_for_selector(f"#cal button.day[data-day='{DAY}']", timeout=45000)
+                break
+            except Exception:  # noqa: BLE001 -- still loading: open the page again
+                continue
+        warm.close()
         ctx = b.new_context(
             viewport={"width": 1280, "height": 720},
             record_video_dir=str(OUT),

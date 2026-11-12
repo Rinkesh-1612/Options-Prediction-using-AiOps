@@ -57,9 +57,13 @@ demo:            ## replay the unseen days through the API so Grafana moves (sto
 	./stack --profile demo up -d replay
 
 video:           ## record the demo video with subtitles to demo/demo.webm (stack up; Playwright on the host)
+	./stack stop runner           # the replay loses money on unseen days: without this, the alert would start a retrain
 	REPLAY_DELAY=5 ./stack --profile demo up -d replay
 	/usr/bin/python3 scripts/docs/demo_video.py demo
 	./stack stop replay
+	./stack restart api           # resets the served-trades counter, so the alert clears
+	rm -f state/retrain_request.json
+	./stack start runner
 
 mlproject-test:  ## run the test entry point through MLflow Projects (needs mlflow on the host)
 	mlflow run . -e test -A user=$$(id -u):$$(id -g)

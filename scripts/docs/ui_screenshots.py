@@ -52,9 +52,12 @@ def main() -> None:
         page.click("#help-btn")
         shot(page, "help", full=False)
         # the two MLOps tools the Controls tab links to
-        page.goto(f"{MLFLOW}/#/experiments/3", wait_until="domcontentloaded")
-        page.wait_for_timeout(6000)
-        page.keyboard.press("Escape")
+        page.goto(f"{MLFLOW}/#/experiments/3/runs", wait_until="domcontentloaded")  # nifty-zoo: training runs
+        page.wait_for_selector("text=Run Name", timeout=60000)
+        page.wait_for_timeout(2500)
+        for label in ("Got it", "Close"):  # MLflow may show a "what is new" hint over the table
+            if page.get_by_role("button", name=label).count():
+                page.get_by_role("button", name=label).first.click()
         shot(page, "mlflow-runs", full=False)
         page.goto(f"{MLFLOW}/#/models/nifty-signal", wait_until="domcontentloaded")
         page.wait_for_timeout(6000)
