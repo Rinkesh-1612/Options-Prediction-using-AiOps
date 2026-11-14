@@ -7,7 +7,7 @@ out, after all costs? The system must answer this with a controlled AIOps pipeli
 reusable signal library for Ravion V2. Success metric: **net ₹ per day after costs on test days that no
 model was trained or tuned on**, with a 95% bootstrap interval over days, against baselines.
 
-Results: **direction — no edge detected** (`reports/zoo/comparison.md`). **Volatility — predictable:** a second
+Results: **direction: no edge detected** (`reports/zoo/comparison.md`). **Volatility: predictable.** A second
 model forecasts the NIFTY move over the next 5 / 15 min and beats the option market's implied forecast on 10 of 10
 test days (`reports/vol/comparison.md`). The forecast is not a trade by itself (buying straddles on it did not pay after the spread, in a separate study that
 is not part of this submission); for Ravion it is a filter and sizing input.

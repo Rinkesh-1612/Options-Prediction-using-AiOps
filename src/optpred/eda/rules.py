@@ -68,7 +68,7 @@ def isolated_spike(price: pd.Series, key: pd.Series, max_jump: float) -> pd.Seri
     return (r_in.abs() > max_jump) & (r_out.abs() > max_jump) & (np.sign(r_in) != np.sign(r_out))
 
 
-# ---------------------------------------------------------------- opt_tape
+# Rules for opt_tape
 
 
 def clean_opt_tape(df: pd.DataFrame, p: dict) -> tuple[pd.DataFrame, dict[str, int]]:
@@ -97,7 +97,7 @@ def clean_opt_tape(df: pd.DataFrame, p: dict) -> tuple[pd.DataFrame, dict[str, i
     return out.sort_values("ts_ns", kind="stable").reset_index(drop=True), counts
 
 
-# ---------------------------------------------------------------- und_tape
+# Rules for und_tape
 
 
 def closing_print(df: pd.DataFrame, from_s: int, max_jump: float) -> pd.Series:
@@ -124,7 +124,7 @@ def clean_und_tape(df: pd.DataFrame, p: dict) -> tuple[pd.DataFrame, dict[str, i
     return out.sort_values("ts_ns", kind="stable").reset_index(drop=True), counts
 
 
-# ---------------------------------------------------------------- option_chain_snap
+# Rules for option_chain_snap
 
 
 def clean_chain(df: pd.DataFrame, index: pd.DataFrame, p: dict) -> tuple[pd.DataFrame, dict[str, int]]:

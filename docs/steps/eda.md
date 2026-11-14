@@ -3,7 +3,7 @@
 > Perform EDA to understand data characteristics, identify patterns, and detect potential issues
 > (e.g., missing values, outliers).
 
-**Code.** [src/optpred/eda/](../../src/optpred/eda/) — two DVC stages: `clean` (raw → `data/clean`) and `eda` (profile + plots).
+**Code.** [src/optpred/eda/](../../src/optpred/eda/): two DVC stages, `clean` (raw → `data/clean`) and `eda` (profile + plots).
 `rules.py` = outlier rules, `fill.py` = missing-value policy. Thresholds in `params.yaml → eda`. Tests: `tests/unit/test_eda_rules.py`.
 
 **Missing values.**

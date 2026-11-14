@@ -2,13 +2,13 @@
 # Stage 1 uses the full Python image to install packages; stage 2 is the slim runtime that receives
 # only the installed packages and our code. pip's download cache, wheels and build tools stay behind.
 
-# ---- stage 1: build ----
+# Stage 1: build
 FROM python:3.11-bookworm AS builder
 WORKDIR /build
 COPY requirements.txt .
 RUN pip install --no-cache-dir --target=/build/deps -r requirements.txt
 
-# ---- stage 2: runtime ----
+# Stage 2: runtime
 FROM python:3.11-slim-bookworm
 # libgomp1: LightGBM's threading library (absent from the slim image)
 RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 \

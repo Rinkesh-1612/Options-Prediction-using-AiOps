@@ -107,7 +107,7 @@ services:
       - /etc/group:/etc/group:ro
     restart: unless-stopped
 
-  # ---- monitoring: Prometheus pulls, Alertmanager routes drift to the API, Grafana draws ----
+  # Monitoring: Prometheus pulls, Alertmanager routes drift to the API, Grafana draws
   prometheus:
     image: prom/prometheus:v2.54.1
     command: ["--config.file=/etc/prometheus/prometheus.yml", "--storage.tsdb.path=/prometheus",

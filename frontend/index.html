@@ -52,9 +52,12 @@ main:focus { outline: none; }
 .logo { width: 28px; height: 28px; color: var(--primary); }
 .status, .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 14px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; text-decoration: none; }
 .btn:hover:not(:disabled), .status:hover { background: var(--soft); }
+.btn:active:not(:disabled), .status:active, .cal button.day:active:not(:disabled) { transform: translateY(1px); }
 .btn.primary { background: var(--primary); border-color: var(--primary); color: var(--on-primary); font-weight: 600; }
 .btn.primary:hover:not(:disabled) { filter: brightness(1.08); background: var(--primary); }
 .btn.danger { color: var(--bad); border-color: var(--bad); }
+a[href], button, summary, select, label[for], [role="tab"] { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
 .btn:disabled { cursor: not-allowed; background: var(--soft); color: var(--muted); }
 .btn.sm { min-height: 44px; padding: 0 12px; }
 .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); flex: none; }
@@ -203,7 +206,7 @@ pre.log { background: var(--soft); border-radius: 8px; padding: 12px; max-height
 .health b { display: block; }
 
 /* terms, tip, dialogs, toast */
-.term { all: unset; box-sizing: border-box; color: var(--primary); border-bottom: 1px dotted currentColor; cursor: help; font: inherit; }
+.term { all: unset; box-sizing: border-box; color: var(--primary); border-bottom: 1px dotted currentColor; cursor: pointer; font: inherit; }
 .term:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
 #tip { position: absolute; z-index: 40; max-width: 300px; padding: 12px 14px; border-radius: 8px; background: var(--ink); color: var(--bg); font-size: 14px; line-height: 1.45; box-shadow: 0 6px 24px rgba(0,0,0,.25); }
 #tip b { display: block; margin-bottom: 4px; }
@@ -237,7 +240,7 @@ label.lbl { display: block; font-size: 14px; font-weight: 600; margin: 12px 0 6p
 .cal .dow { text-align: center; font-size: 14px; color: var(--muted); padding: 4px 0; }
 .cal button.day { min-height: 56px; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); color: var(--ink); font: inherit; cursor: pointer; padding: 2px; }
 .cal button.day:hover:not(:disabled) { background: var(--soft); }
-.cal button.day:disabled { background: transparent; border-style: dashed; color: var(--muted); cursor: default; }
+.cal button.day:disabled { background: transparent; border-style: dashed; color: var(--muted); cursor: not-allowed; }
 .cal button.day[aria-pressed="true"] { border: 2px solid var(--primary); background: var(--info-bg); font-weight: 700; }
 .cal button.day .d { font-size: 17px; }
 .cal button.day .m { font-size: 12px; color: var(--muted); min-height: 14px; letter-spacing: .02em; }
@@ -306,7 +309,7 @@ h3.sub { font-size: 16px; margin: 16px 0 6px; }
       <div class="row"><button class="btn sm primary" id="alert-retry" type="button">Try again</button><button class="btn sm" id="alert-close" type="button">Dismiss</button></div></div>
   </div>
 
-  <!-- ======================= EXPLORE (the story) ======================= -->
+  <!-- Explore (the story) -->
   <section id="tab-explore" role="tabpanel" aria-labelledby="t-explore">
     <h1 class="page-title">NIFTY options: what the market priced, and what happened</h1>
     <p class="lead">A guided look at our recorded NIFTY options data and the models built on it. Work top to bottom: pick a day, see its <button class="term" type="button" data-term="iv">implied volatility</button>, then look inside the day minute by minute.</p>
@@ -316,7 +319,7 @@ h3.sub { font-size: 16px; margin: 16px 0 6px; }
       <div class="card tour" id="tour" role="region" aria-labelledby="tour-h" hidden>
         <div class="row" style="justify-content:space-between"><span class="dots" id="tour-dots">Step 1 of 5</span><button class="btn sm" id="tour-close" type="button">Close the tour</button></div>
         <h2 id="tour-h">Welcome</h2>
-        <img class="shot" id="tour-img" alt="" hidden>
+        <img class="shot" id="tour-img" alt="" width="1068" height="300" hidden>
         <p id="tour-text"></p>
         <div class="row" style="margin-top:14px"><button class="btn sm" id="tour-back" type="button">Back</button><button class="btn sm primary" id="tour-next" type="button">Next</button></div>
       </div>
@@ -329,7 +332,7 @@ h3.sub { font-size: 16px; margin: 16px 0 6px; }
     <div class="stack" style="margin-top:8px">
       <div class="card" id="s-day" aria-labelledby="day-h">
         <h2 class="step" id="day-h"><span class="n" aria-hidden="true">1</span>Pick a day</h2>
-        <div class="cal-head"><button class="btn sm" id="cal-prev" type="button" aria-label="Earlier month">◀</button><b id="cal-title" aria-live="polite">—</b><button class="btn sm" id="cal-next" type="button" aria-label="Later month">▶</button></div>
+        <div class="cal-head"><button class="btn sm" id="cal-prev" type="button" aria-label="Earlier month">◀</button><b id="cal-title" aria-live="polite">Loading</b><button class="btn sm" id="cal-next" type="button" aria-label="Later month">▶</button></div>
         <div class="cal" id="cal" role="group" aria-label="Trading days"></div>
         <p class="key"><span>★ unseen day (a fair test)</span><span>E expiry day</span><span>! big move</span><span>~ market-change alarm</span><span>dashed = no data</span></p>
         <div class="dayinfo" id="dayinfo" aria-live="polite">Loading the days…</div>
@@ -382,7 +385,7 @@ h3.sub { font-size: 16px; margin: 16px 0 6px; }
     </div>
   </section>
 
-  <!-- ======================= DOES IT WORK ======================= -->
+  <!-- Does it work -->
   <section id="tab-works" role="tabpanel" aria-labelledby="t-works" hidden>
     <h1 class="page-title">Does it work?</h1>
     <p class="lead">We tested every model on <button class="term" type="button" data-term="unseen">unseen days</button> and counted every cost of trading.</p>
@@ -420,7 +423,7 @@ h3.sub { font-size: 16px; margin: 16px 0 6px; }
     </div></details>
   </section>
 
-  <!-- ======================= HOW IT'S BUILT ======================= -->
+  <!-- How it's built -->
   <section id="tab-pipeline" role="tabpanel" aria-labelledby="t-pipeline" hidden>
     <h1 class="page-title">How it's built</h1>
     <p class="lead">The factory behind the forecast. Each box is one step that turns raw market data into a model that answers questions. Green means its last run succeeded; red means it failed. Press a box to see its runs.</p>
@@ -442,7 +445,7 @@ h3.sub { font-size: 16px; margin: 16px 0 6px; }
     </div>
   </section>
 
-  <!-- ======================= CONTROLS ======================= -->
+  <!-- Controls -->
   <section id="tab-controls" role="tabpanel" aria-labelledby="t-controls" hidden>
     <h1 class="page-title">Controls</h1>
     <p class="lead">For the person who runs the system. Looking is always safe. Buttons that change something ask you to confirm first.</p>
@@ -495,11 +498,11 @@ const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const inr = new Intl.NumberFormat("en-IN", { maximumFractionDigits: 0 });
 const esc = (x) => String(x ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
-const rs = (v) => (v == null || !isFinite(v) ? "—" : (v < 0 ? "−₹" : "₹") + inr.format(Math.abs(v)));
+const rs = (v) => (v == null || !isFinite(v) ? "n/a" : (v < 0 ? "−₹" : "₹") + inr.format(Math.abs(v)));
 const pad = (n) => String(n).padStart(2, "0");
 const hm = (s) => `${pad(Math.floor(s / 3600))}:${pad(Math.floor((s % 3600) / 60))}`;
 const hms = (s) => `${hm(s)}:${pad(s % 60)}`;
-const dur = (s) => (s == null ? "—" : s < 60 ? `${Math.round(s)} s` : `${Math.floor(s / 60)} min ${Math.round(s % 60)} s`);
+const dur = (s) => (s == null ? "n/a" : s < 60 ? `${Math.round(s)} s` : `${Math.floor(s / 60)} min ${Math.round(s % 60)} s`);
 const ico = (id, cls = "") => `<svg class="i ${cls}" aria-hidden="true"><use href="#i-${id}"/></svg>`;
 const T = (key, label) => `<button class="term" type="button" data-term="${key}">${label ?? GLOSSARY[key][0].toLowerCase()}</button>`;
 const lastDay = (d) => new Date(d + "T00:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
@@ -526,7 +529,7 @@ const GLOSSARY = {
   champion: ["Model in use", "The model that is answering now. The previous one is kept, so that we can go back."],
 };
 
-/* ---------- small helpers ---------- */
+/* Small helpers */
 let CFG = { api_url: "http://127.0.0.1:8000" };
 const S = { results: null, volResults: null, loadedTabs: {} };
 let retryFn = null;
@@ -563,7 +566,7 @@ async function api(path, opt = {}) {
 }
 const skel = (el, on) => { el.classList.toggle("skel", on); el.setAttribute("aria-busy", on ? "true" : "false"); };
 
-/* ---------- glossary, tips, dialogs ---------- */
+/* Glossary, tips, dialogs */
 $("#glossary").innerHTML = Object.values(GLOSSARY).map(([n, d]) => `<dt>${esc(n)}</dt><dd>${esc(d)}</dd>`).join("");
 let tipFor = null;
 function closeTip() { const tip = $("#tip"); tip.hidden = true; if (tipFor) tipFor.removeAttribute("aria-describedby"); tipFor = null; }
@@ -592,7 +595,7 @@ function askConfirm(title, text, yes) {
   });
 }
 
-/* ---------- tabs ---------- */
+/* Tabs */
 const TABS = ["explore", "works", "pipeline", "controls"], OLD = { signal: "explore", forecast: "explore", results: "works", ops: "controls" };
 function show(tab, push = true) {
   tab = OLD[tab] || tab;
@@ -618,7 +621,7 @@ $$("[role=tab]").forEach((b, i, all) => {
 });
 $("#status").addEventListener("click", () => show("controls"));
 
-/* ---------- status ---------- */
+/* Status */
 async function refreshStatus() {
   let level = "ok", text = "All systems normal", short = "OK";
   const set = () => { $("#st-dot").className = "dot " + level; $("#st-long").textContent = text; $("#st-short").textContent = short; };
@@ -631,7 +634,7 @@ async function refreshStatus() {
   set();
 }
 
-/* ---------- charts: Plotly (self-hosted, frontend/vendor); a plain SVG chart takes over when it is missing ---------- */
+/* Charts: Plotly (self-hosted, frontend/vendor); a plain SVG chart takes over when it is missing */
 const HAS_PLOTLY = typeof Plotly !== "undefined";
 const cssv = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const theme = () => ({ ink: cssv("--ink"), muted: cssv("--muted"), line: cssv("--line"), surface: cssv("--surface"), s1: cssv("--c-forecast"), s2: cssv("--c-implied"), s3: cssv("--c-real") });
@@ -664,7 +667,7 @@ function paint(name, el, data, layout) {  // draw (or redraw) one chart; a hidde
 }
 const redrawAll = () => Object.values(REDRAW).forEach((f) => f());
 
-/* ---- "Does it work?": evidence, day by day ---- */
+/* "Does it work?": evidence, day by day */
 function drawErr(vol) {
   const el = $("#ch-err"), by = vol.qlike_by_day || {}, ours = by[vol.champion]?.["900"], opt = by.implied?.["900"];
   if (!ours || !opt) { el.textContent = "Not available."; return; }
@@ -712,7 +715,7 @@ function drawDrift(dd) {
 }
 $("#drift-details").addEventListener("toggle", (e) => { if (e.target.open && S.driftData) requestAnimationFrame(() => drawDrift(S.driftData)); });
 
-/* ---- "How it's built": speed ---- */
+/* "How it's built": speed */
 function drawThroughput(stages) {
   const el = $("#ch-thr"), rows = stages.filter((s) => s.throughput).map((s) => [s.name, s.throughput.rows_per_s]).sort((a, b) => a[1] - b[1]);
   if (!rows.length || !HAS_PLOTLY) { el.textContent = ""; return; }
@@ -728,8 +731,7 @@ function drawThroughput(stages) {
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", redrawAll);
 
 
-/* ---------- explore step 4: the call / put card (the model in service) ---------- */
-/* ---------- forecast: the call / put card ---------- */
+/* Explore step 4: the call / put card (the model in service) */
 function scoreBars(r) {
   const tau = S.results?.results?.[S.results.champion]?.tau, vals = [r.score_ce, r.score_pe].filter(isFinite);
   if (!vals.length) return "";
@@ -777,7 +779,7 @@ async function loadSignal() {
   } catch (e) { skel(main, false); main.innerHTML = `<p class="muted">The call/put model is not available right now.</p><button class="btn sm" type="button" id="dir-retry">Try again</button>`; $("#dir-retry").onclick = loadSignal; $("#dir-body").innerHTML = ""; }
 }
 
-/* ---------- does it work ---------- */
+/* Does it work */
 function ciSvg(lo, hi, v, min, max) {
   const x = (u) => 6 + ((u - min) / (max - min || 1)) * 138;
   return `<svg class="ci" viewBox="0 0 150 18" role="img" aria-label="from ${rs(lo)} to ${rs(hi)}"><line x1="${x(0)}" y1="1" x2="${x(0)}" y2="17" stroke="currentColor" opacity=".5"/>
@@ -805,7 +807,7 @@ async function loadWorks() {
   const fams = Object.keys(res.results), lo = Math.min(0, ...fams.map((f) => res.results[f].ci95_net_per_day[0])), hi = Math.max(0, ...fams.map((f) => res.results[f].ci95_net_per_day[1])), base = new Set(["stay_out", "random", "momentum"]);
   $("#res-table").innerHTML = fams.sort((a, b) => res.results[b].cv_net_per_day - res.results[a].cv_net_per_day).map((f) => { const x = res.results[f];
     return `<tr><th scope="row" style="font-weight:600">${esc(f)} ${f === res.champion ? '<span class="tag">best in training</span>' : base.has(f) ? '<span class="tag">simple baseline</span>' : ""}</th><td class="n">${rs(x.cv_net_per_day)}</td><td class="n ${x.net_per_day > 0 ? "good" : x.net_per_day < 0 ? "bad" : ""}"><b>${rs(x.net_per_day)}</b></td>
-      <td>${ciSvg(x.ci95_net_per_day[0], x.ci95_net_per_day[1], x.net_per_day, lo, hi)} <span class="num muted" style="font-size:13px">${rs(x.ci95_net_per_day[0])} to ${rs(x.ci95_net_per_day[1])}</span></td><td class="n">${x.trades}</td><td class="n">${x.trades ? Math.round(x.hit_rate * 100) + "%" : "—"}</td></tr>`; }).join("");
+      <td>${ciSvg(x.ci95_net_per_day[0], x.ci95_net_per_day[1], x.net_per_day, lo, hi)} <span class="num muted" style="font-size:13px">${rs(x.ci95_net_per_day[0])} to ${rs(x.ci95_net_per_day[1])}</span></td><td class="n">${x.trades}</td><td class="n">${x.trades ? Math.round(x.hit_rate * 100) + "%" : "n/a"}</td></tr>`; }).join("");
   drawErr(vol); drawCum(res);
   $("#res-meta").textContent = `Unseen days: ${res.test_days[0]} to ${res.test_days.at(-1)}. ` + (res.cv ? `Training days: ${res.cv.dev_days[0]} to ${res.cv.dev_days[1]}. ${res.cv.trials} settings were tried.` : "");
   const imp = Object.entries(res.importance || {}), top = imp.length ? imp[0][1] : 1;
@@ -819,7 +821,7 @@ async function loadWorks() {
   } catch { $("#drift-note").textContent = "Drift information is not available."; }
 }
 
-/* ---------- how it's built ---------- */
+/* How it's built */
 let runFilter = null, failedOnly = false;
 function layers(stages, edges) {
   const depth = Object.fromEntries(stages.map((s) => [s.name, 0]));
@@ -883,13 +885,13 @@ async function loadQuality() {
   q.setAttribute("aria-busy", "false");
 }
 
-/* ---------- controls ---------- */
+/* Controls */
 function versionCard(v) {
   if (!v) return '<p class="muted">None yet.</p>';
   const m = v.metrics || {}, g = (k) => m[k];
-  return `<dl class="kv"><dt>Version</dt><dd>${v.version}</dd><dt>Type</dt><dd>${esc(v.family || "—")}</dd>
+  return `<dl class="kv"><dt>Version</dt><dd>${v.version}</dd><dt>Type</dt><dd>${esc(v.family || "n/a")}</dd>
     <dt>Safety check</dt><dd><span class="tag ${v.deploy_check === "passed" ? "good" : "bad"}">${v.deploy_check === "passed" ? "passed" : esc(v.deploy_check || "not run")}</span></dd>
-    <dt>Built from code</dt><dd class="mono">${esc((v.git_commit || "").slice(0, 10)) || "—"}</dd>
+    <dt>Built from code</dt><dd class="mono">${esc((v.git_commit || "").slice(0, 10)) || "n/a"}</dd>
     <dt>Result on unseen days</dt><dd class="${g("test_net_per_day") > 0 ? "good" : "bad"}">${rs(g("test_net_per_day"))} a day</dd></dl>`;
 }
 async function loadControls() {
@@ -931,7 +933,7 @@ $("#retrain").addEventListener("click", async () => {
   finally { setTimeout(() => ($("#retrain").disabled = false), 3000); }
 });
 
-/* ---------- explore (the story page) ---------- */
+/* Explore (the story page) */
 const E = { days: null, daily: null, day: null, t: 39600, mode: "time", intra: null, smile: null, term: null, month: null, step: 0, timer: null };
 const TOUR = [
   ["What this page is", "A demonstration built on our own recorded NIFTY options data (every minute of every trading day, since August). It shows what the options market expected, what we forecast, and what really happened. It is research, not advice.", "tour-1.png"],
@@ -941,7 +943,7 @@ const TOUR = [
   ["Steps 4 and 5: call or put, and the verdict", "Step 4 asks the second model: buy a call, buy a put, or stay out, and shows why it answered that and what happened next. Step 5 gives the verdict in plain words: the forecast of how much NIFTY moves works; the call/put model showed no edge after costs. The Results tab has all the numbers.", "tour-5.png"],
 ];
 const swatch = (cls, dash) => `<svg class="sw" viewBox="0 0 28 10" aria-hidden="true"><line x1="0" y1="5" x2="28" y2="5" stroke="var(${cls})" stroke-width="${dash ? 2 : 3}" ${dash ? `stroke-dasharray="${dash}"` : ""}/></svg>`;
-const pct = (v, nd = 1) => (v == null ? "—" : v.toFixed(nd) + "%");
+const pct = (v, nd = 1) => (v == null ? "n/a" : v.toFixed(nd) + "%");
 const longDay = (d) => new Date(d + "T00:00:00").toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
 const monthName = (m) => new Date(m + "-01T00:00:00").toLocaleDateString("en-GB", { month: "long", year: "numeric" });
 
@@ -1028,7 +1030,7 @@ function drawIv() {
 function drawIvDays(el, note, m) {
   const D = E.daily, meta = Object.fromEntries(E.days.map((d) => [d.day, d])), days = D.map((d) => ({ day: d.day, split: d.split }));
   const x = D.map((d) => d.day), hasF = D.some((d) => d.forecast != null);
-  const rows = D.map((d) => [d.day, pct(d.iv), d.forecast == null ? "—" : pct(d.forecast), pct(d.realized), d.split === "test" ? "unseen" : "training"]);
+  const rows = D.map((d) => [d.day, pct(d.iv), d.forecast == null ? "n/a" : pct(d.forecast), pct(d.realized), d.split === "test" ? "unseen" : "training"]);
   tableView($("#ch-iv-t"), "Implied volatility per day", ["Day", "Options market IV", "Our forecast", "What happened", "Kind of day"], rows);
   el.setAttribute("aria-label", m === "time" ? "Average implied volatility of each day" : "Implied volatility, our forecast and realized volatility of each day");
   const draw = () => {
@@ -1111,7 +1113,7 @@ function intraMoment() {
   const { iv, f, re } = intraVals();
   $("#intra-stats").innerHTML = `
     <div class="stat"><div class="lab">${swatch("--c-implied", "6 4")}${T("options", "Options market")}</div><div class="val num">${pct(iv)}</div><div class="cap">implied volatility now</div></div>
-    <div class="stat"><div class="lab">${swatch("--c-forecast")}${T("forecast", "Our forecast")}</div><div class="val num">${f == null ? "—" : pct(f)}</div><div class="cap">${f == null ? "not computed yet" : "for the next 15 minutes"}</div></div>
+    <div class="stat"><div class="lab">${swatch("--c-forecast")}${T("forecast", "Our forecast")}</div><div class="val num">${f == null ? "n/a" : pct(f)}</div><div class="cap">${f == null ? "not computed yet" : "for the next 15 minutes"}</div></div>
     <div class="stat"><div class="lab">${swatch("--c-real", "2 3")}${T("hindsight", "What happened")}</div><div class="val num">${pct(re)}</div><div class="cap">${re == null ? "not known yet at this time" : "over the next 15 minutes (hindsight)"}</div></div>`;
   const j = $("#intra-judge");
   if (iv != null && re != null) {
@@ -1125,7 +1127,7 @@ function plotIntra() {
   REDRAW.intra = plotIntra;
   const el = $("#ch-intra"), d = E.intra; if (!d || !el.clientWidth) return;
   const x = d.sod.map((s) => iso(E.day, s)), hasF = !!d.forecast;
-  tableView($("#ch-intra-t"), "One day by the minute, every 30 minutes", ["Time", "Options market IV", "Our forecast", "What happened", "NIFTY"], d.sod.map((s, i) => i).filter((i) => i % 30 === 0).map((i) => [hm(d.sod[i]), pct(d.iv[i]), d.forecast ? pct(d.forecast[i]) : "—", pct(d.realized[i]), d.spot[i] == null ? "—" : inr.format(d.spot[i])]));
+  tableView($("#ch-intra-t"), "One day by the minute, every 30 minutes", ["Time", "Options market IV", "Our forecast", "What happened", "NIFTY"], d.sod.map((s, i) => i).filter((i) => i % 30 === 0).map((i) => [hm(d.sod[i]), pct(d.iv[i]), d.forecast ? pct(d.forecast[i]) : "n/a", pct(d.realized[i]), d.spot[i] == null ? "n/a" : inr.format(d.spot[i])]));
   const th = theme(), xs = iso(E.day, E.t), line = (y, name, color, dash) => ({ type: "scatter", mode: "lines", x, y, name, xaxis: "x", yaxis: "y", line: { color, width: 2, dash }, connectgaps: false, hovertemplate: `<b>%{y:.1f}%</b> · ${name}<extra></extra>` });
   const v = intraVals(), data = [line(d.iv, "Options market (IV)", th.s2, "dash")];
   if (hasF) data.push(line(d.forecast, "Our forecast", th.s1, "solid"));
@@ -1164,7 +1166,7 @@ for (const id of ["#t-intra", "#t-iv"]) $(id).addEventListener("input", (e) => s
 $("#e-back").addEventListener("click", () => setT(E.t - 300, true));
 $("#e-fwd").addEventListener("click", () => setT(E.t + 300, true));
 
-/* ---------- verdict ---------- */
+/* Verdict */
 async function loadVerdict() {
   const box = $("#verdict-box");
   try {
@@ -1188,7 +1190,7 @@ async function loadVerdict() {
 function measureHeader() { document.documentElement.style.setProperty("--hdr", $(".top").offsetHeight + "px"); }
 addEventListener("resize", measureHeader); measureHeader();
 
-/* ---------- start ---------- */
+/* Start */
 async function start() {
   clearError();
   try { CFG = { ...CFG, ...(await (await fetch("config.json", { cache: "no-store" })).json()) }; } catch {}

@@ -1,8 +1,5 @@
 #!/usr/bin/env bash
-# CI trigger. Git runs this before every push; a non-zero exit stops the push.
-# The CI pipeline itself is the DVC DAG (dvc.yaml): `dvc repro gate` reruns every stage whose code, data or
-# params changed (lint + tests in stage `tests`), then stage `gate` checks the acceptance criteria.
-# Everything runs in the pipeline image, the same one used for real runs.
+# CI trigger: runs `dvc repro gate` (dvc.yaml) before every push; a non-zero exit stops the push.
 # Turn it on once:  git config core.hooksPath .githooks
 set -euo pipefail
 cd "$(git rev-parse --show-toplevel)"

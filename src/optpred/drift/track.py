@@ -87,7 +87,7 @@ def main(argv: list[str], summary: dict) -> int:
     )
     ax.axhline(d["share_limit"], ls="--", c="grey")
     ax.set_ylabel("share of features above their limit")
-    ax.set_title("Drift per day vs the training (dev) days — red = test days")
+    ax.set_title("Drift per day vs the training (dev) days (red = test days)")
     ax.tick_params(axis="x", rotation=90, labelsize=7)
     fig.tight_layout()
     fig.savefig(OUT / "daily.png", dpi=110)

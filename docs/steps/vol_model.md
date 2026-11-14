@@ -3,7 +3,7 @@
 > Why: direction is not predictable (correlation ≈ 0.01). HRT, Jane Street and Optiver write that the target is
 > where the signal is; for options the key quantity is volatility. Research: `research/` on branch `vol-track`.
 
-**Code.** [src/optpred/vol/](../../src/optpred/vol/) — stage `vol`, settings `params.yaml → vol`, tests `tests/unit/test_vol.py`.
+**Code.** [src/optpred/vol/](../../src/optpred/vol/): stage `vol`, settings `params.yaml → vol`, tests `tests/unit/test_vol.py`.
 - Target: realized NIFTY move over the next 5 and 15 min (bp). Inputs (HAR): realized move over the last 1/5/15/30 min,
   since the open, time of day, ATM-IV implied move. No look-ahead (tested).
 - Forecasters: implied (the option market, the baseline), HAR, HAR + IV. Walk-forward CV on the dev days; champion =

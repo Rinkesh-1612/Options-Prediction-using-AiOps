@@ -1,8 +1,6 @@
 #!/usr/bin/env bash
-# Runs work that the API asks for. Two request files in state/ (written by the web page, or for retrain also by a
-# drift alert): retrain_request.json -> zoo_train + zoo_eval (forced); pipeline_request.json -> `dvc repro gate`
-# (the CI pipeline: stale stages only, tests, acceptance gate). Each request is archived with its outcome.
-# zoo_eval deploys the new champion only if its smoke test passes (optpred.zoo.promote).
+# Runs what the API asks for, from request files in state/, and archives each request with its outcome:
+#   retrain_request.json  -> zoo_train + zoo_eval (forced)      pipeline_request.json -> dvc repro gate
 set -u
 # Scheduled retrain: RETRAIN_EVERY_S > 0 writes a request that often (0 = only on request or alert).
 REQ=state/retrain_request.json

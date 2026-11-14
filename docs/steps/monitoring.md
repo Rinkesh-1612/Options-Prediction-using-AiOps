@@ -3,7 +3,7 @@
 > Monitor performance in production; detect data drift; retrain periodically or on degradation.
 > AIOps: automated monitoring and alerting, automated retraining, drift and performance over time, model versioning.
 
-**Performance.** API metrics → Prometheus (5 s) → Grafana dashboard `NIFTY signal — production`
+**Performance.** API metrics → Prometheus (5 s) → Grafana dashboard `NIFTY signal: production`
 (`monitoring/grafana/dashboards/optpred.json`): signals per minute, cumulative net ₹ of served trades, hit rate,
 net ₹ distribution, model version, latency, pipeline stage status, components up, host. `make demo` replays the unseen
 days through the API, so the dashboard moves in near real time.

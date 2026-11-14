@@ -189,10 +189,8 @@ stages:
     - reports/vol/test.json:
         cache: false
 
-  # ---- continuous integration (course lecture 11: CI with DVC) ----
-  # `dvc repro` reruns a stage only when its code, data or params changed. These two stages make the DAG the CI
-  # pipeline: a code change reruns the tests; a data, model or param change reruns the affected stages; then the
-  # gate checks the acceptance criteria and fails `dvc repro` if one fails (docs/steps/ci.md).
+  # CI with DVC (docs/steps/ci.md): `tests` reruns on any code change; `gate` fails `dvc repro` when an
+  # acceptance criterion fails.
   tests:
     cmd: ruff check . && ruff format --check . && python scripts/test_report.py
     deps:

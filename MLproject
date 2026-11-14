@@ -1,12 +1,10 @@
 name: nifty-option-aiops
 
-# Every entry point runs in the same pipeline image, so a laptop, the VPS and a grader's machine get
-# identical Python, Java and library versions (dev = test environment). Build it once with `./pipe build`.
+# Every entry point runs in the pipeline image (dev = test environment). Build it once with `./pipe build`.
 #   mlflow run . -e test                                   # the whole test suite
 #   mlflow run . -e vol -A user=$(id -u):$(id -g)          # volatility forecaster; files stay yours
 #   mlflow run . -e zoo_train && mlflow run . -e zoo_eval  # direction models, then the deploy gate
 # MLflow starts the command without a shell, so each command runs through `bash -c`.
-# The data stages (export ... labels) run through DVC: `./pipe dvc repro` (see dvc.yaml).
 docker_env:
   image: optpred-pipeline:latest
   # /etc/passwd and /etc/group: Spark refuses a user ID with no name inside the container (as in ./pipe)
