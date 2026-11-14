@@ -11,6 +11,8 @@ library for the author's trading system (Ravion V2).
 - **Direction: no edge.** A linear model and LightGBM against a "stay out" baseline, 39 training days, 10 later test
   days: neither beats "stay out" after costs ([results](reports/zoo/comparison.md)).
 
+**Demo video (5 min):** [watch on Google Drive](https://drive.google.com/file/d/1_Y8OUt3Dxvzz8HPOUF5pYOPXtvjUn4Tz/view?usp=drive_link)
+
 ![Explore tab](docs/img/explore.png)
 
 ## Documents
@@ -22,8 +24,6 @@ library for the author's trading system (Ravion V2).
 | [Low-level design](docs/LLD.md) | every API endpoint and pipeline stage with its input and output |
 | [Test plan](docs/TEST_PLAN.md) | levels, 110 test cases, acceptance criteria; report in `reports/test_report.md` |
 | [User manual](docs/USER_MANUAL.md) | the web page for a non-technical user, with screenshots; operator commands |
-| [Design direction](docs/DESIGN.md) | the visual choices of the web page, with one reason each |
-| [Rubric map](docs/RUBRIC.md) | each evaluation item → where it is; results; what is not done |
 | [CI with DVC](docs/steps/ci.md) | the DVC DAG as the CI pipeline, the acceptance gate |
 | [Lifecycle steps](docs/steps/) | one short note per course step |
 

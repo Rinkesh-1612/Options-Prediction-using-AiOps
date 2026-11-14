@@ -1,35 +1,36 @@
-# AI Disclosure
+# AI disclosure
 
-Required by the course "Fair and Responsible Use of AI" code of conduct.
+The course code of conduct "Fair and Responsible Use of AI" requires this file.
 
-**Tool:** Claude (Anthropic), through Claude Code, working in this repository on the author's VPS.
+## Tool
 
-**What the author decided:** the problem (NIFTY intraday options, after costs), the data (the author's own
-recordings from Ravion V2), NIFTY-only scope, the cost rules (from the author's broker contract notes), a
-holding time set by the market instead of a fixed horizon, a comparison of model families against a baseline instead of one model,
-reuse of the old test days, and the review of every rubric item (`docs/steps/`).
+Claude (Anthropic), in Claude Code. It worked in this repository on my server.
 
-**What Claude did:** wrote most of the code, tests, Docker and DVC configuration, monitoring, the web page
-and these documents; ran the pipeline and the checks; and reported the results, including the negative ones.
+## How I used it
 
-**History:**
-- Until 2026-10-22: a first version (minute and second-level models) was built with Claude. The author did
-  not review its documents. On 2026-10-23 the author marked them deprecated and they were removed
-  (still in Git history before commit `817a1b1`).
-- 2026-10-23 to 10-24: the pipeline was rebuilt item by item with the author's review: cleaning, 1-second grid,
-  feature library, triple-barrier labels, direction models, deploy gate, drift, monitoring, web page, documents.
-- 2026-10-24 to 10-26: with Claude: the volatility forecaster, the Explore page, and research studies on branches.
-- 2026-11-08 to 11-11: the author asked Claude to check the project against the official evaluation guideline and
-  to finish it. Claude moved CI into the DVC pipeline (stages `tests` and `gate`, as in course lecture 11), fixed a
-  page error, added monitoring of every component, removed unused files and brought the documents up to date.
-- 2026-11-11: after a review of the demo, the author decided the project was too large for a course assignment.
-  Claude removed 6 of 9 direction model families (deep models included), 1 of 4 volatility models, the option
-  strategy simulator and one pipeline stage. They are in Git history before this date.
+- Claude wrote most of the code, the tests, the Docker and DVC configuration, the monitoring, the web page
+  and the documents.
+- Claude ran the pipeline and the checks, and reported the results.
+- I set the problem: NIFTY options, intraday, after costs.
+- I supplied the data: my own recordings from my trading system, Ravion V2.
+- I made these decisions: NIFTY only; the cost rules (from my broker contract notes); a holding time that
+  follows the market; a baseline for each model; two questions (direction and volatility); report the
+  negative result.
+- I reviewed each lifecycle step (`docs/steps/`) and asked for changes.
 
-**Impact:** AI wrote most of the lines in this repository. It made the breadth possible (a 13-stage pipeline, tests,
-monitoring, a web page) in the time available. The problem, the data, the design choices listed above and
-the decision to report the negative trading result are the author's.
+## History
 
-**Where the numbers come from:** every result comes from a journaled run (`logs/runs.jsonl`, `logs/`) and an
-MLflow run tied to a Git commit and DVC data hashes, never from text written by AI. The author is responsible
-for, and can explain, every component.
+| Date | Work |
+|---|---|
+| to 2026-10-22 | A first version. I did not review its documents, so I removed them (Git history before `817a1b1`). |
+| 2026-10-23 to 10-26 | The pipeline again, one step at a time, with my review. Then the volatility model and the web page. |
+| 2026-11-08 to 11-11 | A check against the course guidelines: CI in DVC, monitoring of all parts, document updates. |
+| 2026-11-11 to 11-14 | I decided that the project was too large. Claude removed 6 model families, the strategy simulator and one stage. |
+
+## Impact
+
+The AI wrote most of the lines. It made a project of this size possible in the time I had. The problem, the
+data, the design decisions and the honest report of the result are mine.
+
+Every number comes from a recorded run (`logs/runs.jsonl`) and an MLflow run with its Git commit. No number
+comes from text that the AI wrote. I am responsible for each part, and I can explain each part.
