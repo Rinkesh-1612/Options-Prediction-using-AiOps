@@ -12,7 +12,7 @@ Each file's row count is checked against the server.
 |---|---|---|
 | `opt_tape` | one option contract: LTP, volume, OI, 5-level book | ~0.75 s |
 | `und_tape` | NIFTY index or future | ~10 ms (index) |
-| `option_chain_snap` | one strike, CE + PE: bid/ask/IV/delta | ~2–5 s |
+| `option_chain_snap` | one strike, CE + PE: bid/ask/IV/delta | ~2 to 5 s |
 
 Format: one Parquet file per table per day, `ts_ns` = UTC nanoseconds.
 
@@ -26,7 +26,7 @@ data/clean, grid, feat, labels   derived by DVC stages
 
 **Biases.**
 - NIFTY only, near-ATM strikes only (by design).
-- About 2.5 months, one regime (an edge is expected to last 2–3 months).
+- About 2.5 months, one regime (an edge is expected to last 2 to 3 months).
 - Broker feed updates, not exchange ticks.
 - 6 bad days and some placeholder chain values (handled in EDA).
 - Snapshot frozen at 2026-10-16 (for reproducibility).

@@ -64,15 +64,14 @@ is not part of this submission); for Ravion it is a filter and sizing input.
 
 ## 5. Best practices
 
-- **Code quality:** ruff (PEP 8), docstrings in every module, one requirements file.
-- **Testing:** unit, integration, API and end-to-end tests ([TEST_PLAN.md](TEST_PLAN.md)).
-- **Security:** AES-256 encrypted backup of data and models; admin token for rollback and retraining;
-  services bound to localhost by default; ClickHouse read-only.
-- **Scalability:** the work grows with the number of days; days run in parallel on Ray (CPU limit in
-  `params.yaml`, so live trading keeps its CPUs). New days = `dvc repro`.
-- **Explainability:** global: gain importance and group ablation for the champion (Results tab, MLflow). Per signal:
-  exact SHAP values of the score (`/signal` → `drivers`; Explore step 4, "Why did it say that?"). They add up to the score.
-- **Collaboration:** shared MLflow UI, Grafana, Git history, `docs/steps/` (one short note per lifecycle step).
+| Practice (course guideline IV) | In this project |
+|---|---|
+| Code quality | Ruff (PEP 8), docstrings in every module, one requirements file. |
+| Testing | Unit, integration, API and end-to-end tests ([TEST_PLAN.md](TEST_PLAN.md)). |
+| Security | AES-256 encrypted backup of data and models; admin token for rollback and retraining; services bound to localhost by default; ClickHouse read-only. |
+| Scalability | The work grows with the number of days; days run in parallel on Ray (CPU limit in `params.yaml`, so live trading keeps its CPUs). New days = `dvc repro`. |
+| Explainability | Global: gain importance and group ablation for the champion (Results tab, MLflow). Per signal: exact SHAP values of the score (`/signal` → `drivers`; Explore step 4, "Why did it say that?"). They add up to the score. |
+| Collaboration | Shared MLflow UI, Grafana, Git history, `docs/steps/` (one short note per lifecycle step). |
 
 ## 6. Experiment tracking: what MLflow records
 

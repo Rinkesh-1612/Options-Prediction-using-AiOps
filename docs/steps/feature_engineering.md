@@ -16,7 +16,7 @@ values after the lookback, unique column names.
 | Group | Features |
 |---|---|
 | time | minutes since open / to close, DTE, expiry day |
-| spot | returns 5–300 s, realised vol 60/300 s, range position, distance to ATM |
+| spot | returns over 5 to 300 s, realised vol 60/300 s, range position, distance to ATM |
 | future | basis and its change, future lead over spot, future volume |
 | book | ATM CE/PE: spread, L1 and 5-level imbalance, microprice offset |
 | flow | ATM CE/PE: mid return, volume, OI change; call-vs-put volume and depth |

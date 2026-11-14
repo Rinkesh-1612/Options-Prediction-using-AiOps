@@ -20,7 +20,7 @@ Development Guidelines". Short notes per lifecycle step are in
 |---|---|
 | UI/UX, user manual | `frontend/` (one page, light + dark, phone width), guided tour, [USER_MANUAL.md](USER_MANUAL.md); browser audit `make ui` 13/13 ([reports/ui_audit.md](../reports/ui_audit.md)) |
 | ML pipeline visualization | "How it's built" tab: live DVC DAG, speed per stage, runs with totals and a "Failed only" filter, run logs, data quality; Controls tab (management console): run the pipeline (`dvc repro gate`), retrain, rollback, links to MLflow (5050) and Grafana (3001) |
-| Design, OO / functional | [HLD.md](HLD.md) §2–3; functional stages + small classes (models, API) |
+| Design, OO / functional | [HLD.md](HLD.md) §2 and §3; functional stages + small classes (models, API) |
 | Loose coupling | page ↔ API only by REST; address in `frontend/config.json` |
 | Coding style, logging, exceptions, comments | ruff (PEP 8) in CI; run journal `logs/runs.jsonl` + `logs/<stage>/`; docstrings per module |
 | Unit tests, test report | 110 cases (105 pass, 5 e2e skip without the stack; e2e 5/5 with it); `make e2e` with the stack |

@@ -12,7 +12,7 @@ Out: `{"ok": true}`. 503 when the model server does not answer `/ping`.
 Out: `[{"day": "2026-10-15", "split": "test" | "dev"}]`, every accepted day.
 
 ### GET /signal
-In (query): `day` (an accepted day), `sod` (seconds since IST midnight, 33300–55799).
+In (query): `day` (an accepted day), `sod` (seconds since IST midnight, 33300 to 55799).
 Out: `day, sod, time, atm, action (BUY_CE | BUY_PE | STAY_OUT), score_ce, score_pe, blocked,`
 `outcome {net_rs, hold_s, barrier (1 take-profit, -1 stop-loss, 0 time limit), entry, exit} | null,`
 `hindsight {ce, pe: {net_rs, hold_s, barrier} | null}`.
@@ -92,11 +92,11 @@ dependency of the other (`dvc.yaml`). `last` = the newest run in the journal. `t
 rows_per_s}` of the last successful run (`null` for stages that do not process rows).
 
 ### GET /pipeline/runs
-In (query): `limit` (1–500, default 50), `stage` (optional). Out: runs of current stages, newest first:
+In (query): `limit` (1 to 500, default 50), `stage` (optional). Out: runs of current stages, newest first:
 `{run_id, stage, started, status, duration_s, git_commit, git_dirty, exit_code, summary}`.
 
 ### GET /pipeline/runs/{run_id}/log
-In: `run_id` (`[0-9T]+-[a-z_]+`), `tail` (1–5000 lines). Out: text. 400 bad id, 404 unknown run or no file.
+In: `run_id` (`[0-9T]+-[a-z_]+`), `tail` (1 to 5000 lines). Out: text. 400 bad id, 404 unknown run or no file.
 
 ### GET /quality
 Out: `{accepted: [days], rejected: {day: [reasons]}, cleaning: {table: {rows_in, rows_out, drop_*, null_*}}}`.

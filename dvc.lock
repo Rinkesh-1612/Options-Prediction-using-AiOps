@@ -76,8 +76,8 @@ stages:
       size: 2966
     - path: src/optpred/eda/rules.py
       hash: md5
-      md5: 111b6394dcd9f6e47cb53631d66b8fc0
-      size: 6441
+      md5: 9c48ba20885d98e2755fd92cacca9b61
+      size: 6276
     params:
       params.yaml:
         eda:
@@ -467,8 +467,8 @@ stages:
       nfiles: 49
     - path: src/optpred/drift
       hash: md5
-      md5: 871f3952cbf57656f307ab3deee0764d.dir
-      size: 7560
+      md5: 8a893c11b81f51e8f4ea52d93dbc24b0.dir
+      size: 7558
       nfiles: 3
     params:
       params.yaml:
@@ -488,8 +488,8 @@ stages:
       size: 62462
     - path: reports/drift/daily.png
       hash: md5
-      md5: b13468a8f633130406515b8812234ee6
-      size: 34895
+      md5: 2106577f19e7a2502d29a8827157e309
+      size: 35244
     - path: reports/drift/reference.json
       hash: md5
       md5: d824c49bbd9858a00732c9508304c9d0
@@ -631,25 +631,25 @@ stages:
     deps:
     - path: docs/LLD.md
       hash: md5
-      md5: b915e1353da60b086c45edb81f412429
-      size: 8193
+      md5: 33113b0e673b9fc0d9c438037b9af920
+      size: 8196
     - path: frontend/index.html
       hash: md5
-      md5: 488f410dc297e903fff1f2cc3cd9f711
-      size: 108437
+      md5: 22db42bf60cdc748eb24abca5a2e2d12
+      size: 108016
     - path: pyproject.toml
       hash: md5
       md5: 8cedb03ae8607efc21d264d95ae89767
       size: 838
     - path: scripts
       hash: md5
-      md5: 1f6e453d4fcdf2dbfd05de7929bc1075.dir
-      size: 37062
+      md5: 56b509bf82fc409b4c2b8d325ebd8077.dir
+      size: 36847
       nfiles: 9
     - path: src/optpred
       hash: md5
-      md5: 93547df13d5451af26d7e60a0b11e4d7.dir
-      size: 177288
+      md5: 77f829ab4e4e7a2703693a60d0daee20.dir
+      size: 177121
       nfiles: 48
     - path: tests
       hash: md5
@@ -659,7 +659,7 @@ stages:
     outs:
     - path: reports/test_report.md
       hash: md5
-      md5: 7aff34943fdd4cd701405a82fe86c1bb
+      md5: ff93d48953efe1c1ff3dbdd76ef18983
       size: 9634
     - path: reports/tests.json
       hash: md5

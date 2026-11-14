@@ -3,7 +3,7 @@
 > Choose appropriate ML algorithms based on the problem and data characteristics.
 
 **Data facts that drive the choice.** Tabular features with NaN, mixed scales and fat tails. Weak signal
-(lag-1 autocorrelation of NIFTY returns 0.02). Only 49 independent days. The regime changes every 2–3 months.
+(lag-1 autocorrelation of NIFTY returns 0.02). Only 49 independent days. The regime changes every 2 to 3 months.
 
 **Target: triple-barrier label** (López de Prado). Entry at the ATM ask. Exit at the bid at the first of:
 take-profit (+k₁·σ), stop-loss (−k₂·σ), time cap. σ = the option's recent volatility, so the holding period

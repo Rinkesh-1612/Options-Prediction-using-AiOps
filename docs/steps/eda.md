@@ -16,7 +16,7 @@
 
 | Rule | Rows |
 |---|---|
-| Outside 09:15–15:30 | 2.29 M dropped |
+| Outside 09:15 to 15:30 | 2.29 M dropped |
 | One-sided book (bid or ask = 0) | 4,501 dropped |
 | Spread > 25% of mid (premium ≥ ₹1) | 1,500 dropped |
 | Index closing print (jump > 0.15% after 15:28) | 12,412 dropped |

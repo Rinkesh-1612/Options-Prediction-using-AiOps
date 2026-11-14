@@ -16,10 +16,10 @@ and these documents; ran the pipeline and the checks; and reported the results, 
 - Until 2026-10-22: a first version (minute and second-level models) was built with Claude. The author did
   not review its documents. On 2026-10-23 the author marked them deprecated and they were removed
   (still in Git history before commit `817a1b1`).
-- 2026-10-23 – 10-24: the pipeline was rebuilt item by item with the author's review: cleaning, 1-second grid,
+- 2026-10-23 to 10-24: the pipeline was rebuilt item by item with the author's review: cleaning, 1-second grid,
   feature library, triple-barrier labels, direction models, deploy gate, drift, monitoring, web page, documents.
-- 2026-10-24 – 10-26: with Claude: the volatility forecaster, the Explore page, and research studies on branches.
-- 2026-11-08 – 11-11: the author asked Claude to check the project against the official evaluation guideline and
+- 2026-10-24 to 10-26: with Claude: the volatility forecaster, the Explore page, and research studies on branches.
+- 2026-11-08 to 11-11: the author asked Claude to check the project against the official evaluation guideline and
   to finish it. Claude moved CI into the DVC pipeline (stages `tests` and `gate`, as in course lecture 11), fixed a
   page error, added monitoring of every component, removed unused files and brought the documents up to date.
 - 2026-11-11: after a review of the demo, the author decided the project was too large for a course assignment.
