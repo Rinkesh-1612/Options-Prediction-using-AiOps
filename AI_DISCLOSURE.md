@@ -1,7 +1,6 @@
 # AI disclosure
 
-The course code of conduct "Fair and Responsible Use of AI" requires this file.
-
+Rinkesh Patel DA24B017
 ## Tool
 
 Claude (Anthropic), in Claude Code. It worked in this repository on my server.
@@ -24,9 +23,9 @@ Claude (Anthropic), in Claude Code. It worked in this repository on my server.
 
 ## Claude's part
 
-- Claude wrote most of the code, the tests, the Docker and DVC configuration, the monitoring, the web page
-  and the documents.
-- Claude ran the pipeline and the checks, and reported the results to me.
+- Claude wrote most of the code, the test and DVC configuration, the monitoring, the web page
+  and helped in beautifying the documents.
+
 
 ## Impact
 
