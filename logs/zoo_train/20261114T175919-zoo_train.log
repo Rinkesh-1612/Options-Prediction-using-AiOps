@@ -1,0 +1,5 @@
+2026-11-14 12:29:20,185 INFO optpred.zoo_train: run 20261114T175919-zoo_train  commit c46c2c7d79
+2026-11-14 12:29:20,198 INFO optpred.zoo.train: dev 39 days (4 folds), test 10 days (not read here)
+2026-11-14 12:29:59,456 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-11-14 12:32:42,492 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.
+2026-11-14 12:34:41,794 WARNING tensorboardX.x2num: NaN or Inf found in input tensor.

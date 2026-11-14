@@ -635,8 +635,8 @@ stages:
       size: 8196
     - path: frontend/index.html
       hash: md5
-      md5: 22db42bf60cdc748eb24abca5a2e2d12
-      size: 108016
+      md5: 2d66f18f5d788851d7eaa7f088910965
+      size: 108096
     - path: pyproject.toml
       hash: md5
       md5: 8cedb03ae8607efc21d264d95ae89767
@@ -659,7 +659,7 @@ stages:
     outs:
     - path: reports/test_report.md
       hash: md5
-      md5: ff93d48953efe1c1ff3dbdd76ef18983
+      md5: f3054f43a25a8ae75b5d9b2a32b3007d
       size: 9634
     - path: reports/tests.json
       hash: md5

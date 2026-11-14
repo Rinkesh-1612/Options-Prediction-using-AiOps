@@ -18,7 +18,7 @@ services:
               "--backend-store-uri", "sqlite:////app/mlflow/mlflow.db",
               "--default-artifact-root", "/app/mlflow/artifacts",
               "--expose-prometheus", "/tmp/mlflow-prom",
-              "--allowed-hosts", "mlflow:5000,localhost:*,127.0.0.1:*,10.*,172.*,192.168.*"]
+              "--allowed-hosts", "mlflow:5000,localhost:*,127.0.0.1:*,10.*,172.*,192.168.*,${PUBLIC_HOST:-localhost}:*"]
     volumes: ["./mlflow:/app/mlflow"]
     ports: ["${BIND:-127.0.0.1}:5050:5000"]
     healthcheck:

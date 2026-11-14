@@ -1196,14 +1196,14 @@ async function start() {
     .filter(([, u]) => u).map(([n, u]) => `<a class="btn" href="${esc(u)}" target="_blank" rel="noopener">${esc(n)}<span class="muted"> (opens in a new tab)</span></a>`).join("");
   refreshStatus(); if (!S.statusTimer) S.statusTimer = setInterval(refreshStatus, 15000);
 }
-(function boot() {
+(async function boot() {
   const [tab, ...kv] = location.hash.slice(1).split("&"), q = Object.fromEntries(kv.map((x) => x.split("=")));
   if (q.day && /^\d{4}-\d\d-\d\d$/.test(q.day)) E.day = q.day;
   if (q.t && /^[0-9]+$/.test(q.t)) E.t = Math.min(54000, Math.max(34200, +q.t));
   if (["time", "forecast", "smile", "term"].includes(q.iv)) { E.mode = q.iv; $$("[data-iv]").forEach((x) => x.setAttribute("aria-pressed", String(x.dataset.iv === q.iv))); }
   try { if (!localStorage.getItem("tour2_seen")) tourOpen(false); } catch { tourOpen(false); }
+  await start();  // reads config.json first: every API call needs the address in it
   show(tab || "explore", false);
-  start();
 })();
 </script>
 </body>
