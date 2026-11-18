@@ -54,29 +54,24 @@
   "2026-09-14": [
    "tape covers 0/375 minutes",
    "spot covers 0/375 minutes",
-   "tape prices never change (frozen feed)",
-   "chain partial: 375/375 minutes"
+   "chain spot never changes (frozen recording)"
   ],
   "2026-09-25": [
    "tape covers 0/375 minutes",
-   "spot covers 0/375 minutes",
-   "tape prices never change (frozen feed)"
+   "spot covers 0/375 minutes"
   ],
   "2026-09-28": [
    "tape covers 0/375 minutes",
-   "spot covers 0/375 minutes",
-   "tape prices never change (frozen feed)"
+   "spot covers 0/375 minutes"
   ],
   "2026-09-29": [
    "tape covers 0/375 minutes",
-   "spot covers 0/375 minutes",
-   "tape prices never change (frozen feed)"
+   "spot covers 0/375 minutes"
   ],
   "2026-10-02": [
    "tape covers 0/375 minutes",
    "spot covers 0/375 minutes",
-   "tape prices never change (frozen feed)",
-   "chain partial: 375/375 minutes"
+   "chain spot never changes (frozen recording)"
   ],
   "2026-10-16": [
    "tape covers 255/375 minutes",

@@ -1,0 +1,59 @@
+2026-11-18 18:10:23,486 INFO optpred.check: run 20261118T234023-check  commit b022ec8d6f
+2026-11-18 18:16:07,021 INFO optpred.data.check: 2026-08-03 accept 
+2026-11-18 18:16:07,024 INFO optpred.data.check: 2026-08-04 accept 
+2026-11-18 18:16:07,024 INFO optpred.data.check: 2026-08-05 accept 
+2026-11-18 18:16:07,024 INFO optpred.data.check: 2026-08-06 accept 
+2026-11-18 18:16:07,025 INFO optpred.data.check: 2026-08-07 accept 
+2026-11-18 18:16:07,025 INFO optpred.data.check: 2026-08-10 accept 
+2026-11-18 18:16:07,025 INFO optpred.data.check: 2026-08-11 accept 
+2026-11-18 18:16:07,025 INFO optpred.data.check: 2026-08-12 accept 
+2026-11-18 18:16:07,025 INFO optpred.data.check: 2026-08-13 accept 
+2026-11-18 18:16:07,025 INFO optpred.data.check: 2026-08-14 accept 
+2026-11-18 18:16:07,025 INFO optpred.data.check: 2026-08-17 accept 
+2026-11-18 18:16:07,025 INFO optpred.data.check: 2026-08-18 accept 
+2026-11-18 18:16:07,025 INFO optpred.data.check: 2026-08-19 accept 
+2026-11-18 18:16:07,025 INFO optpred.data.check: 2026-08-20 accept 
+2026-11-18 18:16:07,025 INFO optpred.data.check: 2026-08-21 accept 
+2026-11-18 18:16:07,025 INFO optpred.data.check: 2026-08-24 accept 
+2026-11-18 18:16:07,025 INFO optpred.data.check: 2026-08-25 accept 
+2026-11-18 18:16:07,025 INFO optpred.data.check: 2026-08-26 accept 
+2026-11-18 18:16:07,025 INFO optpred.data.check: 2026-08-27 accept 
+2026-11-18 18:16:07,025 INFO optpred.data.check: 2026-08-28 accept 
+2026-11-18 18:16:07,035 INFO optpred.data.check: 2026-08-31 accept 
+2026-11-18 18:16:07,035 INFO optpred.data.check: 2026-09-01 accept 
+2026-11-18 18:16:07,036 INFO optpred.data.check: 2026-09-02 accept 
+2026-11-18 18:16:07,036 INFO optpred.data.check: 2026-09-03 accept 
+2026-11-18 18:16:07,036 INFO optpred.data.check: 2026-09-04 accept 
+2026-11-18 18:16:07,036 INFO optpred.data.check: 2026-09-07 accept chain partial: 266/375 minutes
+2026-11-18 18:16:07,036 INFO optpred.data.check: 2026-09-08 accept 
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-09-09 accept 
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-09-10 accept 
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-09-11 accept 
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-09-14 reject tape covers 0/375 minutes; spot covers 0/375 minutes; chain spot never changes (frozen recording)
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-09-15 accept 
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-09-16 accept 
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-09-17 accept 
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-09-18 accept 
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-09-21 accept 
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-09-22 accept 
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-09-23 accept 
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-09-24 accept 
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-09-25 reject tape covers 0/375 minutes; spot covers 0/375 minutes
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-09-28 reject tape covers 0/375 minutes; spot covers 0/375 minutes
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-09-29 reject tape covers 0/375 minutes; spot covers 0/375 minutes
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-09-30 accept 
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-10-01 accept 
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-10-02 reject tape covers 0/375 minutes; spot covers 0/375 minutes; chain spot never changes (frozen recording)
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-10-05 accept 
+2026-11-18 18:16:07,042 INFO optpred.data.check: 2026-10-06 accept 
+2026-11-18 18:16:07,043 INFO optpred.data.check: 2026-10-07 accept 
+2026-11-18 18:16:07,043 INFO optpred.data.check: 2026-10-08 accept 
+2026-11-18 18:16:07,043 INFO optpred.data.check: 2026-10-09 accept 
+2026-11-18 18:16:07,043 INFO optpred.data.check: 2026-10-12 accept 
+2026-11-18 18:16:07,043 INFO optpred.data.check: 2026-10-13 accept 
+2026-11-18 18:16:07,043 INFO optpred.data.check: 2026-10-14 accept 
+2026-11-18 18:16:07,043 INFO optpred.data.check: 2026-10-15 accept 
+2026-11-18 18:16:07,047 INFO optpred.data.check: 2026-10-16 reject tape covers 255/375 minutes; spot covers 255/375 minutes; chain partial: 255/375 minutes
+2026-11-18 18:16:07,056 INFO optpred.data.check: accepted 49 / 55 days; 267411 tape rows/s
+2026-11-18 18:16:07,069 INFO optpred.check: run 20261118T234023-check finished: ok in 343.6s
+2026-11-18 18:16:07,070 INFO py4j.clientserver: Closing down clientserver connection

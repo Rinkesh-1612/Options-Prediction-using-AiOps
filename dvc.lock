@@ -52,19 +52,19 @@ stages:
     outs:
     - path: data/days.json
       hash: md5
-      md5: 96ba327842a4cc8892310a4dcf8a9365
-      size: 1678
+      md5: 7afc63765aac4d02cd5eb11533c3eeed
+      size: 1479
     - path: reports/quality.json
       hash: md5
-      md5: 8bbab536ac6d90a33dde1e1c5186961f
-      size: 26648
+      md5: 6e550305ab20fe71c9f030991482a7e9
+      size: 26449
   clean:
     cmd: python -m optpred.eda.clean
     deps:
     - path: data/days.json
       hash: md5
-      md5: 96ba327842a4cc8892310a4dcf8a9365
-      size: 1678
+      md5: 7afc63765aac4d02cd5eb11533c3eeed
+      size: 1479
     - path: data/raw
       hash: md5
       md5: b9214ff5bc24fb4d3260a845bb713373.dir
@@ -114,8 +114,8 @@ stages:
       nfiles: 147
     - path: data/days.json
       hash: md5
-      md5: 96ba327842a4cc8892310a4dcf8a9365
-      size: 1678
+      md5: 7afc63765aac4d02cd5eb11533c3eeed
+      size: 1479
     - path: src/optpred/eda/fill.py
       hash: md5
       md5: 061b2c945fc95f1cf10eabc25698bd15
@@ -171,8 +171,8 @@ stages:
       nfiles: 147
     - path: data/days.json
       hash: md5
-      md5: 96ba327842a4cc8892310a4dcf8a9365
-      size: 1678
+      md5: 7afc63765aac4d02cd5eb11533c3eeed
+      size: 1479
     - path: src/optpred/eda/fill.py
       hash: md5
       md5: 061b2c945fc95f1cf10eabc25698bd15
@@ -216,8 +216,8 @@ stages:
     deps:
     - path: data/days.json
       hash: md5
-      md5: 96ba327842a4cc8892310a4dcf8a9365
-      size: 1678
+      md5: 7afc63765aac4d02cd5eb11533c3eeed
+      size: 1479
     - path: data/grid
       hash: md5
       md5: e3421995d54abc9e07dfdb182f8364aa.dir
@@ -252,8 +252,8 @@ stages:
     deps:
     - path: data/days.json
       hash: md5
-      md5: 96ba327842a4cc8892310a4dcf8a9365
-      size: 1678
+      md5: 7afc63765aac4d02cd5eb11533c3eeed
+      size: 1479
     - path: data/grid
       hash: md5
       md5: e3421995d54abc9e07dfdb182f8364aa.dir
@@ -299,8 +299,8 @@ stages:
     deps:
     - path: data/days.json
       hash: md5
-      md5: 96ba327842a4cc8892310a4dcf8a9365
-      size: 1678
+      md5: 7afc63765aac4d02cd5eb11533c3eeed
+      size: 1479
     - path: data/feat
       hash: md5
       md5: c370ee04e83d6eea4e3691e71c03c968.dir
@@ -499,8 +499,8 @@ stages:
     deps:
     - path: data/days.json
       hash: md5
-      md5: 96ba327842a4cc8892310a4dcf8a9365
-      size: 1678
+      md5: 7afc63765aac4d02cd5eb11533c3eeed
+      size: 1479
     - path: data/grid
       hash: md5
       md5: e3421995d54abc9e07dfdb182f8364aa.dir
@@ -670,8 +670,8 @@ stages:
     deps:
     - path: data/days.json
       hash: md5
-      md5: 96ba327842a4cc8892310a4dcf8a9365
-      size: 1678
+      md5: 7afc63765aac4d02cd5eb11533c3eeed
+      size: 1479
     - path: reports/tests.json
       hash: md5
       md5: 4aad7732d31549ca458516ce3c64d594
