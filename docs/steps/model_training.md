@@ -26,8 +26,8 @@ numbers are read. All families are scored on the 10 test days (`reports/zoo/comp
 | linear | 98 | −137 | −686 … 275 | 9 | 0.56 |
 | stay_out (baseline) | 0 | 0 | n/a | 0 | n/a |
 
-**Result: no edge.** No model beats "stay out" on the test days. The CV edge was weak (IC ≈ ±0.01; removing one
-feature group turns the CV result negative), and it did not hold. The test days were seen by the old
+**Result: no edge.** No model beats "stay out" on the test days. The CV edge was weak (IC ≈ ±0.01). Without the spot, future or
+chain features, the CV result falls to ₹0 a day, because the model stops trading. The edge did not hold on the test days. The test days were seen by the old
 models (not trained or tuned on).
 
 **Reproducibility.** The final runs of `zoo_train`, `zoo_eval`, `vol` and `drift` were made on the clean commit
