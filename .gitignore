@@ -12,6 +12,7 @@ __pycache__/
 /mlruns
 # data is in DVC (data/.gitignore lists the stage outputs)
 /data/raw
+/.download
 *.parquet.part
 /.dvc/cache
 # test run output (the report in reports/test_report.md is committed)

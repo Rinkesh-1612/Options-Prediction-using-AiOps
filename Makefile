@@ -1,7 +1,7 @@
 # One entry point for every routine task. Everything runs in the pipeline image (./pipe), so results do not
 # depend on the host Python. `make help` lists the targets.
 .DEFAULT_GOAL := help
-.PHONY: help build ci lint format test test-unit e2e ui report pipeline dag status metrics stack-up stack-down demo video mlproject-test
+.PHONY: help build ci lint format test test-unit e2e ui report pipeline rebuild dag status metrics stack-up stack-down demo video mlproject-test
 
 help:            ## list the targets
 	@grep -E '^[a-z0-9-]+:.*## ' $(MAKEFILE_LIST) | awk -F':.*## ' '{printf "  %-16s %s\n", $$1, $$2}'
@@ -36,6 +36,10 @@ report:          ## run every test and write reports/test_report.md
 
 pipeline:        ## rerun every out-of-date DVC stage
 	./pipe dvc repro
+
+rebuild:         ## rebuild every stage from the raw recordings (first: scripts/get_data.sh raw)
+	./pipe dvc commit -f export
+	./pipe dvc repro --force --downstream check
 
 dag:             ## print the pipeline graph
 	./pipe dvc dag
