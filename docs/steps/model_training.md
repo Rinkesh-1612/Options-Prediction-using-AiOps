@@ -31,6 +31,6 @@ chain features, the CV result falls to ₹0 a day, because the model stops tradi
 models (not trained or tuned on).
 
 **Reproducibility.** The final runs of `zoo_train`, `zoo_eval`, `vol` and `drift` were made on the clean commit
-`d864f63` (MLflow tags `git_commit`, `git_dirty = False`, DVC data hashes; journal `logs/runs.jsonl`).
+`972f975` (in the runs: `d864f63`, see [commit_map.md](../commit_map.md)) (MLflow tags `git_commit`, `git_dirty = False`, DVC data hashes; journal `logs/runs.jsonl`).
 
 **Docker.** Every stage runs in the pipeline image (`./pipe`, `docker/Dockerfile.pipeline`, one `requirements.txt`).
